@@ -1,0 +1,39 @@
+name: Diagnóstico ARM64
+# A mano: repite en Windows 11 ARM las pruebas de ventana y EXE y guarda la salida en la rama ci-resultados.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  arm:
+    runs-on: windows-11-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ventana WPF
+        shell: powershell
+        continue-on-error: true
+        env:
+          IWIN_PRUEBA_GUI: "1"
+        run: |
+          New-Item -ItemType Directory resultados -Force | Out-Null
+          "PROCESSOR_ARCHITECTURE=$env:PROCESSOR_ARCHITECTURE PS=$($PSVersionTable.PSVersion) CLR=$([Environment]::Version) 64=$([Environment]::Is64BitProcess)" | Tee-Object resultados\arm-1-entorno.txt
+          & { ./iWinInstaller.ps1 } *>&1 | Tee-Object resultados\arm-2-ventana.txt
+          "Código: $LASTEXITCODE" | Tee-Object resultados\arm-2-ventana.txt -Append
+      - name: EXE completo
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          & { ./tests/check-native.ps1 } *>&1 | Tee-Object resultados\arm-3-exe.txt
+          "Código: $LASTEXITCODE" | Tee-Object resultados\arm-3-exe.txt -Append
+          Copy-Item "$env:LOCALAPPDATA/iWinInstaller/arranque-*.log" resultados\ -ErrorAction SilentlyContinue
+      - name: Guardar resultados
+        if: always()
+        shell: powershell
+        run: |
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git checkout --orphan ci-resultados
+          git rm -rq --cached .
+          git add resultados
+          git commit -qm "ARM $env:GITHUB_SHA"
+          git push -fq origin ci-resultados
