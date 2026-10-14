@@ -21,7 +21,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v2.0'
+$Version = 'v2.1'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -229,8 +229,8 @@ function Test-Administrator {
     $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 function Get-InstallContext($app) {
-    if ($app.type -eq 'tweak') { return 'machine' }
     if ($app.context) { return $app.context }
+    if ($app.type -eq 'tweak') { return 'machine' }
     return 'user'
 }
 
@@ -442,16 +442,58 @@ function Test-VBoxGA {
 
 # WSL instala una plataforma de aplicaciones; no modifica preferencias personales.
 function Get-RegValue($path, $name) { (Get-ItemProperty $path -Name $name -ErrorAction SilentlyContinue).$name }
+# Ajustes de Windows. Los de HKCU van en el lote de usuario y los de equipo en el de administrador.
+$ExplorerAdv = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
+$Personalize = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize'
+$AppModelUnlock = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock'
+$HighPerf = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
+function Get-RegValue($path, $name) { (Get-ItemProperty $path -Name $name -ErrorAction SilentlyContinue).$name }
+function Set-RegDword($path, $name, $value) {
+    if (-not (Test-Path $path)) { New-Item $path -Force | Out-Null }
+    Set-ItemProperty $path -Name $name -Value $value -Type DWord -Force
+}
 function Install-Tweak($id) {
-    if ($id -ne 'wsl') { return $false }
-    $ok = Invoke-Elevated 'wsl.exe --install --no-launch'
-    if ($ok) { Write-Log '  Reinicia Windows para terminar de instalar WSL.' }
-    return $ok
+    try {
+        switch ($id) {
+            'wsl' {
+                $ok = Invoke-Elevated 'wsl.exe --install --no-launch'
+                if ($ok) { Write-Log '  Reinicia Windows para terminar de instalar WSL.' }
+                return $ok
+            }
+            'restorepoint' {
+                $cmd = 'Enable-ComputerRestore -Drive "$env:SystemDrive\"; Checkpoint-Computer -Description "iWinInstaller" -RestorePointType MODIFY_SETTINGS'
+                if (Test-Administrator) { Invoke-Expression $cmd; return $true }
+                return (Invoke-Elevated $cmd)
+            }
+            'showext' { Set-RegDword $ExplorerAdv 'HideFileExt' 0; return $true }
+            'showhidden' { Set-RegDword $ExplorerAdv 'Hidden' 1; return $true }
+            'darkmode' { Set-RegDword $Personalize 'AppsUseLightTheme' 0; Set-RegDword $Personalize 'SystemUsesLightTheme' 0; return $true }
+            'power' {
+                & powercfg /setactive $HighPerf 2>$null
+                if ($LASTEXITCODE -ne 0) { & powercfg -duplicatescheme $HighPerf $HighPerf *> $null; & powercfg /setactive $HighPerf 2>$null }
+                return ($LASTEXITCODE -eq 0)
+            }
+            'devmode' {
+                $cmd = "if (-not (Test-Path '$AppModelUnlock')) { New-Item '$AppModelUnlock' -Force | Out-Null }; Set-ItemProperty '$AppModelUnlock' -Name AllowDevelopmentWithoutDevLicense -Value 1 -Type DWord -Force"
+                if (Test-Administrator) { Invoke-Expression $cmd; return $true }
+                return (Invoke-Elevated $cmd)
+            }
+        }
+    } catch { Write-Log "  $($_.Exception.Message)" }
+    return $false
 }
 function Test-Tweak($id) {
-    if ($id -ne 'wsl') { return $false }
-    & wsl.exe --status *> $null
-    return ($LASTEXITCODE -eq 0)
+    switch ($id) {
+        'wsl' { & wsl.exe --status *> $null; return ($LASTEXITCODE -eq 0) }
+        # Se crea en cada instalación; nunca cuenta como hecho de antemano
+        'restorepoint' { return $false }
+        'showext' { return ((Get-RegValue $ExplorerAdv 'HideFileExt') -eq 0) }
+        'showhidden' { return ((Get-RegValue $ExplorerAdv 'Hidden') -eq 1) }
+        'darkmode' { return ((Get-RegValue $Personalize 'AppsUseLightTheme') -eq 0) }
+        'power' { return ((& powercfg /getactivescheme 2>$null | Out-String) -match $HighPerf) }
+        'devmode' { return ((Get-RegValue $AppModelUnlock 'AllowDevelopmentWithoutDevLicense') -eq 1) }
+    }
+    return $false
 }
 
 function Update-Self {
@@ -567,7 +609,8 @@ function Get-ProfileApps($name) {
     $groups = @($Profiles.$name)
     if (-not $groups) { return @() }
     if ($groups -contains '*') { return @($Apps | Where-Object { -not (Test-Optional $_) }) }
-    @($Apps | Where-Object { ($groups -contains $_.id -and -not $_.optin) -or ($groups -contains $_.group -and -not (Test-Optional $_)) })
+    # «@Sistema», «@Terminal» o «@Aplicaciones» incluyen toda esa sección
+    @($Apps | Where-Object { ($groups -contains $_.id -and -not $_.optin) -or (($groups -contains $_.group -or $groups -contains "@$($_.section)") -and -not (Test-Optional $_)) })
 }
 
 function Get-DesktopPaths {
@@ -757,6 +800,8 @@ public class IwinApp : INotifyPropertyChanged {
     public string Name { get; set; }
     public string Desc { get; set; }
     public string Group { get; set; }
+    public string Section { get; set; }
+    public string GroupLabel { get { return Section + " · " + Group; } }
     public string Initials { get; set; }
     public string IconSpec { get; set; }
     public string Glyph { get; set; }
@@ -1054,10 +1099,21 @@ public static class IwinDwm {
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemTemplate>
             <DataTemplate>
-              <DockPanel>
+              <DockPanel x:Name="row">
                 <TextBlock DockPanel.Dock="Right" Text="{Binding Count}" Foreground="#8C8C96" FontSize="12"/>
-                <TextBlock Text="{Binding Name}" Foreground="#ECECF0" TextTrimming="CharacterEllipsis"/>
+                <TextBlock x:Name="label" Text="{Binding Name}" Foreground="#ECECF0" TextTrimming="CharacterEllipsis"/>
               </DockPanel>
+              <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Kind}" Value="section">
+                  <Setter TargetName="row" Property="Margin" Value="0,10,0,0"/>
+                  <Setter TargetName="label" Property="Foreground" Value="#BEACFF"/>
+                  <Setter TargetName="label" Property="FontWeight" Value="SemiBold"/>
+                  <Setter TargetName="label" Property="FontSize" Value="12"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Kind}" Value="group">
+                  <Setter TargetName="label" Property="Margin" Value="12,0,0,0"/>
+                </DataTrigger>
+              </DataTemplate.Triggers>
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
@@ -1073,7 +1129,7 @@ public static class IwinDwm {
       </Grid.RowDefinitions>
 
       <StackPanel Grid.Row="0" Margin="28,22,28,10">
-        <TextBlock x:Name="Heading" Text="Todas las apps" FontSize="28" FontWeight="SemiBold"/>
+        <TextBlock x:Name="Heading" Text="Todo el catálogo" FontSize="28" FontWeight="SemiBold"/>
         <TextBlock x:Name="Subheading" Foreground="{StaticResource Muted}" Margin="0,4,0,14"
                    Text="Marca lo que quieras instalar. Lo que ya tienes aparece como instalado y no se vuelve a instalar."/>
         <DockPanel>
@@ -1255,7 +1311,7 @@ $items = New-Object 'System.Collections.ObjectModel.ObservableCollection[IwinApp
 $byId = @{}
 foreach ($app in $Apps) {
     $it = New-Object IwinApp
-    $it.Id = $app.id; $it.Name = $app.name; $it.Desc = $app.desc; $it.Group = $app.group
+    $it.Id = $app.id; $it.Name = $app.name; $it.Desc = $app.desc; $it.Group = $app.group; $it.Section = $app.section
     $words = @($app.name -split '[\s\.\-]+' | Where-Object { $_ -match '^[\p{L}\d]' })
     $it.Initials = if ($words.Count -ge 2) { ($words[0].Substring(0, 1) + $words[1].Substring(0, 1)).ToUpper() } else { $app.name.Substring(0, [Math]::Min(2, $app.name.Length)) }
     $it.IconSpec = $app.icon
@@ -1263,25 +1319,29 @@ foreach ($app in $Apps) {
     $it.NeedsConfiguration = [bool]$app.configure
     $it.Configured = [bool]$ConfiguredApps[$app.id]
     $it.Optional = Test-Optional $app
-    $it.Search = "$($app.name) $($app.desc) $($app.group)".ToLower()
+    $it.Search = "$($app.name) $($app.desc) $($app.group) $($app.section)".ToLower()
     $it.Checked = -not $it.Optional
     $items.Add($it); $byId[$app.id] = $it
 }
 $view = [Windows.Data.CollectionViewSource]::GetDefaultView($items)
-$view.GroupDescriptions.Add((New-Object Windows.Data.PropertyGroupDescription 'Group'))
+$view.GroupDescriptions.Add((New-Object Windows.Data.PropertyGroupDescription 'GroupLabel'))
 $ui.List.ItemsSource = $view
 
-$navAll = 'Todas las apps'
+$navAll = 'Todo el catálogo'
+# Barra lateral: tres secciones (Sistema, Terminal, Aplicaciones) con sus grupos debajo
 function Update-Nav {
-    $sel = if ($ui.Nav.SelectedItem) { $ui.Nav.SelectedItem.Name } else { $navAll }
-    $groups = @($Apps | ForEach-Object group | Select-Object -Unique)
-    $rows = @([pscustomobject]@{ Name = $navAll; Count = "$(@($items | Where-Object Installed).Count)/$($items.Count)" })
-    foreach ($g in $groups) {
-        $gi = @($items | Where-Object Group -eq $g)
-        $rows += [pscustomobject]@{ Name = $g; Count = "$(@($gi | Where-Object Installed).Count)/$($gi.Count)" }
+    $selKey = if ($ui.Nav.SelectedItem) { $ui.Nav.SelectedItem.Key } else { 'all' }
+    $rows = @([pscustomobject]@{ Key = 'all'; Kind = 'all'; Name = $navAll; Section = ''; Group = ''; Count = "$(@($items | Where-Object Installed).Count)/$($items.Count)" })
+    foreach ($s in @($Apps | ForEach-Object section | Select-Object -Unique)) {
+        $si = @($items | Where-Object Section -eq $s)
+        $rows += [pscustomobject]@{ Key = "s:$s"; Kind = 'section'; Name = $s.ToUpper(); Section = $s; Group = ''; Count = "$(@($si | Where-Object Installed).Count)/$($si.Count)" }
+        foreach ($g in @($Apps | Where-Object section -eq $s | ForEach-Object group | Select-Object -Unique)) {
+            $gi = @($si | Where-Object Group -eq $g)
+            $rows += [pscustomobject]@{ Key = "g:$s/$g"; Kind = 'group'; Name = $g; Section = $s; Group = $g; Count = "$(@($gi | Where-Object Installed).Count)/$($gi.Count)" }
+        }
     }
     $ui.Nav.ItemsSource = $rows
-    $ui.Nav.SelectedItem = $rows | Where-Object Name -eq $sel | Select-Object -First 1
+    $ui.Nav.SelectedItem = $rows | Where-Object Key -eq $selKey | Select-Object -First 1
 }
 Update-Nav
 $ui.Nav.SelectedIndex = 0
@@ -1289,8 +1349,9 @@ $ui.Nav.SelectedIndex = 0
 $view.Filter = [Predicate[object]]{
     param($o)
     $q = $ui.Search.Text.Trim().ToLower()
-    $g = if ($ui.Nav.SelectedItem) { $ui.Nav.SelectedItem.Name } else { $navAll }
-    if ($g -ne $navAll -and $o.Group -ne $g) { return $false }
+    $n = $ui.Nav.SelectedItem
+    if ($n -and $n.Kind -eq 'section' -and $o.Section -ne $n.Section) { return $false }
+    if ($n -and $n.Kind -eq 'group' -and ($o.Section -ne $n.Section -or $o.Group -ne $n.Group)) { return $false }
     if ($q -and -not $o.Search.Contains($q)) { return $false }
     if ($ui.FChecked.IsChecked -and -not $o.Checked) { return $false }
     if ($ui.FMissing.IsChecked -and $o.Installed) { return $false }
@@ -1310,7 +1371,7 @@ Update-Count
 $ui.Search.Add_TextChanged({ $ui.SearchHint.Visibility = if ($ui.Search.Text) { 'Collapsed' } else { 'Visible' }; Update-Filter })
 foreach ($f in 'FAll', 'FChecked', 'FMissing', 'FInstalled', 'FConfigure') { $ui[$f].Add_Checked({ Update-Filter }) }
 $ui.Nav.Add_SelectionChanged({
-    if ($ui.Nav.SelectedItem) { $ui.Heading.Text = $ui.Nav.SelectedItem.Name }
+    if ($ui.Nav.SelectedItem) { $ui.Heading.Text = $(if ($ui.Nav.SelectedItem.Kind -eq 'section') { $ui.Nav.SelectedItem.Section } else { $ui.Nav.SelectedItem.Name }) }
     Update-Filter
 })
 $ui.SelectVisible.Add_Click({ foreach ($o in $view) { if (-not $o.Installed) { $o.Checked = $true } } })
@@ -1452,6 +1513,15 @@ if ($env:IWIN_PRUEBA_GUI) {
     if ($ui.BtnInstall.IsEnabled) { throw 'No se puede iniciar otro lote mientras la app esta ocupada.' }
     Set-Busy $false
 
+    # Las tres secciones filtran solo lo suyo
+    foreach ($sec in @('Sistema','Terminal','Aplicaciones')) {
+        $ui.Nav.SelectedItem = @($ui.Nav.ItemsSource) | Where-Object Key -eq "s:$sec" | Select-Object -First 1
+        Invoke-UiPump
+        $vis = @($view | ForEach-Object { $_ })
+        if (-not $vis.Count -or @($vis | Where-Object Section -ne $sec).Count) { throw "La sección $sec no filtra bien." }
+        Write-Host "Sección ${sec}: $($vis.Count) entradas"
+    }
+    $ui.Nav.SelectedIndex = 0; Invoke-UiPump
     $ui.Search.Text = 'spotify'
     $shown = @($view | ForEach-Object { $_.Name })
     $conIcono = @($Apps | Where-Object { $_.icon -and $_.icon -notlike 'glyph:*' }).Count

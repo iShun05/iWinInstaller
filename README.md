@@ -15,11 +15,15 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa portátil: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprimir y abrir `iWinInstaller.exe`. Para desinstalar el programa, ejecuta `install.ps1 -Uninstall`; las aplicaciones instaladas se conservan.
 
-**Versión actual: v2.0** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v2.1** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 ## Funciones principales
 
-- **232 entradas** de aplicaciones y componentes, organizadas por categorías y perfiles. Los elementos opcionales se eligen expresamente.
+- **238 entradas en tres secciones**, cada una con sus categorías:
+  - **Sistema**: ajustes de Windows (tema oscuro, extensiones visibles, punto de restauración, alto rendimiento, modo desarrollador, WSL), optimización y privacidad (O&O ShutUp10++, WinToys, Winhance, BleachBit, Autoruns) y drivers y componentes (Visual C++, .NET, DirectX, NVIDIA).
+  - **Terminal**: consola y shells, lenguajes y entornos (Git, Python, Node.js, Go, Rust, Java, PHP…) y herramientas de línea de comandos (Claude Code, ripgrep, fzf, FFmpeg, yt-dlp…).
+  - **Aplicaciones**: todo lo que tiene ventana propia (juegos, navegadores, IA, utilidades, multimedia…).
+  Los elementos opcionales se eligen expresamente. Los perfiles «Solo sistema» y «Solo terminal» marcan únicamente esa sección.
 - **Detección de aplicaciones existentes** para evitar reinstalarlas. Una operación no se confirma únicamente por su código de salida.
 - **Actividad visible**: aplicación actual, fases que comunica WinGet, resultado y duración. El TXT conserva la salida técnica completa de la sesión.
 - **Escritorio organizado**: mueve accesos `.lnk` a ejecutables y accesos de juegos Steam/Epic a una carpeta Aplicaciones del escritorio del usuario. Incluye los accesos públicos cuando el lote tiene permisos. No mueve documentos, carpetas ni enlaces web generales; conserva ambos archivos cuando coincide el nombre.
@@ -69,7 +73,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v2.0](https://github.com/iShun05/iWinInstaller/releases/tag/v2.0) **(actual)** | 2026-10-14 | Instalador público, escritorio organizado y actividad legible | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.0.zip) |
+| [v2.1](https://github.com/iShun05/iWinInstaller/releases/tag/v2.1) **(actual)** | 2026-10-14 | Catálogo en tres secciones (Sistema, Terminal y Aplicaciones), ajustes de Windows y pruebas en ARM64 | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.1.zip) |
+| [v2.0](https://github.com/iShun05/iWinInstaller/releases/tag/v2.0) | 2026-10-14 | Instalador público, escritorio organizado y actividad legible | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.0.zip) |
 
 ## Ubicación de desarrollo en el Mac
 

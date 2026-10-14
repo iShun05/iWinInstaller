@@ -1,5 +1,16 @@
 # Historial de versiones
 
+## v2.1 — 2026-10-14
+
+### Cambiado
+- **Tres secciones** en el catálogo y en la barra lateral: **Sistema** (ajustes, optimización y privacidad, drivers y componentes), **Terminal** (consola, lenguajes y herramientas de línea de comandos) y **Aplicaciones** (todo lo que tiene ventana propia). Ya no se mezclan herramientas de terminal ni ajustes con las apps.
+- «Optimización y mantenimiento» pasa a ser «Mantenimiento y hardware» (apps), y lo que cambia Windows (ShutUp10++, WinToys, Winhance, BleachBit, Autoruns) va a Sistema › Optimización y privacidad.
+- Perfiles: «Optimización» se sustituye por «Solo sistema (ajustes y optimización)» y se añade «Solo terminal». Un perfil puede incluir una sección entera con `@Sistema`, `@Terminal` o `@Aplicaciones`.
+
+### Añadido
+- **Ajustes de Windows** (sin marcar): punto de restauración, mostrar extensiones, mostrar ocultos, tema oscuro, plan de alto rendimiento y modo desarrollador.
+- Pruebas automáticas también en **Windows 11 ARM64**.
+
 ## v2.0 — 2026-10-14
 
 ### Añadido

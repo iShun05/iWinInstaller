@@ -3,44 +3,41 @@
     "*"
   ],
   "Base": [
+    "@Sistema",
     "Navegadores",
     "Utilidades",
     "Calidad de vida",
-    "Optimización y mantenimiento",
-    "Runtimes y drivers",
-    "Ajustes de Windows"
+    "Mantenimiento y hardware"
   ],
   "Gaming": [
+    "@Sistema",
     "Navegadores",
     "Utilidades",
     "Calidad de vida",
-    "Optimización y mantenimiento",
-    "Runtimes y drivers",
-    "Ajustes de Windows",
+    "Mantenimiento y hardware",
     "Juegos"
   ],
-  "Optimización": [
-    "Calidad de vida",
-    "Optimización y mantenimiento",
-    "Ajustes de Windows"
+  "Solo sistema (ajustes y optimización)": [
+    "@Sistema"
+  ],
+  "Solo terminal": [
+    "@Terminal"
   ],
   "Desarrollo": [
+    "@Sistema",
+    "@Terminal",
     "Navegadores",
     "Utilidades",
     "Calidad de vida",
-    "Optimización y mantenimiento",
-    "Runtimes y drivers",
-    "Ajustes de Windows",
     "Desarrollo",
     "Virtualización"
   ],
   "IA": [
+    "@Sistema",
+    "@Terminal",
     "Navegadores",
     "Utilidades",
     "Calidad de vida",
-    "Optimización y mantenimiento",
-    "Runtimes y drivers",
-    "Ajustes de Windows",
     "IA",
     "Notas y nube",
     "Desarrollo"

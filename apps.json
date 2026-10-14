@@ -1,720 +1,74 @@
 [
   {
-    "id": "steam",
-    "group": "Juegos",
-    "name": "Steam",
-    "desc": "Tienda y biblioteca de juegos de Valve",
-    "icon": "steampowered.com",
-    "type": "winget",
-    "winget": "Valve.Steam",
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "epic",
-    "group": "Juegos",
-    "name": "Epic Games",
-    "desc": "Epic Games Launcher y tienda de Epic",
-    "icon": "epicgames.com",
-    "type": "winget",
-    "winget": "EpicGames.EpicGamesLauncher",
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "hoyo",
-    "group": "Juegos",
-    "name": "HoYoPlay",
-    "desc": "Launcher de HoYoverse (Genshin, Honkai: Star Rail, ZZZ). Instalador con asistente",
-    "icon": "hoyoverse.com",
-    "type": "download",
-    "url": "https://sg-public-api.hoyoverse.com/event/download_porter/trace/hyp_global/hyphoyoverse/default?url=https%3A%2F%2Fhoyoplay.hoyoverse.com%2F",
-    "page": "https://hoyoplay.hoyoverse.com/",
-    "detect": "HoYoPlay",
-    "configure": true,
-    "optin": true
-  },
-  {
-    "id": "riot",
-    "group": "Juegos",
-    "name": "Riot Games",
-    "desc": "Riot Client (LoL, Valorant...). Instalador oficial con asistente",
-    "icon": "riotgames.com",
-    "type": "download",
-    "url": "https://lol.secure.dyn.riotcdn.net/channels/public/x/installer/current/live.euw.exe",
-    "page": "https://www.riotgames.com/es",
-    "detect": "Riot",
-    "configure": true,
-    "optin": true
-  },
-  {
-    "id": "gog",
-    "group": "Juegos",
-    "name": "GOG Galaxy",
-    "desc": "Biblioteca de GOG y de tus otras tiendas en un solo sitio",
-    "icon": "gog.com",
-    "type": "winget",
-    "winget": "GOG.Galaxy",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "eaapp",
-    "group": "Juegos",
-    "name": "EA app",
-    "desc": "Launcher de Electronic Arts (FC, Battlefield, Sims...)",
-    "icon": "ea.com",
-    "type": "winget",
-    "winget": "ElectronicArts.EADesktop",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "ubisoft",
-    "group": "Juegos",
-    "name": "Ubisoft Connect",
-    "desc": "Launcher de Ubisoft",
-    "icon": "ubisoft.com",
-    "type": "winget",
-    "winget": "Ubisoft.Connect",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "battlenet",
-    "group": "Juegos",
-    "name": "Battle.net",
-    "desc": "Launcher de Blizzard (Overwatch, Diablo, WoW)",
-    "icon": "battle.net",
-    "type": "winget",
-    "winget": "Blizzard.BattleNet",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "playnite",
-    "group": "Juegos",
-    "name": "Playnite",
-    "desc": "Une todas tus bibliotecas de juegos en una sola app",
-    "icon": "playnite.link",
-    "type": "winget",
-    "winget": "Playnite.Playnite",
-    "extra": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "gamebar",
-    "group": "Juegos",
-    "name": "Xbox Game Bar",
-    "desc": "Superposición de juego de Xbox (Win+G): capturas, rendimiento y chat",
-    "icon": "xbox.com",
-    "type": "winget",
-    "winget": "9NZKPSTSNW4P",
-    "source": "msstore",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "heroic",
-    "group": "Juegos",
-    "name": "Heroic Games Launcher",
-    "desc": "Cliente alternativo para Epic, GOG y Amazon Games",
-    "icon": "heroicgameslauncher.com",
-    "type": "winget",
-    "winget": "HeroicGamesLauncher.HeroicGamesLauncher",
-    "extra": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "afterburner",
-    "group": "Juegos",
-    "name": "MSI Afterburner",
-    "desc": "FPS, temperaturas y uso de GPU en pantalla mientras juegas; overclock opcional",
-    "icon": "msi.com",
-    "type": "winget",
-    "winget": "Guru3D.Afterburner",
-    "extra": true,
-    "scope": "machine",
+    "id": "restorepoint",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Punto de restauración",
+    "desc": "Crea un punto de restauración antes de instalar nada, para poder volver atrás",
+    "icon": "glyph:E777",
+    "type": "tweak",
     "context": "machine",
-    "detectNames": [
-      "MSI Afterburner 4.6.6"
-    ]
+    "extra": true
   },
   {
-    "id": "rtss",
-    "group": "Juegos",
-    "name": "RivaTuner Statistics Server",
-    "desc": "Muestra FPS y temperaturas en pantalla y limita los FPS; va con MSI Afterburner",
-    "icon": "guru3d.com",
-    "type": "winget",
-    "winget": "Guru3D.RTSS",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "parsec",
-    "group": "Juegos",
-    "name": "Parsec",
-    "desc": "Juega o controla otro PC en remoto con muy poca latencia",
-    "icon": "parsec.app",
-    "type": "winget",
-    "winget": "Parsec.Parsec",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "Parsec"
-    ]
-  },
-  {
-    "id": "moonlight",
-    "group": "Juegos",
-    "name": "Moonlight",
-    "desc": "Recibe juegos en streaming desde otro PC con NVIDIA o Sunshine",
-    "icon": "moonlight-stream.org",
-    "type": "winget",
-    "winget": "MoonlightGameStreamingProject.Moonlight",
-    "extra": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "xboxapp",
-    "group": "Juegos",
-    "name": "Xbox",
-    "desc": "App de Xbox para PC y Game Pass",
-    "icon": "xbox.com",
-    "type": "winget",
-    "winget": "9MV0B5HZVK9Z",
-    "source": "msstore",
-    "extra": true,
-    "configure": true,
-    "context": "user"
-  },
-  {
-    "id": "itch",
-    "group": "Juegos",
-    "name": "itch.io",
-    "desc": "Tienda y lanzador de juegos independientes",
-    "icon": "itch.io",
-    "type": "winget",
-    "winget": "ItchIo.Itch",
-    "extra": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "prism",
-    "group": "Juegos",
-    "name": "Prism Launcher",
-    "desc": "Lanzador de Minecraft con varias instancias y mods",
-    "icon": "prismlauncher.org",
-    "type": "winget",
-    "winget": "PrismLauncher.PrismLauncher",
-    "extra": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "retroarch",
-    "group": "Juegos",
-    "name": "RetroArch",
-    "desc": "Emuladores de consolas clásicas en una sola app",
-    "icon": "retroarch.com",
-    "type": "winget",
-    "winget": "Libretro.RetroArch",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "RetroArch"
-    ]
-  },
-  {
-    "id": "azahar",
-    "group": "Juegos",
-    "name": "Azahar",
-    "desc": "Emulador de Nintendo 3DS",
-    "icon": "azahar-emu.org",
-    "type": "winget",
-    "winget": "AzaharEmu.Azahar",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "melonds",
-    "group": "Juegos",
-    "name": "melonDS",
-    "desc": "Emulador de Nintendo DS",
-    "icon": "melonds.kuribo64.net",
-    "type": "winget",
-    "winget": "melonDS.melonDS",
-    "extra": true,
+    "id": "showext",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Mostrar extensiones de archivo",
+    "desc": "El Explorador muestra .exe, .pdf, .zip… (evita engaños con archivos falsos)",
+    "icon": "glyph:E8A5",
+    "type": "tweak",
     "context": "user",
-    "detectNames": [
-      "melonDS (ARM64)",
-      "melonDS (x64)"
-    ],
-    "commands": [
-      "melonds",
-      "melondsarm64"
-    ]
+    "extra": true
   },
   {
-    "id": "chrome",
-    "group": "Navegadores",
-    "name": "Google Chrome",
-    "desc": "Navegador de Google",
-    "icon": "google.com/chrome/",
-    "type": "winget",
-    "winget": "Google.Chrome",
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "brave",
-    "group": "Navegadores",
-    "name": "Brave",
-    "desc": "Navegador privado con bloqueo de anuncios",
-    "icon": "brave.com",
-    "type": "winget",
-    "winget": "Brave.Brave",
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "firefox",
-    "group": "Navegadores",
-    "name": "Firefox",
-    "desc": "Navegador de Mozilla, de código abierto",
-    "icon": "firefox.com",
-    "type": "winget",
-    "winget": "Mozilla.Firefox",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "arc",
-    "group": "Navegadores",
-    "name": "Arc",
-    "desc": "Navegador de The Browser Company con espacios y barra lateral",
-    "icon": "arc.net",
-    "type": "winget",
-    "winget": "TheBrowserCompany.Arc",
-    "extra": true,
-    "configure": true,
+    "id": "showhidden",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Mostrar archivos ocultos",
+    "desc": "El Explorador muestra archivos y carpetas ocultos",
+    "icon": "glyph:E890",
+    "type": "tweak",
     "context": "user",
-    "families": [
-      "TheBrowserCompany.Arc_ttt1ap7aakyb4"
-    ]
+    "extra": true
   },
   {
-    "id": "zen",
-    "group": "Navegadores",
-    "name": "Zen Browser",
-    "desc": "Basado en Firefox, con pestañas verticales al estilo Arc",
-    "icon": "zen-browser.app",
-    "type": "winget",
-    "winget": "Zen-Team.Zen-Browser",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "vivaldi",
-    "group": "Navegadores",
-    "name": "Vivaldi",
-    "desc": "Navegador muy personalizable",
-    "icon": "vivaldi.com",
-    "type": "winget",
-    "winget": "Vivaldi.Vivaldi",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "operagx",
-    "group": "Navegadores",
-    "name": "Opera GX",
-    "desc": "Navegador para gaming con límites de CPU y RAM",
-    "icon": "opera.com",
-    "type": "winget",
-    "winget": "Opera.OperaGX",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "librewolf",
-    "group": "Navegadores",
-    "name": "LibreWolf",
-    "desc": "Firefox reforzado en privacidad, sin telemetría y con uBlock Origin de serie",
-    "icon": "librewolf.net",
-    "type": "winget",
-    "winget": "LibreWolf.LibreWolf",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "ungoogled",
-    "group": "Navegadores",
-    "name": "Ungoogled Chromium",
-    "desc": "Chromium sin servicios ni telemetría de Google",
-    "icon": "chromium.org",
-    "type": "winget",
-    "winget": "eloston.ungoogled-chromium",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "edge",
-    "group": "Navegadores",
-    "name": "Microsoft Edge",
-    "desc": "Reinstala el navegador de Microsoft si se quitó",
-    "icon": "microsoft.com/edge",
-    "type": "winget",
-    "winget": "Microsoft.Edge",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "tor",
-    "group": "Navegadores",
-    "name": "Tor Browser",
-    "desc": "Navega por la red Tor de forma anónima",
-    "icon": "torproject.org",
-    "type": "winget",
-    "winget": "TorProject.TorBrowser",
-    "extra": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "chatgpt",
-    "group": "IA",
-    "name": "ChatGPT",
-    "desc": "App oficial de OpenAI (Microsoft Store)",
-    "icon": "chatgpt.com",
-    "type": "winget",
-    "winget": "9NT1R1C2HH7J",
-    "source": "msstore",
-    "configure": true,
-    "context": "user"
-  },
-  {
-    "id": "claude",
-    "group": "IA",
-    "name": "Claude",
-    "desc": "App de escritorio oficial de Anthropic",
-    "icon": "claude.ai",
-    "type": "winget",
-    "winget": "Anthropic.Claude",
-    "configure": true,
-    "scope": "user",
+    "id": "darkmode",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Tema oscuro",
+    "desc": "Windows y las apps en modo oscuro",
+    "icon": "glyph:E708",
+    "type": "tweak",
     "context": "user",
-    "families": [
-      "Claude_pzs8sxrjxfjjc"
-    ]
+    "extra": true
   },
   {
-    "id": "gemini",
-    "group": "IA",
-    "name": "Gemini",
-    "desc": "App de escritorio oficial de Google Gemini",
-    "icon": "gemini.google.com",
-    "type": "winget",
-    "winget": "Google.GeminiDesktop",
-    "configure": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "antigravity",
-    "group": "IA",
-    "name": "Antigravity",
-    "desc": "Plataforma de agentes de Google (cliente)",
-    "icon": "antigravity.google",
-    "type": "winget",
-    "winget": "Google.Antigravity",
-    "configure": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "antigravityide",
-    "group": "IA",
-    "name": "Antigravity IDE",
-    "desc": "Editor de código de Google (versión IDE)",
-    "icon": "antigravity.google",
-    "type": "winget",
-    "winget": "Google.AntigravityIDE",
-    "configure": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "claudecode",
-    "group": "IA",
-    "name": "Claude Code",
-    "desc": "Asistente de programación de Anthropic en la terminal",
-    "icon": "claude.ai",
-    "type": "winget",
-    "winget": "Anthropic.ClaudeCode",
-    "configure": true,
-    "context": "user",
-    "commands": [
-      "claude"
-    ]
-  },
-  {
-    "id": "copilot",
-    "group": "IA",
-    "name": "Microsoft Copilot",
-    "desc": "Asistente de IA de Microsoft (reinstálalo si se quitó)",
-    "icon": "copilot.microsoft.com",
-    "type": "winget",
-    "winget": "9NHT9RB2F4HD",
-    "source": "msstore",
-    "extra": true,
-    "configure": true,
-    "context": "user"
-  },
-  {
-    "id": "ollama",
-    "group": "IA",
-    "name": "Ollama",
-    "desc": "Ejecuta modelos de IA en local desde la terminal",
-    "icon": "ollama.com",
-    "type": "winget",
-    "winget": "Ollama.Ollama",
-    "extra": true,
-    "scope": "user",
-    "context": "user",
-    "commands": [
-      "ollama"
-    ]
-  },
-  {
-    "id": "lmstudio",
-    "group": "IA",
-    "name": "LM Studio",
-    "desc": "Descarga y usa modelos de IA en local con interfaz",
-    "icon": "lmstudio.ai",
-    "type": "winget",
-    "winget": "ElementLabs.LMStudio",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "cursor",
-    "group": "IA",
-    "name": "Cursor",
-    "desc": "Editor de código con IA integrada",
-    "icon": "cursor.com",
-    "type": "winget",
-    "winget": "Anysphere.Cursor",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "obsidian",
-    "group": "Notas y nube",
-    "name": "Obsidian",
-    "desc": "Notas en Markdown",
-    "icon": "obsidian.md",
-    "type": "winget",
-    "winget": "Obsidian.Obsidian",
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "icloud",
-    "group": "Notas y nube",
-    "name": "iCloud",
-    "desc": "iCloud para Windows (Microsoft Store). Inicia sesión tras instalar",
-    "icon": "icloud.com",
-    "type": "winget",
-    "winget": "9PKTQ5699M62",
-    "source": "msstore",
-    "configure": true,
-    "context": "user"
-  },
-  {
-    "id": "virtualbox",
-    "group": "Virtualización",
-    "name": "VirtualBox",
-    "desc": "Máquinas virtuales de Oracle (última versión)",
-    "icon": "virtualbox.org",
-    "type": "winget",
-    "winget": "Oracle.VirtualBox",
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "vboxga",
-    "group": "Virtualización",
-    "name": "VirtualBox Guest Additions",
-    "desc": "ISO de Guest Additions de la última versión, para montar en las máquinas virtuales",
-    "icon": "virtualbox.org",
-    "type": "vboxga"
-  },
-  {
-    "id": "git",
-    "group": "Desarrollo",
-    "name": "Git",
-    "desc": "Control de versiones",
-    "icon": "git-scm.com",
-    "type": "winget",
-    "winget": "Git.Git",
-    "scope": "machine",
+    "id": "power",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Plan de energía: alto rendimiento",
+    "desc": "Prioriza el rendimiento sobre el ahorro (recomendado en sobremesa; en portátil gasta más batería)",
+    "icon": "glyph:E945",
+    "type": "tweak",
     "context": "machine",
-    "commands": [
-      "git"
-    ]
+    "extra": true
   },
   {
-    "id": "gh",
-    "group": "Desarrollo",
-    "name": "GitHub CLI",
-    "desc": "Herramientas de GitHub en la terminal",
-    "icon": "cli.github.com",
-    "type": "winget",
-    "winget": "GitHub.cli",
-    "configure": true,
-    "scope": "machine",
+    "id": "devmode",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Modo desarrollador",
+    "desc": "Permite enlaces simbólicos y apps de prueba sin ser administrador",
+    "icon": "glyph:EC7A",
+    "type": "tweak",
     "context": "machine",
-    "commands": [
-      "gh"
-    ]
-  },
-  {
-    "id": "python",
-    "group": "Desarrollo",
-    "name": "Python 3",
-    "desc": "Lenguaje Python y sus herramientas",
-    "icon": "python.org",
-    "type": "winget",
-    "winget": "Python.Python.3.13",
-    "scope": "machine",
-    "context": "machine",
-    "commands": [
-      "py",
-      "python",
-      "pythonw",
-      "pyw"
-    ]
-  },
-  {
-    "id": "node",
-    "group": "Desarrollo",
-    "name": "Node.js LTS",
-    "desc": "JavaScript en local, npm y herramientas web",
-    "icon": "nodejs.org",
-    "type": "winget",
-    "winget": "OpenJS.NodeJS.LTS",
-    "scope": "machine",
-    "context": "machine",
-    "commands": [
-      "corepack",
-      "node",
-      "npm",
-      "npx"
-    ]
-  },
-  {
-    "id": "vscode",
-    "group": "Desarrollo",
-    "name": "Visual Studio Code",
-    "desc": "Editor de código de Microsoft",
-    "icon": "code.visualstudio.com",
-    "type": "winget",
-    "winget": "Microsoft.VisualStudioCode",
-    "scope": "machine",
-    "context": "machine",
-    "commands": [
-      "code"
-    ]
-  },
-  {
-    "id": "vscodium",
-    "group": "Desarrollo",
-    "name": "VSCodium",
-    "desc": "VS Code sin la telemetría de Microsoft",
-    "icon": "vscodium.com",
-    "type": "winget",
-    "winget": "VSCodium.VSCodium",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "VSCodium (User)"
-    ]
-  },
-  {
-    "id": "terminal",
-    "group": "Desarrollo",
-    "name": "Windows Terminal",
-    "desc": "Terminal moderna con pestañas",
-    "icon": "glyph:E756",
-    "type": "winget",
-    "winget": "Microsoft.WindowsTerminal",
-    "scope": "user",
-    "context": "user",
-    "families": [
-      "Microsoft.WindowsTerminal_8wekyb3d8bbwe"
-    ],
-    "commands": [
-      "wt"
-    ]
-  },
-  {
-    "id": "pwsh",
-    "group": "Desarrollo",
-    "name": "PowerShell 7",
-    "desc": "Versión actual de PowerShell",
-    "icon": "glyph:E756",
-    "type": "winget",
-    "winget": "Microsoft.PowerShell",
-    "scope": "machine",
-    "context": "machine",
-    "families": [
-      "Microsoft.PowerShell_8wekyb3d8bbwe"
-    ],
-    "commands": [
-      "pwsh"
-    ]
+    "extra": true
   },
   {
     "id": "wsl",
-    "group": "Desarrollo",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
     "name": "WSL (Linux en Windows)",
     "desc": "Instala WSL con Ubuntu. Requiere reiniciar (pide permiso de administrador)",
     "icon": "ubuntu.com",
@@ -722,1055 +76,9 @@
     "optin": true
   },
   {
-    "id": "docker",
-    "group": "Desarrollo",
-    "name": "Docker Desktop",
-    "desc": "Contenedores (usa WSL)",
-    "icon": "docker.com",
-    "type": "winget",
-    "winget": "Docker.DockerDesktop",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "githubdesktop",
-    "group": "Desarrollo",
-    "name": "GitHub Desktop",
-    "desc": "Git con interfaz gráfica",
-    "icon": "desktop.github.com",
-    "type": "winget",
-    "winget": "GitHub.GitHubDesktop",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "GitHub Desktop Deployment Tool"
-    ]
-  },
-  {
-    "id": "postman",
-    "group": "Desarrollo",
-    "name": "Postman",
-    "desc": "Probar APIs",
-    "icon": "postman.com",
-    "type": "winget",
-    "winget": "Postman.Postman",
-    "extra": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "bruno",
-    "group": "Desarrollo",
-    "name": "Bruno",
-    "desc": "Probar APIs, sin cuenta y con colecciones en Git",
-    "icon": "usebruno.com",
-    "type": "winget",
-    "winget": "Bruno.Bruno",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "dbeaver",
-    "group": "Desarrollo",
-    "name": "DBeaver",
-    "desc": "Cliente de bases de datos (MySQL, Postgres, SQLite...)",
-    "icon": "dbeaver.io",
-    "type": "winget",
-    "winget": "DBeaver.DBeaver.Community",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "jetbrains",
-    "group": "Desarrollo",
-    "name": "JetBrains Toolbox",
-    "desc": "Instala y actualiza IntelliJ, PyCharm, WebStorm...",
-    "icon": "jetbrains.com",
-    "type": "winget",
-    "winget": "JetBrains.Toolbox",
-    "extra": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "androidstudio",
-    "group": "Desarrollo",
-    "name": "Android Studio",
-    "desc": "Desarrollo de apps Android",
-    "icon": "developer.android.com",
-    "type": "winget",
-    "winget": "Google.AndroidStudio",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "zed",
-    "group": "Desarrollo",
-    "name": "Zed",
-    "desc": "Editor de código muy rápido",
-    "icon": "zed.dev",
-    "type": "winget",
-    "winget": "ZedIndustries.Zed",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "sublime",
-    "group": "Desarrollo",
-    "name": "Sublime Text",
-    "desc": "Editor de texto rápido",
-    "icon": "sublimetext.com",
-    "type": "winget",
-    "winget": "SublimeHQ.SublimeText.4",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "Sublime Text",
-      "Sublime Text (Portable)"
-    ]
-  },
-  {
-    "id": "neovim",
-    "group": "Desarrollo",
-    "name": "Neovim",
-    "desc": "Editor de terminal",
-    "icon": "neovim.io",
-    "type": "winget",
-    "winget": "Neovim.Neovim",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "winmerge",
-    "group": "Desarrollo",
-    "name": "WinMerge",
-    "desc": "Compara archivos y carpetas",
-    "icon": "winmerge.org",
-    "type": "winget",
-    "winget": "WinMerge.WinMerge",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "uv",
-    "group": "Desarrollo",
-    "name": "uv",
-    "desc": "Gestor rápido de Python y entornos virtuales",
-    "icon": "astral.sh",
-    "type": "winget",
-    "winget": "astral-sh.uv",
-    "extra": true,
-    "context": "user",
-    "commands": [
-      "uv",
-      "uvw",
-      "uvx"
-    ]
-  },
-  {
-    "id": "bun",
-    "group": "Desarrollo",
-    "name": "Bun",
-    "desc": "Runtime de JavaScript y gestor de paquetes",
-    "icon": "bun.sh",
-    "type": "winget",
-    "winget": "Oven-sh.Bun",
-    "extra": true,
-    "context": "user",
-    "commands": [
-      "bun",
-      "bunx"
-    ]
-  },
-  {
-    "id": "pnpm",
-    "group": "Desarrollo",
-    "name": "pnpm",
-    "desc": "Gestor de paquetes de Node que ahorra disco",
-    "icon": "pnpm.io",
-    "type": "winget",
-    "winget": "pnpm.pnpm",
-    "extra": true,
-    "context": "user",
-    "commands": [
-      "pnpm"
-    ]
-  },
-  {
-    "id": "go",
-    "group": "Desarrollo",
-    "name": "Go",
-    "desc": "Lenguaje Go",
-    "icon": "go.dev",
-    "type": "winget",
-    "winget": "GoLang.Go",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "Go Programming Language 386 go1.27.0",
-      "Go Programming Language amd64 go1.27.0",
-      "Go Programming Language arm64 go1.27.0"
-    ],
-    "commands": [
-      "go",
-      "gofmt"
-    ]
-  },
-  {
-    "id": "rustup",
-    "group": "Desarrollo",
-    "name": "Rust (rustup)",
-    "desc": "Lenguaje Rust y su instalador de versiones",
-    "icon": "rust-lang.org",
-    "type": "winget",
-    "winget": "Rustlang.Rustup",
-    "extra": true,
-    "context": "user",
-    "commands": [
-      "cargo",
-      "cargo-clippy",
-      "cargo-fmt",
-      "cargo-miri",
-      "clippy-driver",
-      "rls",
-      "rust-analyzer",
-      "rust-gdb",
-      "rust-gdbgui",
-      "rust-lldb",
-      "rustc",
-      "rustdoc",
-      "rustfmt",
-      "rustup"
-    ]
-  },
-  {
-    "id": "java",
-    "group": "Desarrollo",
-    "name": "Java 21 (Temurin)",
-    "desc": "JDK de Java de Eclipse Adoptium",
-    "icon": "adoptium.net",
-    "type": "winget",
-    "winget": "EclipseAdoptium.Temurin.21.JDK",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "Eclipse Temurin JDK with Hotspot 21.0.12.1+1 (x64)"
-    ],
-    "commands": [
-      "jar",
-      "jarsigner",
-      "java",
-      "javac",
-      "javadoc",
-      "javap",
-      "javaw",
-      "jconsole",
-      "jdeprscan",
-      "jdeps",
-      "jlink",
-      "jmod",
-      "jps",
-      "jshell",
-      "jstat",
-      "keytool"
-    ]
-  },
-  {
-    "id": "ubuntu",
-    "group": "Desarrollo",
-    "name": "Ubuntu para WSL",
-    "desc": "Instala Ubuntu 24.04 dentro de WSL",
-    "icon": "ubuntu.com",
-    "type": "winget",
-    "winget": "Canonical.Ubuntu.2404",
-    "extra": true,
-    "context": "user",
-    "families": [
-      "CanonicalGroupLimited.Ubuntu24.04LTS_79rhkp1fndgsc"
-    ],
-    "commands": [
-      "ubuntu",
-      "ubuntu2404"
-    ]
-  },
-  {
-    "id": "mysql",
-    "group": "Desarrollo",
-    "name": "MySQL Server",
-    "desc": "Base de datos MySQL local",
-    "icon": "mysql.com",
-    "type": "winget",
-    "winget": "Oracle.MySQL",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "MySQL Server 8.4"
-    ]
-  },
-  {
-    "id": "mysqlworkbench",
-    "group": "Desarrollo",
-    "name": "MySQL Workbench",
-    "desc": "Diseña y consulta bases de datos MySQL",
-    "icon": "mysql.com",
-    "type": "winget",
-    "winget": "Oracle.MySQLWorkbench",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "MySQL Workbench"
-    ]
-  },
-  {
-    "id": "php",
-    "group": "Desarrollo",
-    "name": "PHP 8.4",
-    "desc": "Intérprete de PHP",
-    "icon": "php.net",
-    "type": "winget",
-    "winget": "PHP.PHP.8.4",
-    "extra": true,
-    "context": "user",
-    "commands": [
-      "php",
-      "php84"
-    ]
-  },
-  {
-    "id": "gcloud",
-    "group": "Desarrollo",
-    "name": "Google Cloud CLI",
-    "desc": "Comando gcloud para Google Cloud",
-    "icon": "cloud.google.com",
-    "type": "winget",
-    "winget": "Google.CloudSDK",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "commands": [
-      "bq",
-      "gcloud",
-      "gsutil"
-    ]
-  },
-  {
-    "id": "ngrok",
-    "group": "Desarrollo",
-    "name": "ngrok",
-    "desc": "Publica un servidor local en internet con un enlace temporal",
-    "icon": "ngrok.com",
-    "type": "winget",
-    "winget": "Ngrok.Ngrok",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "ripgrep",
-    "group": "Desarrollo",
-    "name": "ripgrep (rg)",
-    "desc": "Búsqueda de texto en archivos ultrarrápida",
-    "icon": "glyph:E721",
-    "type": "winget",
-    "winget": "BurntSushi.ripgrep.MSVC",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "fd",
-    "group": "Desarrollo",
-    "name": "fd",
-    "desc": "Buscador de archivos sencillo y rápido para terminal",
-    "icon": "glyph:E721",
-    "type": "winget",
-    "winget": "sharkdp.fd",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "bat",
-    "group": "Desarrollo",
-    "name": "bat",
-    "desc": "cat con colores y números de línea",
-    "icon": "glyph:E756",
-    "type": "winget",
-    "winget": "sharkdp.bat",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "fzf",
-    "group": "Desarrollo",
-    "name": "fzf",
-    "desc": "Buscador difuso interactivo para la terminal",
-    "icon": "glyph:E756",
-    "type": "winget",
-    "winget": "junegunn.fzf",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "eza",
-    "group": "Desarrollo",
-    "name": "eza",
-    "desc": "ls moderno con colores e iconos",
-    "icon": "glyph:E756",
-    "type": "winget",
-    "winget": "eza-community.eza",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "zoxide",
-    "group": "Desarrollo",
-    "name": "zoxide",
-    "desc": "cd inteligente que recuerda tus carpetas",
-    "icon": "glyph:E756",
-    "type": "winget",
-    "winget": "ajeetdsouza.zoxide",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "jq",
-    "group": "Desarrollo",
-    "name": "jq",
-    "desc": "Procesa JSON desde la terminal",
-    "icon": "jqlang.org",
-    "type": "winget",
-    "winget": "jqlang.jq",
-    "extra": true,
-    "context": "user",
-    "commands": [
-      "jq"
-    ]
-  },
-  {
-    "id": "fastfetch",
-    "group": "Desarrollo",
-    "name": "fastfetch",
-    "desc": "Resumen del sistema en la terminal",
-    "icon": "glyph:E756",
-    "type": "winget",
-    "winget": "Fastfetch-cli.Fastfetch",
-    "extra": true,
-    "context": "user",
-    "commands": [
-      "fastfetch"
-    ]
-  },
-  {
-    "id": "nfjetbrains",
-    "group": "Desarrollo",
-    "name": "JetBrains Mono Nerd Font",
-    "desc": "Fuente para terminal y editor con iconos",
-    "icon": "jetbrains.com",
-    "type": "winget",
-    "winget": "DEVCOM.JetBrainsMonoNerdFont",
-    "extra": true,
-    "context": "machine"
-  },
-  {
-    "id": "nfhack",
-    "group": "Desarrollo",
-    "name": "Hack",
-    "desc": "Fuente Hack para terminal y editor (sin iconos Nerd; JetBrains Mono Nerd Font sí los lleva)",
-    "icon": "nerdfonts.com",
-    "type": "winget",
-    "winget": "SourceFoundry.HackFonts",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "7zip",
-    "group": "Utilidades",
-    "name": "7-Zip",
-    "desc": "Compresor de archivos",
-    "icon": "7-zip.org",
-    "type": "winget",
-    "winget": "7zip.7zip",
-    "scope": "machine",
-    "context": "machine",
-    "commands": [
-      "7z"
-    ]
-  },
-  {
-    "id": "powertoys",
-    "group": "Utilidades",
-    "name": "PowerToys",
-    "desc": "Utilidades de Microsoft (FancyZones, PowerRename, buscador...)",
-    "icon": "glyph:E945",
-    "type": "winget",
-    "winget": "Microsoft.PowerToys",
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "PowerToys (Preview) ARM64"
-    ]
-  },
-  {
-    "id": "vlc",
-    "group": "Utilidades",
-    "name": "VLC",
-    "desc": "Reproductor de vídeo y audio",
-    "icon": "videolan.org",
-    "type": "winget",
-    "winget": "VideoLAN.VLC",
-    "scope": "machine",
-    "context": "machine",
-    "commands": [
-      "vlc"
-    ]
-  },
-  {
-    "id": "everything",
-    "group": "Utilidades",
-    "name": "Everything",
-    "desc": "Búsqueda instantánea de archivos",
-    "icon": "voidtools.com",
-    "type": "winget",
-    "winget": "voidtools.Everything",
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "Everything (ARM32 portable)",
-      "Everything (ARM64 portable)",
-      "Everything (x64 portable)",
-      "Everything (x86 portable)"
-    ]
-  },
-  {
-    "id": "discord",
-    "group": "Utilidades",
-    "name": "Discord",
-    "desc": "Chat de voz y texto",
-    "icon": "discord.com",
-    "type": "winget",
-    "winget": "Discord.Discord",
-    "configure": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "bitwarden",
-    "group": "Utilidades",
-    "name": "Bitwarden",
-    "desc": "Gestor de contraseñas",
-    "icon": "bitwarden.com",
-    "type": "winget",
-    "winget": "Bitwarden.Bitwarden",
-    "configure": true,
-    "scope": "machine",
-    "context": "machine",
-    "commands": [
-      "bitwarden"
-    ]
-  },
-  {
-    "id": "nanazip",
-    "group": "Utilidades",
-    "name": "NanaZip",
-    "desc": "7-Zip moderno integrado en el menú contextual de Windows 11",
-    "icon": "glyph:E7B8",
-    "type": "winget",
-    "winget": "M2Team.NanaZip",
-    "context": "user",
-    "families": [
-      "40174MouriNaruto.NanaZip_gnj4mf6z9tkrc"
-    ],
-    "commands": [
-      "nanazip"
-    ]
-  },
-  {
-    "id": "files",
-    "group": "Utilidades",
-    "name": "Files",
-    "desc": "Explorador de archivos moderno con pestañas y vista en columnas como Finder",
-    "icon": "files.community",
-    "type": "winget",
-    "winget": "FilesCommunity.Files",
-    "context": "user",
-    "families": [
-      "Files_1y0xx7n9077q4"
-    ]
-  },
-  {
-    "id": "filepilot",
-    "group": "Utilidades",
-    "name": "File Pilot",
-    "desc": "Explorador de archivos ultrarrápido y ligero, con pestañas y paneles",
-    "icon": "filepilot.tech",
-    "type": "winget",
-    "winget": "Voidstar.FilePilot",
-    "context": "user",
-    "commands": [
-      "FPilot"
-    ]
-  },
-  {
-    "id": "autohotkey",
-    "group": "Utilidades",
-    "name": "AutoHotkey",
-    "desc": "Atajos de teclado y automatizaciones propias",
-    "icon": "autohotkey.com",
-    "type": "winget",
-    "winget": "AutoHotkey.AutoHotkey",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "altsnap",
-    "group": "Utilidades",
-    "name": "AltSnap",
-    "desc": "Mueve y redimensiona ventanas con Alt + ratón",
-    "icon": "glyph:E740",
-    "type": "winget",
-    "winget": "AltSnap.AltSnap",
-    "extra": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "unigetui",
-    "group": "Utilidades",
-    "name": "UniGetUI",
-    "desc": "Interfaz para winget: ve y actualiza todas tus apps con un clic",
-    "icon": "devolutions.net",
-    "type": "winget",
-    "winget": "Devolutions.UniGetUI",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "msstore",
-    "group": "Utilidades",
-    "name": "Microsoft Store",
-    "desc": "Reinstala la tienda de Windows si se quitó (para apps de la Store)",
-    "icon": "glyph:E719",
-    "type": "winget",
-    "winget": "9WZDNCRFJBMP",
-    "source": "msstore",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "sumatra",
-    "group": "Utilidades",
-    "name": "SumatraPDF",
-    "desc": "Lector de PDF, ePub y cómics muy ligero",
-    "icon": "sumatrapdfreader.org",
-    "type": "winget",
-    "winget": "SumatraPDF.SumatraPDF",
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "SumatraPDF (ARM64 portable)",
-      "SumatraPDF (x64 portable)",
-      "SumatraPDF (x86 portable)"
-    ],
-    "commands": [
-      "sumatrapdf"
-    ]
-  },
-  {
-    "id": "acrobat",
-    "group": "Utilidades",
-    "name": "Adobe Acrobat Reader",
-    "desc": "Lector de PDF de Adobe con firmas y formularios",
-    "icon": "adobe.com",
-    "type": "winget",
-    "winget": "Adobe.Acrobat.Reader.64-bit",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "Adobe Acrobat (64-bit)"
-    ]
-  },
-  {
-    "id": "qbittorrent",
-    "group": "Utilidades",
-    "name": "qBittorrent",
-    "desc": "Cliente de torrents sin anuncios",
-    "icon": "qbittorrent.org",
-    "type": "winget",
-    "winget": "qBittorrent.qBittorrent",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "winscp",
-    "group": "Utilidades",
-    "name": "WinSCP",
-    "desc": "Transferencia de archivos por SFTP/FTP",
-    "icon": "winscp.net",
-    "type": "winget",
-    "winget": "WinSCP.WinSCP",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "keepassxc",
-    "group": "Utilidades",
-    "name": "KeePassXC",
-    "desc": "Gestor de contraseñas local, sin nube",
-    "icon": "keepassxc.org",
-    "type": "winget",
-    "winget": "KeePassXCTeam.KeePassXC",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "onepassword",
-    "group": "Utilidades",
-    "name": "1Password",
-    "desc": "Gestor de contraseñas",
-    "icon": "1password.com",
-    "type": "winget",
-    "winget": "AgileBits.1Password",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "families": [
-      "Agilebits.1Password_amwd9z03whsfe"
-    ]
-  },
-  {
-    "id": "appledevices",
-    "group": "Utilidades",
-    "name": "Dispositivos Apple",
-    "desc": "Copias de seguridad, actualizaciones y sincronización del iPhone (sustituye a iTunes)",
-    "icon": "apple.com",
-    "type": "winget",
-    "winget": "9NP83LWLPZ9K",
-    "source": "msstore",
-    "extra": true,
-    "configure": true,
-    "context": "user"
-  },
-  {
-    "id": "hpsmart",
-    "group": "Utilidades",
-    "name": "HP Smart",
-    "desc": "Imprime y escanea con impresoras HP",
-    "icon": "hp.com",
-    "type": "winget",
-    "winget": "9WZDNCRFHWLH",
-    "source": "msstore",
-    "extra": true,
-    "configure": true,
-    "context": "user"
-  },
-  {
-    "id": "scrcpy",
-    "group": "Utilidades",
-    "name": "scrcpy",
-    "desc": "Muestra y controla un móvil Android desde el PC",
-    "icon": "glyph:E8EA",
-    "type": "winget",
-    "winget": "Genymobile.scrcpy",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "sharex",
-    "group": "Calidad de vida",
-    "name": "ShareX",
-    "desc": "Capturas y grabaciones de pantalla con recorte, anotaciones y OCR (Ctrl+Impr Pant)",
-    "icon": "getsharex.com",
-    "type": "winget",
-    "winget": "ShareX.ShareX",
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "flowlauncher",
-    "group": "Calidad de vida",
-    "name": "Flow Launcher",
-    "desc": "Lanzador tipo Spotlight: Alt+Espacio para abrir apps, archivos, calcular y buscar en la web",
-    "icon": "flowlauncher.com",
-    "type": "winget",
-    "winget": "Flow-Launcher.Flow-Launcher",
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "quicklook",
-    "group": "Calidad de vida",
-    "name": "QuickLook",
-    "desc": "Vista previa con la barra espaciadora en el Explorador, como en macOS",
-    "icon": "glyph:E7B3",
-    "type": "winget",
-    "winget": "QL-Win.QuickLook",
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "ditto",
-    "group": "Calidad de vida",
-    "name": "Ditto",
-    "desc": "Historial del portapapeles con búsqueda (más completo que Win+V)",
-    "icon": "ditto-cp.sourceforge.io",
-    "type": "winget",
-    "winget": "Ditto.Ditto",
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "eartrumpet",
-    "group": "Calidad de vida",
-    "name": "EarTrumpet",
-    "desc": "Volumen por app desde la barra de tareas y cambio rápido de salida de audio",
-    "icon": "eartrumpet.app",
-    "type": "winget",
-    "winget": "File-New-Project.EarTrumpet",
-    "context": "user",
-    "families": [
-      "40459File-New-Project.EarTrumpet_725pr5jq8wr8a"
-    ],
-    "requires": [
-      "vclibs14"
-    ]
-  },
-  {
-    "id": "twinkletray",
-    "group": "Calidad de vida",
-    "name": "Twinkle Tray",
-    "desc": "Brillo de monitores externos desde la barra de tareas",
-    "icon": "twinkletray.com",
-    "type": "winget",
-    "winget": "xanderfrangos.twinkletray",
-    "scope": "user",
-    "context": "user",
-    "detectNames": [
-      "Twinkle Tray 1.17.1"
-    ]
-  },
-  {
-    "id": "kdeconnect",
-    "group": "Calidad de vida",
-    "name": "KDE Connect",
-    "desc": "Comparte archivos y enlaces con el móvil y controla el PC desde dispositivos vinculados; las funciones dependen de la plataforma",
-    "icon": "kdeconnect.kde.org",
-    "type": "winget",
-    "winget": "KDE.KDEConnect",
-    "extra": true,
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "localsend",
-    "group": "Calidad de vida",
-    "name": "LocalSend",
-    "desc": "AirDrop entre Windows, Mac, iPhone y Android por la red local, sin cuenta",
-    "icon": "localsend.org",
-    "type": "winget",
-    "winget": "LocalSend.LocalSend",
-    "configure": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "flux",
-    "group": "Calidad de vida",
-    "name": "f.lux",
-    "desc": "Ajusta el color de la pantalla según la hora para cansar menos la vista por la noche",
-    "icon": "justgetflux.com",
-    "type": "winget",
-    "winget": "flux.flux",
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "notepadpp",
-    "group": "Calidad de vida",
-    "name": "Notepad++",
-    "desc": "Editor de texto ligero con pestañas y resaltado de código",
-    "icon": "notepad-plus-plus.org",
-    "type": "winget",
-    "winget": "Notepad++.Notepad++",
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "greenshot",
-    "group": "Calidad de vida",
-    "name": "Greenshot",
-    "desc": "Capturas rápidas con flechas, recortes y difuminado",
-    "icon": "getgreenshot.org",
-    "type": "winget",
-    "winget": "Greenshot.Greenshot",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "snippingtool",
-    "group": "Calidad de vida",
-    "name": "Recortes (Snipping Tool)",
-    "desc": "Capturas y grabaciones de pantalla de Windows (Win+Mayús+S)",
-    "icon": "glyph:E924",
-    "type": "winget",
-    "winget": "9MZ95KL8MR0L",
-    "source": "msstore",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "phonelink",
-    "group": "Calidad de vida",
-    "name": "Enlace Móvil",
-    "desc": "Vincula el móvil con Windows: notificaciones, mensajes y fotos",
-    "icon": "glyph:E8EA",
-    "type": "winget",
-    "winget": "9NMPJ99VJBWV",
-    "source": "msstore",
-    "extra": true,
-    "configure": true,
-    "context": "user"
-  },
-  {
-    "id": "flameshot",
-    "group": "Calidad de vida",
-    "name": "Flameshot",
-    "desc": "Capturas de pantalla con anotaciones rápidas",
-    "icon": "flameshot.org",
-    "type": "winget",
-    "winget": "Flameshot.Flameshot",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "blip",
-    "group": "Calidad de vida",
-    "name": "Blip",
-    "desc": "Envía archivos de cualquier tamaño entre tus dispositivos (Windows, Mac, iPhone)",
-    "icon": "blip.net",
-    "type": "winget",
-    "winget": "9N7JSXC1SJK6",
-    "source": "msstore",
-    "context": "user"
-  },
-  {
-    "id": "dropshelf",
-    "group": "Calidad de vida",
-    "name": "Dropshelf",
-    "desc": "Estante flotante para dejar archivos y arrastrarlos luego a otra ventana",
-    "icon": "glyph:E8B7",
-    "type": "winget",
-    "winget": "9MZPC6P14L7N",
-    "source": "msstore",
-    "context": "user"
-  },
-  {
-    "id": "fluentweather",
-    "group": "Calidad de vida",
-    "name": "FluentWeather",
-    "desc": "El tiempo con el diseño de Windows 11",
-    "icon": "glyph:E706",
-    "type": "winget",
-    "winget": "9PFD136M8457",
-    "source": "msstore",
-    "context": "user"
-  },
-  {
-    "id": "ambie",
-    "group": "Calidad de vida",
-    "name": "Ambie",
-    "desc": "Sonidos ambientales y ruido blanco para concentrarte o relajarte",
-    "icon": "ambieapp.com",
-    "type": "winget",
-    "winget": "9P07XNM5CHP0",
-    "source": "msstore",
-    "context": "user"
-  },
-  {
-    "id": "zoomit",
-    "group": "Calidad de vida",
-    "name": "ZoomIt",
-    "desc": "Sysinternals: zoom y anotaciones en pantalla para presentar o grabar",
-    "icon": "glyph:E71E",
-    "type": "winget",
-    "winget": "Microsoft.Sysinternals.ZoomIt",
-    "extra": true,
-    "context": "user",
-    "commands": [
-      "zoomit"
-    ]
-  },
-  {
-    "id": "glazewm",
-    "group": "Calidad de vida",
-    "name": "GlazeWM",
-    "desc": "Ventanas en mosaico con atajos de teclado, como AeroSpace en el Mac",
-    "icon": "glyph:E8A9",
-    "type": "winget",
-    "winget": "glzr-io.glazewm",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "autodarkmode",
-    "group": "Calidad de vida",
-    "name": "Auto Dark Mode",
-    "desc": "Cambia entre tema claro y oscuro según la hora",
-    "icon": "glyph:E708",
-    "type": "winget",
-    "winget": "ArminOsaj.AutoDarkMode",
-    "extra": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "teracopy",
-    "group": "Calidad de vida",
-    "name": "TeraCopy",
-    "desc": "Copias de archivos más rápidas, con pausa y verificación",
-    "icon": "codesector.com",
-    "type": "winget",
-    "winget": "CodeSector.TeraCopy",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "wiztree",
-    "group": "Optimización y mantenimiento",
-    "name": "WizTree",
-    "desc": "Muestra en segundos qué ocupa el disco para liberar espacio a mano",
-    "icon": "diskanalyzer.com",
-    "type": "winget",
-    "winget": "AntibodySoftware.WizTree",
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
     "id": "bleachbit",
-    "group": "Optimización y mantenimiento",
+    "section": "Sistema",
+    "group": "Optimización y privacidad",
     "name": "BleachBit",
     "desc": "Limpieza de temporales y cachés de código abierto; tú eliges qué borrar",
     "icon": "bleachbit.org",
@@ -1780,19 +88,9 @@
     "context": "machine"
   },
   {
-    "id": "revo",
-    "group": "Optimización y mantenimiento",
-    "name": "Revo Uninstaller",
-    "desc": "Desinstala programas y borra los restos que dejan",
-    "icon": "revouninstaller.com",
-    "type": "winget",
-    "winget": "RevoUninstaller.RevoUninstaller",
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
     "id": "autoruns",
-    "group": "Optimización y mantenimiento",
+    "section": "Sistema",
+    "group": "Optimización y privacidad",
     "name": "Autoruns",
     "desc": "Sysinternals: ve y desactiva todo lo que arranca con Windows para que inicie más rápido",
     "icon": "sysinternals.com",
@@ -1805,131 +103,9 @@
     ]
   },
   {
-    "id": "procexp",
-    "group": "Optimización y mantenimiento",
-    "name": "Process Explorer",
-    "desc": "Sysinternals: administrador de tareas avanzado para ver qué consume CPU, RAM y disco",
-    "icon": "sysinternals.com",
-    "type": "winget",
-    "winget": "Microsoft.Sysinternals.ProcessExplorer",
-    "context": "user",
-    "commands": [
-      "procexp"
-    ]
-  },
-  {
-    "id": "hwinfo",
-    "group": "Optimización y mantenimiento",
-    "name": "HWiNFO",
-    "desc": "Temperaturas, voltajes y datos de todo el hardware",
-    "icon": "hwinfo.com",
-    "type": "winget",
-    "winget": "REALiX.HWiNFO",
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "hwmonitor",
-    "group": "Optimización y mantenimiento",
-    "name": "HWMonitor",
-    "desc": "Sensores de temperatura, voltajes y ventiladores",
-    "icon": "cpuid.com",
-    "type": "winget",
-    "winget": "CPUID.HWMonitor",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "crystaldisk",
-    "group": "Optimización y mantenimiento",
-    "name": "CrystalDiskInfo",
-    "desc": "Salud de los discos SSD/HDD (SMART) para detectar fallos antes de perder datos",
-    "icon": "crystalmark.info",
-    "type": "winget",
-    "winget": "CrystalDewWorld.CrystalDiskInfo",
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "rufus",
-    "group": "Optimización y mantenimiento",
-    "name": "Rufus",
-    "desc": "Crea USB de arranque para instalar o reparar Windows o Linux",
-    "icon": "rufus.ie",
-    "type": "winget",
-    "winget": "Rufus.Rufus",
-    "context": "user",
-    "commands": [
-      "rufus"
-    ]
-  },
-  {
-    "id": "cpuz",
-    "group": "Optimización y mantenimiento",
-    "name": "CPU-Z",
-    "desc": "Información de procesador, placa y RAM",
-    "icon": "cpuid.com",
-    "type": "winget",
-    "winget": "CPUID.CPU-Z",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "gpuz",
-    "group": "Optimización y mantenimiento",
-    "name": "GPU-Z",
-    "desc": "Información y sensores de la tarjeta gráfica",
-    "icon": "techpowerup.com",
-    "type": "winget",
-    "winget": "TechPowerUp.GPU-Z",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "crystalmark",
-    "group": "Optimización y mantenimiento",
-    "name": "CrystalDiskMark",
-    "desc": "Mide la velocidad del disco",
-    "icon": "crystalmark.info",
-    "type": "winget",
-    "winget": "CrystalDewWorld.CrystalDiskMark",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "treesize",
-    "group": "Optimización y mantenimiento",
-    "name": "TreeSize Free",
-    "desc": "Qué carpetas ocupan más, alternativa a WizTree",
-    "icon": "jam-software.com",
-    "type": "winget",
-    "winget": "JAMSoftware.TreeSize.Free",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "TreeSize Free V4.8.1"
-    ]
-  },
-  {
-    "id": "ddu",
-    "group": "Optimización y mantenimiento",
-    "name": "Display Driver Uninstaller",
-    "desc": "Borra por completo el driver de la gráfica antes de reinstalarlo",
-    "icon": "wagnardsoft.com",
-    "type": "winget",
-    "winget": "Wagnardsoft.DisplayDriverUninstaller",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
     "id": "shutup10",
-    "group": "Optimización y mantenimiento",
+    "section": "Sistema",
+    "group": "Optimización y privacidad",
     "name": "O&O ShutUp10++",
     "desc": "Desactiva telemetría de Windows; tú eliges cada opción y se puede deshacer",
     "icon": "oo-software.com",
@@ -1941,53 +117,9 @@
     ]
   },
   {
-    "id": "fancontrol",
-    "group": "Optimización y mantenimiento",
-    "name": "FanControl",
-    "desc": "Curvas de ventiladores según temperatura",
-    "icon": "getfancontrol.com",
-    "type": "winget",
-    "winget": "Rem0o.FanControl",
-    "extra": true,
-    "context": "machine"
-  },
-  {
-    "id": "ventoy",
-    "group": "Optimización y mantenimiento",
-    "name": "Ventoy",
-    "desc": "Un USB con varias ISO de arranque a la vez",
-    "icon": "ventoy.net",
-    "type": "winget",
-    "winget": "Ventoy.Ventoy",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "bcu",
-    "group": "Optimización y mantenimiento",
-    "name": "Bulk Crap Uninstaller",
-    "desc": "Desinstala muchos programas de golpe y limpia sus restos",
-    "icon": "bcuninstaller.com",
-    "type": "winget",
-    "winget": "Klocman.BulkCrapUninstaller",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "sdio",
-    "group": "Optimización y mantenimiento",
-    "name": "Snappy Driver Installer Origin",
-    "desc": "Busca e instala drivers que falten sin publicidad (tú eliges cuáles)",
-    "icon": "glenn.delahoy.com",
-    "type": "winget",
-    "winget": "GlennDelahoy.SnappyDriverInstallerOrigin",
-    "extra": true,
-    "context": "user"
-  },
-  {
     "id": "wintoys",
-    "group": "Optimización y mantenimiento",
+    "section": "Sistema",
+    "group": "Optimización y privacidad",
     "name": "WinToys",
     "desc": "Ajusta y limpia Windows desde una sola app: servicios, rendimiento, privacidad y salud del sistema",
     "icon": "glyph:E90F",
@@ -1998,7 +130,8 @@
   },
   {
     "id": "winhance",
-    "group": "Optimización y mantenimiento",
+    "section": "Sistema",
+    "group": "Optimización y privacidad",
     "name": "Winhance",
     "desc": "Quita apps de serie y ajusta privacidad y rendimiento; solo cambia lo que tú marques dentro de la app",
     "icon": "glyph:E9F5",
@@ -2011,31 +144,34 @@
     ]
   },
   {
-    "id": "czkawka",
-    "group": "Optimización y mantenimiento",
-    "name": "Czkawka",
-    "desc": "Busca archivos duplicados, vacíos o imágenes parecidas",
-    "icon": "glyph:E8C8",
+    "id": "ddu",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
+    "name": "Display Driver Uninstaller",
+    "desc": "Borra por completo el driver de la gráfica antes de reinstalarlo",
+    "icon": "wagnardsoft.com",
     "type": "winget",
-    "winget": "qarmin.czkawka.gui",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "dupeguru",
-    "group": "Optimización y mantenimiento",
-    "name": "dupeGuru",
-    "desc": "Encuentra archivos duplicados, también música y fotos",
-    "icon": "dupeguru.voltaicideas.net",
-    "type": "winget",
-    "winget": "DupeGuru.DupeGuru",
+    "winget": "Wagnardsoft.DisplayDriverUninstaller",
     "extra": true,
     "scope": "machine",
     "context": "machine"
   },
   {
+    "id": "sdio",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
+    "name": "Snappy Driver Installer Origin",
+    "desc": "Busca e instala drivers que falten sin publicidad (tú eliges cuáles)",
+    "icon": "glenn.delahoy.com",
+    "type": "winget",
+    "winget": "GlennDelahoy.SnappyDriverInstallerOrigin",
+    "extra": true,
+    "context": "user"
+  },
+  {
     "id": "vclibs14",
-    "group": "Runtimes y drivers",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
     "name": "Bibliotecas Visual C++ para apps de Windows",
     "desc": "Dependencia de EarTrumpet y otras apps empaquetadas; se prepara automáticamente cuando hace falta",
     "icon": "glyph:E74C",
@@ -2050,7 +186,8 @@
   },
   {
     "id": "vcredist",
-    "group": "Runtimes y drivers",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
     "name": "Visual C++ Redistributable",
     "desc": "Librerías de C++ que piden muchos juegos y programas",
     "icon": "visualstudio.microsoft.com",
@@ -2061,7 +198,8 @@
   },
   {
     "id": "vcredistall",
-    "group": "Runtimes y drivers",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
     "name": "Visual C++ (todas las versiones)",
     "desc": "Las librerías Visual C++ 2005 a 2022 en 32 y 64 bits; evitan errores de DLL en juegos y programas antiguos",
     "icon": "visualstudio.microsoft.com",
@@ -2095,7 +233,8 @@
   },
   {
     "id": "dotnet",
-    "group": "Runtimes y drivers",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
     "name": ".NET Desktop Runtime 8",
     "desc": "Necesario para muchas apps de escritorio",
     "icon": "dotnet.microsoft.com",
@@ -2111,7 +250,8 @@
   },
   {
     "id": "directx",
-    "group": "Runtimes y drivers",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
     "name": "DirectX",
     "desc": "DirectX End-User Runtime para juegos antiguos",
     "icon": "glyph:E7FC",
@@ -2124,7 +264,8 @@
   },
   {
     "id": "nvcleanstall",
-    "group": "Runtimes y drivers",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
     "name": "NVCleanstall",
     "desc": "Instala el driver de NVIDIA sin telemetría ni extras que no uses",
     "icon": "techpowerup.com",
@@ -2136,7 +277,8 @@
   },
   {
     "id": "heif",
-    "group": "Runtimes y drivers",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
     "name": "Extensiones de imagen HEIF",
     "desc": "Abre las fotos HEIC del iPhone en Windows",
     "icon": "glyph:EB9F",
@@ -2148,7 +290,8 @@
   },
   {
     "id": "nvidiaapp",
-    "group": "Runtimes y drivers",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
     "name": "NVIDIA App",
     "desc": "Drivers y ajustes de las gráficas NVIDIA",
     "icon": "nvidia.com",
@@ -2159,7 +302,2134 @@
     "context": "user"
   },
   {
+    "id": "terminal",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "Windows Terminal",
+    "desc": "Terminal moderna con pestañas",
+    "icon": "glyph:E756",
+    "type": "winget",
+    "winget": "Microsoft.WindowsTerminal",
+    "scope": "user",
+    "context": "user",
+    "families": [
+      "Microsoft.WindowsTerminal_8wekyb3d8bbwe"
+    ],
+    "commands": [
+      "wt"
+    ]
+  },
+  {
+    "id": "pwsh",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "PowerShell 7",
+    "desc": "Versión actual de PowerShell",
+    "icon": "glyph:E756",
+    "type": "winget",
+    "winget": "Microsoft.PowerShell",
+    "scope": "machine",
+    "context": "machine",
+    "families": [
+      "Microsoft.PowerShell_8wekyb3d8bbwe"
+    ],
+    "commands": [
+      "pwsh"
+    ]
+  },
+  {
+    "id": "ubuntu",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "Ubuntu para WSL",
+    "desc": "Instala Ubuntu 24.04 dentro de WSL",
+    "icon": "ubuntu.com",
+    "type": "winget",
+    "winget": "Canonical.Ubuntu.2404",
+    "extra": true,
+    "context": "user",
+    "families": [
+      "CanonicalGroupLimited.Ubuntu24.04LTS_79rhkp1fndgsc"
+    ],
+    "commands": [
+      "ubuntu",
+      "ubuntu2404"
+    ]
+  },
+  {
+    "id": "nfjetbrains",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "JetBrains Mono Nerd Font",
+    "desc": "Fuente para terminal y editor con iconos",
+    "icon": "jetbrains.com",
+    "type": "winget",
+    "winget": "DEVCOM.JetBrainsMonoNerdFont",
+    "extra": true,
+    "context": "machine"
+  },
+  {
+    "id": "nfhack",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "Hack",
+    "desc": "Fuente Hack para terminal y editor (sin iconos Nerd; JetBrains Mono Nerd Font sí los lleva)",
+    "icon": "nerdfonts.com",
+    "type": "winget",
+    "winget": "SourceFoundry.HackFonts",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "git",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Git",
+    "desc": "Control de versiones",
+    "icon": "git-scm.com",
+    "type": "winget",
+    "winget": "Git.Git",
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "git"
+    ]
+  },
+  {
+    "id": "gh",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "GitHub CLI",
+    "desc": "Herramientas de GitHub en la terminal",
+    "icon": "cli.github.com",
+    "type": "winget",
+    "winget": "GitHub.cli",
+    "configure": true,
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "gh"
+    ]
+  },
+  {
+    "id": "python",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Python 3",
+    "desc": "Lenguaje Python y sus herramientas",
+    "icon": "python.org",
+    "type": "winget",
+    "winget": "Python.Python.3.13",
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "py",
+      "python",
+      "pythonw",
+      "pyw"
+    ]
+  },
+  {
+    "id": "node",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Node.js LTS",
+    "desc": "JavaScript en local, npm y herramientas web",
+    "icon": "nodejs.org",
+    "type": "winget",
+    "winget": "OpenJS.NodeJS.LTS",
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "corepack",
+      "node",
+      "npm",
+      "npx"
+    ]
+  },
+  {
+    "id": "uv",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "uv",
+    "desc": "Gestor rápido de Python y entornos virtuales",
+    "icon": "astral.sh",
+    "type": "winget",
+    "winget": "astral-sh.uv",
+    "extra": true,
+    "context": "user",
+    "commands": [
+      "uv",
+      "uvw",
+      "uvx"
+    ]
+  },
+  {
+    "id": "bun",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Bun",
+    "desc": "Runtime de JavaScript y gestor de paquetes",
+    "icon": "bun.sh",
+    "type": "winget",
+    "winget": "Oven-sh.Bun",
+    "extra": true,
+    "context": "user",
+    "commands": [
+      "bun",
+      "bunx"
+    ]
+  },
+  {
+    "id": "pnpm",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "pnpm",
+    "desc": "Gestor de paquetes de Node que ahorra disco",
+    "icon": "pnpm.io",
+    "type": "winget",
+    "winget": "pnpm.pnpm",
+    "extra": true,
+    "context": "user",
+    "commands": [
+      "pnpm"
+    ]
+  },
+  {
+    "id": "go",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Go",
+    "desc": "Lenguaje Go",
+    "icon": "go.dev",
+    "type": "winget",
+    "winget": "GoLang.Go",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "Go Programming Language 386 go1.27.0",
+      "Go Programming Language amd64 go1.27.0",
+      "Go Programming Language arm64 go1.27.0"
+    ],
+    "commands": [
+      "go",
+      "gofmt"
+    ]
+  },
+  {
+    "id": "rustup",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Rust (rustup)",
+    "desc": "Lenguaje Rust y su instalador de versiones",
+    "icon": "rust-lang.org",
+    "type": "winget",
+    "winget": "Rustlang.Rustup",
+    "extra": true,
+    "context": "user",
+    "commands": [
+      "cargo",
+      "cargo-clippy",
+      "cargo-fmt",
+      "cargo-miri",
+      "clippy-driver",
+      "rls",
+      "rust-analyzer",
+      "rust-gdb",
+      "rust-gdbgui",
+      "rust-lldb",
+      "rustc",
+      "rustdoc",
+      "rustfmt",
+      "rustup"
+    ]
+  },
+  {
+    "id": "java",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Java 21 (Temurin)",
+    "desc": "JDK de Java de Eclipse Adoptium",
+    "icon": "adoptium.net",
+    "type": "winget",
+    "winget": "EclipseAdoptium.Temurin.21.JDK",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "Eclipse Temurin JDK with Hotspot 21.0.12.1+1 (x64)"
+    ],
+    "commands": [
+      "jar",
+      "jarsigner",
+      "java",
+      "javac",
+      "javadoc",
+      "javap",
+      "javaw",
+      "jconsole",
+      "jdeprscan",
+      "jdeps",
+      "jlink",
+      "jmod",
+      "jps",
+      "jshell",
+      "jstat",
+      "keytool"
+    ]
+  },
+  {
+    "id": "mysql",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "MySQL Server",
+    "desc": "Base de datos MySQL local",
+    "icon": "mysql.com",
+    "type": "winget",
+    "winget": "Oracle.MySQL",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "MySQL Server 8.4"
+    ]
+  },
+  {
+    "id": "php",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "PHP 8.4",
+    "desc": "Intérprete de PHP",
+    "icon": "php.net",
+    "type": "winget",
+    "winget": "PHP.PHP.8.4",
+    "extra": true,
+    "context": "user",
+    "commands": [
+      "php",
+      "php84"
+    ]
+  },
+  {
+    "id": "claudecode",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Claude Code",
+    "desc": "Asistente de programación de Anthropic en la terminal",
+    "icon": "claude.ai",
+    "type": "winget",
+    "winget": "Anthropic.ClaudeCode",
+    "configure": true,
+    "context": "user",
+    "commands": [
+      "claude"
+    ]
+  },
+  {
+    "id": "neovim",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Neovim",
+    "desc": "Editor de terminal",
+    "icon": "neovim.io",
+    "type": "winget",
+    "winget": "Neovim.Neovim",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "gcloud",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Google Cloud CLI",
+    "desc": "Comando gcloud para Google Cloud",
+    "icon": "cloud.google.com",
+    "type": "winget",
+    "winget": "Google.CloudSDK",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "bq",
+      "gcloud",
+      "gsutil"
+    ]
+  },
+  {
+    "id": "ngrok",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "ngrok",
+    "desc": "Publica un servidor local en internet con un enlace temporal",
+    "icon": "ngrok.com",
+    "type": "winget",
+    "winget": "Ngrok.Ngrok",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "ripgrep",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "ripgrep (rg)",
+    "desc": "Búsqueda de texto en archivos ultrarrápida",
+    "icon": "glyph:E721",
+    "type": "winget",
+    "winget": "BurntSushi.ripgrep.MSVC",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "fd",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "fd",
+    "desc": "Buscador de archivos sencillo y rápido para terminal",
+    "icon": "glyph:E721",
+    "type": "winget",
+    "winget": "sharkdp.fd",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "bat",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "bat",
+    "desc": "cat con colores y números de línea",
+    "icon": "glyph:E756",
+    "type": "winget",
+    "winget": "sharkdp.bat",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "fzf",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "fzf",
+    "desc": "Buscador difuso interactivo para la terminal",
+    "icon": "glyph:E756",
+    "type": "winget",
+    "winget": "junegunn.fzf",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "eza",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "eza",
+    "desc": "ls moderno con colores e iconos",
+    "icon": "glyph:E756",
+    "type": "winget",
+    "winget": "eza-community.eza",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "zoxide",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "zoxide",
+    "desc": "cd inteligente que recuerda tus carpetas",
+    "icon": "glyph:E756",
+    "type": "winget",
+    "winget": "ajeetdsouza.zoxide",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "jq",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "jq",
+    "desc": "Procesa JSON desde la terminal",
+    "icon": "jqlang.org",
+    "type": "winget",
+    "winget": "jqlang.jq",
+    "extra": true,
+    "context": "user",
+    "commands": [
+      "jq"
+    ]
+  },
+  {
+    "id": "fastfetch",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "fastfetch",
+    "desc": "Resumen del sistema en la terminal",
+    "icon": "glyph:E756",
+    "type": "winget",
+    "winget": "Fastfetch-cli.Fastfetch",
+    "extra": true,
+    "context": "user",
+    "commands": [
+      "fastfetch"
+    ]
+  },
+  {
+    "id": "ffmpeg",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "FFmpeg",
+    "desc": "Convierte y recorta audio y vídeo desde la terminal",
+    "icon": "ffmpeg.org",
+    "type": "winget",
+    "winget": "Gyan.FFmpeg",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "ytdlp",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "yt-dlp",
+    "desc": "Descarga vídeo y audio de YouTube y otras webs",
+    "icon": "glyph:E896",
+    "type": "winget",
+    "winget": "yt-dlp.yt-dlp",
+    "extra": true,
+    "context": "user",
+    "commands": [
+      "yt-dlp"
+    ]
+  },
+  {
+    "id": "rclone",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "rclone",
+    "desc": "Sincroniza con Google Drive, iCloud, S3 y más desde la terminal",
+    "icon": "rclone.org",
+    "type": "winget",
+    "winget": "Rclone.Rclone",
+    "extra": true,
+    "configure": true,
+    "context": "user"
+  },
+  {
+    "id": "steam",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Steam",
+    "desc": "Tienda y biblioteca de juegos de Valve",
+    "icon": "steampowered.com",
+    "type": "winget",
+    "winget": "Valve.Steam",
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "epic",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Epic Games",
+    "desc": "Epic Games Launcher y tienda de Epic",
+    "icon": "epicgames.com",
+    "type": "winget",
+    "winget": "EpicGames.EpicGamesLauncher",
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "hoyo",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "HoYoPlay",
+    "desc": "Launcher de HoYoverse (Genshin, Honkai: Star Rail, ZZZ). Instalador con asistente",
+    "icon": "hoyoverse.com",
+    "type": "download",
+    "url": "https://sg-public-api.hoyoverse.com/event/download_porter/trace/hyp_global/hyphoyoverse/default?url=https%3A%2F%2Fhoyoplay.hoyoverse.com%2F",
+    "page": "https://hoyoplay.hoyoverse.com/",
+    "detect": "HoYoPlay",
+    "configure": true,
+    "optin": true
+  },
+  {
+    "id": "riot",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Riot Games",
+    "desc": "Riot Client (LoL, Valorant...). Instalador oficial con asistente",
+    "icon": "riotgames.com",
+    "type": "download",
+    "url": "https://lol.secure.dyn.riotcdn.net/channels/public/x/installer/current/live.euw.exe",
+    "page": "https://www.riotgames.com/es",
+    "detect": "Riot",
+    "configure": true,
+    "optin": true
+  },
+  {
+    "id": "gog",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "GOG Galaxy",
+    "desc": "Biblioteca de GOG y de tus otras tiendas en un solo sitio",
+    "icon": "gog.com",
+    "type": "winget",
+    "winget": "GOG.Galaxy",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "eaapp",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "EA app",
+    "desc": "Launcher de Electronic Arts (FC, Battlefield, Sims...)",
+    "icon": "ea.com",
+    "type": "winget",
+    "winget": "ElectronicArts.EADesktop",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "ubisoft",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Ubisoft Connect",
+    "desc": "Launcher de Ubisoft",
+    "icon": "ubisoft.com",
+    "type": "winget",
+    "winget": "Ubisoft.Connect",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "battlenet",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Battle.net",
+    "desc": "Launcher de Blizzard (Overwatch, Diablo, WoW)",
+    "icon": "battle.net",
+    "type": "winget",
+    "winget": "Blizzard.BattleNet",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "playnite",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Playnite",
+    "desc": "Une todas tus bibliotecas de juegos en una sola app",
+    "icon": "playnite.link",
+    "type": "winget",
+    "winget": "Playnite.Playnite",
+    "extra": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "gamebar",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Xbox Game Bar",
+    "desc": "Superposición de juego de Xbox (Win+G): capturas, rendimiento y chat",
+    "icon": "xbox.com",
+    "type": "winget",
+    "winget": "9NZKPSTSNW4P",
+    "source": "msstore",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "heroic",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Heroic Games Launcher",
+    "desc": "Cliente alternativo para Epic, GOG y Amazon Games",
+    "icon": "heroicgameslauncher.com",
+    "type": "winget",
+    "winget": "HeroicGamesLauncher.HeroicGamesLauncher",
+    "extra": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "afterburner",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "MSI Afterburner",
+    "desc": "FPS, temperaturas y uso de GPU en pantalla mientras juegas; overclock opcional",
+    "icon": "msi.com",
+    "type": "winget",
+    "winget": "Guru3D.Afterburner",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "MSI Afterburner 4.6.6"
+    ]
+  },
+  {
+    "id": "rtss",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "RivaTuner Statistics Server",
+    "desc": "Muestra FPS y temperaturas en pantalla y limita los FPS; va con MSI Afterburner",
+    "icon": "guru3d.com",
+    "type": "winget",
+    "winget": "Guru3D.RTSS",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "parsec",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Parsec",
+    "desc": "Juega o controla otro PC en remoto con muy poca latencia",
+    "icon": "parsec.app",
+    "type": "winget",
+    "winget": "Parsec.Parsec",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "Parsec"
+    ]
+  },
+  {
+    "id": "moonlight",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Moonlight",
+    "desc": "Recibe juegos en streaming desde otro PC con NVIDIA o Sunshine",
+    "icon": "moonlight-stream.org",
+    "type": "winget",
+    "winget": "MoonlightGameStreamingProject.Moonlight",
+    "extra": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "xboxapp",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Xbox",
+    "desc": "App de Xbox para PC y Game Pass",
+    "icon": "xbox.com",
+    "type": "winget",
+    "winget": "9MV0B5HZVK9Z",
+    "source": "msstore",
+    "extra": true,
+    "configure": true,
+    "context": "user"
+  },
+  {
+    "id": "itch",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "itch.io",
+    "desc": "Tienda y lanzador de juegos independientes",
+    "icon": "itch.io",
+    "type": "winget",
+    "winget": "ItchIo.Itch",
+    "extra": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "prism",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Prism Launcher",
+    "desc": "Lanzador de Minecraft con varias instancias y mods",
+    "icon": "prismlauncher.org",
+    "type": "winget",
+    "winget": "PrismLauncher.PrismLauncher",
+    "extra": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "retroarch",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "RetroArch",
+    "desc": "Emuladores de consolas clásicas en una sola app",
+    "icon": "retroarch.com",
+    "type": "winget",
+    "winget": "Libretro.RetroArch",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "RetroArch"
+    ]
+  },
+  {
+    "id": "azahar",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Azahar",
+    "desc": "Emulador de Nintendo 3DS",
+    "icon": "azahar-emu.org",
+    "type": "winget",
+    "winget": "AzaharEmu.Azahar",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "melonds",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "melonDS",
+    "desc": "Emulador de Nintendo DS",
+    "icon": "melonds.kuribo64.net",
+    "type": "winget",
+    "winget": "melonDS.melonDS",
+    "extra": true,
+    "context": "user",
+    "detectNames": [
+      "melonDS (ARM64)",
+      "melonDS (x64)"
+    ],
+    "commands": [
+      "melonds",
+      "melondsarm64"
+    ]
+  },
+  {
+    "id": "chrome",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Google Chrome",
+    "desc": "Navegador de Google",
+    "icon": "google.com/chrome/",
+    "type": "winget",
+    "winget": "Google.Chrome",
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "brave",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Brave",
+    "desc": "Navegador privado con bloqueo de anuncios",
+    "icon": "brave.com",
+    "type": "winget",
+    "winget": "Brave.Brave",
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "firefox",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Firefox",
+    "desc": "Navegador de Mozilla, de código abierto",
+    "icon": "firefox.com",
+    "type": "winget",
+    "winget": "Mozilla.Firefox",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "arc",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Arc",
+    "desc": "Navegador de The Browser Company con espacios y barra lateral",
+    "icon": "arc.net",
+    "type": "winget",
+    "winget": "TheBrowserCompany.Arc",
+    "extra": true,
+    "configure": true,
+    "context": "user",
+    "families": [
+      "TheBrowserCompany.Arc_ttt1ap7aakyb4"
+    ]
+  },
+  {
+    "id": "zen",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Zen Browser",
+    "desc": "Basado en Firefox, con pestañas verticales al estilo Arc",
+    "icon": "zen-browser.app",
+    "type": "winget",
+    "winget": "Zen-Team.Zen-Browser",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "vivaldi",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Vivaldi",
+    "desc": "Navegador muy personalizable",
+    "icon": "vivaldi.com",
+    "type": "winget",
+    "winget": "Vivaldi.Vivaldi",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "operagx",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Opera GX",
+    "desc": "Navegador para gaming con límites de CPU y RAM",
+    "icon": "opera.com",
+    "type": "winget",
+    "winget": "Opera.OperaGX",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "librewolf",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "LibreWolf",
+    "desc": "Firefox reforzado en privacidad, sin telemetría y con uBlock Origin de serie",
+    "icon": "librewolf.net",
+    "type": "winget",
+    "winget": "LibreWolf.LibreWolf",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "ungoogled",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Ungoogled Chromium",
+    "desc": "Chromium sin servicios ni telemetría de Google",
+    "icon": "chromium.org",
+    "type": "winget",
+    "winget": "eloston.ungoogled-chromium",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "edge",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Microsoft Edge",
+    "desc": "Reinstala el navegador de Microsoft si se quitó",
+    "icon": "microsoft.com/edge",
+    "type": "winget",
+    "winget": "Microsoft.Edge",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "tor",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Tor Browser",
+    "desc": "Navega por la red Tor de forma anónima",
+    "icon": "torproject.org",
+    "type": "winget",
+    "winget": "TorProject.TorBrowser",
+    "extra": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "chatgpt",
+    "section": "Aplicaciones",
+    "group": "IA",
+    "name": "ChatGPT",
+    "desc": "App oficial de OpenAI (Microsoft Store)",
+    "icon": "chatgpt.com",
+    "type": "winget",
+    "winget": "9NT1R1C2HH7J",
+    "source": "msstore",
+    "configure": true,
+    "context": "user"
+  },
+  {
+    "id": "claude",
+    "section": "Aplicaciones",
+    "group": "IA",
+    "name": "Claude",
+    "desc": "App de escritorio oficial de Anthropic",
+    "icon": "claude.ai",
+    "type": "winget",
+    "winget": "Anthropic.Claude",
+    "configure": true,
+    "scope": "user",
+    "context": "user",
+    "families": [
+      "Claude_pzs8sxrjxfjjc"
+    ]
+  },
+  {
+    "id": "gemini",
+    "section": "Aplicaciones",
+    "group": "IA",
+    "name": "Gemini",
+    "desc": "App de escritorio oficial de Google Gemini",
+    "icon": "gemini.google.com",
+    "type": "winget",
+    "winget": "Google.GeminiDesktop",
+    "configure": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "antigravity",
+    "section": "Aplicaciones",
+    "group": "IA",
+    "name": "Antigravity",
+    "desc": "Plataforma de agentes de Google (cliente)",
+    "icon": "antigravity.google",
+    "type": "winget",
+    "winget": "Google.Antigravity",
+    "configure": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "antigravityide",
+    "section": "Aplicaciones",
+    "group": "IA",
+    "name": "Antigravity IDE",
+    "desc": "Editor de código de Google (versión IDE)",
+    "icon": "antigravity.google",
+    "type": "winget",
+    "winget": "Google.AntigravityIDE",
+    "configure": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "copilot",
+    "section": "Aplicaciones",
+    "group": "IA",
+    "name": "Microsoft Copilot",
+    "desc": "Asistente de IA de Microsoft (reinstálalo si se quitó)",
+    "icon": "copilot.microsoft.com",
+    "type": "winget",
+    "winget": "9NHT9RB2F4HD",
+    "source": "msstore",
+    "extra": true,
+    "configure": true,
+    "context": "user"
+  },
+  {
+    "id": "ollama",
+    "section": "Aplicaciones",
+    "group": "IA",
+    "name": "Ollama",
+    "desc": "Ejecuta modelos de IA en local desde la terminal",
+    "icon": "ollama.com",
+    "type": "winget",
+    "winget": "Ollama.Ollama",
+    "extra": true,
+    "scope": "user",
+    "context": "user",
+    "commands": [
+      "ollama"
+    ]
+  },
+  {
+    "id": "lmstudio",
+    "section": "Aplicaciones",
+    "group": "IA",
+    "name": "LM Studio",
+    "desc": "Descarga y usa modelos de IA en local con interfaz",
+    "icon": "lmstudio.ai",
+    "type": "winget",
+    "winget": "ElementLabs.LMStudio",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "cursor",
+    "section": "Aplicaciones",
+    "group": "IA",
+    "name": "Cursor",
+    "desc": "Editor de código con IA integrada",
+    "icon": "cursor.com",
+    "type": "winget",
+    "winget": "Anysphere.Cursor",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "obsidian",
+    "section": "Aplicaciones",
+    "group": "Notas y nube",
+    "name": "Obsidian",
+    "desc": "Notas en Markdown",
+    "icon": "obsidian.md",
+    "type": "winget",
+    "winget": "Obsidian.Obsidian",
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "icloud",
+    "section": "Aplicaciones",
+    "group": "Notas y nube",
+    "name": "iCloud",
+    "desc": "iCloud para Windows (Microsoft Store). Inicia sesión tras instalar",
+    "icon": "icloud.com",
+    "type": "winget",
+    "winget": "9PKTQ5699M62",
+    "source": "msstore",
+    "configure": true,
+    "context": "user"
+  },
+  {
+    "id": "virtualbox",
+    "section": "Aplicaciones",
+    "group": "Virtualización",
+    "name": "VirtualBox",
+    "desc": "Máquinas virtuales de Oracle (última versión)",
+    "icon": "virtualbox.org",
+    "type": "winget",
+    "winget": "Oracle.VirtualBox",
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "vboxga",
+    "section": "Aplicaciones",
+    "group": "Virtualización",
+    "name": "VirtualBox Guest Additions",
+    "desc": "ISO de Guest Additions de la última versión, para montar en las máquinas virtuales",
+    "icon": "virtualbox.org",
+    "type": "vboxga"
+  },
+  {
+    "id": "vscode",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Visual Studio Code",
+    "desc": "Editor de código de Microsoft",
+    "icon": "code.visualstudio.com",
+    "type": "winget",
+    "winget": "Microsoft.VisualStudioCode",
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "code"
+    ]
+  },
+  {
+    "id": "vscodium",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "VSCodium",
+    "desc": "VS Code sin la telemetría de Microsoft",
+    "icon": "vscodium.com",
+    "type": "winget",
+    "winget": "VSCodium.VSCodium",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "VSCodium (User)"
+    ]
+  },
+  {
+    "id": "docker",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Docker Desktop",
+    "desc": "Contenedores (usa WSL)",
+    "icon": "docker.com",
+    "type": "winget",
+    "winget": "Docker.DockerDesktop",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "githubdesktop",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "GitHub Desktop",
+    "desc": "Git con interfaz gráfica",
+    "icon": "desktop.github.com",
+    "type": "winget",
+    "winget": "GitHub.GitHubDesktop",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "GitHub Desktop Deployment Tool"
+    ]
+  },
+  {
+    "id": "postman",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Postman",
+    "desc": "Probar APIs",
+    "icon": "postman.com",
+    "type": "winget",
+    "winget": "Postman.Postman",
+    "extra": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "bruno",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Bruno",
+    "desc": "Probar APIs, sin cuenta y con colecciones en Git",
+    "icon": "usebruno.com",
+    "type": "winget",
+    "winget": "Bruno.Bruno",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "dbeaver",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "DBeaver",
+    "desc": "Cliente de bases de datos (MySQL, Postgres, SQLite...)",
+    "icon": "dbeaver.io",
+    "type": "winget",
+    "winget": "DBeaver.DBeaver.Community",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "jetbrains",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "JetBrains Toolbox",
+    "desc": "Instala y actualiza IntelliJ, PyCharm, WebStorm...",
+    "icon": "jetbrains.com",
+    "type": "winget",
+    "winget": "JetBrains.Toolbox",
+    "extra": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "androidstudio",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Android Studio",
+    "desc": "Desarrollo de apps Android",
+    "icon": "developer.android.com",
+    "type": "winget",
+    "winget": "Google.AndroidStudio",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "zed",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Zed",
+    "desc": "Editor de código muy rápido",
+    "icon": "zed.dev",
+    "type": "winget",
+    "winget": "ZedIndustries.Zed",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "sublime",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Sublime Text",
+    "desc": "Editor de texto rápido",
+    "icon": "sublimetext.com",
+    "type": "winget",
+    "winget": "SublimeHQ.SublimeText.4",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "Sublime Text",
+      "Sublime Text (Portable)"
+    ]
+  },
+  {
+    "id": "winmerge",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "WinMerge",
+    "desc": "Compara archivos y carpetas",
+    "icon": "winmerge.org",
+    "type": "winget",
+    "winget": "WinMerge.WinMerge",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "mysqlworkbench",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "MySQL Workbench",
+    "desc": "Diseña y consulta bases de datos MySQL",
+    "icon": "mysql.com",
+    "type": "winget",
+    "winget": "Oracle.MySQLWorkbench",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "MySQL Workbench"
+    ]
+  },
+  {
+    "id": "7zip",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "7-Zip",
+    "desc": "Compresor de archivos",
+    "icon": "7-zip.org",
+    "type": "winget",
+    "winget": "7zip.7zip",
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "7z"
+    ]
+  },
+  {
+    "id": "powertoys",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "PowerToys",
+    "desc": "Utilidades de Microsoft (FancyZones, PowerRename, buscador...)",
+    "icon": "glyph:E945",
+    "type": "winget",
+    "winget": "Microsoft.PowerToys",
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "PowerToys (Preview) ARM64"
+    ]
+  },
+  {
+    "id": "vlc",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "VLC",
+    "desc": "Reproductor de vídeo y audio",
+    "icon": "videolan.org",
+    "type": "winget",
+    "winget": "VideoLAN.VLC",
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "vlc"
+    ]
+  },
+  {
+    "id": "everything",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "Everything",
+    "desc": "Búsqueda instantánea de archivos",
+    "icon": "voidtools.com",
+    "type": "winget",
+    "winget": "voidtools.Everything",
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "Everything (ARM32 portable)",
+      "Everything (ARM64 portable)",
+      "Everything (x64 portable)",
+      "Everything (x86 portable)"
+    ]
+  },
+  {
+    "id": "discord",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "Discord",
+    "desc": "Chat de voz y texto",
+    "icon": "discord.com",
+    "type": "winget",
+    "winget": "Discord.Discord",
+    "configure": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "bitwarden",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "Bitwarden",
+    "desc": "Gestor de contraseñas",
+    "icon": "bitwarden.com",
+    "type": "winget",
+    "winget": "Bitwarden.Bitwarden",
+    "configure": true,
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "bitwarden"
+    ]
+  },
+  {
+    "id": "nanazip",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "NanaZip",
+    "desc": "7-Zip moderno integrado en el menú contextual de Windows 11",
+    "icon": "glyph:E7B8",
+    "type": "winget",
+    "winget": "M2Team.NanaZip",
+    "context": "user",
+    "families": [
+      "40174MouriNaruto.NanaZip_gnj4mf6z9tkrc"
+    ],
+    "commands": [
+      "nanazip"
+    ]
+  },
+  {
+    "id": "files",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "Files",
+    "desc": "Explorador de archivos moderno con pestañas y vista en columnas como Finder",
+    "icon": "files.community",
+    "type": "winget",
+    "winget": "FilesCommunity.Files",
+    "context": "user",
+    "families": [
+      "Files_1y0xx7n9077q4"
+    ]
+  },
+  {
+    "id": "filepilot",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "File Pilot",
+    "desc": "Explorador de archivos ultrarrápido y ligero, con pestañas y paneles",
+    "icon": "filepilot.tech",
+    "type": "winget",
+    "winget": "Voidstar.FilePilot",
+    "context": "user",
+    "commands": [
+      "FPilot"
+    ]
+  },
+  {
+    "id": "autohotkey",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "AutoHotkey",
+    "desc": "Atajos de teclado y automatizaciones propias",
+    "icon": "autohotkey.com",
+    "type": "winget",
+    "winget": "AutoHotkey.AutoHotkey",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "altsnap",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "AltSnap",
+    "desc": "Mueve y redimensiona ventanas con Alt + ratón",
+    "icon": "glyph:E740",
+    "type": "winget",
+    "winget": "AltSnap.AltSnap",
+    "extra": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "unigetui",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "UniGetUI",
+    "desc": "Interfaz para winget: ve y actualiza todas tus apps con un clic",
+    "icon": "devolutions.net",
+    "type": "winget",
+    "winget": "Devolutions.UniGetUI",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "msstore",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "Microsoft Store",
+    "desc": "Reinstala la tienda de Windows si se quitó (para apps de la Store)",
+    "icon": "glyph:E719",
+    "type": "winget",
+    "winget": "9WZDNCRFJBMP",
+    "source": "msstore",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "sumatra",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "SumatraPDF",
+    "desc": "Lector de PDF, ePub y cómics muy ligero",
+    "icon": "sumatrapdfreader.org",
+    "type": "winget",
+    "winget": "SumatraPDF.SumatraPDF",
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "SumatraPDF (ARM64 portable)",
+      "SumatraPDF (x64 portable)",
+      "SumatraPDF (x86 portable)"
+    ],
+    "commands": [
+      "sumatrapdf"
+    ]
+  },
+  {
+    "id": "acrobat",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "Adobe Acrobat Reader",
+    "desc": "Lector de PDF de Adobe con firmas y formularios",
+    "icon": "adobe.com",
+    "type": "winget",
+    "winget": "Adobe.Acrobat.Reader.64-bit",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "Adobe Acrobat (64-bit)"
+    ]
+  },
+  {
+    "id": "qbittorrent",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "qBittorrent",
+    "desc": "Cliente de torrents sin anuncios",
+    "icon": "qbittorrent.org",
+    "type": "winget",
+    "winget": "qBittorrent.qBittorrent",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "winscp",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "WinSCP",
+    "desc": "Transferencia de archivos por SFTP/FTP",
+    "icon": "winscp.net",
+    "type": "winget",
+    "winget": "WinSCP.WinSCP",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "keepassxc",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "KeePassXC",
+    "desc": "Gestor de contraseñas local, sin nube",
+    "icon": "keepassxc.org",
+    "type": "winget",
+    "winget": "KeePassXCTeam.KeePassXC",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "onepassword",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "1Password",
+    "desc": "Gestor de contraseñas",
+    "icon": "1password.com",
+    "type": "winget",
+    "winget": "AgileBits.1Password",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "families": [
+      "Agilebits.1Password_amwd9z03whsfe"
+    ]
+  },
+  {
+    "id": "appledevices",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "Dispositivos Apple",
+    "desc": "Copias de seguridad, actualizaciones y sincronización del iPhone (sustituye a iTunes)",
+    "icon": "apple.com",
+    "type": "winget",
+    "winget": "9NP83LWLPZ9K",
+    "source": "msstore",
+    "extra": true,
+    "configure": true,
+    "context": "user"
+  },
+  {
+    "id": "hpsmart",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "HP Smart",
+    "desc": "Imprime y escanea con impresoras HP",
+    "icon": "hp.com",
+    "type": "winget",
+    "winget": "9WZDNCRFHWLH",
+    "source": "msstore",
+    "extra": true,
+    "configure": true,
+    "context": "user"
+  },
+  {
+    "id": "scrcpy",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "scrcpy",
+    "desc": "Muestra y controla un móvil Android desde el PC",
+    "icon": "glyph:E8EA",
+    "type": "winget",
+    "winget": "Genymobile.scrcpy",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "sharex",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "ShareX",
+    "desc": "Capturas y grabaciones de pantalla con recorte, anotaciones y OCR (Ctrl+Impr Pant)",
+    "icon": "getsharex.com",
+    "type": "winget",
+    "winget": "ShareX.ShareX",
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "flowlauncher",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Flow Launcher",
+    "desc": "Lanzador tipo Spotlight: Alt+Espacio para abrir apps, archivos, calcular y buscar en la web",
+    "icon": "flowlauncher.com",
+    "type": "winget",
+    "winget": "Flow-Launcher.Flow-Launcher",
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "quicklook",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "QuickLook",
+    "desc": "Vista previa con la barra espaciadora en el Explorador, como en macOS",
+    "icon": "glyph:E7B3",
+    "type": "winget",
+    "winget": "QL-Win.QuickLook",
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "ditto",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Ditto",
+    "desc": "Historial del portapapeles con búsqueda (más completo que Win+V)",
+    "icon": "ditto-cp.sourceforge.io",
+    "type": "winget",
+    "winget": "Ditto.Ditto",
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "eartrumpet",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "EarTrumpet",
+    "desc": "Volumen por app desde la barra de tareas y cambio rápido de salida de audio",
+    "icon": "eartrumpet.app",
+    "type": "winget",
+    "winget": "File-New-Project.EarTrumpet",
+    "context": "user",
+    "families": [
+      "40459File-New-Project.EarTrumpet_725pr5jq8wr8a"
+    ],
+    "requires": [
+      "vclibs14"
+    ]
+  },
+  {
+    "id": "twinkletray",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Twinkle Tray",
+    "desc": "Brillo de monitores externos desde la barra de tareas",
+    "icon": "twinkletray.com",
+    "type": "winget",
+    "winget": "xanderfrangos.twinkletray",
+    "scope": "user",
+    "context": "user",
+    "detectNames": [
+      "Twinkle Tray 1.17.1"
+    ]
+  },
+  {
+    "id": "kdeconnect",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "KDE Connect",
+    "desc": "Comparte archivos y enlaces con el móvil y controla el PC desde dispositivos vinculados; las funciones dependen de la plataforma",
+    "icon": "kdeconnect.kde.org",
+    "type": "winget",
+    "winget": "KDE.KDEConnect",
+    "extra": true,
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "localsend",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "LocalSend",
+    "desc": "AirDrop entre Windows, Mac, iPhone y Android por la red local, sin cuenta",
+    "icon": "localsend.org",
+    "type": "winget",
+    "winget": "LocalSend.LocalSend",
+    "configure": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "flux",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "f.lux",
+    "desc": "Ajusta el color de la pantalla según la hora para cansar menos la vista por la noche",
+    "icon": "justgetflux.com",
+    "type": "winget",
+    "winget": "flux.flux",
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "notepadpp",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Notepad++",
+    "desc": "Editor de texto ligero con pestañas y resaltado de código",
+    "icon": "notepad-plus-plus.org",
+    "type": "winget",
+    "winget": "Notepad++.Notepad++",
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "greenshot",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Greenshot",
+    "desc": "Capturas rápidas con flechas, recortes y difuminado",
+    "icon": "getgreenshot.org",
+    "type": "winget",
+    "winget": "Greenshot.Greenshot",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "snippingtool",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Recortes (Snipping Tool)",
+    "desc": "Capturas y grabaciones de pantalla de Windows (Win+Mayús+S)",
+    "icon": "glyph:E924",
+    "type": "winget",
+    "winget": "9MZ95KL8MR0L",
+    "source": "msstore",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "phonelink",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Enlace Móvil",
+    "desc": "Vincula el móvil con Windows: notificaciones, mensajes y fotos",
+    "icon": "glyph:E8EA",
+    "type": "winget",
+    "winget": "9NMPJ99VJBWV",
+    "source": "msstore",
+    "extra": true,
+    "configure": true,
+    "context": "user"
+  },
+  {
+    "id": "flameshot",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Flameshot",
+    "desc": "Capturas de pantalla con anotaciones rápidas",
+    "icon": "flameshot.org",
+    "type": "winget",
+    "winget": "Flameshot.Flameshot",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "blip",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Blip",
+    "desc": "Envía archivos de cualquier tamaño entre tus dispositivos (Windows, Mac, iPhone)",
+    "icon": "blip.net",
+    "type": "winget",
+    "winget": "9N7JSXC1SJK6",
+    "source": "msstore",
+    "context": "user"
+  },
+  {
+    "id": "dropshelf",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Dropshelf",
+    "desc": "Estante flotante para dejar archivos y arrastrarlos luego a otra ventana",
+    "icon": "glyph:E8B7",
+    "type": "winget",
+    "winget": "9MZPC6P14L7N",
+    "source": "msstore",
+    "context": "user"
+  },
+  {
+    "id": "fluentweather",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "FluentWeather",
+    "desc": "El tiempo con el diseño de Windows 11",
+    "icon": "glyph:E706",
+    "type": "winget",
+    "winget": "9PFD136M8457",
+    "source": "msstore",
+    "context": "user"
+  },
+  {
+    "id": "ambie",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Ambie",
+    "desc": "Sonidos ambientales y ruido blanco para concentrarte o relajarte",
+    "icon": "ambieapp.com",
+    "type": "winget",
+    "winget": "9P07XNM5CHP0",
+    "source": "msstore",
+    "context": "user"
+  },
+  {
+    "id": "zoomit",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "ZoomIt",
+    "desc": "Sysinternals: zoom y anotaciones en pantalla para presentar o grabar",
+    "icon": "glyph:E71E",
+    "type": "winget",
+    "winget": "Microsoft.Sysinternals.ZoomIt",
+    "extra": true,
+    "context": "user",
+    "commands": [
+      "zoomit"
+    ]
+  },
+  {
+    "id": "glazewm",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "GlazeWM",
+    "desc": "Ventanas en mosaico con atajos de teclado, como AeroSpace en el Mac",
+    "icon": "glyph:E8A9",
+    "type": "winget",
+    "winget": "glzr-io.glazewm",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "autodarkmode",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Auto Dark Mode",
+    "desc": "Cambia entre tema claro y oscuro según la hora",
+    "icon": "glyph:E708",
+    "type": "winget",
+    "winget": "ArminOsaj.AutoDarkMode",
+    "extra": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
+    "id": "teracopy",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "TeraCopy",
+    "desc": "Copias de archivos más rápidas, con pausa y verificación",
+    "icon": "codesector.com",
+    "type": "winget",
+    "winget": "CodeSector.TeraCopy",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "wiztree",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "WizTree",
+    "desc": "Muestra en segundos qué ocupa el disco para liberar espacio a mano",
+    "icon": "diskanalyzer.com",
+    "type": "winget",
+    "winget": "AntibodySoftware.WizTree",
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "revo",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Revo Uninstaller",
+    "desc": "Desinstala programas y borra los restos que dejan",
+    "icon": "revouninstaller.com",
+    "type": "winget",
+    "winget": "RevoUninstaller.RevoUninstaller",
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "procexp",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Process Explorer",
+    "desc": "Sysinternals: administrador de tareas avanzado para ver qué consume CPU, RAM y disco",
+    "icon": "sysinternals.com",
+    "type": "winget",
+    "winget": "Microsoft.Sysinternals.ProcessExplorer",
+    "context": "user",
+    "commands": [
+      "procexp"
+    ]
+  },
+  {
+    "id": "hwinfo",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "HWiNFO",
+    "desc": "Temperaturas, voltajes y datos de todo el hardware",
+    "icon": "hwinfo.com",
+    "type": "winget",
+    "winget": "REALiX.HWiNFO",
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "hwmonitor",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "HWMonitor",
+    "desc": "Sensores de temperatura, voltajes y ventiladores",
+    "icon": "cpuid.com",
+    "type": "winget",
+    "winget": "CPUID.HWMonitor",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "crystaldisk",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "CrystalDiskInfo",
+    "desc": "Salud de los discos SSD/HDD (SMART) para detectar fallos antes de perder datos",
+    "icon": "crystalmark.info",
+    "type": "winget",
+    "winget": "CrystalDewWorld.CrystalDiskInfo",
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "rufus",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Rufus",
+    "desc": "Crea USB de arranque para instalar o reparar Windows o Linux",
+    "icon": "rufus.ie",
+    "type": "winget",
+    "winget": "Rufus.Rufus",
+    "context": "user",
+    "commands": [
+      "rufus"
+    ]
+  },
+  {
+    "id": "cpuz",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "CPU-Z",
+    "desc": "Información de procesador, placa y RAM",
+    "icon": "cpuid.com",
+    "type": "winget",
+    "winget": "CPUID.CPU-Z",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "gpuz",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "GPU-Z",
+    "desc": "Información y sensores de la tarjeta gráfica",
+    "icon": "techpowerup.com",
+    "type": "winget",
+    "winget": "TechPowerUp.GPU-Z",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "crystalmark",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "CrystalDiskMark",
+    "desc": "Mide la velocidad del disco",
+    "icon": "crystalmark.info",
+    "type": "winget",
+    "winget": "CrystalDewWorld.CrystalDiskMark",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "treesize",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "TreeSize Free",
+    "desc": "Qué carpetas ocupan más, alternativa a WizTree",
+    "icon": "jam-software.com",
+    "type": "winget",
+    "winget": "JAMSoftware.TreeSize.Free",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "TreeSize Free V4.8.1"
+    ]
+  },
+  {
+    "id": "fancontrol",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "FanControl",
+    "desc": "Curvas de ventiladores según temperatura",
+    "icon": "getfancontrol.com",
+    "type": "winget",
+    "winget": "Rem0o.FanControl",
+    "extra": true,
+    "context": "machine"
+  },
+  {
+    "id": "ventoy",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Ventoy",
+    "desc": "Un USB con varias ISO de arranque a la vez",
+    "icon": "ventoy.net",
+    "type": "winget",
+    "winget": "Ventoy.Ventoy",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "bcu",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Bulk Crap Uninstaller",
+    "desc": "Desinstala muchos programas de golpe y limpia sus restos",
+    "icon": "bcuninstaller.com",
+    "type": "winget",
+    "winget": "Klocman.BulkCrapUninstaller",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "czkawka",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Czkawka",
+    "desc": "Busca archivos duplicados, vacíos o imágenes parecidas",
+    "icon": "glyph:E8C8",
+    "type": "winget",
+    "winget": "qarmin.czkawka.gui",
+    "extra": true,
+    "context": "user"
+  },
+  {
+    "id": "dupeguru",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "dupeGuru",
+    "desc": "Encuentra archivos duplicados, también música y fotos",
+    "icon": "dupeguru.voltaicideas.net",
+    "type": "winget",
+    "winget": "DupeGuru.DupeGuru",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
     "id": "whatsapp",
+    "section": "Aplicaciones",
     "group": "Comunicación",
     "name": "WhatsApp",
     "desc": "App de escritorio de WhatsApp (Microsoft Store)",
@@ -2173,6 +2443,7 @@
   },
   {
     "id": "telegram",
+    "section": "Aplicaciones",
     "group": "Comunicación",
     "name": "Telegram",
     "desc": "Mensajería",
@@ -2186,6 +2457,7 @@
   },
   {
     "id": "signal",
+    "section": "Aplicaciones",
     "group": "Comunicación",
     "name": "Signal",
     "desc": "Mensajería cifrada",
@@ -2199,6 +2471,7 @@
   },
   {
     "id": "slack",
+    "section": "Aplicaciones",
     "group": "Comunicación",
     "name": "Slack",
     "desc": "Chat de equipos",
@@ -2215,6 +2488,7 @@
   },
   {
     "id": "teams",
+    "section": "Aplicaciones",
     "group": "Comunicación",
     "name": "Microsoft Teams",
     "desc": "Reuniones y chat de Microsoft",
@@ -2230,6 +2504,7 @@
   },
   {
     "id": "zoom",
+    "section": "Aplicaciones",
     "group": "Comunicación",
     "name": "Zoom",
     "desc": "Videollamadas",
@@ -2243,6 +2518,7 @@
   },
   {
     "id": "thunderbird",
+    "section": "Aplicaciones",
     "group": "Comunicación",
     "name": "Thunderbird",
     "desc": "Cliente de correo",
@@ -2255,6 +2531,7 @@
   },
   {
     "id": "vesktop",
+    "section": "Aplicaciones",
     "group": "Comunicación",
     "name": "Vesktop",
     "desc": "Cliente de Discord más ligero, con Vencord",
@@ -2269,6 +2546,7 @@
   },
   {
     "id": "spotify",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "Spotify",
     "desc": "Música en streaming",
@@ -2282,6 +2560,7 @@
   },
   {
     "id": "obs",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "OBS Studio",
     "desc": "Grabar pantalla y hacer directos",
@@ -2294,6 +2573,7 @@
   },
   {
     "id": "audacity",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "Audacity",
     "desc": "Editor de audio",
@@ -2305,6 +2585,7 @@
   },
   {
     "id": "handbrake",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "HandBrake",
     "desc": "Convierte y comprime vídeos",
@@ -2317,6 +2598,7 @@
   },
   {
     "id": "mpchc",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "MPC-HC",
     "desc": "Reproductor de vídeo ligero",
@@ -2329,6 +2611,7 @@
   },
   {
     "id": "mpv",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "mpv.net",
     "desc": "Reproductor minimalista y muy ligero basado en mpv",
@@ -2341,6 +2624,7 @@
   },
   {
     "id": "screenbox",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "Screenbox",
     "desc": "Reproductor de vídeo moderno con el motor de VLC y diseño de Windows 11",
@@ -2352,6 +2636,7 @@
   },
   {
     "id": "foobar",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "foobar2000",
     "desc": "Reproductor de música ligero",
@@ -2364,6 +2649,7 @@
   },
   {
     "id": "plex",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "Plex",
     "desc": "Tu biblioteca de películas y series en todos tus dispositivos",
@@ -2377,6 +2663,7 @@
   },
   {
     "id": "kdenlive",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "Kdenlive",
     "desc": "Editor de vídeo gratuito",
@@ -2389,6 +2676,7 @@
   },
   {
     "id": "shotcut",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "Shotcut",
     "desc": "Editor de vídeo sencillo",
@@ -2401,6 +2689,7 @@
   },
   {
     "id": "applemusic",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "Apple Music",
     "desc": "Tu biblioteca y suscripción de Apple Music",
@@ -2414,6 +2703,7 @@
   },
   {
     "id": "appletv",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "Apple TV",
     "desc": "Apple TV+ y tus películas compradas en Apple",
@@ -2426,32 +2716,8 @@
     "context": "user"
   },
   {
-    "id": "ffmpeg",
-    "group": "Multimedia",
-    "name": "FFmpeg",
-    "desc": "Convierte y recorta audio y vídeo desde la terminal",
-    "icon": "ffmpeg.org",
-    "type": "winget",
-    "winget": "Gyan.FFmpeg",
-    "extra": true,
-    "context": "user"
-  },
-  {
-    "id": "ytdlp",
-    "group": "Multimedia",
-    "name": "yt-dlp",
-    "desc": "Descarga vídeo y audio de YouTube y otras webs",
-    "icon": "glyph:E896",
-    "type": "winget",
-    "winget": "yt-dlp.yt-dlp",
-    "extra": true,
-    "context": "user",
-    "commands": [
-      "yt-dlp"
-    ]
-  },
-  {
     "id": "jellyfin",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "Jellyfin Media Player",
     "desc": "Reproductor para tu servidor Jellyfin",
@@ -2464,6 +2730,7 @@
   },
   {
     "id": "stremio",
+    "section": "Aplicaciones",
     "group": "Multimedia",
     "name": "Stremio",
     "desc": "Centro multimedia para películas y series con complementos",
@@ -2476,6 +2743,7 @@
   },
   {
     "id": "gimp",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "GIMP",
     "desc": "Editor de imágenes tipo Photoshop, gratuito",
@@ -2494,6 +2762,7 @@
   },
   {
     "id": "krita",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "Krita",
     "desc": "Pintura y dibujo digital",
@@ -2506,6 +2775,7 @@
   },
   {
     "id": "inkscape",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "Inkscape",
     "desc": "Diseño vectorial tipo Illustrator",
@@ -2518,6 +2788,7 @@
   },
   {
     "id": "paintnet",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "Paint.NET",
     "desc": "Editor de fotos sencillo",
@@ -2530,6 +2801,7 @@
   },
   {
     "id": "blender",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "Blender",
     "desc": "Modelado 3D, animación y vídeo",
@@ -2542,6 +2814,7 @@
   },
   {
     "id": "figma",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "Figma",
     "desc": "Diseño de interfaces",
@@ -2555,6 +2828,7 @@
   },
   {
     "id": "canva",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "Canva",
     "desc": "Diseño rápido de imágenes y presentaciones",
@@ -2568,6 +2842,7 @@
   },
   {
     "id": "darktable",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "darktable",
     "desc": "Revelado de fotos RAW tipo Lightroom",
@@ -2580,6 +2855,7 @@
   },
   {
     "id": "imageglass",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "ImageGlass",
     "desc": "Visor de imágenes rápido (WebP, HEIC, RAW...)",
@@ -2594,6 +2870,7 @@
   },
   {
     "id": "irfanview",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "IrfanView",
     "desc": "Visor de imágenes clásico, rapidísimo, con conversión por lotes",
@@ -2606,6 +2883,7 @@
   },
   {
     "id": "jpegview",
+    "section": "Aplicaciones",
     "group": "Diseño y foto",
     "name": "JPEGView",
     "desc": "Visor de imágenes mínimo y veloz",
@@ -2618,6 +2896,7 @@
   },
   {
     "id": "libreoffice",
+    "section": "Aplicaciones",
     "group": "Ofimática y estudio",
     "name": "LibreOffice",
     "desc": "Suite ofimática gratuita (texto, hojas, presentaciones)",
@@ -2630,6 +2909,7 @@
   },
   {
     "id": "onlyoffice",
+    "section": "Aplicaciones",
     "group": "Ofimática y estudio",
     "name": "ONLYOFFICE",
     "desc": "Ofimática compatible con Word, Excel y PowerPoint",
@@ -2647,6 +2927,7 @@
   },
   {
     "id": "notion",
+    "section": "Aplicaciones",
     "group": "Ofimática y estudio",
     "name": "Notion",
     "desc": "Notas, tareas y wikis",
@@ -2663,6 +2944,7 @@
   },
   {
     "id": "todoist",
+    "section": "Aplicaciones",
     "group": "Ofimática y estudio",
     "name": "Todoist",
     "desc": "Gestor de tareas",
@@ -2676,6 +2958,7 @@
   },
   {
     "id": "logseq",
+    "section": "Aplicaciones",
     "group": "Ofimática y estudio",
     "name": "Logseq",
     "desc": "Notas en esquema enlazadas, en local",
@@ -2688,6 +2971,7 @@
   },
   {
     "id": "anki",
+    "section": "Aplicaciones",
     "group": "Ofimática y estudio",
     "name": "Anki",
     "desc": "Tarjetas de memoria para estudiar",
@@ -2700,6 +2984,7 @@
   },
   {
     "id": "zotero",
+    "section": "Aplicaciones",
     "group": "Ofimática y estudio",
     "name": "Zotero",
     "desc": "Gestor de bibliografía y citas",
@@ -2712,6 +2997,7 @@
   },
   {
     "id": "calibre",
+    "section": "Aplicaciones",
     "group": "Ofimática y estudio",
     "name": "Calibre",
     "desc": "Biblioteca y conversor de libros electrónicos",
@@ -2724,6 +3010,7 @@
   },
   {
     "id": "pdf24",
+    "section": "Aplicaciones",
     "group": "Ofimática y estudio",
     "name": "PDF24 Creator",
     "desc": "Une, divide, comprime, convierte y firma PDF sin subirlos a internet",
@@ -2735,6 +3022,7 @@
   },
   {
     "id": "autofirma",
+    "section": "Aplicaciones",
     "group": "Ofimática y estudio",
     "name": "AutoFirma",
     "desc": "Firma electrónica para trámites con la administración española",
@@ -2747,6 +3035,7 @@
   },
   {
     "id": "gdrive",
+    "section": "Aplicaciones",
     "group": "Nube y archivos",
     "name": "Google Drive",
     "desc": "Sincroniza Google Drive",
@@ -2759,6 +3048,7 @@
   },
   {
     "id": "dropbox",
+    "section": "Aplicaciones",
     "group": "Nube y archivos",
     "name": "Dropbox",
     "desc": "Sincroniza Dropbox",
@@ -2772,6 +3062,7 @@
   },
   {
     "id": "onedrive",
+    "section": "Aplicaciones",
     "group": "Nube y archivos",
     "name": "OneDrive",
     "desc": "Nube de Microsoft",
@@ -2785,6 +3076,7 @@
   },
   {
     "id": "mega",
+    "section": "Aplicaciones",
     "group": "Nube y archivos",
     "name": "MEGA",
     "desc": "Sincroniza MEGA",
@@ -2798,6 +3090,7 @@
   },
   {
     "id": "syncthing",
+    "section": "Aplicaciones",
     "group": "Nube y archivos",
     "name": "Syncthing",
     "desc": "Sincroniza carpetas entre tus equipos sin nube",
@@ -2813,6 +3106,7 @@
   },
   {
     "id": "duplicati",
+    "section": "Aplicaciones",
     "group": "Nube y archivos",
     "name": "Duplicati",
     "desc": "Copias de seguridad cifradas y programadas a disco o a la nube",
@@ -2825,19 +3119,8 @@
     "context": "machine"
   },
   {
-    "id": "rclone",
-    "group": "Nube y archivos",
-    "name": "rclone",
-    "desc": "Sincroniza con Google Drive, iCloud, S3 y más desde la terminal",
-    "icon": "rclone.org",
-    "type": "winget",
-    "winget": "Rclone.Rclone",
-    "extra": true,
-    "configure": true,
-    "context": "user"
-  },
-  {
     "id": "malwarebytes",
+    "section": "Aplicaciones",
     "group": "Seguridad y redes",
     "name": "Malwarebytes",
     "desc": "Segundo análisis antimalware junto a Defender",
@@ -2850,6 +3133,7 @@
   },
   {
     "id": "protonvpn",
+    "section": "Aplicaciones",
     "group": "Seguridad y redes",
     "name": "Proton VPN",
     "desc": "VPN con plan gratuito",
@@ -2863,6 +3147,7 @@
   },
   {
     "id": "mullvad",
+    "section": "Aplicaciones",
     "group": "Seguridad y redes",
     "name": "Mullvad VPN",
     "desc": "VPN anónima de pago",
@@ -2879,6 +3164,7 @@
   },
   {
     "id": "nortonvpn",
+    "section": "Aplicaciones",
     "group": "Seguridad y redes",
     "name": "Norton VPN",
     "desc": "Instalación desde la cuenta de Norton. Requiere suscripción; completa el asistente y vuelve a verificar.",
@@ -2891,6 +3177,7 @@
   },
   {
     "id": "warp",
+    "section": "Aplicaciones",
     "group": "Seguridad y redes",
     "name": "Cloudflare WARP",
     "desc": "DNS 1.1.1.1 y conexión cifrada gratuitos",
@@ -2903,6 +3190,7 @@
   },
   {
     "id": "tailscale",
+    "section": "Aplicaciones",
     "group": "Seguridad y redes",
     "name": "Tailscale",
     "desc": "Red privada entre tus dispositivos (accede al Mac desde el PC)",
@@ -2916,6 +3204,7 @@
   },
   {
     "id": "veracrypt",
+    "section": "Aplicaciones",
     "group": "Seguridad y redes",
     "name": "VeraCrypt",
     "desc": "Cifra discos y carpetas",
@@ -2931,6 +3220,7 @@
   },
   {
     "id": "wireshark",
+    "section": "Aplicaciones",
     "group": "Seguridad y redes",
     "name": "Wireshark",
     "desc": "Analiza el tráfico de red",
@@ -2946,6 +3236,7 @@
   },
   {
     "id": "tcpview",
+    "section": "Aplicaciones",
     "group": "Seguridad y redes",
     "name": "TCPView",
     "desc": "Sysinternals: qué programas se conectan a internet y a dónde",
@@ -2961,6 +3252,7 @@
   },
   {
     "id": "sandboxie",
+    "section": "Aplicaciones",
     "group": "Seguridad y redes",
     "name": "Sandboxie Plus",
     "desc": "Abre programas dudosos aislados para que no toquen el sistema",
@@ -2976,6 +3268,7 @@
   },
   {
     "id": "windhawk",
+    "section": "Aplicaciones",
     "group": "Personalización",
     "name": "Windhawk",
     "desc": "Mods de Windows a la carta (barra de tareas, menú inicio...); los activas tú",
@@ -2987,6 +3280,7 @@
   },
   {
     "id": "translucenttb",
+    "section": "Aplicaciones",
     "group": "Personalización",
     "name": "TranslucentTB",
     "desc": "Barra de tareas transparente",
@@ -3001,6 +3295,7 @@
   },
   {
     "id": "lively",
+    "section": "Aplicaciones",
     "group": "Personalización",
     "name": "Lively Wallpaper",
     "desc": "Fondos de pantalla animados",
@@ -3016,6 +3311,7 @@
   },
   {
     "id": "rainmeter",
+    "section": "Aplicaciones",
     "group": "Personalización",
     "name": "Rainmeter",
     "desc": "Widgets de escritorio (reloj, CPU, tiempo)",
@@ -3028,6 +3324,7 @@
   },
   {
     "id": "nilesoft",
+    "section": "Aplicaciones",
     "group": "Personalización",
     "name": "Nilesoft Shell",
     "desc": "Menú contextual del Explorador más limpio y personalizable",
@@ -3039,6 +3336,7 @@
   },
   {
     "id": "openshell",
+    "section": "Aplicaciones",
     "group": "Personalización",
     "name": "Open-Shell",
     "desc": "Menú Inicio clásico y personalizable, al estilo de Windows 7",
