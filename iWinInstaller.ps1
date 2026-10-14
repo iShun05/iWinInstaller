@@ -499,8 +499,17 @@ function Install-Tweak($id) {
     return $false
 }
 function Test-Tweak($id) {
+    # wsl.exe y powercfg escriben en stderr cuando falta la función; con Stop eso cortaría la ventana
+    $ErrorActionPreference = 'Continue'
+    try { return (Test-TweakCore $id) } catch { return $false }
+}
+function Test-TweakCore($id) {
     switch ($id) {
-        'wsl' { & wsl.exe --status *> $null; return ($LASTEXITCODE -eq 0) }
+        'wsl' {
+            if (-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) { return $false }
+            & wsl.exe --status 2>&1 | Out-Null
+            return ($LASTEXITCODE -eq 0)
+        }
         # Se crea en cada instalación; nunca cuenta como hecho de antemano
         'restorepoint' { return $false }
         'showext' { return ((Get-RegValue $ExplorerAdv 'HideFileExt') -eq 0) }
