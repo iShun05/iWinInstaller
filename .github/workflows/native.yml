@@ -8,7 +8,11 @@ permissions:
   contents: read
 jobs:
   native:
-    runs-on: windows-2025
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2025, windows-11-arm]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +33,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ejecutable-windows
+          name: ejecutable-windows-${{ matrix.os }}
           compression-level: 0
           path: |
             ${{ runner.temp }}/iwin-native/iWinInstaller-Setup.exe
