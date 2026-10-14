@@ -23,7 +23,15 @@ jobs:
         run: |
           $tag=$env:RELEASE_TAG
           if ($tag -notmatch '^v\d+\.\d+$') { throw 'Tag no valido' }
-          git checkout $tag
+          git fetch -q --tags origin
+          git rev-parse -q --verify "refs/tags/$tag" *> $null
+          if ($LASTEXITCODE) {
+            # Publicación a mano sin tag: se crea sobre el commit lanzado
+            git tag $tag $env:GITHUB_SHA
+            git push -q origin "refs/tags/$tag"
+            if ($LASTEXITCODE) { throw 'No se pudo crear el tag' }
+          }
+          git checkout -q $tag
           if ($LASTEXITCODE) { throw 'El tag debe existir antes de publicar' }
           $output=Join-Path $env:RUNNER_TEMP 'release'
           ./scripts/build_exe.ps1 -OutputDirectory $output -Ref $tag
