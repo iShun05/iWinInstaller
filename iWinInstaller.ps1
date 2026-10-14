@@ -108,9 +108,25 @@ function Install-BundledWinget {
         Expand-Archive (Join-Path $dir 'DesktopAppInstaller_Dependencies.zip') $temporary
         $arch=if ($env:PROCESSOR_ARCHITEW6432) { $env:PROCESSOR_ARCHITEW6432 } else { $env:PROCESSOR_ARCHITECTURE }
         $folder=switch ($arch) { 'AMD64' {'x64'} 'ARM64' {'arm64'} 'x86' {'x86'} default {throw 'Arquitectura no compatible'} }
-        $dependencies=@(Get-ChildItem (Join-Path $temporary $folder) -Recurse -File | Where-Object Extension -in @('.appx','.msix') | ForEach-Object FullName)
-        if (-not $dependencies.Count) { throw 'Faltan las dependencias de la arquitectura actual.' }
-        Add-AppxPackage -Path (Join-Path $dir 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle') -DependencyPath $dependencies -ErrorAction Stop
+        $files=@(Get-ChildItem (Join-Path $temporary $folder) -Recurse -File | Where-Object Extension -in @('.appx','.msix'))
+        if (-not $files.Count) { throw 'Faltan las dependencias de la arquitectura actual.' }
+        # Las dependencias que Windows ya tiene en esa versión o más nueva se omiten: reinstalarlas falla
+        # (0x80073D02) si alguna app del sistema las está usando, como Widgets en Windows 11 ARM.
+        $dependencies=@($files | Where-Object {
+            if ($_.BaseName -notmatch '^(?<name>[^_]+)_(?<version>\d+(\.\d+){1,3})') { return $true }
+            $name=$Matches.name; $version=[version]$Matches.version
+            -not @(Get-AppxPackage -Name $name -ErrorAction SilentlyContinue | Where-Object { [version]$_.Version -ge $version }).Count
+        } | ForEach-Object FullName)
+        Write-Log "  Dependencias: $($dependencies.Count) de $($files.Count) (el resto ya está en Windows)."
+        $add=@{Path=(Join-Path $dir 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'); ErrorAction='Stop'}
+        if ($dependencies.Count) { $add.DependencyPath=$dependencies }
+        try { Add-AppxPackage @add }
+        catch {
+            # Si App Installer ya está en esa versión basta con registrarlo para el usuario
+            if ($_.Exception.Message -notmatch '0x80073D06|0x80073D02') { throw }
+            Write-Log "  $($_.Exception.Message.Split([char]10)[0])"
+            Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe -ErrorAction Stop
+        }
         Update-EnvPath
         return (Test-WingetReady)
     } catch { Write-Log "  No se pudo preparar el paquete incluido: $($_.Exception.Message)" }
