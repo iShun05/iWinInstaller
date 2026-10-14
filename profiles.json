@@ -1,0 +1,48 @@
+{
+  "Todo": [
+    "*"
+  ],
+  "Base": [
+    "Navegadores",
+    "Utilidades",
+    "Calidad de vida",
+    "Optimización y mantenimiento",
+    "Runtimes y drivers",
+    "Ajustes de Windows"
+  ],
+  "Gaming": [
+    "Navegadores",
+    "Utilidades",
+    "Calidad de vida",
+    "Optimización y mantenimiento",
+    "Runtimes y drivers",
+    "Ajustes de Windows",
+    "Juegos"
+  ],
+  "Optimización": [
+    "Calidad de vida",
+    "Optimización y mantenimiento",
+    "Ajustes de Windows"
+  ],
+  "Desarrollo": [
+    "Navegadores",
+    "Utilidades",
+    "Calidad de vida",
+    "Optimización y mantenimiento",
+    "Runtimes y drivers",
+    "Ajustes de Windows",
+    "Desarrollo",
+    "Virtualización"
+  ],
+  "IA": [
+    "Navegadores",
+    "Utilidades",
+    "Calidad de vida",
+    "Optimización y mantenimiento",
+    "Runtimes y drivers",
+    "Ajustes de Windows",
+    "IA",
+    "Notas y nube",
+    "Desarrollo"
+  ]
+}

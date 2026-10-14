@@ -1,0 +1,37 @@
+name: Ejecutable y estabilidad
+on:
+  push:
+    branches: [main, 'codex/**']
+    paths: ['native/**', 'scripts/build_exe.ps1', 'launch.ps1', 'iWinInstaller.ps1', 'install.ps1', 'tests/check-native.ps1', 'tests/check-icons.ps1', '.github/workflows/native.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Iconos defectuosos y cierre del dispatcher
+        shell: powershell
+        run: ./tests/check-icons.ps1
+      - name: Compilar e instalar el EXE completo
+        shell: pwsh
+        run: ./tests/check-native.ps1
+      - name: Reunir diagnóstico
+        if: always()
+        shell: pwsh
+        run: |
+          $destination=Join-Path $env:RUNNER_TEMP 'iwin-native/diagnostico'
+          New-Item $destination -ItemType Directory -Force | Out-Null
+          Copy-Item "$env:LOCALAPPDATA/iWinInstaller/arranque-*.log" $destination -ErrorAction SilentlyContinue
+      - name: Conservar ejecutables y diagnóstico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ejecutable-windows
+          compression-level: 0
+          path: |
+            ${{ runner.temp }}/iwin-native/iWinInstaller-Setup.exe
+            ${{ runner.temp }}/iwin-native/iWinInstaller.zip
+            ${{ runner.temp }}/iwin-native/diagnostico/

@@ -1,0 +1,89 @@
+name: Prueba en Windows
+on:
+  # Solo se prueba cuando cambia el código de la app.
+  push:
+    branches: [main]
+    paths: ['iWinInstaller.ps1', 'apps.json', 'profiles.json', 'install.ps1', 'tests/**', '.github/workflows/windows.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sintaxis (PowerShell 5.1)
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory resultados -Force | Out-Null
+          $e = $null
+          [void][Management.Automation.Language.Parser]::ParseFile("$PWD\iWinInstaller.ps1", [ref]$null, [ref]$e)
+          $r = @("errores de sintaxis: $(@($e).Count)") + @($e | ForEach-Object { "$($_.Extent.StartLineNumber): $($_.Message)" })
+          Get-Content apps.json -Raw -Encoding UTF8 | ConvertFrom-Json | Out-Null
+          Get-Content profiles.json -Raw -Encoding UTF8 | ConvertFrom-Json | Out-Null
+          $r += 'JSON válidos'
+          $r | Tee-Object resultados\1-sintaxis.txt
+          if ($e) { exit 1 }
+      - name: winget disponible
+        shell: powershell
+        run: |
+          if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+            Install-PackageProvider -Name NuGet -Force | Out-Null
+            Install-Module Microsoft.WinGet.Client -Force -Repository PSGallery
+            Repair-WinGetPackageManager -AllUsers -Latest
+          }
+          "winget $(winget --version)" | Tee-Object resultados\2-winget.txt
+          winget source list 2>&1 | Tee-Object resultados\2-winget.txt -Append
+      - name: Ids de winget del catálogo
+        shell: powershell
+        timeout-minutes: 30
+        continue-on-error: true
+        run: .\tests\check-ids.ps1 *>&1 | Tee-Object resultados\3-ids.txt
+      - name: Informe -Check
+        shell: powershell
+        timeout-minutes: 20
+        continue-on-error: true
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\iWinInstaller.ps1 -Check *>&1 | Tee-Object resultados\4-check.txt
+          "Código de salida (faltan): $LASTEXITCODE" | Tee-Object resultados\4-check.txt -Append
+      - name: Ventana (construcción sin mostrarla)
+        shell: powershell
+        timeout-minutes: 5
+        continue-on-error: true
+        env:
+          IWIN_PRUEBA_GUI: "1"
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\iWinInstaller.ps1 *>&1 | Tee-Object resultados\6-ventana.txt
+          "Código: $LASTEXITCODE" | Tee-Object resultados\6-ventana.txt -Append
+      - name: Instalación sin ventana (perfil Optimización)
+        shell: powershell
+        timeout-minutes: 30
+        continue-on-error: true
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\iWinInstaller.ps1 -Silent -Perfil "Optimización" *>&1 | Tee-Object resultados\5-instalacion.txt
+          "Fallos: $LASTEXITCODE" | Tee-Object resultados\5-instalacion.txt -Append
+      - name: Informe -Check tras instalar (detecta lo instalado)
+        shell: powershell
+        timeout-minutes: 20
+        continue-on-error: true
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\iWinInstaller.ps1 -Check *>&1 | Tee-Object resultados\7-check-final.txt
+          "Código de salida (faltan): $LASTEXITCODE" | Tee-Object resultados\7-check-final.txt -Append
+      - name: Instalador (install.ps1 desde la última Release)
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        timeout-minutes: 10
+        continue-on-error: true
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\install.ps1 -Silent *>&1 | Tee-Object resultados\8-instalador.txt
+          $d = Join-Path $env:LOCALAPPDATA 'Programs\iWinInstaller'
+          $lnk = Join-Path ([Environment]::GetFolderPath('Programs')) 'iWinInstaller.lnk'
+          "Instalado: $(Test-Path "$d\iWinInstaller.ps1") · versión: $(Get-Content "$d\instalado.txt" -ErrorAction SilentlyContinue) · acceso directo: $(Test-Path $lnk)" | Tee-Object resultados\8-instalador.txt -Append
+      - name: Conservar resultados de prueba
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-windows
+          path: resultados/

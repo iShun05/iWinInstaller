@@ -1,0 +1,49 @@
+name: Publicar versión
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag a publicar'
+        required: true
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-2025
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Compilar el EXE y preparar notas
+        shell: pwsh
+        run: |
+          $tag=$env:RELEASE_TAG
+          if ($tag -notmatch '^v\d+\.\d+$') { throw 'Tag no valido' }
+          git checkout $tag
+          if ($LASTEXITCODE) { throw 'El tag debe existir antes de publicar' }
+          $output=Join-Path $env:RUNNER_TEMP 'release'
+          ./scripts/build_exe.ps1 -OutputDirectory $output -Ref $tag
+          Copy-Item install.ps1 $output
+          $content=Get-Content CHANGELOG.md -Raw
+          $entry=($content -split "(?m)^## $([regex]::Escape($tag)) [^\r\n]*\r?\n",2)[1]
+          $entry=($entry -split '(?m)^## v',2)[0]
+          $entry+="`n## Descargar e instalar`nDescarga **iWinInstaller-Setup.exe** y abrelo con doble clic. Incluye la app, winget y sus dependencias de Microsoft. Alternativa portatil: iWinInstaller.zip y abrir iWinInstaller.exe.`n`n[Codigo de esta version](https://github.com/iShun05/iWinInstaller/tree/$tag) · [Historial completo](https://github.com/iShun05/iWinInstaller/blob/main/CHANGELOG.md)`n"
+          $entry | Set-Content (Join-Path $output 'notas.md') -Encoding UTF8
+          "OUTPUT=$output" >> $env:GITHUB_ENV
+      - name: Publicar descarga lista para usar
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag=$env:RELEASE_TAG
+          $files=@((Join-Path $env:OUTPUT 'iWinInstaller-Setup.exe'),(Join-Path $env:OUTPUT 'iWinInstaller.zip'),(Join-Path $env:OUTPUT 'install.ps1'))
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) { gh release upload $tag @files --clobber }
+          else { gh release create $tag @files --verify-tag --title "$tag — Instalador público y escritorio organizado" --notes-file (Join-Path $env:OUTPUT 'notas.md') --latest }
+          if ($LASTEXITCODE) { throw 'No se pudo publicar' }
+          gh release edit $tag --title "$tag — Instalador público y escritorio organizado" --notes-file (Join-Path $env:OUTPUT 'notas.md') --latest
+          if ($LASTEXITCODE) { throw 'No se pudieron actualizar las notas' }

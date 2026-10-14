@@ -1,0 +1,39 @@
+name: Comprobar ids
+# Solo comprueba que existen los ids de winget/msstore (no instala nada). Se lanza a mano.
+on:
+  workflow_dispatch:
+    inputs:
+      solo:
+        description: 'Ids de apps.json separados por espacios (vacío = todas)'
+        required: false
+        default: ''
+permissions:
+  contents: read
+jobs:
+  ids:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: winget disponible
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory resultados -Force | Out-Null
+          if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+            Install-PackageProvider -Name NuGet -Force | Out-Null
+            Install-Module Microsoft.WinGet.Client -Force -Repository PSGallery
+            Repair-WinGetPackageManager -AllUsers -Latest
+          }
+          "winget $(winget --version)" | Tee-Object resultados\2-winget.txt
+      - name: Ids
+        shell: powershell
+        continue-on-error: true
+        env:
+          SOLO: ${{ github.event.inputs.solo }}
+        run: .\tests\check-ids.ps1 -Solo $env:SOLO *>&1 | Tee-Object resultados\3-ids.txt
+      - name: Conservar resultados de prueba
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-windows
+          path: resultados/

@@ -1,0 +1,33 @@
+name: Aceptación real de instalación
+on:
+  push:
+    branches: [main, 'codex/**']
+    paths: ['iWinInstaller.ps1', 'apps.json', 'tests/check-acceptance.ps1', 'tests/check-embedded-install.ps1', 'install.ps1', 'scripts/**', 'installer-header.bat', '.github/workflows/acceptance.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar el BAT completo sin acceso a GitHub
+        shell: powershell
+        run: ./tests/check-embedded-install.ps1
+      - name: Chrome desde cero, repetición e informe
+        shell: powershell
+        run: ./tests/check-acceptance.ps1
+      - name: Construir la interfaz WPF
+        shell: powershell
+        env:
+          IWIN_PRUEBA_GUI: "1"
+        run: ./iWinInstaller.ps1
+      - name: Conservar el diagnóstico de la prueba
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aceptacion-windows
+          path: |
+            tests/aceptacion.log
+            ${{ runner.temp }}/iwin-aceptacion/

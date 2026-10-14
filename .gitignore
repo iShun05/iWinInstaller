@@ -1,0 +1,11 @@
+resultados/
+*.log
+*diagnostico*.txt
+acceso.json
+claude-setup/
+extras/
+mac/
+.env*
+*.pem
+.DS_Store
+__pycache__/
