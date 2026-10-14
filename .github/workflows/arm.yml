@@ -27,13 +27,14 @@ jobs:
           & { ./tests/check-native.ps1 } *>&1 | Tee-Object resultados\arm-3-exe.txt
           "Código: $LASTEXITCODE" | Tee-Object resultados\arm-3-exe.txt -Append
           Copy-Item "$env:LOCALAPPDATA/iWinInstaller/arranque-*.log" resultados\ -ErrorAction SilentlyContinue
-      - name: Guardar resultados
+      - name: Publicar resultados como avisos
         if: always()
         shell: powershell
         run: |
-          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
-          git checkout --orphan ci-resultados
-          git rm -rq --cached .
-          git add resultados
-          git commit -qm "ARM $env:GITHUB_SHA"
-          git push -fq origin ci-resultados
+          foreach ($f in Get-ChildItem resultados -File) {
+            $t = (Get-Content $f.FullName -Raw -ErrorAction SilentlyContinue)
+            if (-not $t) { continue }
+            if ($t.Length -gt 6000) { $t = $t.Substring($t.Length - 6000) }
+            $t = $t -replace '%','%25' -replace "`r",'' -replace "`n",'%0A'
+            Write-Host "::warning title=$($f.Name)::$t"
+          }
