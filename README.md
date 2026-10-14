@@ -76,11 +76,6 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 | [v2.1](https://github.com/iShun05/iWinInstaller/releases/tag/v2.1) **(actual)** | 2026-10-14 | Catálogo en tres secciones (Sistema, Terminal y Aplicaciones), ajustes de Windows y pruebas en ARM64 | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.1.zip) |
 | [v2.0](https://github.com/iShun05/iWinInstaller/releases/tag/v2.0) | 2026-10-14 | Instalador público, escritorio organizado y actividad legible | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.0.zip) |
 
-## Ubicación de desarrollo en el Mac
-
-Desde el 2026-10-14, la copia de trabajo está en `/Users/david/Documents/Desarrollo/iWinInstaller` (SSD interno). Los registros oficiales están en `/Users/david/Documents/Registro_Cambios/` y las cachés compartidas en `/Users/david/Documents/Cache_Dev/`. Las rutas anteriores de desarrollo en SanDisk quedan retiradas; el proyecto puede desarrollarse sin conectar ese disco.
-
-
 ## Contacto
 
 [Instagram @_shun._05](https://www.instagram.com/_shun._05/)
