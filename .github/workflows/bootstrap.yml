@@ -11,7 +11,7 @@ jobs:
     runs-on: windows-2025
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Paquete, copia y restauración segura
         shell: powershell
         run: ./tests/check-bootstrap.ps1
