@@ -46,7 +46,7 @@ jobs:
           $entry | Set-Content (Join-Path $output 'notas.md') -Encoding UTF8
           "OUTPUT=$output" >> $env:GITHUB_ENV
       - name: Firmar la procedencia de las descargas
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             ${{ env.OUTPUT }}/iWinInstaller-Setup.exe
