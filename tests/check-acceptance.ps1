@@ -8,7 +8,7 @@ if ($errors) { throw ($errors | Out-String) }
 foreach ($node in $ast.FindAll({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst]},$false)) { . ([scriptblock]::Create($node.Extent.Text)) }
 $Apps=@(Get-Content (Join-Path $root 'apps.json') -Raw -Encoding UTF8 | ConvertFrom-Json | ForEach-Object {$_})
 $Root=$root; $WorkerMode='machine'; $UI=$false; $Check=$false; $Silent=$true
-$Version='v2.1'; $LogDir=Join-Path $env:TEMP 'iwin-aceptacion'; New-Item $LogDir -ItemType Directory -Force | Out-Null
+$Version='v2.2'; $LogDir=Join-Path $env:TEMP 'iwin-aceptacion'; New-Item $LogDir -ItemType Directory -Force | Out-Null
 $LogFile=Join-Path $LogDir 'prueba.log'; $log=$null; $wingetOk=@(0,3010,-1978335135,-1978335189)
 if (-not (Ensure-Winget)) { throw 'winget no disponible' }
 Update-WingetCache

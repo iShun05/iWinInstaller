@@ -61,7 +61,7 @@ jobs:
           $files=@((Join-Path $env:OUTPUT 'iWinInstaller-Setup.exe'),(Join-Path $env:OUTPUT 'iWinInstaller.zip'),(Join-Path $env:OUTPUT 'install.ps1'))
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) { gh release upload $tag @files --clobber }
-          else { gh release create $tag @files --verify-tag --title "$tag — Instalador público y escritorio organizado" --notes-file (Join-Path $env:OUTPUT 'notas.md') --latest }
+          else { gh release create $tag @files --verify-tag --title "iWinInstaller $tag" --notes-file (Join-Path $env:OUTPUT 'notas.md') --latest }
           if ($LASTEXITCODE) { throw 'No se pudo publicar' }
-          gh release edit $tag --title "$tag — Instalador público y escritorio organizado" --notes-file (Join-Path $env:OUTPUT 'notas.md') --latest
+          gh release edit $tag --title "iWinInstaller $tag" --notes-file (Join-Path $env:OUTPUT 'notas.md') --latest
           if ($LASTEXITCODE) { throw 'No se pudieron actualizar las notas' }

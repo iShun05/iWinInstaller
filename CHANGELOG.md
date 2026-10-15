@@ -1,5 +1,13 @@
 # Historial de versiones
 
+## v2.2 — 2026-10-15
+
+### Seguridad
+- Los instaladores directos (HoYoPlay, Riot) solo se abren si los firma **su fabricante**; antes valía cualquier firma válida.
+- Las Guest Additions de VirtualBox se comprueban con el SHA256 que publica Oracle.
+- Cada descarga de la Release lleva **procedencia firmada** por GitHub: `gh attestation verify iWinInstaller-Setup.exe --repo iShun05/iWinInstaller`.
+- Nuevo `SECURITY.md` con cómo informar de un fallo y qué verifica la app.
+
 ## v2.1 — 2026-10-14
 
 ### Cambiado
