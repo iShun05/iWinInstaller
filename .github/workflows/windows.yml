@@ -72,8 +72,6 @@ jobs:
           "Código de salida (faltan): $LASTEXITCODE" | Tee-Object resultados\7-check-final.txt -Append
       - name: Instalador (install.ps1 desde la última Release)
         shell: powershell
-        env:
-          GH_TOKEN: ${{ github.token }}
         timeout-minutes: 10
         continue-on-error: true
         run: |

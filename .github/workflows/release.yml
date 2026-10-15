@@ -9,6 +9,9 @@ on:
         required: true
 permissions:
   contents: write
+  # Procedencia firmada de cada descarga (gh attestation verify)
+  id-token: write
+  attestations: write
 jobs:
   release:
     runs-on: windows-2025
@@ -42,6 +45,13 @@ jobs:
           $entry+="`n## Descargar e instalar`nDescarga **iWinInstaller-Setup.exe** y abrelo con doble clic. Incluye la app, winget y sus dependencias de Microsoft. Alternativa portatil: iWinInstaller.zip y abrir iWinInstaller.exe.`n`n[Codigo de esta version](https://github.com/iShun05/iWinInstaller/tree/$tag) · [Historial completo](https://github.com/iShun05/iWinInstaller/blob/main/CHANGELOG.md)`n"
           $entry | Set-Content (Join-Path $output 'notas.md') -Encoding UTF8
           "OUTPUT=$output" >> $env:GITHUB_ENV
+      - name: Firmar la procedencia de las descargas
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            ${{ env.OUTPUT }}/iWinInstaller-Setup.exe
+            ${{ env.OUTPUT }}/iWinInstaller.zip
+            ${{ env.OUTPUT }}/install.ps1
       - name: Publicar descarga lista para usar
         shell: pwsh
         env:

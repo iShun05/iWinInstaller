@@ -3,7 +3,7 @@ name: Diagnóstico ARM64
 on:
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
   arm:
     runs-on: windows-11-arm

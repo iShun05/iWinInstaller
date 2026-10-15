@@ -443,8 +443,15 @@ function Install-VBoxGA {
         New-Item $VBoxDir -ItemType Directory -Force | Out-Null
         $dest = Join-Path $VBoxDir "VBoxGuestAdditions_$v.iso"
         Write-Log "  Descargando Guest Additions $v..."
-        Invoke-WebRequest "https://download.virtualbox.org/virtualbox/$v/VBoxGuestAdditions_$v.iso" -OutFile $dest -UseBasicParsing
-        Write-Log "  Guardado en $dest"
+        if ($v -notmatch '^\d+(\.\d+){1,3}$') { throw "versión no válida: $v" }
+        $base = "https://download.virtualbox.org/virtualbox/$v"
+        $sums = [string](Invoke-WebRequest "$base/SHA256SUMS" -UseBasicParsing).Content
+        $match = [regex]::Match($sums, "(?m)^([a-fA-F0-9]{64}) \*?VBoxGuestAdditions_$([regex]::Escape($v))\.iso\r?$")
+        if (-not $match.Success) { throw 'Oracle no publica el hash SHA256 de esta versión.' }
+        $expected = $match.Groups[1].Value
+        Invoke-WebRequest "$base/VBoxGuestAdditions_$v.iso" -OutFile $dest -UseBasicParsing
+        if ((Get-FileHash $dest -Algorithm SHA256).Hash -ne $expected) { Remove-Item $dest -Force; throw 'El ISO no supera la comprobación SHA256.' }
+        Write-Log "  Guardado en $dest (SHA256 comprobado)"
         return $true
     } catch {
         Write-Log "  Descarga fallida ($($_.Exception.Message))."
@@ -589,7 +596,10 @@ function Install-App($app) {
         Invoke-WebRequest $app.url -OutFile $tmp -UseBasicParsing
         $bytes = [IO.File]::ReadAllBytes($tmp)
         if ($bytes.Length -lt 1MB -or $bytes[0] -ne 0x4D -or $bytes[1] -ne 0x5A) { throw 'la descarga no es un ejecutable de Windows' }
-        if ((Get-AuthenticodeSignature $tmp).Status -ne 'Valid') { throw 'el instalador no tiene una firma digital válida' }
+        # Firma válida y del fabricante esperado: una firma cualquiera no basta
+        $signature = Get-AuthenticodeSignature $tmp
+        if ($signature.Status -ne 'Valid') { throw 'el instalador no tiene una firma digital válida' }
+        if (-not $app.signer -or $signature.SignerCertificate.Subject -notmatch $app.signer) { throw "la firma no es del fabricante esperado ($($signature.SignerCertificate.Subject))" }
         Write-Log "  Se abrirá el asistente de $($app.name): complétalo para continuar."
         $p = Start-Process $tmp -PassThru
         $null = $p.Handle

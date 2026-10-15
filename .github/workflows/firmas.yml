@@ -1,0 +1,31 @@
+name: Firmas de instaladores
+# Descarga (sin ejecutar) los instaladores directos del catálogo y comprueba que los firma su fabricante.
+on:
+  push:
+    branches: [main]
+    paths: ['apps.json', '.github/workflows/firmas.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  firmas:
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Firma del fabricante esperado
+        shell: powershell
+        run: |
+          $fail = 0
+          $apps = Get-Content apps.json -Raw -Encoding UTF8 | ConvertFrom-Json | Where-Object type -eq 'download'
+          foreach ($app in $apps) {
+            $file = Join-Path $env:RUNNER_TEMP "$($app.id).exe"
+            try {
+              Invoke-WebRequest $app.url -OutFile $file -UseBasicParsing
+              $s = Get-AuthenticodeSignature $file
+              $ok = $app.signer -and $s.Status -eq 'Valid' -and $s.SignerCertificate.Subject -match $app.signer
+              "$($app.id): $($s.Status) · $($s.SignerCertificate.Subject) · esperado '$($app.signer)' · $(if ($ok) {'OK'} else {'FALLO'})"
+              if (-not $ok) { $fail++; Write-Host "::error title=$($app.id)::$($s.Status) $($s.SignerCertificate.Subject)" }
+            } catch { $fail++; Write-Host "::error title=$($app.id)::$($_.Exception.Message)" }
+          }
+          exit $fail
