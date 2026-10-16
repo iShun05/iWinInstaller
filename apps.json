@@ -244,18 +244,6 @@
     "extra": true
   },
   {
-    "id": "optimizer",
-    "section": "Sistema",
-    "group": "Optimización y privacidad",
-    "name": "Optimizer",
-    "desc": "Desactiva servicios, telemetría y apps de inicio innecesarias",
-    "icon": "glyph:E9F5",
-    "type": "winget",
-    "winget": "hellzerg.Optimizer",
-    "context": "user",
-    "extra": true
-  },
-  {
     "id": "memreduct",
     "section": "Sistema",
     "group": "Optimización y privacidad",
@@ -968,42 +956,6 @@
     "winget": "EclipseAdoptium.Temurin.25.JDK",
     "scope": "machine",
     "context": "machine",
-    "extra": true
-  },
-  {
-    "id": "kotlin",
-    "section": "Terminal",
-    "group": "Lenguajes y entornos",
-    "name": "Kotlin",
-    "desc": "Compilador de Kotlin para la línea de comandos",
-    "icon": "kotlinlang.org",
-    "type": "winget",
-    "winget": "JetBrains.Kotlin.Compiler",
-    "context": "user",
-    "extra": true
-  },
-  {
-    "id": "gradle",
-    "section": "Terminal",
-    "group": "Lenguajes y entornos",
-    "name": "Gradle",
-    "desc": "Herramienta de compilación para Java, Kotlin y Android",
-    "icon": "gradle.org",
-    "type": "winget",
-    "winget": "Gradle.Gradle",
-    "context": "user",
-    "extra": true
-  },
-  {
-    "id": "maven",
-    "section": "Terminal",
-    "group": "Lenguajes y entornos",
-    "name": "Apache Maven",
-    "desc": "Gestor de proyectos y dependencias de Java",
-    "icon": "maven.apache.org",
-    "type": "winget",
-    "winget": "Apache.Maven",
-    "context": "user",
     "extra": true
   },
   {
@@ -2006,18 +1958,6 @@
     "extra": true
   },
   {
-    "id": "ds4windows",
-    "section": "Aplicaciones",
-    "group": "Juegos",
-    "name": "DS4Windows",
-    "desc": "Usa mandos de PlayStation en juegos de PC",
-    "icon": "glyph:E7FC",
-    "type": "winget",
-    "winget": "Ryochan7.DS4Windows",
-    "context": "user",
-    "extra": true
-  },
-  {
     "id": "sunshine",
     "section": "Aplicaciones",
     "group": "Juegos",
@@ -2683,18 +2623,6 @@
     "extra": true
   },
   {
-    "id": "filezilla",
-    "section": "Aplicaciones",
-    "group": "Desarrollo",
-    "name": "FileZilla",
-    "desc": "Cliente FTP y SFTP",
-    "icon": "filezilla-project.org",
-    "type": "winget",
-    "winget": "TimKosse.FileZilla.Client",
-    "context": "machine",
-    "extra": true
-  },
-  {
     "id": "mobaxterm",
     "section": "Aplicaciones",
     "group": "Desarrollo",
@@ -3120,18 +3048,6 @@
     "icon": "bulkrenameutility.co.uk",
     "type": "winget",
     "winget": "TGRMNSoftware.BulkRenameUtility",
-    "context": "machine",
-    "extra": true
-  },
-  {
-    "id": "rustdesk",
-    "section": "Aplicaciones",
-    "group": "Utilidades",
-    "name": "RustDesk",
-    "desc": "Escritorio remoto libre, alternativa a TeamViewer",
-    "icon": "rustdesk.com",
-    "type": "winget",
-    "winget": "RustDesk.RustDesk",
     "context": "machine",
     "extra": true
   },
@@ -3562,7 +3478,7 @@
     "desc": "Te recuerda hacer descansos mientras trabajas",
     "icon": "hovancik.net",
     "type": "winget",
-    "winget": "Hovancik.Stretchly",
+    "winget": "Stretchly.Stretchly",
     "context": "user",
     "extra": true
   },
@@ -4530,18 +4446,6 @@
     "extra": true
   },
   {
-    "id": "pureref",
-    "section": "Aplicaciones",
-    "group": "Diseño y foto",
-    "name": "PureRef",
-    "desc": "Tablero de imágenes de referencia para artistas",
-    "icon": "pureref.com",
-    "type": "winget",
-    "winget": "idreamsoft.PureRef",
-    "context": "machine",
-    "extra": true
-  },
-  {
     "id": "lunacy",
     "section": "Aplicaciones",
     "group": "Diseño y foto",
@@ -4773,7 +4677,7 @@
     "desc": "Notas y bases de datos locales y cifradas",
     "icon": "anytype.io",
     "type": "winget",
-    "winget": "Anytype.Anytype",
+    "winget": "AnyAssociation.Anytype",
     "context": "user",
     "extra": true
   },

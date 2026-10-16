@@ -12,7 +12,7 @@
 - **Desinstalar**: botón **Desinstalar** en cada app instalada, en el menú del clic derecho y para todo lo instalado que marques. Pide confirmación, usa winget, el paquete de Store o el desinstalador oficial, y comprueba que la app ya no está. Los componentes del sistema (Visual C++, .NET, DirectX, Edge, Store) no se ofrecen.
 - **Deshacer ajustes**: los ajustes de Windows vuelven al valor de serie con el mismo botón.
 - **Perfiles propios**: **Guardar…** lo marcado (opcionalmente con lo ya instalado), **⋯ › Exportar** a un archivo `.iwin.json` e **Importar…** en otro PC. Sin ventana: `iWinInstaller.ps1 -Silent -Perfil archivo.iwin.json`. Un perfil solo contiene ids del catálogo; los desconocidos se ignoran.
-- **157 entradas nuevas (395 en total)**: lenguajes (Deno, .NET SDK, Ruby, Java 17/25, Kotlin, Lua, Zig, Julia, R, Perl, CMake, LLVM, MSYS2, Build Tools…), bases de datos, herramientas de terminal (lazygit, Starship, Oh My Posh, gsudo, Codex CLI, Azure/AWS CLI…), y apps de desarrollo, utilidades, calidad de vida, multimedia, seguridad, juegos y personalización.
+- **149 entradas nuevas (387 en total)**: lenguajes (Deno, .NET SDK, Ruby, Java 17/25, Lua, Zig, Julia, R, Perl, CMake, LLVM, MSYS2, Build Tools…), bases de datos, herramientas de terminal (lazygit, Starship, Oh My Posh, gsudo, Codex CLI, Azure/AWS CLI…), y apps de desarrollo, utilidades, calidad de vida, multimedia, seguridad, juegos y personalización.
 - **8 ajustes de Windows**: rutas largas, menú contextual clásico, Inicio sin Bing, barra a la izquierda, segundos en el reloj, Explorador en «Este equipo», «Finalizar tarea» y ratón sin aceleración.
 
 ### Pruebas
