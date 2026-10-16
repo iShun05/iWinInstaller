@@ -1,5 +1,24 @@
 # Historial de versiones
 
+## v2.3 — 2026-10-16
+
+### Interfaz
+- **Rediseño oscuro más limpio**: barra superior con búsqueda, barras de desplazamiento finas, diálogos propios y menús oscuros.
+- **Pantallas pequeñas y máquinas virtuales**: la ventana se adapta a la pantalla (se abre maximizada si es pequeña), oculta las secciones tras el botón ☰ cuando falta ancho y agrupa las acciones secundarias en ⋯. La lista conserva el espacio.
+- **Tamaño del texto**: botones **A− / A+**, `Ctrl + rueda` y `Ctrl + + / − / 0` escalan toda la ventana del 70 % al 200 %. Se recuerda para la próxima vez.
+- Atajos: `Ctrl + F` busca, `Espacio` marca, `Supr` desinstala la fila seleccionada.
+
+### Añadido
+- **Desinstalar**: botón **Desinstalar** en cada app instalada, en el menú del clic derecho y para todo lo instalado que marques. Pide confirmación, usa winget, el paquete de Store o el desinstalador oficial, y comprueba que la app ya no está. Los componentes del sistema (Visual C++, .NET, DirectX, Edge, Store) no se ofrecen.
+- **Deshacer ajustes**: los ajustes de Windows vuelven al valor de serie con el mismo botón.
+- **Perfiles propios**: **Guardar…** lo marcado (opcionalmente con lo ya instalado), **⋯ › Exportar** a un archivo `.iwin.json` e **Importar…** en otro PC. Sin ventana: `iWinInstaller.ps1 -Silent -Perfil archivo.iwin.json`. Un perfil solo contiene ids del catálogo; los desconocidos se ignoran.
+- **157 entradas nuevas (395 en total)**: lenguajes (Deno, .NET SDK, Ruby, Java 17/25, Kotlin, Lua, Zig, Julia, R, Perl, CMake, LLVM, MSYS2, Build Tools…), bases de datos, herramientas de terminal (lazygit, Starship, Oh My Posh, gsudo, Codex CLI, Azure/AWS CLI…), y apps de desarrollo, utilidades, calidad de vida, multimedia, seguridad, juegos y personalización.
+- **8 ajustes de Windows**: rutas largas, menú contextual clásico, Inicio sin Bing, barra a la izquierda, segundos en el reloj, Explorador en «Este equipo», «Finalizar tarea» y ratón sin aceleración.
+
+### Pruebas
+- La prueba de ventana comprueba zoom, tamaños 1180×780, 800×600 y 600×440, desinstalar y la ida y vuelta de perfiles.
+- `check-ids.ps1` valida cada id con su ámbito y arquitectura.
+
 ## v2.2 — 2026-10-15
 
 ### Seguridad
