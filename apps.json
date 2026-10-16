@@ -2138,10 +2138,10 @@
     "section": "Aplicaciones",
     "group": "IA",
     "name": "ChatGPT",
-    "desc": "App oficial de OpenAI (Microsoft Store)",
+    "desc": "App oficial de OpenAI con Chat, Codex y agente (Microsoft Store)",
     "icon": "chatgpt.com",
     "type": "winget",
-    "winget": "9NT1R1C2HH7J",
+    "winget": "9PLM9XGG6VKS",
     "source": "msstore",
     "configure": true,
     "context": "user"
