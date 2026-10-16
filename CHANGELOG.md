@@ -1,5 +1,10 @@
 # Historial de versiones
 
+## v2.4 — 2026-10-16
+
+### Cambiado
+- **ChatGPT**: instala la app actual de OpenAI de Microsoft Store (`9PLM9XGG6VKS`, con Chat, Codex y agente) en lugar de ChatGPT Classic (`9NT1R1C2HH7J`).
+
 ## v2.3 — 2026-10-16
 
 ### Interfaz
