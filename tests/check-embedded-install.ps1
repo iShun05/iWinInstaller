@@ -21,7 +21,7 @@ try {
     & ([scriptblock]::Create($text.Substring($start,$end-$start))) -Silent
     $installed=Join-Path $env:LOCALAPPDATA 'Programs/iWinInstaller'
     if (-not (Test-Path (Join-Path $installed 'iWinInstaller.ps1'))) { throw 'No se instalo la app incluida' }
-    if ((Get-Content (Join-Path $installed 'instalado.txt') -Raw) -notmatch 'v2.2') { throw 'Version instalada incorrecta' }
+    if ((Get-Content (Join-Path $installed 'instalado.txt') -Raw) -notmatch 'v2.3') { throw 'Version instalada incorrecta' }
     Write-Host 'OK: instalacion completa desde BAT incluido, sin descarga ni inicio de sesion.'
 } finally {
     $env:LOCALAPPDATA=$previous; $env:IWIN_SETUP_FILE=$previousSetup

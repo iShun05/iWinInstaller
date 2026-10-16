@@ -64,7 +64,7 @@ function Install-ReleaseFiles($sourceDir, $installDir, $tagName) {
 
 }
 function Show-InstallProgress([int]$step, [string]$status) {
-    Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v2.2' -Status "Etapa $($step + 1) de 7: $status" -PercentComplete ([int](100 * $step / 7))
+    Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v2.3' -Status "Etapa $($step + 1) de 7: $status" -PercentComplete ([int](100 * $step / 7))
     Write-Host "[$($step + 1)/7] $status"
 }
 function Read-EmbeddedArchive([string]$file, [string]$destination) {
@@ -81,7 +81,7 @@ function Read-EmbeddedArchive([string]$file, [string]$destination) {
     [IO.File]::WriteAllBytes($destination, $bytes)
     return $true
 }
-$tag = 'v2.2'
+$tag = 'v2.3'
 $tmp = Join-Path $env:TEMP ('iWinInstaller-' + [Guid]::NewGuid().ToString())
 New-Item -ItemType Directory $tmp -Force | Out-Null
 $archive = Join-Path $tmp 'iWinInstaller.zip'
@@ -131,7 +131,7 @@ foreach ($l in $Links) {
     $s.Description = 'Instala aplicaciones para Windows'
     $s.Save()
 }
-Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v2.2' -Completed
+Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v2.3' -Completed
 Write-Host '[7/7] Instalacion completada.'
 Write-Host "iWinInstaller $tag instalado en $Dir"
 Write-Host 'Accesos directos creados en el menu Inicio y en el Escritorio.'

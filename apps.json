@@ -76,6 +76,94 @@
     "optin": true
   },
   {
+    "id": "longpaths",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Rutas largas",
+    "desc": "Permite rutas de más de 260 caracteres (evita errores con Node, Git y Python)",
+    "icon": "glyph:E8B7",
+    "type": "tweak",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "classicmenu",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Menú contextual clásico",
+    "desc": "Windows 11: el clic derecho muestra todas las opciones sin «Mostrar más opciones»",
+    "icon": "glyph:E8FD",
+    "type": "tweak",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "nobing",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Inicio sin resultados de Bing",
+    "desc": "La búsqueda del menú Inicio solo busca en tu PC",
+    "icon": "glyph:E721",
+    "type": "tweak",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "taskbarleft",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Barra de tareas a la izquierda",
+    "desc": "Windows 11: iconos alineados a la izquierda como en Windows 10",
+    "icon": "glyph:E8E4",
+    "type": "tweak",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "clockseconds",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Segundos en el reloj",
+    "desc": "El reloj de la barra de tareas muestra los segundos",
+    "icon": "glyph:E823",
+    "type": "tweak",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "thispc",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Explorador abre «Este equipo»",
+    "desc": "El Explorador empieza en tus unidades en vez de en Inicio",
+    "icon": "glyph:E7F8",
+    "type": "tweak",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "endtask",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "«Finalizar tarea» en la barra",
+    "desc": "Windows 11: cierra una app colgada con clic derecho en su icono",
+    "icon": "glyph:E711",
+    "type": "tweak",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "mouseaccel",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Sin aceleración del ratón",
+    "desc": "Movimiento del puntero 1:1, útil para juegos y diseño",
+    "icon": "glyph:E962",
+    "type": "tweak",
+    "context": "user",
+    "extra": true
+  },
+  {
     "id": "bleachbit",
     "section": "Sistema",
     "group": "Optimización y privacidad",
@@ -144,6 +232,30 @@
     ]
   },
   {
+    "id": "privacysexy",
+    "section": "Sistema",
+    "group": "Optimización y privacidad",
+    "name": "privacy.sexy",
+    "desc": "Scripts abiertos para quitar telemetría y ajustar la privacidad de Windows",
+    "icon": "privacy.sexy",
+    "type": "winget",
+    "winget": "undergroundwires.privacy.sexy",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "memreduct",
+    "section": "Sistema",
+    "group": "Optimización y privacidad",
+    "name": "Mem Reduct",
+    "desc": "Libera memoria RAM en uso con un clic",
+    "icon": "glyph:E950",
+    "type": "winget",
+    "winget": "Henry++.MemReduct",
+    "context": "machine",
+    "extra": true
+  },
+  {
     "id": "ddu",
     "section": "Sistema",
     "group": "Drivers y componentes",
@@ -182,7 +294,8 @@
       "Microsoft.VCLibs.140.00_8wekyb3d8bbwe"
     ],
     "extra": true,
-    "architecture": "x86"
+    "architecture": "x86",
+    "keep": true
   },
   {
     "id": "vcredist",
@@ -194,7 +307,8 @@
     "type": "winget",
     "winget": "Microsoft.VCRedist.2015+.x64",
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "keep": true
   },
   {
     "id": "vcredistall",
@@ -229,7 +343,8 @@
       "Microsoft Visual C++ 2012 Redistributable (x86) - 11.0.61030",
       "Microsoft Visual C++ 2013 Redistributable (x64) - 12.0.40664",
       "Microsoft Visual C++ 2013 Redistributable (x86) - 12.0.40664"
-    ]
+    ],
+    "keep": true
   },
   {
     "id": "dotnet",
@@ -246,7 +361,8 @@
       "Microsoft Windows Desktop Runtime - 8.0.32 (arm64)",
       "Microsoft Windows Desktop Runtime - 8.0.32 (x64)",
       "Microsoft Windows Desktop Runtime - 8.0.32 (x86)"
-    ]
+    ],
+    "keep": true
   },
   {
     "id": "directx",
@@ -260,7 +376,8 @@
     "context": "user",
     "families": [
       "Microsoft.DirectXRuntime_8wekyb3d8bbwe"
-    ]
+    ],
+    "keep": true
   },
   {
     "id": "nvcleanstall",
@@ -300,6 +417,58 @@
     "extra": true,
     "source": "msstore",
     "context": "user"
+  },
+  {
+    "id": "webview2",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
+    "name": "WebView2 Runtime",
+    "desc": "Componente de Microsoft que usan muchas apps modernas",
+    "icon": "microsoft.com",
+    "type": "winget",
+    "winget": "Microsoft.EdgeWebView2Runtime",
+    "context": "machine",
+    "extra": true,
+    "keep": true
+  },
+  {
+    "id": "dotnet10",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
+    "name": ".NET Desktop Runtime 10",
+    "desc": "Necesario para apps .NET recientes",
+    "icon": "dotnet.microsoft.com",
+    "type": "winget",
+    "winget": "Microsoft.DotNet.DesktopRuntime.10",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true,
+    "keep": true
+  },
+  {
+    "id": "inteldsa",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
+    "name": "Intel Driver & Support Assistant",
+    "desc": "Busca e instala drivers de Intel actualizados",
+    "icon": "intel.com",
+    "type": "winget",
+    "winget": "Intel.IntelDriverAndSupportAssistant",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "javaruntime",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
+    "name": "Java 21 Runtime (Temurin)",
+    "desc": "Para abrir programas .jar sin instalar el JDK completo",
+    "icon": "adoptium.net",
+    "type": "winget",
+    "winget": "EclipseAdoptium.Temurin.21.JRE",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
   },
   {
     "id": "terminal",
@@ -380,6 +549,114 @@
     "extra": true,
     "scope": "machine",
     "context": "machine"
+  },
+  {
+    "id": "wezterm",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "WezTerm",
+    "desc": "Terminal rápida con pestañas, divisiones y GPU",
+    "icon": "wezfurlong.org",
+    "type": "winget",
+    "winget": "wez.wezterm",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "alacritty",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "Alacritty",
+    "desc": "Terminal minimalista acelerada por GPU",
+    "icon": "alacritty.org",
+    "type": "winget",
+    "winget": "Alacritty.Alacritty",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "tabby",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "Tabby",
+    "desc": "Terminal con SSH, serie y perfiles integrados",
+    "icon": "tabby.sh",
+    "type": "winget",
+    "winget": "Eugeny.Tabby",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "nushell",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "Nushell",
+    "desc": "Shell moderna que trabaja con datos estructurados",
+    "icon": "nushell.sh",
+    "type": "winget",
+    "winget": "Nushell.Nushell",
+    "context": "machine",
+    "extra": true,
+    "commands": [
+      "nu"
+    ]
+  },
+  {
+    "id": "ohmyposh",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "Oh My Posh",
+    "desc": "Prompt bonito y configurable para PowerShell y otras shells",
+    "icon": "ohmyposh.dev",
+    "type": "winget",
+    "winget": "JanDeDobbeleer.OhMyPosh",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "oh-my-posh"
+    ]
+  },
+  {
+    "id": "starship",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "Starship",
+    "desc": "Prompt rápido y mínimo para cualquier shell",
+    "icon": "starship.rs",
+    "type": "winget",
+    "winget": "Starship.Starship",
+    "context": "machine",
+    "extra": true,
+    "commands": [
+      "starship"
+    ]
+  },
+  {
+    "id": "clink",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "Clink",
+    "desc": "Autocompletado e historial de bash para cmd.exe",
+    "icon": "glyph:E756",
+    "type": "winget",
+    "winget": "chrisant996.Clink",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "gsudo",
+    "section": "Terminal",
+    "group": "Consola y shells",
+    "name": "gsudo",
+    "desc": "Ejecuta un comando como administrador desde la misma consola (sudo)",
+    "icon": "glyph:E7EF",
+    "type": "winget",
+    "winget": "gerardog.gsudo",
+    "context": "machine",
+    "extra": true,
+    "commands": [
+      "gsudo"
+    ]
   },
   {
     "id": "git",
@@ -613,6 +890,304 @@
     ]
   },
   {
+    "id": "deno",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Deno",
+    "desc": "Entorno de JavaScript y TypeScript seguro por defecto",
+    "icon": "deno.com",
+    "type": "winget",
+    "winget": "DenoLand.Deno",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "deno"
+    ]
+  },
+  {
+    "id": "dotnetsdk",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": ".NET SDK 10",
+    "desc": "Compila apps de C#, F# y ASP.NET",
+    "icon": "dotnet.microsoft.com",
+    "type": "winget",
+    "winget": "Microsoft.DotNet.SDK.10",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "ruby",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Ruby 3.4 + DevKit",
+    "desc": "Ruby con las herramientas para compilar gemas",
+    "icon": "ruby-lang.org",
+    "type": "winget",
+    "winget": "RubyInstallerTeam.RubyWithDevKit.3.4",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "ruby"
+    ]
+  },
+  {
+    "id": "java17",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Java 17 (Temurin)",
+    "desc": "JDK 17 LTS para proyectos que aún lo necesitan",
+    "icon": "adoptium.net",
+    "type": "winget",
+    "winget": "EclipseAdoptium.Temurin.17.JDK",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "java25",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Java 25 (Temurin)",
+    "desc": "JDK 25 LTS, la versión más reciente",
+    "icon": "adoptium.net",
+    "type": "winget",
+    "winget": "EclipseAdoptium.Temurin.25.JDK",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "lua",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Lua",
+    "desc": "Lenguaje de scripts ligero (mods, Neovim, juegos)",
+    "icon": "lua.org",
+    "type": "winget",
+    "winget": "DEVCOM.Lua",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "zig",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Zig",
+    "desc": "Lenguaje de sistemas y compilador de C sencillo",
+    "icon": "ziglang.org",
+    "type": "winget",
+    "winget": "zig.zig",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "zig"
+    ]
+  },
+  {
+    "id": "julia",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Julia",
+    "desc": "Lenguaje rápido para ciencia de datos y cálculo",
+    "icon": "julialang.org",
+    "type": "winget",
+    "winget": "Julialang.Julia",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "rlang",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "R",
+    "desc": "Lenguaje de estadística y análisis de datos",
+    "icon": "r-project.org",
+    "type": "winget",
+    "winget": "RProject.R",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "perl",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Strawberry Perl",
+    "desc": "Perl para Windows con compilador incluido",
+    "icon": "strawberryperl.com",
+    "type": "winget",
+    "winget": "StrawberryPerl.StrawberryPerl",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "erlang",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Erlang/OTP",
+    "desc": "Plataforma de Erlang (necesaria para Elixir y RabbitMQ)",
+    "icon": "erlang.org",
+    "type": "winget",
+    "winget": "Erlang.ErlangOTP",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "cmake",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "CMake",
+    "desc": "Genera proyectos de compilación de C y C++",
+    "icon": "cmake.org",
+    "type": "winget",
+    "winget": "Kitware.CMake",
+    "context": "machine",
+    "extra": true,
+    "commands": [
+      "cmake"
+    ]
+  },
+  {
+    "id": "ninja",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Ninja",
+    "desc": "Sistema de compilación pequeño y muy rápido",
+    "icon": "ninja-build.org",
+    "type": "winget",
+    "winget": "Ninja-build.Ninja",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "llvm",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "LLVM / Clang",
+    "desc": "Compiladores Clang para C, C++ y herramientas de LLVM",
+    "icon": "llvm.org",
+    "type": "winget",
+    "winget": "LLVM.LLVM",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "msys2",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "MSYS2",
+    "desc": "Entorno tipo Linux con pacman, GCC y MinGW",
+    "icon": "msys2.org",
+    "type": "winget",
+    "winget": "MSYS2.MSYS2",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "vsbuildtools",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Build Tools de Visual Studio",
+    "desc": "Compilador de C++ de Microsoft sin el IDE (lo piden Rust, Node y Python)",
+    "icon": "visualstudio.microsoft.com",
+    "type": "winget",
+    "winget": "Microsoft.VisualStudio.2022.BuildTools",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "nvm",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "NVM for Windows",
+    "desc": "Cambia entre versiones de Node.js",
+    "icon": "nodejs.org",
+    "type": "winget",
+    "winget": "CoreyButler.NVMforWindows",
+    "context": "machine",
+    "extra": true,
+    "commands": [
+      "nvm"
+    ]
+  },
+  {
+    "id": "fnm",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "fnm",
+    "desc": "Gestor de versiones de Node.js muy rápido",
+    "icon": "glyph:E943",
+    "type": "winget",
+    "winget": "Schniz.fnm",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "fnm"
+    ]
+  },
+  {
+    "id": "yarn",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Yarn",
+    "desc": "Gestor de paquetes de JavaScript",
+    "icon": "yarnpkg.com",
+    "type": "winget",
+    "winget": "Yarn.Yarn",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "miniconda",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "Miniconda",
+    "desc": "Python con conda para entornos de ciencia de datos",
+    "icon": "anaconda.com",
+    "type": "winget",
+    "winget": "Anaconda.Miniconda3",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "postgres",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "PostgreSQL 17",
+    "desc": "Base de datos SQL de código abierto",
+    "icon": "postgresql.org",
+    "type": "winget",
+    "winget": "PostgreSQL.PostgreSQL.17",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "mongodb",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "MongoDB Server",
+    "desc": "Base de datos de documentos",
+    "icon": "mongodb.com",
+    "type": "winget",
+    "winget": "MongoDB.Server",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "sqlite",
+    "section": "Terminal",
+    "group": "Lenguajes y entornos",
+    "name": "SQLite",
+    "desc": "Base de datos en un archivo y su consola",
+    "icon": "sqlite.org",
+    "type": "winget",
+    "winget": "SQLite.SQLite",
+    "context": "user",
+    "extra": true
+  },
+  {
     "id": "claudecode",
     "section": "Terminal",
     "group": "Herramientas de terminal",
@@ -811,6 +1386,218 @@
     "extra": true,
     "configure": true,
     "context": "user"
+  },
+  {
+    "id": "lazygit",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "lazygit",
+    "desc": "Interfaz de Git en la terminal",
+    "icon": "glyph:E756",
+    "type": "winget",
+    "winget": "JesseDuffield.lazygit",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "lazygit"
+    ]
+  },
+  {
+    "id": "delta",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "delta",
+    "desc": "Diferencias de Git con colores y resaltado",
+    "icon": "glyph:E756",
+    "type": "winget",
+    "winget": "dandavison.delta",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "delta"
+    ]
+  },
+  {
+    "id": "btop",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "btop",
+    "desc": "Monitor de recursos bonito en la terminal",
+    "icon": "glyph:E9D9",
+    "type": "winget",
+    "winget": "aristocratos.btop4win",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "wget",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Wget",
+    "desc": "Descarga archivos desde la línea de comandos",
+    "icon": "glyph:E896",
+    "type": "winget",
+    "winget": "JernejSimoncic.Wget",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "hyperfine",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "hyperfine",
+    "desc": "Mide y compara el tiempo de comandos",
+    "icon": "glyph:E916",
+    "type": "winget",
+    "winget": "sharkdp.hyperfine",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "hyperfine"
+    ]
+  },
+  {
+    "id": "tlrc",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "tldr",
+    "desc": "Ejemplos rápidos de uso de cualquier comando",
+    "icon": "glyph:E897",
+    "type": "winget",
+    "winget": "tldr-pages.tlrc",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "yazi",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Yazi",
+    "desc": "Explorador de archivos rápido en la terminal",
+    "icon": "glyph:E8B7",
+    "type": "winget",
+    "winget": "sxyazi.yazi",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "yazi"
+    ]
+  },
+  {
+    "id": "glow",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Glow",
+    "desc": "Lee archivos Markdown con formato en la terminal",
+    "icon": "glyph:E8A5",
+    "type": "winget",
+    "winget": "charmbracelet.glow",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "glow"
+    ]
+  },
+  {
+    "id": "micro",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "micro",
+    "desc": "Editor de texto de terminal fácil, con atajos normales",
+    "icon": "glyph:E70F",
+    "type": "winget",
+    "winget": "zyedidia.micro",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "helix",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Helix",
+    "desc": "Editor modal moderno con LSP integrado",
+    "icon": "helix-editor.com",
+    "type": "winget",
+    "winget": "Helix.Helix",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "codex",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Codex CLI",
+    "desc": "Agente de programación de OpenAI en la terminal",
+    "icon": "openai.com",
+    "type": "winget",
+    "winget": "OpenAI.Codex",
+    "context": "user",
+    "extra": true,
+    "commands": [
+      "codex"
+    ]
+  },
+  {
+    "id": "azurecli",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Azure CLI",
+    "desc": "Gestiona Microsoft Azure desde la terminal",
+    "icon": "azure.microsoft.com",
+    "type": "winget",
+    "winget": "Microsoft.AzureCLI",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "awscli",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "AWS CLI",
+    "desc": "Gestiona Amazon Web Services desde la terminal",
+    "icon": "aws.amazon.com",
+    "type": "winget",
+    "winget": "Amazon.AWSCLI",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "kubectl",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "kubectl",
+    "desc": "Cliente de Kubernetes",
+    "icon": "kubernetes.io",
+    "type": "winget",
+    "winget": "Kubernetes.kubectl",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "helm",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Helm",
+    "desc": "Gestor de paquetes de Kubernetes",
+    "icon": "helm.sh",
+    "type": "winget",
+    "winget": "Helm.Helm",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "terraform",
+    "section": "Terminal",
+    "group": "Herramientas de terminal",
+    "name": "Terraform",
+    "desc": "Infraestructura como código",
+    "icon": "terraform.io",
+    "type": "winget",
+    "winget": "Hashicorp.Terraform",
+    "context": "user",
+    "extra": true
   },
   {
     "id": "steam",
@@ -1111,6 +1898,90 @@
     ]
   },
   {
+    "id": "minecraft",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Minecraft Launcher",
+    "desc": "Lanzador oficial de Minecraft Java y Bedrock",
+    "icon": "minecraft.net",
+    "type": "winget",
+    "winget": "Mojang.MinecraftLauncher",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "amazongames",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Amazon Games",
+    "desc": "Juegos de Prime Gaming",
+    "icon": "gaming.amazon.com",
+    "type": "winget",
+    "winget": "Amazon.Games",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "dolphin",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Dolphin",
+    "desc": "Emulador de GameCube y Wii",
+    "icon": "dolphin-emu.org",
+    "type": "winget",
+    "winget": "DolphinEmulator.Dolphin",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "pcsx2",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "PCSX2",
+    "desc": "Emulador de PlayStation 2",
+    "icon": "pcsx2.net",
+    "type": "winget",
+    "winget": "PCSX2Team.PCSX2",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "ppsspp",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "PPSSPP",
+    "desc": "Emulador de PSP",
+    "icon": "ppsspp.org",
+    "type": "winget",
+    "winget": "PPSSPPTeam.PPSSPP",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "sunshine",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Sunshine",
+    "desc": "Servidor de streaming de juegos para usar con Moonlight",
+    "icon": "lizardbyte.dev",
+    "type": "winget",
+    "winget": "LizardByte.Sunshine",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "vortex",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Vortex",
+    "desc": "Gestor de mods de Nexus Mods",
+    "icon": "nexusmods.com",
+    "type": "winget",
+    "winget": "NexusMods.Vortex",
+    "context": "machine",
+    "extra": true
+  },
+  {
     "id": "chrome",
     "section": "Aplicaciones",
     "group": "Navegadores",
@@ -1246,7 +2117,8 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "keep": true
   },
   {
     "id": "tor",
@@ -1618,6 +2490,211 @@
     ]
   },
   {
+    "id": "vscommunity",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Visual Studio Community",
+    "desc": "IDE completo de Microsoft para C#, C++ y .NET",
+    "icon": "visualstudio.microsoft.com",
+    "type": "winget",
+    "winget": "Microsoft.VisualStudio.2022.Community",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "windsurf",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Windsurf",
+    "desc": "Editor de código con IA",
+    "icon": "windsurf.com",
+    "type": "winget",
+    "winget": "Codeium.Windsurf",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "kiro",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Kiro",
+    "desc": "Editor de código con agentes de IA de Amazon",
+    "icon": "kiro.dev",
+    "type": "winget",
+    "winget": "Amazon.Kiro",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "insomnia",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Insomnia",
+    "desc": "Cliente para probar APIs REST y GraphQL",
+    "icon": "insomnia.rest",
+    "type": "winget",
+    "winget": "Insomnia.Insomnia",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "heidisql",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "HeidiSQL",
+    "desc": "Cliente ligero de MySQL, MariaDB, PostgreSQL y SQL Server",
+    "icon": "heidisql.com",
+    "type": "winget",
+    "winget": "HeidiSQL.HeidiSQL",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "pgadmin",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "pgAdmin 4",
+    "desc": "Administra bases de datos PostgreSQL",
+    "icon": "pgadmin.org",
+    "type": "winget",
+    "winget": "PostgreSQL.pgAdmin",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "mongocompass",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "MongoDB Compass",
+    "desc": "Explora y consulta bases de datos MongoDB",
+    "icon": "mongodb.com",
+    "type": "winget",
+    "winget": "MongoDB.Compass.Full",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "fork",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Fork",
+    "desc": "Cliente de Git rápido y agradable",
+    "icon": "git-fork.com",
+    "type": "winget",
+    "winget": "Fork.Fork",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "gitkraken",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "GitKraken",
+    "desc": "Cliente de Git visual",
+    "icon": "gitkraken.com",
+    "type": "winget",
+    "winget": "Axosoft.GitKraken",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "podman",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Podman Desktop",
+    "desc": "Contenedores y Kubernetes sin Docker Desktop",
+    "icon": "podman-desktop.io",
+    "type": "winget",
+    "winget": "RedHat.Podman-Desktop",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "putty",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "PuTTY",
+    "desc": "Cliente SSH y Telnet clásico",
+    "icon": "putty.org",
+    "type": "winget",
+    "winget": "PuTTY.PuTTY",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "mobaxterm",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "MobaXterm",
+    "desc": "Terminal SSH con X11, SFTP y herramientas de red",
+    "icon": "mobaxterm.mobatek.net",
+    "type": "winget",
+    "winget": "Mobatek.MobaXterm",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "arduino",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Arduino IDE",
+    "desc": "Programa placas Arduino y compatibles",
+    "icon": "arduino.cc",
+    "type": "winget",
+    "winget": "ArduinoSA.IDE.stable",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "unityhub",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Unity Hub",
+    "desc": "Instala y gestiona versiones del motor Unity",
+    "icon": "unity.com",
+    "type": "winget",
+    "winget": "Unity.UnityHub",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "godot",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Godot Engine",
+    "desc": "Motor de videojuegos libre en 2D y 3D",
+    "icon": "godotengine.org",
+    "type": "winget",
+    "winget": "GodotEngine.GodotEngine",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "imhex",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "ImHex",
+    "desc": "Editor hexadecimal para ingeniería inversa",
+    "icon": "imhex.werwolv.net",
+    "type": "winget",
+    "winget": "WerWolv.ImHex",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "hxd",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "HxD",
+    "desc": "Editor hexadecimal sencillo y rápido",
+    "icon": "mh-nexus.de",
+    "type": "winget",
+    "winget": "MHNexus.HxD",
+    "context": "machine",
+    "extra": true
+  },
+  {
     "id": "7zip",
     "section": "Aplicaciones",
     "group": "Utilidades",
@@ -1804,7 +2881,8 @@
     "winget": "9WZDNCRFJBMP",
     "source": "msstore",
     "extra": true,
-    "context": "user"
+    "context": "user",
+    "keep": true
   },
   {
     "id": "sumatra",
@@ -1936,6 +3014,103 @@
     "winget": "Genymobile.scrcpy",
     "extra": true,
     "context": "user"
+  },
+  {
+    "id": "peazip",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "PeaZip",
+    "desc": "Abre y crea ZIP, RAR, 7z y más de 200 formatos",
+    "icon": "peazip.github.io",
+    "type": "winget",
+    "winget": "Giorgiotani.Peazip",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "winrar",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "WinRAR",
+    "desc": "Compresor clásico de RAR y ZIP (prueba gratuita)",
+    "icon": "win-rar.com",
+    "type": "winget",
+    "winget": "RARLab.WinRAR",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "bulkrename",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "Bulk Rename Utility",
+    "desc": "Renombra miles de archivos a la vez con reglas",
+    "icon": "bulkrenameutility.co.uk",
+    "type": "winget",
+    "winget": "TGRMNSoftware.BulkRenameUtility",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "anydesk",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "AnyDesk",
+    "desc": "Escritorio remoto rápido",
+    "icon": "anydesk.com",
+    "type": "winget",
+    "winget": "AnyDesk.AnyDesk",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "teamviewer",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "TeamViewer",
+    "desc": "Control remoto y soporte a otros equipos",
+    "icon": "teamviewer.com",
+    "type": "winget",
+    "winget": "TeamViewer.TeamViewer",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "fdm",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "Free Download Manager",
+    "desc": "Acelera, pausa y reanuda descargas",
+    "icon": "freedownloadmanager.org",
+    "type": "winget",
+    "winget": "SoftDeluxe.FreeDownloadManager",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "jdownloader",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "JDownloader 2",
+    "desc": "Descarga archivos de webs de alojamiento en lote",
+    "icon": "jdownloader.org",
+    "type": "winget",
+    "winget": "AppWork.JDownloader",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "protonpass",
+    "section": "Aplicaciones",
+    "group": "Utilidades",
+    "name": "Proton Pass",
+    "desc": "Gestor de contraseñas cifrado de Proton",
+    "icon": "proton.me",
+    "type": "winget",
+    "winget": "Proton.ProtonPass",
+    "context": "user",
+    "extra": true,
+    "configure": true
   },
   {
     "id": "sharex",
@@ -2224,6 +3399,126 @@
     "context": "machine"
   },
   {
+    "id": "espanso",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Espanso",
+    "desc": "Expande textos: escribe «:correo» y pega tu dirección",
+    "icon": "espanso.org",
+    "type": "winget",
+    "winget": "Espanso.Espanso",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "screentogif",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "ScreenToGif",
+    "desc": "Graba la pantalla como GIF o vídeo corto",
+    "icon": "screentogif.com",
+    "type": "winget",
+    "winget": "NickeManarin.ScreenToGif",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "copyq",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "CopyQ",
+    "desc": "Historial del portapapeles con búsqueda y pestañas",
+    "icon": "hluk.github.io",
+    "type": "winget",
+    "winget": "hluk.CopyQ",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "listary",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Listary",
+    "desc": "Busca y abre archivos al instante desde cualquier ventana",
+    "icon": "listary.com",
+    "type": "winget",
+    "winget": "Bopsoft.Listary",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "fluentsearch",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Fluent Search",
+    "desc": "Lanzador para buscar apps, archivos, pestañas y más",
+    "icon": "fluentsearch.net",
+    "type": "winget",
+    "winget": "BlastApps.FluentSearch",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "monitorian",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Monitorian",
+    "desc": "Brillo de varios monitores desde la barra de tareas",
+    "icon": "glyph:E706",
+    "type": "winget",
+    "winget": "emoacht.Monitorian",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "stretchly",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Stretchly",
+    "desc": "Te recuerda hacer descansos mientras trabajas",
+    "icon": "hovancik.net",
+    "type": "winget",
+    "winget": "Stretchly.Stretchly",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "keyviz",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Keyviz",
+    "desc": "Muestra en pantalla las teclas que pulsas (tutoriales)",
+    "icon": "glyph:E765",
+    "type": "winget",
+    "winget": "mulaRahul.Keyviz",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "quickshare",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "Quick Share",
+    "desc": "Envía archivos entre Android y el PC sin cables",
+    "icon": "android.com",
+    "type": "winget",
+    "winget": "Google.QuickShare",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "komorebi",
+    "section": "Aplicaciones",
+    "group": "Calidad de vida",
+    "name": "komorebi",
+    "desc": "Organiza las ventanas en mosaico automáticamente",
+    "icon": "glyph:E8A9",
+    "type": "winget",
+    "winget": "LGUG2Z.komorebi",
+    "context": "user",
+    "extra": true
+  },
+  {
     "id": "wiztree",
     "section": "Aplicaciones",
     "group": "Mantenimiento y hardware",
@@ -2430,6 +3725,91 @@
     "context": "machine"
   },
   {
+    "id": "windirstat",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "WinDirStat",
+    "desc": "Mapa visual de qué ocupa espacio en el disco",
+    "icon": "windirstat.net",
+    "type": "winget",
+    "winget": "WinDirStat.WinDirStat",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "librehw",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Libre Hardware Monitor",
+    "desc": "Temperaturas, ventiladores y voltajes del PC",
+    "icon": "glyph:E9D9",
+    "type": "winget",
+    "winget": "LibreHardwareMonitor.LibreHardwareMonitor",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "coretemp",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Core Temp",
+    "desc": "Temperatura de cada núcleo del procesador",
+    "icon": "alcpu.com",
+    "type": "winget",
+    "winget": "ALCPU.CoreTemp",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "procmon",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Process Monitor",
+    "desc": "Registra en tiempo real qué hace cada proceso",
+    "icon": "sysinternals.com",
+    "type": "winget",
+    "winget": "Microsoft.Sysinternals.ProcessMonitor",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "patchmypc",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Patch My PC Home Updater",
+    "desc": "Actualiza de una vez programas de terceros",
+    "icon": "patchmypc.com",
+    "type": "winget",
+    "winget": "PatchMyPC.PatchMyPC",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "driverstore",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Driver Store Explorer",
+    "desc": "Limpia drivers antiguos que ocupan espacio",
+    "icon": "glyph:E74D",
+    "type": "winget",
+    "winget": "lostindark.DriverStoreExplorer",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "pcmanager",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Microsoft PC Manager",
+    "desc": "Limpieza, arranque y estado del PC de Microsoft",
+    "icon": "microsoft.com",
+    "type": "winget",
+    "winget": "9PM860492SZD",
+    "source": "msstore",
+    "context": "user",
+    "extra": true
+  },
+  {
     "id": "whatsapp",
     "section": "Aplicaciones",
     "group": "Comunicación",
@@ -2545,6 +3925,43 @@
     "detectNames": [
       "Vesktop 1.6.7"
     ]
+  },
+  {
+    "id": "element",
+    "section": "Aplicaciones",
+    "group": "Comunicación",
+    "name": "Element",
+    "desc": "Chat cifrado de Matrix",
+    "icon": "element.io",
+    "type": "winget",
+    "winget": "Element.Element",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "protonmail",
+    "section": "Aplicaciones",
+    "group": "Comunicación",
+    "name": "Proton Mail",
+    "desc": "Correo cifrado de Proton",
+    "icon": "proton.me",
+    "type": "winget",
+    "winget": "Proton.ProtonMail",
+    "context": "user",
+    "extra": true,
+    "configure": true
+  },
+  {
+    "id": "viber",
+    "section": "Aplicaciones",
+    "group": "Comunicación",
+    "name": "Viber",
+    "desc": "Mensajería y llamadas",
+    "icon": "viber.com",
+    "type": "winget",
+    "winget": "Rakuten.Viber",
+    "context": "user",
+    "extra": true
   },
   {
     "id": "spotify",
@@ -2744,6 +4161,90 @@
     "context": "user"
   },
   {
+    "id": "klite",
+    "section": "Aplicaciones",
+    "group": "Multimedia",
+    "name": "K-Lite Codec Pack",
+    "desc": "Códecs para reproducir cualquier vídeo en Windows",
+    "icon": "codecguide.com",
+    "type": "winget",
+    "winget": "CodecGuide.K-LiteCodecPack.Standard",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "potplayer",
+    "section": "Aplicaciones",
+    "group": "Multimedia",
+    "name": "PotPlayer",
+    "desc": "Reproductor de vídeo muy completo",
+    "icon": "potplayer.daum.net",
+    "type": "winget",
+    "winget": "Daum.PotPlayer",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "kodi",
+    "section": "Aplicaciones",
+    "group": "Multimedia",
+    "name": "Kodi",
+    "desc": "Centro multimedia para películas, series y música",
+    "icon": "kodi.tv",
+    "type": "winget",
+    "winget": "XBMCFoundation.Kodi",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "mediainfo",
+    "section": "Aplicaciones",
+    "group": "Multimedia",
+    "name": "MediaInfo",
+    "desc": "Muestra códecs, resolución y datos técnicos de un archivo",
+    "icon": "mediaarea.net",
+    "type": "winget",
+    "winget": "MediaArea.MediaInfo.GUI",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "voicemeeter",
+    "section": "Aplicaciones",
+    "group": "Multimedia",
+    "name": "Voicemeeter",
+    "desc": "Mezclador de audio virtual para streaming y llamadas",
+    "icon": "vb-audio.com",
+    "type": "winget",
+    "winget": "VB-Audio.Voicemeeter",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "reaper",
+    "section": "Aplicaciones",
+    "group": "Multimedia",
+    "name": "REAPER",
+    "desc": "Estudio de grabación y edición de audio",
+    "icon": "reaper.fm",
+    "type": "winget",
+    "winget": "Cockos.REAPER",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "lmms",
+    "section": "Aplicaciones",
+    "group": "Multimedia",
+    "name": "LMMS",
+    "desc": "Crea música con secuenciador y sintetizadores",
+    "icon": "lmms.io",
+    "type": "winget",
+    "winget": "LMMS.LMMS",
+    "context": "machine",
+    "extra": true
+  },
+  {
     "id": "gimp",
     "section": "Aplicaciones",
     "group": "Diseño y foto",
@@ -2897,6 +4398,66 @@
     "context": "machine"
   },
   {
+    "id": "upscayl",
+    "section": "Aplicaciones",
+    "group": "Diseño y foto",
+    "name": "Upscayl",
+    "desc": "Aumenta la resolución de imágenes con IA, sin conexión",
+    "icon": "upscayl.org",
+    "type": "winget",
+    "winget": "Upscayl.Upscayl",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "xnview",
+    "section": "Aplicaciones",
+    "group": "Diseño y foto",
+    "name": "XnView MP",
+    "desc": "Visor y organizador de fotos con conversión por lotes",
+    "icon": "xnview.com",
+    "type": "winget",
+    "winget": "XnSoft.XnViewMP",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "rawtherapee",
+    "section": "Aplicaciones",
+    "group": "Diseño y foto",
+    "name": "RawTherapee",
+    "desc": "Revela fotos RAW de cámara",
+    "icon": "rawtherapee.com",
+    "type": "winget",
+    "winget": "RawTherapee.RawTherapee",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "freecad",
+    "section": "Aplicaciones",
+    "group": "Diseño y foto",
+    "name": "FreeCAD",
+    "desc": "Modelado 3D paramétrico para diseño e impresión 3D",
+    "icon": "freecad.org",
+    "type": "winget",
+    "winget": "FreeCAD.FreeCAD",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "lunacy",
+    "section": "Aplicaciones",
+    "group": "Diseño y foto",
+    "name": "Lunacy",
+    "desc": "Diseño de interfaces gratuito, compatible con Sketch",
+    "icon": "icons8.com",
+    "type": "winget",
+    "winget": "Icons8.Lunacy",
+    "context": "user",
+    "extra": true
+  },
+  {
     "id": "libreoffice",
     "section": "Aplicaciones",
     "group": "Ofimática y estudio",
@@ -3036,6 +4597,116 @@
     "context": "machine"
   },
   {
+    "id": "office",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "Microsoft 365 (Office)",
+    "desc": "Word, Excel, PowerPoint y Outlook (necesita licencia)",
+    "icon": "microsoft.com",
+    "type": "winget",
+    "winget": "Microsoft.Office",
+    "context": "machine",
+    "extra": true,
+    "configure": true
+  },
+  {
+    "id": "joplin",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "Joplin",
+    "desc": "Notas en Markdown con sincronización cifrada",
+    "icon": "joplinapp.org",
+    "type": "winget",
+    "winget": "Joplin.Joplin",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "drawio",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "draw.io",
+    "desc": "Diagramas, esquemas y organigramas sin conexión",
+    "icon": "drawio.com",
+    "type": "winget",
+    "winget": "JGraph.Draw",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "xournal",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "Xournal++",
+    "desc": "Toma apuntes a mano y anota PDF con lápiz",
+    "icon": "xournalpp.github.io",
+    "type": "winget",
+    "winget": "Xournal++.Xournal++",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "okular",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "Okular",
+    "desc": "Visor de PDF y documentos con anotaciones",
+    "icon": "okular.kde.org",
+    "type": "winget",
+    "winget": "KDE.Okular",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "foxit",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "Foxit PDF Reader",
+    "desc": "Lector de PDF rápido con firma y formularios",
+    "icon": "foxit.com",
+    "type": "winget",
+    "winget": "Foxit.FoxitReader",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "anytype",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "Anytype",
+    "desc": "Notas y bases de datos locales y cifradas",
+    "icon": "anytype.io",
+    "type": "winget",
+    "winget": "AnyAssociation.Anytype",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "geogebra",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "GeoGebra",
+    "desc": "Matemáticas: geometría, gráficas y cálculo",
+    "icon": "geogebra.org",
+    "type": "winget",
+    "winget": "GeoGebra.Classic",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "mstodo",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "Microsoft To Do",
+    "desc": "Listas de tareas sincronizadas con tu cuenta",
+    "icon": "todo.microsoft.com",
+    "type": "winget",
+    "winget": "9NBLGGH5R558",
+    "source": "msstore",
+    "context": "user",
+    "extra": true
+  },
+  {
     "id": "gdrive",
     "section": "Aplicaciones",
     "group": "Nube y archivos",
@@ -3119,6 +4790,32 @@
     "configure": true,
     "scope": "machine",
     "context": "machine"
+  },
+  {
+    "id": "protondrive",
+    "section": "Aplicaciones",
+    "group": "Nube y archivos",
+    "name": "Proton Drive",
+    "desc": "Nube cifrada de Proton",
+    "icon": "proton.me",
+    "type": "winget",
+    "winget": "Proton.ProtonDrive",
+    "context": "user",
+    "extra": true,
+    "configure": true
+  },
+  {
+    "id": "nextcloud",
+    "section": "Aplicaciones",
+    "group": "Nube y archivos",
+    "name": "Nextcloud",
+    "desc": "Sincroniza con tu propio servidor Nextcloud",
+    "icon": "nextcloud.com",
+    "type": "winget",
+    "winget": "Nextcloud.NextcloudDesktop",
+    "context": "machine",
+    "extra": true,
+    "configure": true
   },
   {
     "id": "malwarebytes",
@@ -3269,6 +4966,128 @@
     ]
   },
   {
+    "id": "nordvpn",
+    "section": "Aplicaciones",
+    "group": "Seguridad y redes",
+    "name": "NordVPN",
+    "desc": "VPN de pago",
+    "icon": "nordvpn.com",
+    "type": "winget",
+    "winget": "NordSecurity.NordVPN",
+    "context": "machine",
+    "extra": true,
+    "configure": true
+  },
+  {
+    "id": "windscribe",
+    "section": "Aplicaciones",
+    "group": "Seguridad y redes",
+    "name": "Windscribe",
+    "desc": "VPN con plan gratuito",
+    "icon": "windscribe.com",
+    "type": "winget",
+    "winget": "Windscribe.Windscribe",
+    "context": "machine",
+    "extra": true,
+    "configure": true
+  },
+  {
+    "id": "wireguard",
+    "section": "Aplicaciones",
+    "group": "Seguridad y redes",
+    "name": "WireGuard",
+    "desc": "Cliente VPN WireGuard",
+    "icon": "wireguard.com",
+    "type": "winget",
+    "winget": "WireGuard.WireGuard",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "openvpn",
+    "section": "Aplicaciones",
+    "group": "Seguridad y redes",
+    "name": "OpenVPN Connect",
+    "desc": "Cliente oficial de OpenVPN",
+    "icon": "openvpn.net",
+    "type": "winget",
+    "winget": "OpenVPNTechnologies.OpenVPNConnect",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "portmaster",
+    "section": "Aplicaciones",
+    "group": "Seguridad y redes",
+    "name": "Portmaster",
+    "desc": "Cortafuegos de aplicaciones con privacidad",
+    "icon": "safing.io",
+    "type": "winget",
+    "winget": "Safing.Portmaster",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "simplewall",
+    "section": "Aplicaciones",
+    "group": "Seguridad y redes",
+    "name": "simplewall",
+    "desc": "Bloquea qué programas pueden conectarse a internet",
+    "icon": "glyph:E83D",
+    "type": "winget",
+    "winget": "Henry++.simplewall",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "cryptomator",
+    "section": "Aplicaciones",
+    "group": "Seguridad y redes",
+    "name": "Cryptomator",
+    "desc": "Cifra tus archivos antes de subirlos a la nube",
+    "icon": "cryptomator.org",
+    "type": "winget",
+    "winget": "Cryptomator.Cryptomator",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "gpg4win",
+    "section": "Aplicaciones",
+    "group": "Seguridad y redes",
+    "name": "Gpg4win",
+    "desc": "Cifrado y firma con OpenPGP (Kleopatra)",
+    "icon": "gpg4win.org",
+    "type": "winget",
+    "winget": "GnuPG.Gpg4win",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "nmap",
+    "section": "Aplicaciones",
+    "group": "Seguridad y redes",
+    "name": "Nmap",
+    "desc": "Escáner de redes y puertos (con Zenmap)",
+    "icon": "nmap.org",
+    "type": "winget",
+    "winget": "Insecure.Nmap",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "angryip",
+    "section": "Aplicaciones",
+    "group": "Seguridad y redes",
+    "name": "Angry IP Scanner",
+    "desc": "Encuentra los dispositivos de tu red",
+    "icon": "angryip.org",
+    "type": "winget",
+    "winget": "angryziber.AngryIPScanner",
+    "context": "machine",
+    "extra": true
+  },
+  {
     "id": "windhawk",
     "section": "Aplicaciones",
     "group": "Personalización",
@@ -3348,5 +5167,41 @@
     "extra": true,
     "scope": "machine",
     "context": "machine"
+  },
+  {
+    "id": "explorerpatcher",
+    "section": "Aplicaciones",
+    "group": "Personalización",
+    "name": "ExplorerPatcher",
+    "desc": "Barra de tareas e Inicio al estilo de Windows 10",
+    "icon": "glyph:E771",
+    "type": "winget",
+    "winget": "valinet.ExplorerPatcher",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "startallback",
+    "section": "Aplicaciones",
+    "group": "Personalización",
+    "name": "StartAllBack",
+    "desc": "Inicio y barra de tareas clásicos (prueba gratuita)",
+    "icon": "startallback.com",
+    "type": "winget",
+    "winget": "StartIsBack.StartAllBack",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "seelen",
+    "section": "Aplicaciones",
+    "group": "Personalización",
+    "name": "Seelen UI",
+    "desc": "Escritorio personalizable con barra y mosaico de ventanas",
+    "icon": "glyph:E771",
+    "type": "winget",
+    "winget": "Seelen.SeelenUI",
+    "context": "user",
+    "extra": true
   }
 ]

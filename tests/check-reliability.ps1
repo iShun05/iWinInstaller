@@ -151,5 +151,30 @@ Write-Host 'OK: prepara dependencias, omite lo instalado, confirma el resultado 
     Write-Host 'OK: actualizacion EXE diferida hasta cerrar la ventana.'
 }
 
+# Desinstalar: nada esencial se ofrece, los MSI se quitan sin ventana y una desinstalacion fallida no se da por buena.
+& {
+    . (Get-FunctionBody 'Test-Uninstallable')
+    . (Get-FunctionBody 'Get-UninstallCommand')
+    . (Get-FunctionBody 'Invoke-Uninstall')
+    $all = @(Get-Content (Join-Path $PSScriptRoot '..\apps.json') -Raw -Encoding UTF8 | ConvertFrom-Json | ForEach-Object { $_ })
+    $blocked = @($all | Where-Object { $_.id -in @('vcredist', 'vcredistall', 'vclibs14', 'dotnet', 'directx', 'msstore', 'edge', 'wsl', 'restorepoint', 'vboxga') -and (Test-Uninstallable $_) })
+    if ($blocked) { throw "No deben ofrecerse para desinstalar: $($blocked.id -join ', ')" }
+    if ((Get-UninstallCommand ([pscustomobject]@{UninstallString='MsiExec.exe /I{12345678-1234-1234-1234-123456789ABC}'})) -ne 'msiexec.exe /x {12345678-1234-1234-1234-123456789ABC} /qn /norestart') { throw 'Un MSI debe desinstalarse sin ventana' }
+    if ((Get-UninstallCommand ([pscustomobject]@{UninstallString='"C:\a\u.exe"'; QuietUninstallString='"C:\a\u.exe" /S'})) -ne '"C:\a\u.exe" /S') { throw 'Debe preferir la orden silenciosa' }
+    function Write-Log($msg) { }
+    function Ensure-Winget { $true }
+    function Update-WingetCache { }
+    function Test-Administrator { $false }
+    function Get-InstallContext { 'user' }
+    function Test-AppInstalled($app) { $app.id -ne 'ausente' }
+    function Uninstall-App($app) { $script:removed += $app.id; $app.id -eq 'quitada' }
+    $script:removed = @()
+    $sel = @('quitada', 'resiste', 'ausente', 'dotnet') | ForEach-Object { [pscustomobject]@{ id = $_; name = $_; type = 'winget'; winget = $_; keep = ($_ -eq 'dotnet') } }
+    $fail = @(Invoke-Uninstall $sel $null)
+    if (@($fail.id) -join ',' -ne 'dotnet,resiste') { throw "Fallos de desinstalacion mal contados: $(@($fail.id) -join ',')" }
+    if ($script:removed -contains 'dotnet' -or $script:removed -contains 'ausente') { throw 'No debe tocar lo protegido ni lo que ya no esta' }
+    Write-Host 'OK: desinstalar protege componentes, usa ordenes silenciosas y confirma el resultado.'
+}
+
 # Los errores nativos anteriores son deliberados; todas las aserciones han pasado.
 $global:LASTEXITCODE = 0
