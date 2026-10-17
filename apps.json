@@ -471,6 +471,20 @@
     "extra": true
   },
   {
+    "id": "msstore",
+    "section": "Sistema",
+    "group": "Drivers y componentes",
+    "name": "Microsoft Store",
+    "desc": "Reinstala la tienda de Windows si se quitó (para apps de la Store)",
+    "icon": "glyph:E719",
+    "type": "winget",
+    "winget": "9WZDNCRFJBMP",
+    "source": "msstore",
+    "extra": true,
+    "context": "user",
+    "keep": true
+  },
+  {
     "id": "terminal",
     "section": "Terminal",
     "group": "Consola y shells",
@@ -486,7 +500,8 @@
     ],
     "commands": [
       "wt"
-    ]
+    ],
+    "gui": true
   },
   {
     "id": "pwsh",
@@ -523,7 +538,8 @@
     "commands": [
       "ubuntu",
       "ubuntu2404"
-    ]
+    ],
+    "gui": true
   },
   {
     "id": "nfjetbrains",
@@ -535,7 +551,8 @@
     "type": "winget",
     "winget": "DEVCOM.JetBrainsMonoNerdFont",
     "extra": true,
-    "context": "machine"
+    "context": "machine",
+    "noopen": true
   },
   {
     "id": "nfhack",
@@ -548,7 +565,8 @@
     "winget": "SourceFoundry.HackFonts",
     "extra": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "noopen": true
   },
   {
     "id": "wezterm",
@@ -560,7 +578,8 @@
     "type": "winget",
     "winget": "wez.wezterm",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "gui": true
   },
   {
     "id": "alacritty",
@@ -572,7 +591,8 @@
     "type": "winget",
     "winget": "Alacritty.Alacritty",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "gui": true
   },
   {
     "id": "tabby",
@@ -584,7 +604,8 @@
     "type": "winget",
     "winget": "Eugeny.Tabby",
     "context": "user",
-    "extra": true
+    "extra": true,
+    "gui": true
   },
   {
     "id": "nushell",
@@ -855,22 +876,6 @@
       "jshell",
       "jstat",
       "keytool"
-    ]
-  },
-  {
-    "id": "mysql",
-    "section": "Terminal",
-    "group": "Lenguajes y entornos",
-    "name": "MySQL Server",
-    "desc": "Base de datos MySQL local",
-    "icon": "mysql.com",
-    "type": "winget",
-    "winget": "Oracle.MySQL",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "MySQL Server 8.4"
     ]
   },
   {
@@ -1152,9 +1157,25 @@
     "extra": true
   },
   {
+    "id": "mysql",
+    "section": "Terminal",
+    "group": "Bases de datos",
+    "name": "MySQL Server",
+    "desc": "Base de datos MySQL local",
+    "icon": "mysql.com",
+    "type": "winget",
+    "winget": "Oracle.MySQL",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "MySQL Server 8.4"
+    ]
+  },
+  {
     "id": "postgres",
     "section": "Terminal",
-    "group": "Lenguajes y entornos",
+    "group": "Bases de datos",
     "name": "PostgreSQL 17",
     "desc": "Base de datos SQL de código abierto",
     "icon": "postgresql.org",
@@ -1166,7 +1187,7 @@
   {
     "id": "mongodb",
     "section": "Terminal",
-    "group": "Lenguajes y entornos",
+    "group": "Bases de datos",
     "name": "MongoDB Server",
     "desc": "Base de datos de documentos",
     "icon": "mongodb.com",
@@ -1178,7 +1199,7 @@
   {
     "id": "sqlite",
     "section": "Terminal",
-    "group": "Lenguajes y entornos",
+    "group": "Bases de datos",
     "name": "SQLite",
     "desc": "Base de datos en un archivo y su consola",
     "icon": "sqlite.org",
@@ -2260,9 +2281,9 @@
   {
     "id": "obsidian",
     "section": "Aplicaciones",
-    "group": "Notas y nube",
+    "group": "Notas y tareas",
     "name": "Obsidian",
-    "desc": "Notas en Markdown",
+    "desc": "Notas en Markdown enlazadas, en local",
     "icon": "obsidian.md",
     "type": "winget",
     "winget": "Obsidian.Obsidian",
@@ -2271,17 +2292,206 @@
     "context": "machine"
   },
   {
-    "id": "icloud",
+    "id": "notion",
     "section": "Aplicaciones",
-    "group": "Notas y nube",
-    "name": "iCloud",
-    "desc": "iCloud para Windows (Microsoft Store). Inicia sesión tras instalar",
-    "icon": "icloud.com",
+    "group": "Notas y tareas",
+    "name": "Notion",
+    "desc": "Notas, tareas y wikis",
+    "icon": "notion.so",
     "type": "winget",
-    "winget": "9PKTQ5699M62",
-    "source": "msstore",
+    "winget": "Notion.Notion",
+    "extra": true,
     "configure": true,
+    "scope": "user",
+    "context": "user",
+    "families": [
+      "com.notion.app.desktop.notion_87smfmv0eebam"
+    ]
+  },
+  {
+    "id": "logseq",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Logseq",
+    "desc": "Notas en esquema enlazadas, en local",
+    "icon": "logseq.com",
+    "type": "winget",
+    "winget": "Logseq.Logseq",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "joplin",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Joplin",
+    "desc": "Notas en Markdown con sincronización cifrada",
+    "icon": "joplinapp.org",
+    "type": "winget",
+    "winget": "Joplin.Joplin",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "anytype",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Anytype",
+    "desc": "Notas y bases de datos locales y cifradas",
+    "icon": "anytype.io",
+    "type": "winget",
+    "winget": "AnyAssociation.Anytype",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "todoist",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Todoist",
+    "desc": "Gestor de tareas",
+    "icon": "todoist.com",
+    "type": "winget",
+    "winget": "Doist.Todoist",
+    "extra": true,
+    "configure": true,
+    "scope": "user",
     "context": "user"
+  },
+  {
+    "id": "mstodo",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Microsoft To Do",
+    "desc": "Listas de tareas sincronizadas con tu cuenta",
+    "icon": "todo.microsoft.com",
+    "type": "winget",
+    "winget": "9NBLGGH5R558",
+    "source": "msstore",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "onenote",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "OneNote",
+    "desc": "Cuadernos de notas de Microsoft con tu cuenta",
+    "icon": "onenote.com",
+    "type": "winget",
+    "winget": "Microsoft.OneNote",
+    "context": "machine",
+    "extra": true,
+    "scope": "machine"
+  },
+  {
+    "id": "evernote",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Evernote",
+    "desc": "Notas, documentos y recortes web en la nube",
+    "icon": "evernote.com",
+    "type": "winget",
+    "winget": "evernote.evernote",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "standardnotes",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Standard Notes",
+    "desc": "Notas cifradas de extremo a extremo",
+    "icon": "standardnotes.com",
+    "type": "winget",
+    "winget": "StandardNotes.StandardNotes",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "notesnook",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Notesnook",
+    "desc": "Notas privadas y cifradas, alternativa a Evernote",
+    "icon": "notesnook.com",
+    "type": "winget",
+    "winget": "Streetwriters.Notesnook",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "affine",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "AFFiNE",
+    "desc": "Notas, pizarra y bases de datos en un espacio, local primero",
+    "icon": "affine.pro",
+    "type": "winget",
+    "winget": "ToEverything.AFFiNE",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "siyuan",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "SiYuan",
+    "desc": "Notas por bloques en local, con enlaces y bases de datos",
+    "icon": "b3log.org",
+    "type": "winget",
+    "winget": "b3log.SiYuan",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "trilium",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Trilium Notes",
+    "desc": "Notas jerárquicas para una base de conocimiento personal",
+    "icon": "triliumnotes.org",
+    "type": "winget",
+    "winget": "TriliumNext.Notes",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "zettlr",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Zettlr",
+    "desc": "Editor Markdown para escritura académica y notas",
+    "icon": "zettlr.com",
+    "type": "winget",
+    "winget": "Zettlr.Zettlr",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "simplenote",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "Simplenote",
+    "desc": "Notas de texto simples y sincronizadas",
+    "icon": "simplenote.com",
+    "type": "winget",
+    "winget": "Automattic.Simplenote",
+    "context": "user",
+    "extra": true
+  },
+  {
+    "id": "ticktick",
+    "section": "Aplicaciones",
+    "group": "Notas y tareas",
+    "name": "TickTick",
+    "desc": "Tareas, calendario y hábitos",
+    "icon": "ticktick.com",
+    "type": "winget",
+    "winget": "Appest.TickTick",
+    "context": "user",
+    "extra": true
   },
   {
     "id": "virtualbox",
@@ -2303,6 +2513,19 @@
     "desc": "ISO de Guest Additions de la última versión, para montar en las máquinas virtuales",
     "icon": "virtualbox.org",
     "type": "vboxga"
+  },
+  {
+    "id": "vmware",
+    "section": "Aplicaciones",
+    "group": "Virtualización",
+    "name": "VMware Workstation Pro",
+    "desc": "Máquinas virtuales de VMware, gratis para uso personal",
+    "icon": "vmware.com",
+    "type": "winget",
+    "winget": "VMware.WorkstationPro",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
   },
   {
     "id": "vscode",
@@ -2459,6 +2682,18 @@
       "Sublime Text",
       "Sublime Text (Portable)"
     ]
+  },
+  {
+    "id": "notepadpp",
+    "section": "Aplicaciones",
+    "group": "Desarrollo",
+    "name": "Notepad++",
+    "desc": "Editor de texto ligero con pestañas y resaltado de código",
+    "icon": "notepad-plus-plus.org",
+    "type": "winget",
+    "winget": "Notepad++.Notepad++",
+    "scope": "machine",
+    "context": "machine"
   },
   {
     "id": "winmerge",
@@ -2725,21 +2960,6 @@
     ]
   },
   {
-    "id": "vlc",
-    "section": "Aplicaciones",
-    "group": "Utilidades",
-    "name": "VLC",
-    "desc": "Reproductor de vídeo y audio",
-    "icon": "www.videolan.org",
-    "type": "winget",
-    "winget": "VideoLAN.VLC",
-    "scope": "machine",
-    "context": "machine",
-    "commands": [
-      "vlc"
-    ]
-  },
-  {
     "id": "everything",
     "section": "Aplicaciones",
     "group": "Utilidades",
@@ -2755,35 +2975,6 @@
       "Everything (ARM64 portable)",
       "Everything (x64 portable)",
       "Everything (x86 portable)"
-    ]
-  },
-  {
-    "id": "discord",
-    "section": "Aplicaciones",
-    "group": "Utilidades",
-    "name": "Discord",
-    "desc": "Chat de voz y texto",
-    "icon": "discord.com",
-    "type": "winget",
-    "winget": "Discord.Discord",
-    "configure": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "bitwarden",
-    "section": "Aplicaciones",
-    "group": "Utilidades",
-    "name": "Bitwarden",
-    "desc": "Gestor de contraseñas",
-    "icon": "bitwarden.com",
-    "type": "winget",
-    "winget": "Bitwarden.Bitwarden",
-    "configure": true,
-    "scope": "machine",
-    "context": "machine",
-    "commands": [
-      "bitwarden"
     ]
   },
   {
@@ -2871,56 +3062,6 @@
     "context": "machine"
   },
   {
-    "id": "msstore",
-    "section": "Aplicaciones",
-    "group": "Utilidades",
-    "name": "Microsoft Store",
-    "desc": "Reinstala la tienda de Windows si se quitó (para apps de la Store)",
-    "icon": "glyph:E719",
-    "type": "winget",
-    "winget": "9WZDNCRFJBMP",
-    "source": "msstore",
-    "extra": true,
-    "context": "user",
-    "keep": true
-  },
-  {
-    "id": "sumatra",
-    "section": "Aplicaciones",
-    "group": "Utilidades",
-    "name": "SumatraPDF",
-    "desc": "Lector de PDF, ePub y cómics muy ligero",
-    "icon": "sumatrapdfreader.org",
-    "type": "winget",
-    "winget": "SumatraPDF.SumatraPDF",
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "SumatraPDF (ARM64 portable)",
-      "SumatraPDF (x64 portable)",
-      "SumatraPDF (x86 portable)"
-    ],
-    "commands": [
-      "sumatrapdf"
-    ]
-  },
-  {
-    "id": "acrobat",
-    "section": "Aplicaciones",
-    "group": "Utilidades",
-    "name": "Adobe Acrobat Reader",
-    "desc": "Lector de PDF de Adobe con firmas y formularios",
-    "icon": "adobe.com",
-    "type": "winget",
-    "winget": "Adobe.Acrobat.Reader.64-bit",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "detectNames": [
-      "Adobe Acrobat (64-bit)"
-    ]
-  },
-  {
     "id": "qbittorrent",
     "section": "Aplicaciones",
     "group": "Utilidades",
@@ -2945,35 +3086,6 @@
     "extra": true,
     "scope": "machine",
     "context": "machine"
-  },
-  {
-    "id": "keepassxc",
-    "section": "Aplicaciones",
-    "group": "Utilidades",
-    "name": "KeePassXC",
-    "desc": "Gestor de contraseñas local, sin nube",
-    "icon": "keepassxc.org",
-    "type": "winget",
-    "winget": "KeePassXCTeam.KeePassXC",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
-    "id": "onepassword",
-    "section": "Aplicaciones",
-    "group": "Utilidades",
-    "name": "1Password",
-    "desc": "Gestor de contraseñas",
-    "icon": "1password.com",
-    "type": "winget",
-    "winget": "AgileBits.1Password",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine",
-    "families": [
-      "Agilebits.1Password_amwd9z03whsfe"
-    ]
   },
   {
     "id": "appledevices",
@@ -3100,19 +3212,6 @@
     "extra": true
   },
   {
-    "id": "protonpass",
-    "section": "Aplicaciones",
-    "group": "Utilidades",
-    "name": "Proton Pass",
-    "desc": "Gestor de contraseñas cifrado de Proton",
-    "icon": "proton.me",
-    "type": "winget",
-    "winget": "Proton.ProtonPass",
-    "context": "user",
-    "extra": true,
-    "configure": true
-  },
-  {
     "id": "sharex",
     "section": "Aplicaciones",
     "group": "Calidad de vida",
@@ -3230,18 +3329,6 @@
     "winget": "flux.flux",
     "scope": "user",
     "context": "user"
-  },
-  {
-    "id": "notepadpp",
-    "section": "Aplicaciones",
-    "group": "Calidad de vida",
-    "name": "Notepad++",
-    "desc": "Editor de texto ligero con pestañas y resaltado de código",
-    "icon": "notepad-plus-plus.org",
-    "type": "winget",
-    "winget": "Notepad++.Notepad++",
-    "scope": "machine",
-    "context": "machine"
   },
   {
     "id": "greenshot",
@@ -3810,6 +3897,19 @@
     "extra": true
   },
   {
+    "id": "discord",
+    "section": "Aplicaciones",
+    "group": "Comunicación",
+    "name": "Discord",
+    "desc": "Chat de voz y texto",
+    "icon": "discord.com",
+    "type": "winget",
+    "winget": "Discord.Discord",
+    "configure": true,
+    "scope": "user",
+    "context": "user"
+  },
+  {
     "id": "whatsapp",
     "section": "Aplicaciones",
     "group": "Comunicación",
@@ -3962,6 +4062,21 @@
     "winget": "Rakuten.Viber",
     "context": "user",
     "extra": true
+  },
+  {
+    "id": "vlc",
+    "section": "Aplicaciones",
+    "group": "Multimedia",
+    "name": "VLC",
+    "desc": "Reproductor de vídeo y audio",
+    "icon": "www.videolan.org",
+    "type": "winget",
+    "winget": "VideoLAN.VLC",
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "vlc"
+    ]
   },
   {
     "id": "spotify",
@@ -4489,50 +4604,6 @@
     ]
   },
   {
-    "id": "notion",
-    "section": "Aplicaciones",
-    "group": "Ofimática y estudio",
-    "name": "Notion",
-    "desc": "Notas, tareas y wikis",
-    "icon": "notion.so",
-    "type": "winget",
-    "winget": "Notion.Notion",
-    "extra": true,
-    "configure": true,
-    "scope": "user",
-    "context": "user",
-    "families": [
-      "com.notion.app.desktop.notion_87smfmv0eebam"
-    ]
-  },
-  {
-    "id": "todoist",
-    "section": "Aplicaciones",
-    "group": "Ofimática y estudio",
-    "name": "Todoist",
-    "desc": "Gestor de tareas",
-    "icon": "todoist.com",
-    "type": "winget",
-    "winget": "Doist.Todoist",
-    "extra": true,
-    "configure": true,
-    "scope": "user",
-    "context": "user"
-  },
-  {
-    "id": "logseq",
-    "section": "Aplicaciones",
-    "group": "Ofimática y estudio",
-    "name": "Logseq",
-    "desc": "Notas en esquema enlazadas, en local",
-    "icon": "logseq.com",
-    "type": "winget",
-    "winget": "Logseq.Logseq",
-    "extra": true,
-    "scope": "machine",
-    "context": "machine"
-  },
-  {
     "id": "anki",
     "section": "Aplicaciones",
     "group": "Ofimática y estudio",
@@ -4584,6 +4655,42 @@
     "context": "machine"
   },
   {
+    "id": "sumatra",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "SumatraPDF",
+    "desc": "Lector de PDF, ePub y cómics muy ligero",
+    "icon": "sumatrapdfreader.org",
+    "type": "winget",
+    "winget": "SumatraPDF.SumatraPDF",
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "SumatraPDF (ARM64 portable)",
+      "SumatraPDF (x64 portable)",
+      "SumatraPDF (x86 portable)"
+    ],
+    "commands": [
+      "sumatrapdf"
+    ]
+  },
+  {
+    "id": "acrobat",
+    "section": "Aplicaciones",
+    "group": "Ofimática y estudio",
+    "name": "Adobe Acrobat Reader",
+    "desc": "Lector de PDF de Adobe con firmas y formularios",
+    "icon": "adobe.com",
+    "type": "winget",
+    "winget": "Adobe.Acrobat.Reader.64-bit",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "detectNames": [
+      "Adobe Acrobat (64-bit)"
+    ]
+  },
+  {
     "id": "autofirma",
     "section": "Aplicaciones",
     "group": "Ofimática y estudio",
@@ -4608,18 +4715,6 @@
     "context": "machine",
     "extra": true,
     "configure": true
-  },
-  {
-    "id": "joplin",
-    "section": "Aplicaciones",
-    "group": "Ofimática y estudio",
-    "name": "Joplin",
-    "desc": "Notas en Markdown con sincronización cifrada",
-    "icon": "joplinapp.org",
-    "type": "winget",
-    "winget": "Joplin.Joplin",
-    "context": "user",
-    "extra": true
   },
   {
     "id": "drawio",
@@ -4670,18 +4765,6 @@
     "extra": true
   },
   {
-    "id": "anytype",
-    "section": "Aplicaciones",
-    "group": "Ofimática y estudio",
-    "name": "Anytype",
-    "desc": "Notas y bases de datos locales y cifradas",
-    "icon": "anytype.io",
-    "type": "winget",
-    "winget": "AnyAssociation.Anytype",
-    "context": "user",
-    "extra": true
-  },
-  {
     "id": "geogebra",
     "section": "Aplicaciones",
     "group": "Ofimática y estudio",
@@ -4694,22 +4777,9 @@
     "extra": true
   },
   {
-    "id": "mstodo",
-    "section": "Aplicaciones",
-    "group": "Ofimática y estudio",
-    "name": "Microsoft To Do",
-    "desc": "Listas de tareas sincronizadas con tu cuenta",
-    "icon": "todo.microsoft.com",
-    "type": "winget",
-    "winget": "9NBLGGH5R558",
-    "source": "msstore",
-    "context": "user",
-    "extra": true
-  },
-  {
     "id": "gdrive",
     "section": "Aplicaciones",
-    "group": "Nube y archivos",
+    "group": "Almacenamiento y nube",
     "name": "Google Drive",
     "desc": "Sincroniza Google Drive",
     "icon": "drive.google.com",
@@ -4722,7 +4792,7 @@
   {
     "id": "dropbox",
     "section": "Aplicaciones",
-    "group": "Nube y archivos",
+    "group": "Almacenamiento y nube",
     "name": "Dropbox",
     "desc": "Sincroniza Dropbox",
     "icon": "dropbox.com",
@@ -4736,7 +4806,7 @@
   {
     "id": "onedrive",
     "section": "Aplicaciones",
-    "group": "Nube y archivos",
+    "group": "Almacenamiento y nube",
     "name": "OneDrive",
     "desc": "Nube de Microsoft",
     "icon": "onedrive.live.com",
@@ -4748,9 +4818,22 @@
     "context": "machine"
   },
   {
+    "id": "icloud",
+    "section": "Aplicaciones",
+    "group": "Almacenamiento y nube",
+    "name": "iCloud",
+    "desc": "iCloud para Windows (Microsoft Store). Inicia sesión tras instalar",
+    "icon": "icloud.com",
+    "type": "winget",
+    "winget": "9PKTQ5699M62",
+    "source": "msstore",
+    "configure": true,
+    "context": "user"
+  },
+  {
     "id": "mega",
     "section": "Aplicaciones",
-    "group": "Nube y archivos",
+    "group": "Almacenamiento y nube",
     "name": "MEGA",
     "desc": "Sincroniza MEGA",
     "icon": "mega.io",
@@ -4764,7 +4847,7 @@
   {
     "id": "syncthing",
     "section": "Aplicaciones",
-    "group": "Nube y archivos",
+    "group": "Almacenamiento y nube",
     "name": "Syncthing",
     "desc": "Sincroniza carpetas entre tus equipos sin nube",
     "icon": "syncthing.net",
@@ -4780,7 +4863,7 @@
   {
     "id": "duplicati",
     "section": "Aplicaciones",
-    "group": "Nube y archivos",
+    "group": "Almacenamiento y nube",
     "name": "Duplicati",
     "desc": "Copias de seguridad cifradas y programadas a disco o a la nube",
     "icon": "duplicati.com",
@@ -4794,7 +4877,7 @@
   {
     "id": "protondrive",
     "section": "Aplicaciones",
-    "group": "Nube y archivos",
+    "group": "Almacenamiento y nube",
     "name": "Proton Drive",
     "desc": "Nube cifrada de Proton",
     "icon": "proton.me",
@@ -4807,7 +4890,7 @@
   {
     "id": "nextcloud",
     "section": "Aplicaciones",
-    "group": "Nube y archivos",
+    "group": "Almacenamiento y nube",
     "name": "Nextcloud",
     "desc": "Sincroniza con tu propio servidor Nextcloud",
     "icon": "nextcloud.com",
@@ -5086,6 +5169,64 @@
     "winget": "angryziber.AngryIPScanner",
     "context": "machine",
     "extra": true
+  },
+  {
+    "id": "bitwarden",
+    "section": "Aplicaciones",
+    "group": "Contraseñas",
+    "name": "Bitwarden",
+    "desc": "Gestor de contraseñas",
+    "icon": "bitwarden.com",
+    "type": "winget",
+    "winget": "Bitwarden.Bitwarden",
+    "configure": true,
+    "scope": "machine",
+    "context": "machine",
+    "commands": [
+      "bitwarden"
+    ]
+  },
+  {
+    "id": "keepassxc",
+    "section": "Aplicaciones",
+    "group": "Contraseñas",
+    "name": "KeePassXC",
+    "desc": "Gestor de contraseñas local, sin nube",
+    "icon": "keepassxc.org",
+    "type": "winget",
+    "winget": "KeePassXCTeam.KeePassXC",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine"
+  },
+  {
+    "id": "onepassword",
+    "section": "Aplicaciones",
+    "group": "Contraseñas",
+    "name": "1Password",
+    "desc": "Gestor de contraseñas",
+    "icon": "1password.com",
+    "type": "winget",
+    "winget": "AgileBits.1Password",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "families": [
+      "Agilebits.1Password_amwd9z03whsfe"
+    ]
+  },
+  {
+    "id": "protonpass",
+    "section": "Aplicaciones",
+    "group": "Contraseñas",
+    "name": "Proton Pass",
+    "desc": "Gestor de contraseñas cifrado de Proton",
+    "icon": "proton.me",
+    "type": "winget",
+    "winget": "Proton.ProtonPass",
+    "context": "user",
+    "extra": true,
+    "configure": true
   },
   {
     "id": "windhawk",
