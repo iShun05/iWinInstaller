@@ -2377,13 +2377,13 @@
     "section": "Aplicaciones",
     "group": "Notas y tareas",
     "name": "OneNote",
-    "desc": "Cuadernos de notas de Microsoft con tu cuenta",
+    "desc": "Cuadernos de notas de Microsoft con tu cuenta (Microsoft Store)",
     "icon": "onenote.com",
     "type": "winget",
-    "winget": "Microsoft.OneNote",
-    "context": "machine",
+    "winget": "XPFFZHVGQWWLHB",
+    "context": "user",
     "extra": true,
-    "scope": "machine"
+    "source": "msstore"
   },
   {
     "id": "evernote",
@@ -2393,7 +2393,7 @@
     "desc": "Notas, documentos y recortes web en la nube",
     "icon": "evernote.com",
     "type": "winget",
-    "winget": "evernote.evernote",
+    "winget": "Evernote.Evernote",
     "context": "user",
     "extra": true
   },
@@ -2441,7 +2441,7 @@
     "desc": "Notas por bloques en local, con enlaces y bases de datos",
     "icon": "b3log.org",
     "type": "winget",
-    "winget": "b3log.SiYuan",
+    "winget": "B3log.SiYuan",
     "context": "user",
     "extra": true
   },
@@ -2513,19 +2513,6 @@
     "desc": "ISO de Guest Additions de la última versión, para montar en las máquinas virtuales",
     "icon": "virtualbox.org",
     "type": "vboxga"
-  },
-  {
-    "id": "vmware",
-    "section": "Aplicaciones",
-    "group": "Virtualización",
-    "name": "VMware Workstation Pro",
-    "desc": "Máquinas virtuales de VMware, gratis para uso personal",
-    "icon": "vmware.com",
-    "type": "winget",
-    "winget": "VMware.WorkstationPro",
-    "scope": "machine",
-    "context": "machine",
-    "extra": true
   },
   {
     "id": "vscode",
