@@ -7,7 +7,12 @@
     "Navegadores",
     "Utilidades",
     "Calidad de vida",
-    "Mantenimiento y hardware"
+    "Mantenimiento y hardware",
+    "vlc",
+    "discord",
+    "bitwarden",
+    "sumatra",
+    "notepadpp"
   ],
   "Gaming": [
     "@Sistema",
@@ -15,7 +20,12 @@
     "Utilidades",
     "Calidad de vida",
     "Mantenimiento y hardware",
-    "Juegos"
+    "Juegos",
+    "vlc",
+    "discord",
+    "bitwarden",
+    "sumatra",
+    "notepadpp"
   ],
   "Solo sistema (ajustes y optimización)": [
     "@Sistema"
@@ -30,7 +40,12 @@
     "Utilidades",
     "Calidad de vida",
     "Desarrollo",
-    "Virtualización"
+    "Virtualización",
+    "vlc",
+    "discord",
+    "bitwarden",
+    "sumatra",
+    "notepadpp"
   ],
   "IA": [
     "@Sistema",
@@ -39,7 +54,12 @@
     "Utilidades",
     "Calidad de vida",
     "IA",
-    "Notas y nube",
-    "Desarrollo"
+    "Notas y tareas",
+    "Desarrollo",
+    "vlc",
+    "discord",
+    "bitwarden",
+    "sumatra",
+    "notepadpp"
   ]
 }

@@ -1,5 +1,19 @@
 # Historial de versiones
 
+## v2.5 — 2026-10-17
+
+### Interfaz
+- **Etiqueta «>_ Terminal»** en todo lo que se usa desde la consola (sección Terminal), también al buscar o ver todo el catálogo.
+- **Abrir desde el clic derecho**: las apps instaladas muestran **Abrir**; las herramientas de terminal, **Abrir en terminal** (consola nueva con el PATH actualizado). El menú solo enseña las acciones que sirven para esa fila.
+- Abrir encuentra mejor la app en el menú Inicio (p. ej. «7-Zip File Manager»).
+
+### Catálogo reorganizado (397 entradas)
+- **Notas y tareas**: Obsidian, Notion, Logseq, Joplin, Anytype, Todoist y Microsoft To Do juntos, y nuevas OneNote, Evernote, Standard Notes, Notesnook, AFFiNE, SiYuan, Trilium, Zettlr, Simplenote y TickTick.
+- **Almacenamiento y nube** (antes «Nube y archivos») incluye iCloud.
+- Nuevo grupo **Contraseñas** (Bitwarden, KeePassXC, 1Password, Proton Pass) y **Bases de datos** en Terminal (MySQL, PostgreSQL, MongoDB, SQLite).
+- VLC pasa a Multimedia, Discord a Comunicación, SumatraPDF y Acrobat a Ofimática, Notepad++ a Desarrollo y Microsoft Store a Sistema.
+- Los perfiles Base, Gaming, Desarrollo e IA conservan VLC, Discord, Bitwarden, SumatraPDF y Notepad++.
+
 ## v2.4 — 2026-10-16
 
 ### Cambiado

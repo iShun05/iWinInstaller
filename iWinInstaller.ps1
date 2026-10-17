@@ -23,7 +23,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v2.4'
+$Version = 'v2.5'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -1088,6 +1088,10 @@ public class IwinApp : INotifyPropertyChanged {
     // Acciones por fila: desinstalar (o deshacer un ajuste) y abrir, solo cuando está instalada
     public bool CanUninstall { get; set; }
     public bool CanOpen { get; set; }
+    // Herramienta de línea de comandos: lleva la etiqueta «Terminal» y se abre en una consola
+    public bool IsCli { get; set; }
+    public bool OpensInConsole { get; set; }
+    public string OpenLabel { get { return OpensInConsole ? "Abrir en terminal" : "Abrir"; } }
     public bool IsTweak { get; set; }
     public string UninstallLabel { get { return IsTweak ? "Deshacer" : "Desinstalar"; } }
     public bool ShowUninstall { get { return i && CanUninstall; } }
@@ -1617,7 +1621,12 @@ $ButtonStyles = @'
                   </Grid>
                 </Border>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,10,0">
-                  <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="#EDEDF2" TextTrimming="CharacterEllipsis"/>
+                  <DockPanel LastChildFill="True">
+                    <Border DockPanel.Dock="Right" CornerRadius="6" Padding="6,1" Margin="8,0,0,0" Background="#1E2A33" VerticalAlignment="Center" Visibility="{Binding IsCli, Converter={StaticResource Vis}}" ToolTip="Se usa desde la terminal (PowerShell, Windows Terminal…)">
+                      <TextBlock Text="&gt;_ Terminal" FontFamily="Cascadia Mono, Consolas" FontSize="10.5" Foreground="#7FC8E8"/>
+                    </Border>
+                    <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="#EDEDF2" TextTrimming="CharacterEllipsis"/>
+                  </DockPanel>
                   <TextBlock Text="{Binding Desc}" Foreground="#9494A0" TextWrapping="Wrap" Margin="0,1,0,0"/>
                   <TextBlock x:Name="config" Text="{Binding Configuration}" Foreground="#BEACFF" TextWrapping="Wrap" FontSize="11" Margin="0,3,0,0"/>
                 </StackPanel>
@@ -1625,7 +1634,7 @@ $ButtonStyles = @'
                   <Border x:Name="badge" CornerRadius="10" Padding="10,3" VerticalAlignment="Center" Background="Transparent">
                     <TextBlock x:Name="badgeText" Text="{Binding Status}" FontSize="12" Foreground="#9494A0"/>
                   </Border>
-                  <Button Tag="open" Style="{StaticResource Ghost}" Content="Abrir" Margin="4,0,0,0" Visibility="{Binding ShowOpen, Converter={StaticResource Vis}}" ToolTip="Abre la aplicación"/>
+                  <Button Tag="open" Style="{StaticResource Ghost}" Content="{Binding OpenLabel}" Margin="4,0,0,0" Visibility="{Binding ShowOpen, Converter={StaticResource Vis}}" ToolTip="Abre la aplicación"/>
                   <Button Tag="uninstall" Style="{StaticResource GhostDanger}" Content="{Binding UninstallLabel}" Margin="2,0,0,0" Visibility="{Binding ShowUninstall, Converter={StaticResource Vis}}" ToolTip="Quitar de este PC (pide confirmación)"/>
                 </StackPanel>
               </Grid>
@@ -1919,7 +1928,9 @@ foreach ($app in $Apps) {
     $it.Optional = Test-Optional $app
     $it.IsTweak = $app.type -eq 'tweak'
     $it.CanUninstall = Test-Uninstallable $app
-    $it.CanOpen = $app.section -eq 'Aplicaciones' -and $app.type -ne 'vboxga'
+    $it.IsCli = $app.section -eq 'Terminal'
+    $it.OpensInConsole = $it.IsCli -and -not $app.gui
+    $it.CanOpen = $app.type -notin @('tweak', 'vboxga') -and -not $app.noopen -and $app.section -ne 'Sistema'
     $it.Search = "$($app.name) $($app.desc) $($app.group) $($app.section) $($app.winget)".ToLower()
     $it.Checked = -not $it.Optional
     $items.Add($it); $byId[$app.id] = $it
@@ -2085,12 +2096,30 @@ $ui.MExport.Add_Click($exportDiagnostic)
 function Open-AppItem($item) {
     if (-not $item) { return }
     try {
+        # Acceso del menú Inicio: nombre exacto o, si no, el más corto que empiece igual (p. ej. «7-Zip File Manager»)
         $shell = New-Object -ComObject Shell.Application
-        $folder = $shell.NameSpace('shell:AppsFolder')
-        $found = @($folder.Items() | Where-Object { $_.Name -eq $item.Name })
-        if ($found.Count -eq 1) { $found[0].InvokeVerb() }
-        else { Start-Process explorer.exe 'shell:AppsFolder'; Set-Status "Elige $($item.Name) en la lista de aplicaciones." }
+        $entries = @($shell.NameSpace('shell:AppsFolder').Items() | Where-Object { $_.Name -notmatch '(?i)uninstall|desinstal' })
+        $found = @($entries | Where-Object { $_.Name -eq $item.Name })
+        if (-not $found -and -not $item.OpensInConsole) {
+            $found = @($entries | Where-Object { $_.Name.StartsWith($item.Name, [StringComparison]::OrdinalIgnoreCase) -or $item.Name.StartsWith($_.Name + ' ', [StringComparison]::OrdinalIgnoreCase) } | Sort-Object { $_.Name.Length })
+        }
+        if ($found) { $found[0].InvokeVerb(); Set-Status "Abriendo $($item.Name)…"; return }
+        if ($item.OpensInConsole) { Open-CliItem $item; return }
+        Start-Process explorer.exe 'shell:AppsFolder'; Set-Status "Elige $($item.Name) en la lista de aplicaciones."
     } catch { Write-Log "No se pudo abrir $($item.Name): $($_.Exception.Message)" }
+}
+# Herramientas de terminal: consola nueva con el PATH recién leído (la app pudo instalarse después de abrir iWinInstaller)
+function Open-CliItem($item) {
+    $app = $Apps | Where-Object id -eq $item.Id | Select-Object -First 1
+    $cmd = @($app.commands)[0]
+    $hint = if ($cmd) { "Escribe $cmd para usar $($item.Name)." } else { "$($item.Name) está disponible en esta terminal." }
+    $script = "`$env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User'); Write-Host '$($hint -replace "'", "''")' -ForegroundColor Cyan"
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script))
+    $shellExe = if (Get-Command pwsh.exe -ErrorAction SilentlyContinue) { 'pwsh.exe' } else { 'powershell.exe' }
+    $wt = Get-Command wt.exe -ErrorAction SilentlyContinue
+    if ($wt) { Start-Process $wt.Source -ArgumentList @('new-tab', '--title', "`"$($item.Name)`"", $shellExe, '-NoExit', '-EncodedCommand', $encoded) }
+    else { Start-Process $shellExe -ArgumentList @('-NoExit', '-EncodedCommand', $encoded) }
+    Set-Status "Terminal abierta para $($item.Name)."
 }
 function Switch-Configured($item) {
     if (-not $item -or -not $item.Installed -or -not $item.NeedsConfiguration) { return }
@@ -2154,11 +2183,16 @@ $ui.List.Add_ContextMenuOpening({
     param($s, $e)
     $item = $ui.List.SelectedItem
     if (-not $item) { $e.Handled = $true; return }
-    $ui.MOpen.IsEnabled = $item.ShowOpen
-    $ui.MConfigured.IsEnabled = $item.Installed -and $item.NeedsConfiguration
+    # Solo se muestran las acciones que tienen sentido para esa fila
+    $show = { param($m, $on) $m.Visibility = if ($on) { 'Visible' } else { 'Collapsed' } }
+    & $show $ui.MOpen $item.ShowOpen
+    $ui.MOpen.Header = $item.OpenLabel
+    & $show $ui.MConfigured ($item.Installed -and $item.NeedsConfiguration)
     $ui.MConfigured.Header = if ($item.Configured) { 'Marcar configuración pendiente' } else { 'Marcar como configurada' }
-    $ui.MUninstall.IsEnabled = $item.ShowUninstall -and -not $script:Busy
+    & $show $ui.MUninstall $item.ShowUninstall
+    $ui.MUninstall.IsEnabled = -not $script:Busy
     $ui.MUninstall.Header = "$($item.UninstallLabel)…"
+    if (-not ($item.ShowOpen -or $item.ShowUninstall -or ($item.Installed -and $item.NeedsConfiguration))) { $e.Handled = $true }
 })
 $ui.MOpen.Add_Click({ Open-AppItem $ui.List.SelectedItem })
 $ui.MConfigured.Add_Click({ Switch-Configured $ui.List.SelectedItem })
@@ -2297,6 +2331,11 @@ if ($env:IWIN_PRUEBA_GUI) {
     $probe.Checked = $false; $probe.Installed = $false; Invoke-UiPump
     if ($ui.BtnRemove.Visibility -ne 'Collapsed') { throw 'Sin nada instalado marcado no debe ofrecer Desinstalar.' }
     if (@($items | Where-Object { $_.Id -in @('vcredist', 'dotnet', 'msstore') -and $_.CanUninstall }).Count) { throw 'Los componentes del sistema no se ofrecen para desinstalar.' }
+    # Etiqueta «Terminal» y forma de abrir: consola para las herramientas, la app para las terminales gráficas
+    if (@($items | Where-Object { $_.IsCli -ne ($_.Section -eq 'Terminal') }).Count) { throw 'La etiqueta Terminal no coincide con la sección.' }
+    if (-not ($byId['git'].CanOpen -and $byId['git'].OpensInConsole -and $byId['git'].OpenLabel -eq 'Abrir en terminal')) { throw 'Git debería abrirse en una terminal.' }
+    if ($byId['terminal'].OpensInConsole -or -not $byId['vlc'].CanOpen -or $byId['nfhack'].CanOpen -or $byId['darkmode'].CanOpen) { throw 'Abrir no se ofrece donde corresponde.' }
+    Write-Host "Etiqueta Terminal: $(@($items | Where-Object IsCli).Count) entradas; abrir en terminal: $(@($items | Where-Object OpensInConsole).Count)"
 
     # Diálogo propio
     $dialog = New-IwinDialog -Title 'Prueba' -Text 'Texto de prueba' -Ok 'Aceptar' -InputText 'Mi perfil' -CheckText 'Casilla' -Checked $true
