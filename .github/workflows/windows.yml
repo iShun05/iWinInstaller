@@ -61,7 +61,7 @@ jobs:
         timeout-minutes: 30
         continue-on-error: true
         run: |
-          powershell -NoProfile -ExecutionPolicy Bypass -File .\iWinInstaller.ps1 -Silent -Perfil "Optimización" *>&1 | Tee-Object resultados\5-instalacion.txt
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\iWinInstaller.ps1 -Silent -Perfil "Solo sistema (ajustes y optimización)" *>&1 | Tee-Object resultados\5-instalacion.txt
           "Fallos: $LASTEXITCODE" | Tee-Object resultados\5-instalacion.txt -Append
       - name: Informe -Check tras instalar (detecta lo instalado)
         shell: powershell

@@ -23,7 +23,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v2.5'
+$Version = 'v2.6'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -1781,7 +1781,9 @@ $xaml.SelectNodes('//*[@*[local-name()="Name"]]') | ForEach-Object { $n = $_.Get
 foreach ($menu in @($ui.ProfileMore.ContextMenu, $ui.List.ContextMenu, $ui.BtnMore.ContextMenu)) { foreach ($entry in $menu.Items) { if ($entry.Name) { $ui[$entry.Name] = $entry } } }
 
 $win.Title = "iWinInstaller $Version"
-$ui.VersionText.Text = "$Version · Windows 10/11"
+$processArchitecture = if ($env:PROCESSOR_ARCHITEW6432) { $env:PROCESSOR_ARCHITEW6432 } else { $env:PROCESSOR_ARCHITECTURE }
+$architectureLabel = switch ($processArchitecture) { 'ARM64' { 'ARM64' } 'AMD64' { 'x64' } 'x86' { 'x86' } default { $processArchitecture } }
+$ui.VersionText.Text = "$Version · Windows 10/11 · $architectureLabel"
 $iconPng = Join-Path $Root 'assets\icon-128.png'
 if (Test-Path $iconPng) { $ui.Logo.Source = New-Object Windows.Media.Imaging.BitmapImage ([Uri]$iconPng) }
 $iconIco = Join-Path $Root 'assets\icon.ico'
@@ -1998,14 +2000,14 @@ $ui.ClearVisible.Add_Click({ foreach ($o in $view) { $o.Checked = $false } })
 
 # ---- Perfiles: los de serie (profiles.json) y los propios (★, en %LOCALAPPDATA%\iWinInstaller\perfiles) ----
 $script:LoadingProfiles = $false
-function Update-ProfileList([string]$select = 'Todo') {
+function Update-ProfileList([string]$select = 'Manual') {
     $script:LoadingProfiles = $true
     try {
         $ui.Profile.Items.Clear()
         $Profiles.PSObject.Properties.Name | ForEach-Object { [void]$ui.Profile.Items.Add($_) }
         foreach ($name in (Get-CustomProfiles).Keys) { [void]$ui.Profile.Items.Add($CustomMark + $name) }
     } finally { $script:LoadingProfiles = $false }
-    $ui.Profile.SelectedItem = if ($ui.Profile.Items.Contains($select)) { $select } else { 'Todo' }
+    $ui.Profile.SelectedItem = if ($ui.Profile.Items.Contains($select)) { $select } else { 'Manual' }
 }
 $ui.Profile.Add_SelectionChanged({
     if ($script:LoadingProfiles -or -not $ui.Profile.SelectedItem) { return }
@@ -2013,7 +2015,7 @@ $ui.Profile.Add_SelectionChanged({
     catch { Set-Status "No se pudo leer el perfil: $($_.Exception.Message)"; return }
     foreach ($it in $items) { $it.Checked = ($ids -contains $it.Id) -and -not $it.Installed }
 })
-Update-ProfileList 'Todo'
+Update-ProfileList 'Manual'
 
 function Get-SelectionIds([bool]$withInstalled) { @($items | Where-Object { $_.Checked -or ($withInstalled -and $_.Installed) } | ForEach-Object Id) }
 function Get-ProfileSuggestion {
@@ -2078,7 +2080,7 @@ $ui.ProfileDelete.Add_Click({
     $name = $current.Substring($CustomMark.Length)
     if (-not (Show-IwinDialog -Title "¿Eliminar el perfil «$name»?" -Text 'Solo se borra el perfil; las aplicaciones instaladas no cambian.' -Ok 'Eliminar' -Danger).Ok) { return }
     Remove-Item -LiteralPath (Get-CustomProfilePath $name) -Force -ErrorAction SilentlyContinue
-    Update-ProfileList 'Todo'
+    Update-ProfileList 'Manual'
     Set-Status "Perfil «$name» eliminado."
 })
 $ui.ProfileFolder.Add_Click({ New-Item $ProfileDir -ItemType Directory -Force | Out-Null; Start-Process explorer.exe $ProfileDir })
@@ -2296,6 +2298,10 @@ if ($env:IWIN_PRUEBA_GUI) {
     $win.WindowState = 'Normal'
     $win.Show()
     for ($pass=0; $pass -lt 10; $pass++) { Invoke-UiPump; Start-Sleep -Milliseconds 100 }
+    if ($ui.Profile.SelectedItem -ne 'Manual' -or @($items | Where-Object Checked).Count) { throw 'La ventana debe abrir sin aplicaciones preseleccionadas.' }
+    $expectedArchitecture = if ($env:PROCESSOR_ARCHITEW6432) { $env:PROCESSOR_ARCHITEW6432 } else { $env:PROCESSOR_ARCHITECTURE }
+    $expectedArchitectureLabel = switch ($expectedArchitecture) { 'AMD64' { 'x64' } default { $expectedArchitecture } }
+    if ($ui.VersionText.Text -notmatch [regex]::Escape($expectedArchitectureLabel)) { throw "La ventana debe mostrar la arquitectura $expectedArchitectureLabel." }
     foreach ($profileName in @('Base','Gaming','Todo')) { $ui.Profile.SelectedItem=$profileName; Invoke-UiPump }
     Set-Busy $true
     $probe=$items | Select-Object -First 1

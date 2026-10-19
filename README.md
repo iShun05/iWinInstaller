@@ -16,7 +16,7 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa portátil: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprimir y abrir `iWinInstaller.exe`. Para desinstalar el programa, ejecuta `install.ps1 -Uninstall`; las aplicaciones instaladas se conservan.
 
-**Versión actual: v2.5** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v2.6** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 ## Funciones principales
 
@@ -29,6 +29,7 @@ Alternativa portátil: [iWinInstaller.zip](https://github.com/iShun05/iWinInstal
 - **Perfiles propios para llevar a otro PC**: **Guardar…** guarda lo marcado (y, si quieres, lo ya instalado); **⋯ › Exportar** crea un `.iwin.json`; en el otro PC, **Importar…** lo marca todo de una vez, o sin ventana: `iWinInstaller.ps1 -Silent -Perfil archivo.iwin.json`. Solo contiene ids del catálogo.
 - **Pantallas pequeñas y máquinas virtuales**: la ventana se ajusta a la pantalla, oculta las secciones tras ☰ y agrupa acciones en ⋯ cuando falta sitio. **A− / A+**, `Ctrl + rueda` o `Ctrl + + / − / 0` cambian el tamaño de todo del 70 % al 200 % y se recuerda.
 - **Detección de aplicaciones existentes** para evitar reinstalarlas. Una operación no se confirma únicamente por su código de salida.
+- **Selección segura**: la ventana abre con el perfil Manual vacío; elige un perfil o marca elementos antes de instalar. La cabecera muestra la arquitectura del Windows, incluida ARM64.
 - **Actividad visible**: aplicación actual, fases que comunica WinGet, resultado y duración. El TXT conserva la salida técnica completa de la sesión.
 - **Escritorio organizado**: mueve accesos `.lnk` a ejecutables y accesos de juegos Steam/Epic a una carpeta Aplicaciones del escritorio del usuario. Incluye los accesos públicos cuando el lote tiene permisos. No mueve documentos, carpetas ni enlaces web generales; conserva ambos archivos cuando coincide el nombre.
 - **Interfaz oscura** con búsqueda (`Ctrl + F`), filtros, navegación por teclado (`Espacio` marca, `Supr` desinstala), apertura de aplicaciones y seguimiento manual de sesiones pendientes.
@@ -59,8 +60,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v2.5
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v2.5
+git checkout v2.6
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v2.6
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -77,7 +78,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v2.5](https://github.com/iShun05/iWinInstaller/releases/tag/v2.5) **(actual)** | 2026-10-17 | Etiqueta Terminal, abrir desde el clic derecho, catálogo reorganizado y más apps de notas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.5) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.5.zip) |
+| [v2.6](https://github.com/iShun05/iWinInstaller/releases/tag/v2.6) **(actual)** | 2026-10-19 | Inicio manual sin selecciones automáticas, arquitectura visible y prueba de Windows corregida | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.6) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.6.zip) |
+| [v2.5](https://github.com/iShun05/iWinInstaller/releases/tag/v2.5) | 2026-10-17 | Etiqueta Terminal, abrir desde el clic derecho, catálogo reorganizado y más apps de notas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.5) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.5.zip) |
 | [v2.4](https://github.com/iShun05/iWinInstaller/releases/tag/v2.4) | 2026-10-16 | ChatGPT pasa a la app nueva de OpenAI (Chat, Codex y agente) | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.4) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.4.zip) |
 | [v2.3](https://github.com/iShun05/iWinInstaller/releases/tag/v2.3) | 2026-10-16 | Interfaz adaptable con zoom, desinstalar, perfiles exportables y 149 entradas nuevas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.3) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.3.zip) |
 | [v2.2](https://github.com/iShun05/iWinInstaller/releases/tag/v2.2) | 2026-10-15 | Auditoría de seguridad: firma del fabricante obligatoria, SHA256 de VirtualBox y procedencia firmada de las descargas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.2) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.2.zip) |

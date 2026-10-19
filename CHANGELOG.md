@@ -1,5 +1,18 @@
 # Historial de versiones
 
+## v2.6 — 2026-10-19
+
+### Añadido
+- **Perfil Manual vacío al abrir**: ya no queda una lista amplia marcada para instalar por accidente; los perfiles existentes siguen disponibles cuando el usuario los elige.
+- **Arquitectura visible**: la cabecera identifica ARM64, x64 o x86 antes de seleccionar paquetes.
+
+### Corregido
+- **Prueba de instalación de Windows**: el workflow usaba el perfil retirado «Optimización» y ahora ejecuta el perfil vigente «Solo sistema (ajustes y optimización)».
+
+### Archivos y pruebas
+- **Archivos**: `iWinInstaller.ps1`, `profiles.json`, `tests/check-acceptance.ps1`, `tests/check-native.ps1` y `.github/workflows/windows.yml`.
+- **Verificación prevista**: sintaxis PowerShell, aceptación y ventana WPF en los runners Windows x64 y ARM64.
+
 ## v2.5 — 2026-10-17
 
 ### Interfaz
