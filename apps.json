@@ -3574,7 +3574,7 @@
     "section": "Aplicaciones",
     "group": "Calidad de vida",
     "name": "KDE Connect",
-    "desc": "Comparte archivos y enlaces con el móvil y controla el PC desde dispositivos vinculados; las funciones dependen de la plataforma",
+    "desc": "Portapapeles compartido con el Mac o el móvil (también por Tailscale), archivos y enlaces entre dispositivos vinculados",
     "icon": "kdeconnect.kde.org",
     "type": "winget",
     "winget": "KDE.KDEConnect",
