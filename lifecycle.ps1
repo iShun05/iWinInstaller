@@ -191,7 +191,6 @@ function Test-PostInstall($app) {
             }
             'docker' { if((Invoke-IwinProbe (Get-Command docker.exe -ErrorAction Stop).Source 'version').Code -ne 0){throw 'El motor de Docker aún no está disponible. Completa el asistente y espera a que arranque.'} }
             'python' { if((Invoke-IwinProbe (Get-Command python.exe -ErrorAction Stop).Source '--version').Code -ne 0){throw 'Python no responde en esta terminal. Abre una terminal nueva y revisa el intérprete.'} }
-            'rustup' { if((Invoke-IwinProbe (Get-Command rustc.exe -ErrorAction Stop).Source '--version').Code -ne 0){throw 'No se encuentra el compilador Rust activo. Revisa rustup show en una terminal nueva.'} }
             'gh' { if ((Invoke-IwinProbe (Get-Command gh -ErrorAction Stop).Source 'auth status').Code -ne 0) { throw 'Falta iniciar sesión en GitHub CLI: abre su terminal y ejecuta gh auth login.' } }
             'wsl' { if ((Invoke-IwinProbe (Get-Command wsl.exe -ErrorAction Stop).Source '--status').Code -ne 0) { throw 'WSL aún necesita preparación o reinicio.' } }
         }

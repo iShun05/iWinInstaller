@@ -1773,7 +1773,15 @@
     "winget": "Microsoft.VisualStudio.2022.BuildTools",
     "scope": "machine",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre Visual Studio Installer desde Inicio y modifica Build Tools.",
+        "Selecciona Desarrollo para el escritorio con C++ y el SDK de Windows si tus proyectos los requieren.",
+        "Abre la terminal de herramientas del desarrollador y comprueba la compilación de un proyecto."
+      ],
+      "note": "La entrada instala el producto, no todos sus workloads. Selecciona únicamente los componentes que necesites."
+    }
   },
   {
     "id": "nvm",
