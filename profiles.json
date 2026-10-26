@@ -62,5 +62,13 @@
     "bitwarden",
     "sumatra",
     "notepadpp"
+  ],
+  "Escritorio remoto (este PC como servidor)": [
+    "power",
+    "sunshine",
+    "tailscale",
+    "autologon",
+    "remotehost",
+    "chromeremote"
   ]
 }
