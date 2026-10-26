@@ -12,6 +12,18 @@ $expectedVersion=[regex]::Match((Get-Content (Join-Path $root 'iWinInstaller.ps1
 $output=Join-Path $env:RUNNER_TEMP 'iwin-native'
 & (Join-Path $root 'scripts/build_exe.ps1') -OutputDirectory $output
 $setup=Join-Path $output 'iWinInstaller-Setup.exe'
+# El bundle oficial debe contener las tres arquitecturas que promete el instalador.
+$bundle=Join-Path $output 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'
+$archive=[IO.Compression.ZipFile]::OpenRead($bundle)
+try{
+    $manifest=$archive.GetEntry('AppxMetadata/AppxBundleManifest.xml')
+    $reader=New-Object IO.StreamReader($manifest.Open())
+    try{[xml]$xml=$reader.ReadToEnd()}finally{$reader.Dispose()}
+    $architectures=@($xml.SelectNodes('//*[local-name()="Package"]') | ForEach-Object {$_.GetAttribute('Architecture')})
+    foreach($architecture in 'x86','x64','arm64'){if($architectures -notcontains $architecture){throw "El paquete Microsoft incluido no contiene $architecture"}}
+}finally{$archive.Dispose()}
+Write-Host 'OK: dependencias oficiales disponibles para x86, x64 y ARM64.'
+
 $process=Start-Process $setup -ArgumentList '--silent' -PassThru -Wait
 if ($process.ExitCode -ne 0) { throw "El EXE no se instalo: $($process.ExitCode)" }
 $installed=Join-Path $env:LOCALAPPDATA 'Programs\iWinInstaller'
@@ -93,6 +105,17 @@ Write-Host 'OK: formulario del Setup con progreso y apertura automatica de la ap
 # Ejecutar el ZIP instala en la ubicación canónica y conserva seguimiento/perfiles fuera de ella.
 $portable=Join-Path $env:RUNNER_TEMP 'iwin-primera-ejecucion'
 Expand-Archive (Join-Path $output 'iWinInstaller.zip') $portable -Force
+$portableExe=Join-Path $portable 'iWinInstaller/iWinInstaller.exe'
+if($env:PROCESSOR_ARCHITECTURE -eq 'AMD64'){
+    # Variante de prueba x86: ejecuta el mismo lanzador en WOW64 y verifica selección del host nativo.
+    $compiler=Join-Path $env:WINDIR 'Microsoft.NET/Framework/v4.0.30319/csc.exe'
+    & $compiler /nologo /target:winexe /platform:x86 /codepage:65001 /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll "/out:$portableExe" (Join-Path $root 'native/Launcher.cs')
+    if($LASTEXITCODE){throw 'No se pudo construir el lanzador x86 de prueba'}
+    $integrity=Join-Path $portable 'iWinInstaller/integrity.sha256'
+    $lines=@(Get-Content $integrity | ForEach-Object {if($_ -match '  iWinInstaller\.exe$'){(Get-FileHash $portableExe).Hash.ToLowerInvariant()+'  iWinInstaller.exe'}else{$_}})
+    $lines | Set-Content $integrity -Encoding ASCII
+}
+
 $noteDir=Join-Path $env:LOCALAPPDATA 'iWinInstaller'
 $retained=Join-Path $noteDir 'retencion-prueba.json'
 Set-Content $retained '{"nota":"conservar en actualización y desinstalación"}' -Encoding UTF8
@@ -105,6 +128,10 @@ try{
     foreach($running in @(Get-Process -Name iWinInstaller -ErrorAction SilentlyContinue)){
         $null=$running.Handle
         if(-not $running.WaitForExit(240000) -or $running.ExitCode -ne 0){throw 'La app instalada desde ZIP debe completar su apertura'}
+    }
+    if($env:PROCESSOR_ARCHITECTURE -eq 'AMD64'){
+        $launchLog=Get-ChildItem $noteDir -Filter ('arranque-*-'+$p.Id+'.log') | Select-Object -First 1
+        if(-not $launchLog -or (Get-Content $launchLog.FullName -Raw) -notmatch 'proceso x86: True'){throw 'Debe ejecutarse realmente el lanzador de 32 bits'}
     }
     if(-not (Test-Path $retained) -or (Get-Content (Join-Path $installed 'instalado.txt') -Raw).Trim() -ne $expectedVersion){throw 'La sustitución debe conservar el estado y registrar la versión correcta'}
 }finally{Remove-Item Env:IWIN_PRUEBA_GUI -ErrorAction SilentlyContinue}

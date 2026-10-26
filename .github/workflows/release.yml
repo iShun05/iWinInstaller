@@ -43,7 +43,7 @@ jobs:
           $env:GH_TOKEN=$env:GITHUB_TOKEN
           $checks=(gh api "repos/$env:GITHUB_REPOSITORY/commits/$commit/check-runs?per_page=100" | ConvertFrom-Json).check_runs
           if($LASTEXITCODE){throw 'No se pudieron comprobar las pruebas previas a publicación'}
-          foreach($required in @('bootstrap (windows-2025)','bootstrap (windows-11-arm)','acceptance (windows-2025)','acceptance (windows-11-arm)','native (windows-2025)','native (windows-11-arm)')){
+          foreach($required in @('bootstrap (windows-2025)','bootstrap (windows-11-arm)','acceptance (windows-2025)','acceptance (windows-11-arm)','native (windows-2025)','native (windows-11-arm)','x86')){
             $check=$checks | Where-Object name -eq $required | Sort-Object started_at -Descending | Select-Object -First 1
             if(-not $check -or $check.conclusion -ne 'success'){throw "Publicación detenida: falta la prueba correcta $required para $commit"}
           }

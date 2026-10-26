@@ -21,7 +21,7 @@ static class Launcher {
         try {
             Directory.CreateDirectory(logs);
             Environment.CurrentDirectory = logs;
-            Log("iWinInstaller v3.2; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem);
+            Log("iWinInstaller v3.2; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
 #if SETUP
             bool quiet = Array.IndexOf(args, "--silent") >= 0;
             if (quiet) { Install(); return 0; }
@@ -80,9 +80,10 @@ static class Launcher {
                             throw new Exception("Cierra la ventana de iWinInstaller antes de desinstalar y vuelve a intentarlo.");
                     }
                 }
-                string ps = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "powershell.exe");
+                string ps = PowerShellPath();
                 ProcessStartInfo remove = new ProcessStartInfo(ps, "-NoProfile -ExecutionPolicy Bypass -File \"" + Path.Combine(root, "install.ps1") + "\" -Uninstall -WaitForPid " + Process.GetCurrentProcess().Id);
                 remove.UseShellExecute=false; remove.CreateNoWindow=true;
+                remove.EnvironmentVariables["PSModulePath"]=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"WindowsPowerShell","Modules")+";"+Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),"System32","WindowsPowerShell","v1.0","Modules");
                 Process.Start(remove); return 0;
             }
             if (Array.IndexOf(args, "--update-only") >= 0) return RunPowerShell(Path.Combine(root, "iWinInstaller.ps1"), "-AutoUpdate", logs, null);
@@ -126,14 +127,30 @@ static class Launcher {
         }
     }
     static string InstallDirectory() { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "iWinInstaller"); }
+    static string PowerShellPath() {
+        // En Windows de 64 bits, un EXE x86 usa el host nativo para evitar redirección de registro y Program Files.
+        if(Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess)
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),"Sysnative","WindowsPowerShell","v1.0","powershell.exe");
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"WindowsPowerShell","v1.0","powershell.exe");
+    }
     static int RunPowerShell(string script, string arguments, string root, string package, string localSource = null) {
-        string ps = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "powershell.exe");
+        string ps = PowerShellPath();
         if (!File.Exists(ps)) throw new FileNotFoundException("Windows PowerShell, incluido en Windows 10/11, no está disponible.", ps);
         ProcessStartInfo start = new ProcessStartInfo(ps, "-NoProfile -ExecutionPolicy Bypass -STA -File \"" + script + "\" " + arguments);
         start.UseShellExecute = false; start.CreateNoWindow = true; start.WorkingDirectory = root;
         start.RedirectStandardOutput = true; start.RedirectStandardError = true;
+        string programFiles=Environment.GetEnvironmentVariable("ProgramW6432");
+        if(String.IsNullOrEmpty(programFiles))programFiles=Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+        if(Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess) {
+            start.EnvironmentVariables["ProgramFiles"]=programFiles;
+            string common=Environment.GetEnvironmentVariable("CommonProgramW6432");
+            if(!String.IsNullOrEmpty(common))start.EnvironmentVariables["CommonProgramFiles"]=common;
+            start.EnvironmentVariables["PROCESSOR_ARCHITECTURE"]=Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432")??"AMD64";
+            start.EnvironmentVariables.Remove("PROCESSOR_ARCHITEW6432");
+        }
         // No hereda modulos de PowerShell 7 al ejecutar el host 5.1 de Windows.
-        start.EnvironmentVariables["PSModulePath"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WindowsPowerShell", "Modules") + ";" + Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "WindowsPowerShell", "Modules") + ";" + Path.Combine(Path.GetDirectoryName(ps), "Modules");
+        string systemModules=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),"System32","WindowsPowerShell","v1.0","Modules");
+        start.EnvironmentVariables["PSModulePath"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WindowsPowerShell", "Modules") + ";" + Path.Combine(programFiles, "WindowsPowerShell", "Modules") + ";" + systemModules;
         start.EnvironmentVariables.Remove("IWIN_SOURCE_DIRECTORY");
         start.EnvironmentVariables.Remove("IWIN_PACKAGE_PATH");
         if(localSource != null) start.EnvironmentVariables["IWIN_SOURCE_DIRECTORY"] = localSource;

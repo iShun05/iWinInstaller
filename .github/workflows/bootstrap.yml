@@ -2,7 +2,7 @@ name: Prueba del instalador inicial
 on:
   push:
     branches: [main, 'codex/**']
-    paths: ['lifecycle.ps1', 'install.ps1', 'apps.json', 'scripts/**', 'installer-header.bat', 'tests/check-bootstrap.ps1', 'tests/check-reliability.ps1', 'tests/check-audit.ps1', 'tests/check-lifecycle.ps1', 'tests/check-public.ps1', 'iWinInstaller.ps1', '.github/workflows/bootstrap.yml']
+    paths: ['lifecycle.ps1', 'install.ps1', 'apps.json', 'scripts/**', 'installer-header.bat', 'tests/check-bootstrap.ps1', 'tests/check-reliability.ps1', 'tests/check-audit.ps1', 'tests/check-lifecycle.ps1', 'tests/check-x86.ps1', 'tests/check-public.ps1', 'iWinInstaller.ps1', '.github/workflows/bootstrap.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -31,3 +31,15 @@ jobs:
       - name: Reanudar, pausar, restaurar y comprobar postinstalación
         shell: powershell
         run: ./tests/check-lifecycle.ps1
+  x86:
+    name: x86
+    runs-on: windows-2025
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ejecutar PowerShell de 32 bits real
+        shell: powershell
+        run: |
+          $x86=Join-Path $env:WINDIR 'SysWOW64/WindowsPowerShell/v1.0/powershell.exe'
+          & $x86 -NoProfile -ExecutionPolicy Bypass -File ./tests/check-x86.ps1
+          if($LASTEXITCODE){throw 'Falló la prueba x86'}

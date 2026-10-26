@@ -100,6 +100,8 @@ git checkout v3.2
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
 
+El EXE AnyCPU funciona como proceso de 32 bits en Windows x86 y usa el host nativo en x64/ARM64. CI ejecuta también PowerShell de 32 bits y un lanzador compilado x86 en Windows x64, además de los runners x64/ARM64. Los instaladores oficiales incluidos deben contener x86, x64 y ARM64. Algunos programas del catálogo solo existen para ciertas arquitecturas; un controlador de kernel debe corresponder al Windows real. La matriz no equivale a probar un Windows 10 de 32 bits completo.
+
 Las pruebas de `check-native.ps1` y `check-acceptance.ps1` están destinadas a runners desechables; instalan aplicaciones y no deben ejecutarse en un PC con datos reales. Los workflows verifican PowerShell 5.1, apertura de WPF, sustitución segura, integridad del paquete, actividad y organización del escritorio.
 
 ## Privacidad y límites
