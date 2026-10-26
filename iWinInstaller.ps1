@@ -702,6 +702,57 @@ function Test-RemoteSsh {
     return ($first.Count -eq 1 -and $first[0] -match '\bno\s*$')
 }
 
+# ---------- Monitor virtual activo (Virtual Display Driver) ----------
+# El paquete de WinGet solo deja los archivos: el monitor aparece al crear el dispositivo raíz Root\MttVDD con devcon.
+$VddHardwareId = 'Root\MttVDD'
+$VddSettingsDir = 'C:\VirtualDisplayDriver'
+function Get-VddFiles {
+    $arch = if ($env:PROCESSOR_ARCHITEW6432) { $env:PROCESSOR_ARCHITEW6432 } else { $env:PROCESSOR_ARCHITECTURE }
+    $section = if ($arch -eq 'ARM64') { 'NTarm64' } else { 'NTamd64' }
+    $devconArch = if ($arch -eq 'ARM64') { 'arm64' } else { 'x64|amd64' }
+    $roots = @(Get-AllInstalledEntries | Where-Object { $_.DisplayName -match 'Virtual Display Driver' -and $_.InstallLocation } | ForEach-Object InstallLocation)
+    $roots += @((Join-Path $env:ProgramFiles 'Virtual Display Driver'), $VddSettingsDir)
+    $packages = @((Join-Path $env:ProgramFiles 'WinGet\Packages'), (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Packages'))
+    $packages += @(Get-ChildItem (Join-Path $env:SystemDrive 'Users') -Directory -ErrorAction SilentlyContinue | ForEach-Object { Join-Path $_.FullName 'AppData\Local\Microsoft\WinGet\Packages' })
+    foreach ($base in $packages) { $roots += @(Get-ChildItem $base -Directory -Filter 'VirtualDrivers.Virtual-Display-Driver*' -ErrorAction SilentlyContinue | ForEach-Object FullName) }
+    foreach ($root in @($roots | Where-Object { $_ -and (Test-Path $_) } | Select-Object -Unique)) {
+        # La carpeta puede llamarse x86 aunque el INF sea de 64 bits: se elige por la sección de arquitectura del INF
+        $inf = Get-ChildItem $root -Recurse -Filter 'MttVDD.inf' -ErrorAction SilentlyContinue | Where-Object { (Get-Content $_.FullName -Raw -ErrorAction SilentlyContinue) -match $section } | Select-Object -First 1
+        $devcons = @(Get-ChildItem $root -Recurse -Filter 'devcon.exe' -ErrorAction SilentlyContinue)
+        $devcon = @($devcons | Where-Object FullName -match $devconArch) + $devcons | Select-Object -First 1
+        if ($inf -and $devcon) {
+            $settings = Get-ChildItem $root -Recurse -Filter 'vdd_settings.xml' -ErrorAction SilentlyContinue | Select-Object -First 1
+            return [pscustomobject]@{ Inf = $inf.FullName; Devcon = $devcon.FullName; Settings = $(if ($settings) { $settings.FullName }) }
+        }
+    }
+    $null
+}
+function Get-VddDevices { @(Get-CimInstance Win32_PnPEntity -ErrorAction SilentlyContinue | Where-Object { $_.HardwareID -contains $VddHardwareId }) }
+function Set-VirtualDisplay {
+    if (-not (Test-Administrator)) { Write-Log '  Necesita permiso de administrador.'; return $false }
+    if (Test-VirtualDisplay) { Write-Log '  El monitor virtual ya está activo.'; return $true }
+    $files = Get-VddFiles
+    if (-not $files) { Write-Log '  Falta Pantalla virtual (Virtual Display Driver) o no trae MttVDD.inf y devcon.exe: instálala desde Sistema › Acceso remoto.'; return $false }
+    # El controlador lee su configuración (resoluciones, GPU) de esta carpeta fija
+    New-Item $VddSettingsDir -ItemType Directory -Force | Out-Null
+    $target = Join-Path $VddSettingsDir 'vdd_settings.xml'
+    if ($files.Settings -and -not (Test-Path $target)) { Copy-Item $files.Settings $target }
+    # Un dispositivo roto de un intento anterior impediría crear uno nuevo limpio
+    foreach ($dev in Get-VddDevices) { $null = & pnputil.exe /remove-device $dev.PNPDeviceID }
+    Write-Log "  Creando el monitor virtual con $($files.Inf)"
+    $run = Start-Process $files.Devcon -ArgumentList "install `"$($files.Inf)`" $VddHardwareId" -WindowStyle Hidden -Wait -PassThru
+    if ($run.ExitCode -notin 0, 1) { Write-Log "  devcon no pudo crear el dispositivo (código $($run.ExitCode))."; return $false }
+    if ($run.ExitCode -eq 1) { Write-Log '  Reinicia Windows para terminar de activar el monitor virtual.' }
+    Write-Log '  Monitor virtual creado: Sunshine puede transmitir con las pantallas apagadas o el HDMI desconectado.'
+    return (Test-VirtualDisplay)
+}
+function Reset-VirtualDisplay {
+    if (-not (Test-Administrator)) { Write-Log '  Necesita permiso de administrador.'; return $false }
+    foreach ($dev in Get-VddDevices) { $null = & pnputil.exe /remove-device $dev.PNPDeviceID }
+    Write-Log '  Monitor virtual quitado. El controlador sigue instalado para volver a activarlo.'
+    return (-not (Get-VddDevices))
+}
+function Test-VirtualDisplay { [bool](Get-VddDevices | Where-Object ConfigManagerErrorCode -eq 0) }
 # ---------- Luces RGB apagadas (OpenRGB) ----------
 # Muchas placas, memorias, gráficas y controladoras vuelven a su efecto de serie al quitarles la corriente:
 # una tarea del sistema vuelve a apagarlas en cada arranque, sin necesidad de iniciar sesión.
@@ -918,6 +969,7 @@ function Install-Tweak($id) {
             'endtask' { Set-RegDword $DevSettings 'TaskbarEndTask' 1; return $true }
             'remotehost' { return (Set-RemoteHost) }
             'remotessh' { return (Set-RemoteSsh) }
+            'virtualdisplayon' { return (Set-VirtualDisplay) }
             'rgboff' { return (Set-RgbOff) }
             'mouseaccel' {
                 Set-RegString $MouseKey 'MouseSpeed' '0'; Set-RegString $MouseKey 'MouseThreshold1' '0'; Set-RegString $MouseKey 'MouseThreshold2' '0'
@@ -964,6 +1016,7 @@ function Test-TweakCore($id) {
         'mouseaccel' { return ((Get-RegValue $MouseKey 'MouseSpeed') -eq '0' -and (Get-RegValue $MouseKey 'MouseThreshold1') -eq '0' -and (Get-RegValue $MouseKey 'MouseThreshold2') -eq '0') }
         'remotehost' { return (Test-RemoteHost) }
         'remotessh' { return (Test-RemoteSsh) }
+        'virtualdisplayon' { return (Test-VirtualDisplay) }
         'rgboff' { return (Test-RgbOff) }
     }
     return $false

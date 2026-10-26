@@ -355,6 +355,27 @@
     "restart": true
   },
   {
+    "id": "virtualdisplayon",
+    "section": "Sistema",
+    "group": "Acceso remoto",
+    "name": "Activar monitor virtual",
+    "desc": "Crea el monitor virtual del controlador instalado para que Sunshine transmita con las pantallas apagadas o el HDMI quitado",
+    "icon": "glyph:E7F4",
+    "type": "tweak",
+    "context": "machine",
+    "extra": true,
+    "requires": [
+      "virtualdisplay"
+    ],
+    "postInstall": {
+      "steps": [
+        "Abre Configuración › Pantalla y comprueba que aparece un monitor más.",
+        "Apaga los monitores o quita el HDMI y conéctate con Moonlight desde otro equipo."
+      ],
+      "note": "Al deshacer se quita el monitor virtual; el controlador sigue instalado."
+    }
+  },
+  {
     "id": "openrgb",
     "section": "Sistema",
     "group": "Iluminación RGB",

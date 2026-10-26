@@ -243,10 +243,11 @@ function Get-TweakSnapshotPath($id, [switch]$ReadOnly) {
 function Test-IwinPreviousState($app) {
     if($app.type -ne 'tweak' -or $app.id -in @('wsl','restorepoint')){return $false}
     if($app.id -eq 'rgboff'){return (Test-Path $RgbScript)}
+    if($app.id -eq 'virtualdisplayon'){return (Test-VirtualDisplay)}
     try{return (Test-Path (Get-TweakSnapshotPath $app.id -ReadOnly))}catch{return $false}
 }
 function Save-TweakSnapshot($id) {
-    if ($id -in @('wsl','restorepoint','rgboff')) { return }
+    if ($id -in @('wsl','restorepoint','rgboff','virtualdisplayon')) { return }
     $path=Get-TweakSnapshotPath $id
     if (Test-Path $path) { return }
     $values=@()
@@ -267,6 +268,7 @@ function Save-TweakSnapshot($id) {
 }
 function Restore-TweakSnapshot($id) {
     if ($id -eq 'rgboff') { return (Reset-RgbOff) }
+    if ($id -eq 'virtualdisplayon') { return (Reset-VirtualDisplay) }
     $path=Get-TweakSnapshotPath $id
     if (-not (Test-Path $path)) { throw 'No se guardó el estado anterior (ajuste previo a v3.2). No se impondrán valores genéricos; revísalo desde Configuración de Windows.' }
     $file=Get-Item $path
