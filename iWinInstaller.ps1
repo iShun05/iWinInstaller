@@ -2936,6 +2936,7 @@ function Show-AfterInstall([string]$focusId='') {
         [void]$ui.AfterRows.Children.Add($expander)
     }
     $ui.CatalogPanel.IsEnabled=$false;$ui.ActionPanel.IsEnabled=$false;$ui.Search.IsEnabled=$false
+    $ui.CatalogPanel.Visibility='Hidden';$ui.ActionPanel.Visibility='Hidden'
     $ui.AfterPanel.Visibility='Visible'
     Update-AfterSummary
     if([Windows.SystemParameters]::ClientAreaAnimation){
@@ -2954,6 +2955,7 @@ $ui.MAfter.Add_Click({Show-AfterInstall})
 $ui.AfterBack.Add_Click({
     try{Save-PostInstallState}catch{Set-Status 'No se pudieron guardar las notas.'}
     $ui.AfterPanel.Visibility='Collapsed'
+    $ui.CatalogPanel.Visibility='Visible';$ui.ActionPanel.Visibility='Visible'
     $ui.CatalogPanel.IsEnabled=$true;$ui.ActionPanel.IsEnabled=$true;$ui.Search.IsEnabled=$true
     [void]$ui.BtnAfter.Focus()
 })
@@ -3099,7 +3101,7 @@ if ($env:IWIN_PRUEBA_GUI) {
         $LogDir=$postFixture;$ConfigFile=Join-Path $postFixture 'configuracion.json';$script:PostInstallState=@{}
         Show-AfterInstall 'remotehost';Invoke-UiPump
         if($ui.AfterPanel.Visibility -ne 'Visible'){throw 'El panel de postinstalación debe abrirse sin salir de la app'}
-        if($ui.CatalogPanel.IsEnabled -or $ui.ActionPanel.IsEnabled){throw 'El teclado no debe enfocar controles ocultos detrás de las notas'}
+        if($ui.CatalogPanel.IsEnabled -or $ui.ActionPanel.IsEnabled -or $ui.CatalogPanel.Visibility -ne 'Hidden' -or $ui.ActionPanel.Visibility -ne 'Hidden'){throw 'Los controles de catálogo no deben pintarse ni tomar foco detrás de las notas'}
         $row=$ui.AfterRows.Children | Where-Object {$_.Tag -and $_.Tag.App.id -eq 'remotehost'} | Select-Object -First 1
         if(-not $row -or -not $row.IsExpanded){throw 'La nota de la fila debe abrir sus pasos'}
         $field=$row.Content.Children | Where-Object {$_ -is [Windows.Controls.TextBox]} | Select-Object -First 1
