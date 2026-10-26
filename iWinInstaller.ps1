@@ -643,7 +643,7 @@ $SshAdminKeys = Join-Path $SshDir 'administrators_authorized_keys'
 $SshRuleGroup = 'iWinInstaller SSH'
 $SshShellKey = 'HKLM:\SOFTWARE\OpenSSH'
 $SshMarker = '# iWinInstaller: solo claves'
-$SshDirectives = @($SshMarker, 'PubkeyAuthentication yes', 'PasswordAuthentication no', 'PermitEmptyPasswords no', 'KbdInteractiveAuthentication no', '# iWinInstaller: fin')
+$SshDirectives = @($SshMarker, 'PubkeyAuthentication yes', 'PasswordAuthentication no', 'PermitEmptyPasswords no', '# iWinInstaller: fin')
 function Get-SshdExe { Join-Path $env:SystemRoot 'System32\OpenSSH\sshd.exe' }
 # Directivas al principio: sshd usa la primera aparición de cada opción, también antes de los bloques Match
 function Set-SshKeyOnlyConfig {
@@ -674,8 +674,10 @@ function Set-RemoteSsh {
     if (-not (Test-Path $SshConfig)) { throw 'OpenSSH no creó sshd_config.' }
     $backup = [IO.File]::ReadAllBytes($SshConfig)
     Set-SshKeyOnlyConfig
-    & (Get-SshdExe) -t 2>&1 | ForEach-Object { Write-Log "    $_" }
-    if ($LASTEXITCODE) { [IO.File]::WriteAllBytes($SshConfig, $backup); throw 'La configuración de SSH no es válida; se ha dejado como estaba.' }
+    # sshd -t escribe en stderr: con Stop, PowerShell 5.1 lo convertiría en excepción antes de restaurar
+    $previous = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    try { & (Get-SshdExe) -t 2>&1 | ForEach-Object { Write-Log "    $_" }; $code = $LASTEXITCODE } finally { $ErrorActionPreference = $previous }
+    if ($code) { [IO.File]::WriteAllBytes($SshConfig, $backup); throw 'La configuración de SSH no es válida; se ha dejado como estaba.' }
     Set-SshAdminKeysAcl
     Set-RegString $SshShellKey 'DefaultShell' (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe')
     # Firewall: la regla de Windows abre el 22 a cualquier red; se sustituye por una limitada a Tailscale
