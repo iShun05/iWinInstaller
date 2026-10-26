@@ -97,7 +97,7 @@ static class Launcher {
                 report = Path.Combine(downloads, "iWinInstaller-error-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".txt");
                 File.Copy(LogPath, report, true);
             } catch { }
-            if (Array.IndexOf(args, "--silent") < 0)
+            if (Array.IndexOf(args, "--silent") < 0 && Array.IndexOf(args, "--update-only") < 0)
                 MessageBox.Show("No se pudo completar la operación.\n" + e.Message + "\n\n" + (File.Exists(report) ? "Diagnóstico guardado en:\n" + report : e.Message + "\nNo se pudo guardar el diagnóstico."), "iWinInstaller", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return 1;
         }

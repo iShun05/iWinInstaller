@@ -88,6 +88,11 @@ function Read-EmbeddedArchive([string]$file, [string]$destination) {
     [IO.File]::WriteAllBytes($destination, $bytes)
     return $true
 }
+$installMutex=New-Object Threading.Mutex($false,('Local\iWinInstaller-install-'+[Security.Principal.WindowsIdentity]::GetCurrent().User.Value))
+$ownsInstall=$false
+try{
+    try{$ownsInstall=$installMutex.WaitOne(0)}catch [Threading.AbandonedMutexException]{$ownsInstall=$true}
+    if(-not $ownsInstall){throw 'Ya hay otra instalacion de iWinInstaller en curso.'}
 $tag = 'v3.2'
 $tmp = Join-Path $env:TEMP ('iWinInstaller-' + [Guid]::NewGuid().ToString())
 New-Item -ItemType Directory $tmp -Force | Out-Null
@@ -169,3 +174,5 @@ Write-Host '[7/7] Instalacion completada.'
 Write-Host "iWinInstaller $tag instalado en $Dir"
 Write-Host 'Accesos directos creados en el menu Inicio y en el Escritorio.'
 if (-not $Silent) { if (Test-Path (Join-Path $Dir 'iWinInstaller.exe')) { Start-Process (Join-Path $Dir 'iWinInstaller.exe') } else { Start-Process $ps -ArgumentList $args0 } }
+
+}finally{if($ownsInstall){$installMutex.ReleaseMutex()};$installMutex.Dispose()}

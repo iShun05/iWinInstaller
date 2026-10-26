@@ -139,6 +139,7 @@ Write-Host 'OK: prepara dependencias, omite lo instalado, confirma el resultado 
     $previousHost=$env:IWIN_HOST_PID; $env:IWIN_HOST_PID='123'
     function Invoke-RestMethod { [pscustomobject]@{tag_name='v2.1'; assets=@([pscustomobject]@{name='iWinInstaller-Setup.exe';digest=('sha256:'+('a'*64));browser_download_url='https://example.invalid/setup.exe'})} }
     function Invoke-WebRequest { param($Uri,$OutFile,[switch]$UseBasicParsing) Set-Content $OutFile 'fixture' }
+    function Invoke-IwinWebTransfer($url,$outFile,$timeoutSec){if($outFile){Set-Content $outFile 'fixture'}else{Invoke-RestMethod | ConvertTo-Json -Depth 5}}
     function Get-FileHash { [pscustomobject]@{Hash=('a'*64)} }
     function Write-Log { }
     function Start-Process {

@@ -423,3 +423,28 @@ function Test-IwinAppOpen {
     }
     $false
 }
+function Invoke-IwinWebTransfer([string]$url, [string]$outFile, [int]$timeoutSec=600) {
+    $uri=[uri]$url
+    if($uri.Scheme -ne 'https'){throw 'La actualización exige una conexión HTTPS.'}
+    $client=New-Object Net.WebClient
+    $client.Headers['User-Agent']='iWinInstaller/'+$Version
+    $timer=[Diagnostics.Stopwatch]::StartNew()
+    try{
+        [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12
+        $task=if($outFile){$client.DownloadFileTaskAsync($uri,$outFile)}else{$client.DownloadStringTaskAsync($uri)}
+        while(-not $task.IsCompleted){
+            if($timer.Elapsed.TotalSeconds -gt $timeoutSec -or (Test-IwinStop)){$client.CancelAsync();throw 'Actualización pospuesta: cancelada o sin respuesta. Puedes reintentarlo.'}
+            Invoke-UiPump;Start-Sleep -Milliseconds 100
+        }
+        $task.GetAwaiter().GetResult()
+    }finally{$client.Dispose()}
+}
+function Clear-IwinUpdateDownloads {
+    $base=Join-Path $LogDir 'actualizacion'
+    foreach($directory in @(Get-ChildItem $base -Directory -ErrorAction SilentlyContinue)){
+        if($directory.Name -notmatch '^v\d+\.\d+$' -or ($directory.Attributes -band [IO.FileAttributes]::ReparsePoint)){continue}
+        if([version]$directory.Name.Substring(1) -le [version]$Version.Substring(1)){
+            try{Remove-Item $directory.FullName -Recurse -Force -ErrorAction Stop}catch{Write-Log 'El paquete de actualización aún está en uso; se retirará al abrir de nuevo.'}
+        }
+    }
+}

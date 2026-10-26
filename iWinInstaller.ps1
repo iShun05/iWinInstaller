@@ -892,12 +892,13 @@ function Test-TweakCore($id) {
 
 function Update-Self {
     if (-not (Test-Path (Join-Path $Root 'instalado.txt'))) { return $true }
+    $script:StopRequested=$false
     $lock=New-Object Threading.Mutex($false,('Local\iWinInstaller-update-'+[Security.Principal.WindowsIdentity]::GetCurrent().User.Value))
     $locked=$false
     try {
         try{$locked=$lock.WaitOne(0)}catch [Threading.AbandonedMutexException]{$locked=$true}
         if(-not $locked){Write-Log '  Ya hay una actualización en preparación.';return $true}
-        $release = Invoke-RestMethod $ReleaseApi -TimeoutSec 20
+        $release = (Invoke-IwinWebTransfer $ReleaseApi $null 20) | ConvertFrom-Json -ErrorAction Stop
         $tag = $release.tag_name
         if ($tag -notmatch '^v\d+\.\d+$') { throw 'No se pudo consultar una versión válida.' }
         if ([version]$tag.Substring(1) -le [version]$Version.Substring(1)) { Write-Log "  iWinInstaller ya está al día ($Version)."; return $true }
@@ -912,11 +913,12 @@ function Update-Self {
             if(-not (Test-Path $setup) -or (Get-FileHash $setup).Hash -ne $expected){
                 $download=$setup+'.part'
                 try{
-                    Invoke-WebRequest $asset.browser_download_url -OutFile $download -UseBasicParsing -TimeoutSec 600
+                    [void](Invoke-IwinWebTransfer $asset.browser_download_url $download 600)
                     if((Get-FileHash $download).Hash -ne $expected){throw 'La actualización no supera la comprobación SHA256.'}
                     Move-Item $download $setup -Force -ErrorAction Stop
                 }finally{Remove-Item $download -Force -ErrorAction SilentlyContinue}
             }
+            foreach($running in @(Get-Process -Name iWinInstaller-Setup -ErrorAction SilentlyContinue)){try{if($running.Path -eq $setup){Write-Log '  La nueva versión ya está preparada para aplicarse al cerrar.';return $true}}catch{}}
             $p=Start-Process $setup -ArgumentList '--silent' -PassThru
             if (($UI -or $AutoUpdate) -and $env:IWIN_HOST_PID -match '^\d+$') {
                 Write-Log '  Versión verificada. Se aplica cuando cierre iWinInstaller; conserva notas, perfiles y lotes.'
@@ -939,6 +941,7 @@ function Invoke-Update {
     $script:UpgradePackages = $true
     try { $fail = @(Invoke-Install $installed $null); $ok = $fail.Count -eq 0 }
     finally { $script:UpgradePackages = $previousUpgrade }
+    if(Test-IwinStop){Write-Log 'Actualización de aplicaciones pausada; no se sustituye iWinInstaller durante la pausa.';return $false}
     try {
         if (-not (Update-Self)) { $ok = $false }
     } catch { Write-Log "  Error de actualización: $($_.Exception.Message)"; $ok = $false }
@@ -2948,6 +2951,7 @@ $win.Add_ContentRendered({
         $win.BeginAnimation([Windows.UIElement]::OpacityProperty, $animation)
     }
     Invoke-Verify -Quiet
+    if(-not $env:IWIN_PRUEBA_GUI){Clear-IwinUpdateDownloads}
     if($Prefs.autoUpdate -and -not $env:IWIN_PRUEBA_GUI){
         Set-Busy $true
         try{[void](Update-Self)}catch{Write-Log "Actualización pendiente: $($_.Exception.Message)"}finally{Set-Busy $false}
