@@ -206,6 +206,18 @@
     "noopen": true
   },
   {
+    "id": "virtualdisplay",
+    "section": "Sistema",
+    "group": "Acceso remoto",
+    "name": "Pantalla virtual (Virtual Display Driver)",
+    "desc": "Monitor virtual siempre conectado: Sunshine sigue transmitiendo con las pantallas apagadas o el HDMI desconectado",
+    "icon": "glyph:E7F4",
+    "type": "winget",
+    "winget": "VirtualDrivers.Virtual-Display-Driver",
+    "context": "machine",
+    "extra": true
+  },
+  {
     "id": "openrgb",
     "section": "Sistema",
     "group": "Iluminación RGB",
