@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 8
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Paquete, copia y restauración segura
         shell: powershell
         run: ./tests/check-bootstrap.ps1
@@ -36,7 +36,7 @@ jobs:
     runs-on: windows-2025
     timeout-minutes: 8
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Ejecutar PowerShell de 32 bits real
         shell: powershell
         run: |
