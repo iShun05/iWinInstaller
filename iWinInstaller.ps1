@@ -309,7 +309,7 @@ function Install-Chrome($app) {
             if ($timer.Elapsed.TotalMinutes -gt 10) { $client.CancelAsync(); throw 'Tiempo de descarga de Chrome agotado.' }
             Invoke-UiPump; Start-Sleep -Milliseconds 100
         }
-        $download.GetAwaiter().GetResult()
+        [void]$download.GetAwaiter().GetResult()
         $signature = Get-AuthenticodeSignature $msi
         if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch '(?:^|,\s*)(?:CN|O)=Google LLC(?:,|$)') { throw 'El instalador de Chrome no tiene una firma valida de Google LLC.' }
         Write-Log "  Firma de Google comprobada; SHA256 $((Get-FileHash $msi -Algorithm SHA256).Hash)"
@@ -1189,11 +1189,11 @@ function Invoke-Install($sel, [scriptblock]$onProgress) {
         elseif ($UI -and $byId -and $byId.ContainsKey($app.id)) { $byId[$app.id].Status='Instalando…'; $byId[$app.id].StatusKind='busy'; Set-Status "Instalando $($app.name)…" }
         $ok = $false
         try {
-            $ok = Install-App $app
+            $ok = Invoke-IwinInstallAction $app
             if (-not $ok -and $app.type -in @('winget','wingetall') -and $LastInstallCode -in @(-1978335224,-1978335173,-1978335123)) {
                 Write-Log '  Reintentando...'
                 Start-Sleep -Seconds 1
-                $ok = Install-App $app
+                $ok = Invoke-IwinInstallAction $app
             }
             if ($ok -and $app.type -in @('download', 'vboxga')) {
                 $cached = $WingetIds
@@ -2703,7 +2703,7 @@ $ui.BtnUpdate.Add_Click($updateAll)
 $ui.MUpdate.Add_Click($updateAll)
 function Confirm-IwinPlan($selection, [string]$operation = 'install') {
     $plan = if ($operation -eq 'uninstall') { @($selection) } else { @(Get-InstallPlan $selection) }
-    $check = if ($operation -eq 'uninstall') { [pscustomobject]@{Ok=$true;Text='Se usará el desinstalador oficial o el estado anterior guardado.'} } else { Get-IwinPreflight $plan }
+    $preflightResult = if ($operation -eq 'uninstall') { [pscustomobject]@{Ok=$true;Text='Se usará el desinstalador oficial o el estado anterior guardado.'} } else { Get-IwinPreflight $plan }
     $lines=@($plan | ForEach-Object {
         $context = if ((Get-InstallContext $_) -eq 'machine') { 'administrador' } else { 'tu usuario' }
         $extra = if ($_.type -eq 'tweak') { ' · ajuste de Windows' } else { '' }
@@ -2711,8 +2711,8 @@ function Confirm-IwinPlan($selection, [string]$operation = 'install') {
         "• $($_.name) · $context$extra"
     })
     $title = if($operation -eq 'uninstall'){'Antes de reanudar la desinstalación'}else{'Antes de instalar'}
-    $body = $check.Text + "`n`n" + ($lines -join "`n") + "`n`nPuedes pausar entre aplicaciones. No se reinicia Windows automáticamente."
-    if (-not $check.Ok) { [void](Show-IwinDialog -Title 'Revisa el equipo antes de continuar' -Text $body -Ok 'Volver'); return $false }
+    $body = $preflightResult.Text + "`n`n" + ($lines -join "`n") + "`n`nPuedes pausar entre aplicaciones. No se reinicia Windows automáticamente."
+    if (-not $preflightResult.Ok) { [void](Show-IwinDialog -Title 'Revisa el equipo antes de continuar' -Text $body -Ok 'Volver'); return $false }
     (Show-IwinDialog -Title $title -Text $body -Ok $(if($operation -eq 'uninstall'){'Reanudar'}else{'Continuar'})).Ok
 }
 function Start-IwinUiInstall($selection, $pending = $null) {
@@ -2842,14 +2842,14 @@ function Show-AfterInstall([string]$focusId='') {
         $row=[pscustomobject]@{App=$app;Guide=$guide;Header=$header;Technical=$technical;TechnicalOk=$null}
         $expander.Tag=$row
         for($index=0;$index -lt @($guide.steps).Count;$index++){
-            $check=New-Object Windows.Controls.CheckBox
+            $stepCheck=New-Object Windows.Controls.CheckBox
             $label=New-Object Windows.Controls.TextBlock
             $label.Text=$guide.steps[$index];$label.TextWrapping='Wrap';$label.Foreground='#E6E6EB'
-            $check.Content=$label;$check.Margin='0,4,0,7';$check.Padding='4,0,0,0';$check.HorizontalContentAlignment='Stretch'
-            $check.IsChecked=@($script:PostInstallState[$app.id].steps) -contains $index
-            $check.Tag=@{Id=$app.id;Index=$index}
-            $check.IsEnabled=-not $script:PostInstallReadOnly
-            $check.Add_Click({
+            $stepCheck.Content=$label;$stepCheck.Margin='0,4,0,7';$stepCheck.Padding='4,0,0,0';$stepCheck.HorizontalContentAlignment='Stretch'
+            $stepCheck.IsChecked=@($script:PostInstallState[$app.id].steps) -contains $index
+            $stepCheck.Tag=@{Id=$app.id;Index=$index}
+            $stepCheck.IsEnabled=-not $script:PostInstallReadOnly
+            $stepCheck.Add_Click({
                 param($sender)
                 $id=$sender.Tag.Id;$index=[int]$sender.Tag.Index
                 $entry=$script:PostInstallState[$id]
@@ -2857,7 +2857,7 @@ function Show-AfterInstall([string]$focusId='') {
                 if($sender.IsChecked){$entry.steps+= $index}
                 try{Sync-PostInstallManual $id}catch{Set-Status "No se pudo guardar el seguimiento: $($_.Exception.Message)"}
             })
-            [void]$body.Children.Add($check)
+            [void]$body.Children.Add($stepCheck)
         }
         $note=New-Object Windows.Controls.TextBlock
         $note.Text=$guide.note;$note.TextWrapping='Wrap';$note.Foreground='#ADADB5';$note.Margin='0,10,0,12'
@@ -3052,9 +3052,9 @@ if ($env:IWIN_PRUEBA_GUI) {
         if(-not $row -or -not $row.IsExpanded){throw 'La nota de la fila debe abrir sus pasos'}
         $field=$row.Content.Children | Where-Object {$_ -is [Windows.Controls.TextBox]} | Select-Object -First 1
         $field.Text="Vincular el Mac · prueba de notas largas con acentos y varias líneas.`nPendiente comprobar desde otra red."
-        $check=$row.Content.Children | Where-Object {$_ -is [Windows.Controls.CheckBox]} | Select-Object -First 1
-        $check.IsChecked=$true
-        $check.RaiseEvent((New-Object Windows.RoutedEventArgs ([Windows.Controls.Primitives.ButtonBase]::ClickEvent)))
+        $stepControl=$row.Content.Children | Where-Object {$_ -is [Windows.Controls.CheckBox]} | Select-Object -First 1
+        $stepControl.IsChecked=$true
+        $stepControl.RaiseEvent((New-Object Windows.RoutedEventArgs ([Windows.Controls.Primitives.ButtonBase]::ClickEvent)))
         Save-PostInstallState
         $stored=Get-PostInstallState
         if($stored.remotehost.note -ne $field.Text -or @($stored.remotehost.steps).Count -ne 1){throw 'Pasos y notas deben guardarse desde los controles reales'}

@@ -9,6 +9,21 @@ foreach($name in 'Invoke-Install','Resume-IwinBatch','Test-StillInstalled'){
     $node=$ast.Find({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name},$true)
     . ([scriptblock]::Create($node.Extent.Text))
 }
+# Barrera contra variables que reutilizan un parámetro tipado en el ámbito del script.
+foreach($fileName in 'iWinInstaller.ps1','install.ps1'){
+    $tree=[Management.Automation.Language.Parser]::ParseFile((Join-Path $root $fileName),[ref]$null,[ref]$errors)
+    $switches=@($tree.ParamBlock.Parameters | Where-Object {$_.StaticType -eq [System.Management.Automation.SwitchParameter]} | ForEach-Object {$_.Name.VariablePath.UserPath})
+    foreach($assignment in $tree.FindAll({param($n)$n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left -is [Management.Automation.Language.VariableExpressionAst]},$true)){
+        $name=$assignment.Left.VariablePath.UserPath
+        if($name -notin $switches){continue}
+        $parent=$assignment.Parent;$local=$false
+        while($parent -and $parent -ne $tree){
+            if($parent -is [Management.Automation.Language.FunctionDefinitionAst] -or $parent -is [Management.Automation.Language.ScriptBlockAst]){$local=$true;break}
+            $parent=$parent.Parent
+        }
+        if(-not $local){throw "Variable en conflicto con parámetro switch: $fileName / $name"}
+    }
+}
 function Assert($ok,$message){if(-not $ok){throw $message}}
 function Write-Log($message){}
 function Invoke-UiPump{}
@@ -68,6 +83,7 @@ try{
     Set-Content (Join-Path $LogDir 'postinstalacion.json') 'archivo roto' -Encoding UTF8
     $rejected=$false;try{[void](Get-PostInstallState)}catch{$rejected=$true}
     Assert $rejected 'No se pierde silenciosamente un seguimiento dañado'
+    & {function Install-App { 'salida auxiliar'; $false }; Assert (-not (Invoke-IwinInstallAction $Apps[0])) 'La salida adicional no convierte un fallo en éxito'}
     Write-Host 'OK: dependencias, pausa, reanudación, reinicios, ausencia frente a error y notas manuales.'
     if($env:OS -eq 'Windows_NT'){
         & {

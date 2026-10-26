@@ -455,3 +455,11 @@ function Clear-IwinUpdateDownloads {
         }
     }
 }
+
+function Invoke-IwinInstallAction($app) {
+    $values=@(Install-App $app)
+    $results=@($values | Where-Object {$_ -is [bool]})
+    if(-not $results.Count){Write-Log '  El instalador no devolvió un resultado comprobable.';return $false}
+    # La salida de un asistente o una tarea .NET nunca convierte un false en éxito.
+    [bool]$results[-1]
+}
