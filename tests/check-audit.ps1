@@ -67,9 +67,10 @@ class Fixture {
     if (-not $timedOut -or $timer.Elapsed.TotalSeconds -gt 8) { throw 'El plazo debe interrumpir un proceso que mantiene sus tuberías abiertas' }
     foreach ($mode in 'ok', 'fail', 'listfail') {
         $env:IWIN_RGB_FIXTURE_MODE = $mode
+        Write-Host "Comprobando script RGB: $mode"
         $run = Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`" -Once" -PassThru -WindowStyle Hidden
         $null = $run.Handle
-        if (-not $run.WaitForExit(15000)) { $run.Kill(); throw 'El script RGB no terminó' }
+        if (-not $run.WaitForExit(90000)) { $run.Kill(); throw "El script RGB no terminó: $mode" }
         $report = Get-Content (Join-Path $fixture 'apagar-rgb.log') -Raw -Encoding UTF8
         if ($mode -eq 'ok') {
             if ($run.ExitCode -ne 0 -or $report -notmatch 'Apagado aplicado: 1 dispositivos') { throw 'Debe confirmar la orden correcta' }

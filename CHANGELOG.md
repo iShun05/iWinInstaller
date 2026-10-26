@@ -10,7 +10,7 @@
 
 ### Archivos y pruebas
 - **Afecta a** Windows 10/11 x86, x64 y ARM64; sin versiones macOS/iOS/web publicadas.
-- **Archivos**: `iWinInstaller.ps1`, `install.ps1`, `native/Launcher.cs`, `tests/check-audit.ps1`, `tests/check-acceptance.ps1`, `.github/workflows/bootstrap.yml`, `README.md`.
+- **Archivos**: `iWinInstaller.ps1`, `install.ps1`, `native/Launcher.cs`, `tests/check-audit.ps1`, `tests/check-acceptance.ps1`, `tests/check-embedded-install.ps1`, `.github/workflows/bootstrap.yml`, `README.md`.
 - **Regresiones**: proceso simulado real con ambas salidas de 128 KiB, bloqueo con tuberías abiertas, enumeración fallida, apagado fallido, informe persistido, detección de funciones duplicadas y coherencia de versiones. Suite de arranque ampliada a x64 y ARM64 en PowerShell 5.1.
 - **Límites**: pendiente de prueba con hardware RGB físico y Windows 10/x86. La revisión no garantiza ausencia de fallos en las 418 entradas ni en todos los equipos.
 
