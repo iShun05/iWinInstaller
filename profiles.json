@@ -69,6 +69,7 @@
     "tailscale",
     "autologon",
     "remotehost",
+    "remotessh",
     "chromeremote",
     "kdeconnect",
     "virtualdisplay",

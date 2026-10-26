@@ -1,5 +1,15 @@
 # Historial de versiones
 
+## v3.3 — 2026-10-26
+
+### Añadido
+- **Control remoto por SSH (Tailscale)** en Sistema › Acceso remoto y en el perfil **Escritorio remoto**: instala OpenSSH Server si falta, pone PowerShell como shell, desactiva contraseñas (solo claves), protege `administrators_authorized_keys`, sustituye la regla de Windows del puerto 22 por una limitada a Tailscale (`100.64.0.0/10`) y deja `sshd` automático. Comprueba la configuración con `sshd -t` y la deja como estaba si falla. Abre el archivo de claves para pegar la del Mac.
+- Restauración: guarda y recupera el servicio, la regla de Windows, `sshd_config` y el shell por defecto.
+
+### Archivos y pruebas
+- **Archivos**: `iWinInstaller.ps1`, `lifecycle.ps1`, `apps.json`, `profiles.json`, `README.md`, `tests/check-acceptance.ps1`.
+- **Verificación**: parser de PowerShell sin errores y JSON válidos. Pendiente: runners Windows y conexión real desde el Mac.
+
 ## v3.2 — 2026-10-26
 
 ### Añadido

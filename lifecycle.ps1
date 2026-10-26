@@ -184,6 +184,9 @@ function Test-PostInstall($app) {
                 if ($probe.Code -ne 0 -or $status.BackendState -ne 'Running') { throw 'Tailscale no está conectado. Abre la app e inicia sesión.' }
             }
             'sunshine' { if ((Get-Service SunshineService -ErrorAction Stop).Status -ne 'Running') { throw 'El servicio de Sunshine no está en ejecución.' } }
+            'remotessh' {
+                if (-not @(Get-Content $SshAdminKeys -ErrorAction SilentlyContinue | Where-Object { $_ -match '^(ssh-|ecdsa-|sk-)' }).Count) { throw 'Falta autorizar la clave pública del Mac.' }
+            }
             'remotehost' {
                 foreach ($name in 'SunshineService','Tailscale') { if ((Get-Service $name -ErrorAction Stop).Status -ne 'Running') { throw "El servicio $name no está en ejecución." } }
                 $probe=Invoke-IwinProbe (Get-TailscaleExe) 'status --json'
@@ -215,6 +218,7 @@ function Get-TweakRegistryTargets($id) {
         'endtask' { ,@($DevSettings,'TaskbarEndTask') }
         'mouseaccel' { foreach ($name in 'MouseSpeed','MouseThreshold1','MouseThreshold2') { ,@($MouseKey,$name) } }
         'remotehost' { ,@($PasswordLessKey,'DevicePasswordLessBuildVersion') }
+        'remotessh' { ,@($SshShellKey,'DefaultShell') }
     }
 }
 function Get-TweakSnapshotPath($id, [switch]$ReadOnly) {
@@ -258,6 +262,7 @@ function Save-TweakSnapshot($id) {
         $state.power=$Matches[0]
     }
     if ($id -eq 'remotehost') { $state.remote=Get-RemoteSnapshot }
+    if ($id -eq 'remotessh') { $state.remote=Get-SshSnapshot }
     Write-IwinJson $path $state
 }
 function Restore-TweakSnapshot($id) {
@@ -300,6 +305,7 @@ function Restore-TweakSnapshot($id) {
         if ($LASTEXITCODE) { throw 'No se pudo restaurar el plan de energía.' }
     }
     if ($id -eq 'remotehost') { Restore-RemoteSnapshot $state.remote }
+    if ($id -eq 'remotessh') { Restore-SshSnapshot $state.remote }
     Remove-Item $path -Force -ErrorAction Stop
     Write-Log '  Estado anterior restaurado. Algunos ajustes requieren reiniciar la sesión o Windows.'
     return $true
@@ -346,6 +352,29 @@ public static class IwinServiceRecovery {
     }
 }
 '@
+}
+# SSH: servicio, regla de Windows, reglas propias y sshd_config tal como estaban
+function Get-SshSnapshot {
+    $service=Get-Service sshd -ErrorAction SilentlyContinue
+    $rule=Get-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue
+    $config=$null
+    if (Test-Path $SshConfig) { if ((Get-Item $SshConfig).Length -gt 1MB) { throw 'sshd_config es demasiado grande para conservarlo.' }; $config=[Convert]::ToBase64String([IO.File]::ReadAllBytes($SshConfig)) }
+    [pscustomobject]@{installed=[bool]$service;start=$(if($service){[string]$service.StartType}else{''});running=$(if($service){$service.Status -eq 'Running'}else{$false});windowsRule=$(if($rule){[string]$rule.Enabled}else{''});config=$config}
+}
+function Restore-SshSnapshot($ssh) {
+    if (-not $ssh) { throw 'Falta el estado anterior de SSH.' }
+    Remove-NetFirewallRule -Group $SshRuleGroup -ErrorAction SilentlyContinue
+    if ($ssh.windowsRule -in @('True','False')) { Set-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -Enabled $ssh.windowsRule -ErrorAction SilentlyContinue }
+    if ($ssh.config) { [IO.File]::WriteAllBytes($SshConfig,[Convert]::FromBase64String([string]$ssh.config)) }
+    $service=Get-Service sshd -ErrorAction SilentlyContinue
+    if ($service) {
+        if (-not $ssh.installed) { Stop-Service sshd -ErrorAction SilentlyContinue; Set-Service sshd -StartupType Disabled -ErrorAction Stop; Write-Log '  OpenSSH Server queda instalado pero desactivado; se quita desde Características opcionales.' }
+        else {
+            if ($ssh.start -notin @('Automatic','Manual','Disabled')) { throw 'Estado de SSH no válido.' }
+            Set-Service sshd -StartupType $ssh.start -ErrorAction Stop
+            if ($ssh.running) { Restart-Service sshd -ErrorAction Stop } else { Stop-Service sshd -ErrorAction SilentlyContinue }
+        }
+    }
 }
 function Get-RemoteSnapshot {
     Initialize-IwinServices
