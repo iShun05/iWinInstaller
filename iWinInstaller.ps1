@@ -23,7 +23,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v3.0'
+$Version = 'v3.1'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -468,7 +468,6 @@ function Test-VBoxGA {
 }
 
 # WSL instala una plataforma de aplicaciones; no modifica preferencias personales.
-function Get-RegValue($path, $name) { (Get-ItemProperty $path -Name $name -ErrorAction SilentlyContinue).$name }
 # Ajustes de Windows. Los de HKCU van en el lote de usuario y los de equipo en el de administrador.
 $ExplorerAdv = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
 $Personalize = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize'
@@ -644,7 +643,7 @@ $RgbUsbVendors = @{ '1B1C' = 'Corsair'; '1E71' = 'NZXT'; '0B05' = 'ASUS Aura'; '
 function Get-OpenRgbExe {
     $exe = Join-Path $env:ProgramFiles 'OpenRGB\OpenRGB.exe'
     if (Test-Path $exe) { return $exe }
-    foreach ($key in Get-UninstallEntries) {
+    foreach ($key in Get-AllInstalledEntries) {
         if ($key.DisplayName -like 'OpenRGB*' -and $key.InstallLocation) {
             $exe = Join-Path $key.InstallLocation 'OpenRGB.exe'
             if (Test-Path $exe) { return $exe }
@@ -652,7 +651,7 @@ function Get-OpenRgbExe {
     }
     $null
 }
-function Get-UninstallEntries {
+function Get-AllInstalledEntries {
     $paths = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
     @(Get-ItemProperty $paths -ErrorAction SilentlyContinue | Where-Object DisplayName)
 }
@@ -685,27 +684,37 @@ param([switch]`$Once)
 # OpenRGB escribe en la consola del proceso padre si la hay: sin consola, su salida llega por la tubería
 Add-Type -Namespace IwinRgb -Name Native -MemberDefinition '[DllImport("kernel32.dll")] public static extern bool FreeConsole();'
 [void][IwinRgb.Native]::FreeConsole()
-function Invoke-OpenRgb([string[]]`$ArgumentList) {
+function Invoke-OpenRgb([string[]]`$ArgumentList, [int]`$TimeoutMs = 300000) {
     `$psi = New-Object Diagnostics.ProcessStartInfo `$exe
     `$psi.Arguments = (@('--config', ('"' + `$config + '"'), '--noautoconnect') + `$ArgumentList) -join ' '
     `$psi.UseShellExecute = `$false; `$psi.CreateNoWindow = `$true
     `$psi.RedirectStandardOutput = `$true; `$psi.RedirectStandardError = `$true
     `$p = [Diagnostics.Process]::Start(`$psi)
-    `$stderr = `$p.StandardError.ReadToEndAsync()
-    `$stdout = `$p.StandardOutput.ReadToEnd()
-    if (-not `$p.WaitForExit(300000)) { `$p.Kill() }
-    `$script:code = `$p.ExitCode
-    @((`$stdout + "``n" + `$stderr.Result) -split "``r?``n" | Where-Object { `$_ })
+    try {
+        # Leer ambas tuberías sin bloquear permite aplicar el límite aunque OpenRGB no cierre stdout.
+        `$stderr = `$p.StandardError.ReadToEndAsync()
+        `$stdout = `$p.StandardOutput.ReadToEndAsync()
+        if (-not `$p.WaitForExit(`$TimeoutMs)) {
+            `$p.Kill()
+            [void]`$p.WaitForExit(5000)
+            throw 'OpenRGB superó el tiempo de espera.'
+        }
+        `$script:code = `$p.ExitCode
+        @((`$stdout.Result + "``n" + `$stderr.Result) -split "``r?``n" | Where-Object { `$_ })
+    } finally { `$p.Dispose() }
 }
 function Get-RgbOffArguments {
 $(${function:Get-RgbOffArguments}.ToString())
 }
 `$out = @("`$(Get-Date -Format s) Inicio")
 `$passes = if (`$Once) { 1 } else { 2 }
+`$failed = `$false
+try {
 for (`$pass = 1; `$pass -le `$passes; `$pass++) {
     # Las controladoras USB pueden reiniciarse al cargar sus drivers: una segunda pasada al minuto las vuelve a apagar
     if (`$pass -gt 1) { Start-Sleep -Seconds 60 }
     `$list = Invoke-OpenRgb @('--list-devices')
+    if (`$code -ne 0) { throw "OpenRGB no pudo enumerar dispositivos (código `$code)." }
     `$devices = @(`$list | Where-Object { `$_ -match '^\d+: ' })
     `$out += "Pasada `${pass}: `$(`$devices.Count) dispositivos"
     `$out += `$devices | ForEach-Object { "  `$_" }
@@ -713,10 +722,15 @@ for (`$pass = 1; `$pass -le `$passes; `$pass++) {
     if (`$offArgs.Count) {
         `$res = Invoke-OpenRgb `$offArgs
         `$out += "  Código `$code"
-        `$out += `$res | Where-Object { `$_ -match 'Error|Wrong' } | ForEach-Object { "  `$_" }
+        `$errors = @(`$res | Where-Object { `$_ -match '(?i)error|wrong|failed' })
+        `$out += `$errors | ForEach-Object { "  `$_" }
+        if (`$code -ne 0 -or `$errors.Count) { throw "OpenRGB no pudo aplicar el apagado (código `$code)." }
+        `$out += "Apagado aplicado: `$(`$devices.Count) dispositivos"
     }
 }
-`$out | Set-Content (Join-Path `$config 'apagar-rgb.log') -Encoding UTF8
+} catch { `$failed = `$true; `$out += "ERROR: `$(`$_.Exception.Message)" }
+finally { `$out | Set-Content (Join-Path `$config 'apagar-rgb.log') -Encoding UTF8 }
+if (`$failed) { exit 1 }
 "@
 }
 # Solo lectura: componentes, posibles controladoras USB y software RGB que hay que cerrar o quitar
@@ -732,7 +746,7 @@ function Write-RgbInventory {
         if ($dev.InstanceId -match 'VID_([0-9A-F]{4})' -and $RgbUsbVendors.ContainsKey($Matches[1].ToUpper())) { $usb[$RgbUsbVendors[$Matches[1].ToUpper()]] = $true }
     }
     if ($usb.Count) { Write-Log "    USB con posible RGB: $(@($usb.Keys | Sort-Object) -join ', ')" }
-    $vendor = @(Get-UninstallEntries | Where-Object { $_.DisplayName -match $RgbVendorApps } | ForEach-Object DisplayName | Sort-Object -Unique)
+    $vendor = @(Get-AllInstalledEntries | Where-Object { $_.DisplayName -match $RgbVendorApps } | ForEach-Object DisplayName | Sort-Object -Unique)
     if ($vendor) {
         Write-Log "  Software RGB del fabricante: $($vendor -join ', ')."
         Write-Log '  Puede volver a encender las luces: desinstálalo o quítalo del inicio (si controla ventiladores, configúralos antes en la BIOS).'
@@ -742,7 +756,7 @@ function Set-RgbOff {
     if (-not (Test-Administrator)) { Write-Log '  Necesita permiso de administrador.'; return $false }
     $exe = Get-OpenRgbExe
     if (-not $exe) { Write-Log '  Falta OpenRGB: instálalo desde Sistema › Iluminación RGB.'; return $false }
-    if (-not (Get-UninstallEntries | Where-Object DisplayName -like 'PawnIO*')) { Write-Log '  Falta PawnIO: sin él OpenRGB no llega a la placa base ni a la RAM.' }
+    if (-not (Get-AllInstalledEntries | Where-Object DisplayName -like 'PawnIO*')) { Write-Log '  Falta PawnIO: sin él OpenRGB no llega a la placa base ni a la RAM.' }
     Write-RgbInventory
     # Carpeta solo para SYSTEM y administradores: la tarea corre como SYSTEM y OpenRGB carga plugins de su configuración
     New-Item $RgbDir -ItemType Directory -Force | Out-Null
@@ -759,15 +773,19 @@ function Set-RgbOff {
     Register-ScheduledTask -TaskPath $RgbTaskPath -TaskName $RgbTaskName -Action $action -Trigger $boot, $logon -Principal $principal -Settings $settings -Force | Out-Null
     Write-Log "  Tarea «$RgbTaskName» creada: apaga las luces en cada arranque, también sin sesión."
     # Primera aplicación ahora, para ver qué detecta OpenRGB
-    Start-Process $ps -ArgumentList "-NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$RgbScript`" -Once" -WindowStyle Hidden -Wait
+    # Un informe de una ejecución anterior no prueba el resultado de esta pasada.
+    $reportPath = Join-Path $RgbDir 'apagar-rgb.log'
+    Remove-Item $reportPath -Force -ErrorAction SilentlyContinue
+    $run = Start-Process $ps -ArgumentList "-NoProfile -NonInteractive -ExecutionPolicy Bypass -File `"$RgbScript`" -Once" -WindowStyle Hidden -Wait -PassThru
     $report = @(Get-Content (Join-Path $RgbDir 'apagar-rgb.log') -Encoding UTF8 -ErrorAction SilentlyContinue)
     $report | Select-Object -Skip 1 | ForEach-Object { Write-Log "    $_" }
-    $found = $report | Where-Object { $_ -match '^Pasada 1: (\d+)' } | ForEach-Object { [int]$Matches[1] }
+    if ($run.ExitCode -ne 0) { Write-Log "  OpenRGB no completó el apagado (código $($run.ExitCode)). Consulta el diagnóstico de la tarea."; return $false }
+    $found = $report | Where-Object { $_ -match '^Apagado aplicado: (\d+) dispositivos$' } | ForEach-Object { [int]$Matches[1] }
     if (-not $found) {
         Write-Log '  OpenRGB no detectó ningún dispositivo. Reinicia (PawnIO se carga al arrancar) y vuelve a aplicar.'
         return $false
     }
-    Write-Log "  $found dispositivos apagados. Si algo sigue encendido, no es compatible con OpenRGB: apágalo desde la BIOS o el botón/cable de su controladora."
+    Write-Log "  $found dispositivos con orden de apagado aplicada. Si algo sigue encendido, no es compatible con OpenRGB: apágalo desde la BIOS o el botón/cable de su controladora."
     Write-Log '  BIOS/UEFI: desactiva también el LED de la placa al arrancar y apagado (ASUS «LED lighting», MSI «EZ LED Control», Gigabyte «RGB Fusion», ASRock «RGB LED»).'
     return $true
 }
@@ -780,6 +798,8 @@ function Reset-RgbOff {
 }
 function Test-RgbOff {
     if (-not (Test-Path $RgbScript)) { return $false }
+    $report = @(Get-Content (Join-Path $RgbDir 'apagar-rgb.log') -Encoding UTF8 -ErrorAction SilentlyContinue)
+    if (-not ($report -match '^Apagado aplicado: [1-9][0-9]* dispositivos$') -or ($report -match '^ERROR:')) { return $false }
     # Sin administrador no se ven las tareas de SYSTEM: basta con el script, que solo puede escribir un administrador
     if (-not (Test-Administrator)) { return $true }
     [bool](Get-ScheduledTask -TaskPath $RgbTaskPath -TaskName $RgbTaskName -ErrorAction SilentlyContinue)

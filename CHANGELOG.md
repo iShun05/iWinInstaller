@@ -1,5 +1,19 @@
 # Historial de versiones
 
+## v3.1 — 2026-10-26
+
+### Corregido
+- **Inventario RGB**: separados el inventario completo y el filtro de desinstalación. Una función duplicada ocultaba OpenRGB fuera de su ruta predeterminada, PawnIO y las apps RGB del fabricante.
+- **Bloqueos de OpenRGB**: lectura simultánea de stdout/stderr con límite efectivo de cinco minutos, cierre y liberación del proceso si no responde.
+- **Resultados fiables**: un error de enumeración o apagado devuelve fallo, conserva el diagnóstico y no marca RGB como aplicado. Se retira el informe anterior antes de ejecutar para evitar confirmar resultados antiguos. La confirmación acredita la orden aceptada por OpenRGB; no mide físicamente los LED.
+- **Versión del instalador**: EXE, formulario, registro de arranque e instalación incrustada muestran v3.1, en lugar de las referencias antiguas a v2.0/v2.5.
+
+### Archivos y pruebas
+- **Afecta a** Windows 10/11 x86, x64 y ARM64; sin versiones macOS/iOS/web publicadas.
+- **Archivos**: `iWinInstaller.ps1`, `install.ps1`, `native/Launcher.cs`, `tests/check-audit.ps1`, `tests/check-acceptance.ps1`, `.github/workflows/bootstrap.yml`, `README.md`.
+- **Regresiones**: proceso simulado real con ambas salidas de 128 KiB, bloqueo con tuberías abiertas, enumeración fallida, apagado fallido, informe persistido, detección de funciones duplicadas y coherencia de versiones. Suite de arranque ampliada a x64 y ARM64 en PowerShell 5.1.
+- **Límites**: pendiente de prueba con hardware RGB físico y Windows 10/x86. La revisión no garantiza ausencia de fallos en las 418 entradas ni en todos los equipos.
+
 ## v3.0 — 2026-10-26
 
 ### Añadido

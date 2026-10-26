@@ -2,13 +2,17 @@ name: Prueba del instalador inicial
 on:
   push:
     branches: [main, 'codex/**']
-    paths: ['install.ps1', 'apps.json', 'scripts/**', 'installer-header.bat', 'tests/check-bootstrap.ps1', 'tests/check-reliability.ps1', 'tests/check-public.ps1', 'iWinInstaller.ps1', '.github/workflows/bootstrap.yml']
+    paths: ['install.ps1', 'apps.json', 'scripts/**', 'installer-header.bat', 'tests/check-bootstrap.ps1', 'tests/check-reliability.ps1', 'tests/check-audit.ps1', 'tests/check-public.ps1', 'iWinInstaller.ps1', '.github/workflows/bootstrap.yml']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   bootstrap:
-    runs-on: windows-2025
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2025, windows-11-arm]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
@@ -21,3 +25,6 @@ jobs:
       - name: Comprobaciones de instalación y actualización
         shell: powershell
         run: ./tests/check-reliability.ps1
+      - name: Inventario, versiones y fallos RGB
+        shell: powershell
+        run: ./tests/check-audit.ps1

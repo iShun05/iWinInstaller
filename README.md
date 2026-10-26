@@ -16,11 +16,11 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa portátil: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprimir y abrir `iWinInstaller.exe`. Para desinstalar el programa, ejecuta `install.ps1 -Uninstall`; las aplicaciones instaladas se conservan.
 
-**Versión actual: v3.0** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v3.1** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 ## Funciones principales
 
-- **417 entradas en tres secciones**, cada una con sus categorías:
+- **418 entradas en tres secciones**, cada una con sus categorías:
   - **Sistema**: ajustes de Windows (tema oscuro, extensiones visibles, menú contextual clásico, rutas largas, Inicio sin Bing, punto de restauración, alto rendimiento, modo desarrollador, WSL…), optimización y privacidad (O&O ShutUp10++, WinToys, Winhance, privacy.sexy, BleachBit…) y drivers y componentes (Visual C++, .NET, DirectX, NVIDIA, Intel).
   - **Terminal**: consola y shells (Windows Terminal, PowerShell 7, WezTerm, Starship, Oh My Posh, gsudo…), lenguajes y entornos (Git, Python, Node.js, Deno, Go, Rust, Java, .NET SDK, Ruby, Zig, C/C++ con LLVM, CMake y Build Tools, PostgreSQL, MongoDB…) y herramientas de línea de comandos (Claude Code, Codex CLI, lazygit, ripgrep, fzf, FFmpeg, yt-dlp, Azure y AWS CLI…).
   - **Aplicaciones**: todo lo que tiene ventana propia (juegos, navegadores, IA, utilidades, multimedia…).
@@ -55,10 +55,11 @@ Si la red bloquea UDP, Tailscale va por sus relés HTTPS (443): funciona, con m�
 
 1. Si quieres software del fabricante solo para drivers, firmware o ventiladores, instálalo y desactiva en él la iluminación; si no lo necesitas, mejor no instalarlo.
 2. **Sistema › Iluminación RGB › Apagar todas las luces RGB** › Instalar. Si dice que no detecta nada, reinicia (PawnIO se carga al arrancar) y vuelve a aplicarlo.
-3. Revisa el registro: lista los componentes y lo que OpenRGB ha apagado. El último arranque queda en `C:\ProgramData\iWinInstaller\OpenRGB\apagar-rgb.log`.
-4. Si hay software RGB del fabricante (Armoury Crate, iCUE, Mystic Light, RGB Fusion, NZXT CAM, SignalRGB…), desinstálalo o quítalo del inicio: vuelve a encender las luces.
-5. En la BIOS/UEFI, apaga el LED de la placa al arrancar y apagado (ASUS «LED lighting», MSI «EZ LED Control», Gigabyte «RGB Fusion», ASRock «RGB LED»).
-6. Lo que siga encendido no es compatible con OpenRGB: ventiladores en un hub con botón propio se apagan desde ese botón o desconectando el cable ARGB/SATA de LED del hub.
+3. Si OpenRGB falla o supera cinco minutos, se informa del fallo y el ajuste queda pendiente. Un proceso completado confirma que OpenRGB aceptó la orden, no una medición física de los LED.
+4. Revisa el registro: lista los componentes y lo que OpenRGB ha apagado. El último arranque queda en `C:\ProgramData\iWinInstaller\OpenRGB\apagar-rgb.log`.
+5. Si hay software RGB del fabricante (Armoury Crate, iCUE, Mystic Light, RGB Fusion, NZXT CAM, SignalRGB…), desinstálalo o quítalo del inicio: vuelve a encender las luces.
+6. En la BIOS/UEFI, apaga el LED de la placa al arrancar y apagado (ASUS «LED lighting», MSI «EZ LED Control», Gigabyte «RGB Fusion», ASRock «RGB LED»).
+7. Lo que siga encendido no es compatible con OpenRGB: ventiladores en un hub con botón propio se apagan desde ese botón o desconectando el cable ARGB/SATA de LED del hub.
 
 Deshacer quita la tarea; las luces vuelven a su efecto de serie al quitar la corriente.
 
@@ -85,8 +86,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v3.0
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.0
+git checkout v3.1
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.1
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -103,7 +104,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v3.0](https://github.com/iShun05/iWinInstaller/releases/tag/v3.0) **(actual)** | 2026-10-26 | Pantalla virtual para transmitir con los monitores apagados o desconectados | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.0.zip) |
+| [v3.1](https://github.com/iShun05/iWinInstaller/releases/tag/v3.1) **(actual)** | 2026-10-26 | Detección RGB corregida, bloqueo acotado, errores comprobados y versión coherente del instalador | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.1.zip) |
+| [v3.0](https://github.com/iShun05/iWinInstaller/releases/tag/v3.0) | 2026-10-26 | Pantalla virtual para transmitir con los monitores apagados o desconectados | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.0.zip) |
 | [v2.9](https://github.com/iShun05/iWinInstaller/releases/tag/v2.9) | 2026-10-26 | Portapapeles compartido Mac ↔ Windows con KDE Connect por Tailscale | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.9.zip) |
 | [v2.8](https://github.com/iShun05/iWinInstaller/releases/tag/v2.8) | 2026-10-26 | Luces RGB apagadas siempre con OpenRGB y apps de los fabricantes según el hardware detectado | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.8.zip) |
 | [v2.7](https://github.com/iShun05/iWinInstaller/releases/tag/v2.7) | 2026-10-26 | Escritorio remoto: PC siempre disponible con Sunshine y Tailscale, Autologon y Escritorio remoto de Chrome | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.7) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.7.zip) |
