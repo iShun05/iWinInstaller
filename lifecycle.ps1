@@ -176,7 +176,7 @@ function Save-PostInstallState {
 }
 function Test-PostInstall($app) {
     try {
-        if (-not (Test-AppInstalled $app)) { return [pscustomobject]@{ Ok=$false; Text='No se detecta instalada o aplicada. Instala y vuelve a comprobar.' } }
+        if (-not (Test-AppInstalled $app)) { return [pscustomobject]@{ Ok=$false; Text=$(if($app.type -eq 'tweak'){'El ajuste aún no está completo. Sigue los pasos y vuelve a aplicarlo o reanuda el lote.'}else{'No se detecta instalada. Instala y vuelve a comprobar.'}) } }
         switch ($app.id) {
             'tailscale' {
                 $probe=Invoke-IwinProbe (Get-TailscaleExe) 'status --json'
@@ -217,11 +217,11 @@ function Get-TweakRegistryTargets($id) {
         'remotehost' { ,@($PasswordLessKey,'DevicePasswordLessBuildVersion') }
     }
 }
-function Get-TweakSnapshotPath($id) {
+function Get-TweakSnapshotPath($id, [switch]$ReadOnly) {
     if ($id -notin @($Apps | Where-Object type -eq 'tweak' | ForEach-Object id)) { throw 'Ajuste no válido.' }
     $machine = (Get-InstallContext ($Apps | Where-Object id -eq $id | Select-Object -First 1)) -eq 'machine'
     $base = if ($machine) { Join-Path $env:ProgramData 'iWinInstaller\restauracion' } else { Join-Path $LogDir 'restauracion' }
-    if ($machine) {
+    if ($machine -and -not $ReadOnly) {
         foreach($directory in @((Join-Path $env:ProgramData 'iWinInstaller'),$base)){
             if(Test-Path $directory){
                 if((Get-Item $directory -Force -ErrorAction Stop).Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'No se guarda estado privilegiado a través de enlaces de carpetas.'}
@@ -235,6 +235,11 @@ function Get-TweakSnapshotPath($id) {
         }
     }
     Join-Path $base ($id + '.json')
+}
+function Test-IwinPreviousState($app) {
+    if($app.type -ne 'tweak' -or $app.id -in @('wsl','restorepoint')){return $false}
+    if($app.id -eq 'rgboff'){return (Test-Path $RgbScript)}
+    try{return (Test-Path (Get-TweakSnapshotPath $app.id -ReadOnly))}catch{return $false}
 }
 function Save-TweakSnapshot($id) {
     if ($id -in @('wsl','restorepoint','rgboff')) { return }

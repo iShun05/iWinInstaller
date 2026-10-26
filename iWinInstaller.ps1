@@ -613,18 +613,27 @@ function Set-RemoteHost {
         Write-Log '  Sin pantalla virtual: al apagar o desconectar el monitor Sunshine se queda sin imagen. Instala «Pantalla virtual» o usa un adaptador HDMI fantasma.'
     }
     Write-Log '  BIOS/UEFI: «Restore on AC Power Loss» = Power On para que arranque solo tras un corte de luz.'
-    return $ok
+    return ($ok -and (Test-RemoteHost))
 }
 function Reset-RemoteHost { Restore-TweakSnapshot 'remotehost' }
 
 function Test-RemoteHost {
     if ((Get-AcPowerValue 'SUB_SLEEP' 'STANDBYIDLE') -ne 0) { return $false }
     foreach ($svc in $RemoteServices) {
-        $s = Get-Service $svc -ErrorAction SilentlyContinue
-        if (-not $s -or $s.StartType -ne 'Automatic') { return $false }
+        $service=Get-Service $svc -ErrorAction SilentlyContinue
+        if(-not $service -or $service.StartType -ne 'Automatic' -or $service.Status -ne 'Running'){return $false}
     }
-    $true
+    $ts=Get-TailscaleExe
+    if(-not $ts){return $false}
+    try{
+        $status=Invoke-IwinProbe $ts 'status --json'
+        if($status.Code -ne 0 -or ($status.Output | ConvertFrom-Json).BackendState -ne 'Running'){return $false}
+        $prefs=Invoke-IwinProbe $ts 'debug prefs'
+        if($prefs.Code -ne 0){return $false}
+        return [bool]($prefs.Output | ConvertFrom-Json).ForceDaemon
+    }catch{return $false}
 }
+
 # ---------- Luces RGB apagadas (OpenRGB) ----------
 # Muchas placas, memorias, gráficas y controladoras vuelven a su efecto de serie al quitarles la corriente:
 # una tarea del sistema vuelve a apagarlas en cada arranque, sin necesidad de iniciar sesión.
@@ -873,7 +882,7 @@ function Test-TweakCore($id) {
         'restorepoint' { return $false }
         'showext' { return ((Get-RegValue $ExplorerAdv 'HideFileExt') -eq 0) }
         'showhidden' { return ((Get-RegValue $ExplorerAdv 'Hidden') -eq 1) }
-        'darkmode' { return ((Get-RegValue $Personalize 'AppsUseLightTheme') -eq 0) }
+        'darkmode' { return ((Get-RegValue $Personalize 'AppsUseLightTheme') -eq 0 -and (Get-RegValue $Personalize 'SystemUsesLightTheme') -eq 0) }
         'power' { return ((& powercfg /getactivescheme 2>$null | Out-String) -match $HighPerf) }
         'devmode' { return ((Get-RegValue $AppModelUnlock 'AllowDevelopmentWithoutDevLicense') -eq 1) }
         'longpaths' { return ((Get-RegValue $FileSystemKey 'LongPathsEnabled') -eq 1) }
@@ -883,7 +892,7 @@ function Test-TweakCore($id) {
         'clockseconds' { return ((Get-RegValue $ExplorerAdv 'ShowSecondsInSystemClock') -eq 1) }
         'thispc' { return ((Get-RegValue $ExplorerAdv 'LaunchTo') -eq 1) }
         'endtask' { return ((Get-RegValue $DevSettings 'TaskbarEndTask') -eq 1) }
-        'mouseaccel' { return ((Get-RegValue $MouseKey 'MouseSpeed') -eq '0') }
+        'mouseaccel' { return ((Get-RegValue $MouseKey 'MouseSpeed') -eq '0' -and (Get-RegValue $MouseKey 'MouseThreshold1') -eq '0' -and (Get-RegValue $MouseKey 'MouseThreshold2') -eq '0') }
         'remotehost' { return (Test-RemoteHost) }
         'rgboff' { return (Test-RgbOff) }
     }
@@ -1327,7 +1336,7 @@ function Invoke-Uninstall($sel, [scriptblock]$onProgress) {
         $script:LastInstallCode = 0
         if (Test-IwinStop) { $fail += $app; Complete-IwinItem $app $false $onProgress; continue }
         Set-IwinBatchRunning $app
-        try { $present = Test-AppInstalled $app } catch { $present = $true }
+        try { $present = (Test-AppInstalled $app) -or (Test-IwinPreviousState $app) } catch { $present = $true }
         if (-not $present) {
             Write-Log "No estaba instalada: $($app.name)"
             Complete-IwinItem $app $true $onProgress
@@ -1474,7 +1483,8 @@ public class IwinApp : INotifyPropertyChanged {
     public string OpenLabel { get { return OpensInConsole ? "Abrir en terminal" : "Abrir"; } }
     public bool IsTweak { get; set; }
     public string UninstallLabel { get { return IsTweak ? "Deshacer" : "Desinstalar"; } }
-    public bool ShowUninstall { get { return i && CanUninstall; } }
+    bool previousState; public bool HasPreviousState { get { return previousState; } set { previousState=value;N("HasPreviousState");N("ShowUninstall"); } }
+    public bool ShowUninstall { get { return (i || previousState) && CanUninstall; } }
     public bool ShowOpen { get { return i && CanOpen; } }
     public bool NeedsConfiguration { get; set; }
     bool configured; public bool Configured { get { return configured; } set { configured = value; N("Configured"); N("Configuration"); } }
@@ -2453,7 +2463,7 @@ function Update-Filter { $view.Refresh() }
 # Marcar algo sin instalar lo instala; marcar algo instalado lo propone para desinstalar
 function Update-Count {
     $install = @($items | Where-Object { $_.Checked -and -not $_.Installed }).Count
-    $remove = @($items | Where-Object { $_.Checked -and $_.Installed -and $_.CanUninstall }).Count
+    $remove = @($items | Where-Object { $_.Checked -and ($_.Installed -or $_.HasPreviousState) -and $_.CanUninstall }).Count
     $ui.BtnInstall.Content = if ($install) { "Instalar $install seleccionada$(if ($install -ne 1) { 's' })" } else { 'Nada que instalar' }
     $ui.BtnInstall.IsEnabled = $install -gt 0 -and -not $script:Busy
     $ui.BtnRemove.Content = "Desinstalar $remove"
@@ -2620,7 +2630,7 @@ function Set-Busy($busy, [bool]$CanPause = $false) {
 # Desinstala con confirmación; se puede pedir desde la fila, el menú, la tecla Supr o lo marcado
 function Start-Uninstall($targets) {
     if ($script:Busy) { Set-Status 'Espera a que termine la operación en curso.'; return }
-    $targets = @($targets | Where-Object { $_ -and $_.Installed -and $_.CanUninstall })
+    $targets = @($targets | Where-Object { $_ -and ($_.Installed -or $_.HasPreviousState) -and $_.CanUninstall })
     if (-not $targets) { return }
     $list = ($targets | ForEach-Object { '•  ' + $_.Name }) -join "`n"
     $onlyTweaks = @($targets | Where-Object IsTweak).Count -eq $targets.Count
@@ -2635,7 +2645,7 @@ function Start-Uninstall($targets) {
     $fail = @(Invoke-Uninstall $sel {
         param($a, $ok)
         $it = $byId[$a.id]
-        if ($ok) { $it.Installed = if($it.IsTweak){Test-Tweak $a.id}else{$false}; $it.Checked = $false; $it.Status = $(if ($it.IsTweak) { 'Deshecho' } else { 'Desinstalada' }); $it.StatusKind = 'none' }
+        if ($ok) { $it.HasPreviousState=Test-IwinPreviousState $a; $it.Installed = if($it.IsTweak){Test-Tweak $a.id}else{$false}; $it.Checked = $false; $it.Status = $(if ($it.IsTweak) { 'Deshecho' } else { 'Desinstalada' }); $it.StatusKind = 'none' }
         else { $it.Status = 'Sigue instalada'; $it.StatusKind = 'bad' }
         if ($ui.Bar.Value -ge $ui.Bar.Maximum) { $ui.Bar.Maximum++ }
         $ui.Bar.Value++
@@ -2677,7 +2687,7 @@ $ui.List.Add_ContextMenuOpening({
 $ui.MOpen.Add_Click({ Open-AppItem $ui.List.SelectedItem })
 $ui.MConfigured.Add_Click({ if($ui.List.SelectedItem){Show-AfterInstall $ui.List.SelectedItem.Id} })
 $ui.MUninstall.Add_Click({ Start-Uninstall @($ui.List.SelectedItem) })
-$ui.BtnRemove.Add_Click({ Start-Uninstall @($items | Where-Object { $_.Checked -and $_.Installed -and $_.CanUninstall }) })
+$ui.BtnRemove.Add_Click({ Start-Uninstall @($items | Where-Object { $_.Checked -and ($_.Installed -or $_.HasPreviousState) -and $_.CanUninstall }) })
 
 # Teclado: Ctrl + F busca, Ctrl + +/−/0 cambia el tamaño, Espacio marca y Supr desinstala la fila
 $win.Add_PreviewKeyDown({
@@ -2704,6 +2714,7 @@ function Invoke-Verify([switch]$Quiet) {
     $ui.Bar.Maximum = $Apps.Count; $ui.Bar.Value = 0; $missing = @()
     foreach ($app in $Apps) {
         $it = $byId[$app.id]
+        $it.HasPreviousState=Test-IwinPreviousState $app
         $it.Status = 'Comprobando…'; $it.StatusKind = 'busy'
         Invoke-UiPump
         $ready = Test-AppInstalled $app
@@ -2761,6 +2772,7 @@ function Start-IwinUiInstall($selection, $pending = $null) {
             param($a,$ok)
             $it=$byId[$a.id]
             if (-not $it) { return }
+            $it.HasPreviousState=Test-IwinPreviousState $a
             $reboot=(Test-IwinRebootCode $script:LastInstallCode) -or ($ok -and [bool]$a.restart)
             $removing=$script:Batch -and $script:Batch.operation -eq 'uninstall'
             if ($ok) {

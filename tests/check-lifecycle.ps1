@@ -5,7 +5,7 @@ $root=Split-Path $PSScriptRoot
 $errors=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'iWinInstaller.ps1'),[ref]$null,[ref]$errors)
 if($errors){throw ($errors | Out-String)}
-foreach($name in 'Invoke-Install','Resume-IwinBatch','Test-StillInstalled'){
+foreach($name in 'Invoke-Install','Resume-IwinBatch','Test-StillInstalled','Test-RemoteHost','Invoke-Uninstall'){
     $node=$ast.Find({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name},$true)
     . ([scriptblock]::Create($node.Extent.Text))
 }
@@ -93,6 +93,29 @@ try{
     Assert $rejected 'No se pierde silenciosamente un seguimiento dañado'
     & {function Install-App { 'salida auxiliar'; $false }; Assert (-not (Invoke-IwinInstallAction $Apps[0])) 'La salida adicional no convierte un fallo en éxito'}
     Write-Host 'OK: dependencias, pausa, reanudación, reinicios, ausencia frente a error y notas manuales.'
+    & {
+        $RemoteServices=@('SunshineService','Tailscale');$script:unattended=$false;$script:serviceRunning=$true
+        function Get-AcPowerValue{0}
+        function Get-Service{[pscustomobject]@{StartType='Automatic';Status=$(if($script:serviceRunning){'Running'}else{'Stopped'})}}
+        function Get-TailscaleExe{'fixture.exe'}
+        function Invoke-IwinProbe($exe,$arguments){[pscustomobject]@{Code=0;Output=$(if($arguments -eq 'debug prefs'){@{ForceDaemon=$script:unattended}|ConvertTo-Json}else{'{"BackendState":"Running"}'})}}
+        Assert (-not (Test-RemoteHost)) 'El host no está listo sin modo desatendido, aunque la sesión esté conectada'
+        $script:unattended=$true
+        Assert (Test-RemoteHost) 'Con servicios y Tailscale preparados el estado debe confirmarse'
+        $script:serviceRunning=$false
+        Assert (-not (Test-RemoteHost)) 'Los servicios parados no están listos'
+    }
+    & {
+        function Test-Uninstallable{$true}
+        function Test-AppInstalled{$false}
+        function Test-IwinPreviousState{$true}
+        $script:restoredPartial=$false
+        function Uninstall-App{$script:restoredPartial=$true;$true}
+        $script:StopRequested=$false;$script:ResumingBatch=$false
+        $partial=[pscustomobject]@{id='base';name='Ajuste parcial';type='tweak'}
+        $fail=@(Invoke-Uninstall @($partial) $null)
+        Assert ($script:restoredPartial -and $fail.Count -eq 0) 'Un ajuste parcial debe poder recuperar su estado anterior'
+    }
     if($env:OS -eq 'Windows_NT'){
         & {
             $testKey='HKCU:\Software\iWinInstaller-prueba-'+[guid]::NewGuid().ToString('N')
