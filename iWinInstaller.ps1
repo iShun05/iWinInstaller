@@ -1385,7 +1385,10 @@ if ($Resume) {
 if ($AutoUpdate) {
     try {
         $prefsPath=Join-Path $LogDir 'preferencias.json'
-        if(-not (Test-Path $prefsPath) -or -not (Get-Content $prefsPath -Raw -Encoding UTF8 | ConvertFrom-Json).autoUpdate){exit 0}
+        if(-not (Test-Path $prefsPath)){exit 0}
+        $automatic=(Get-Content $prefsPath -Raw -Encoding UTF8 | ConvertFrom-Json).autoUpdate
+        if($automatic -isnot [bool] -or -not $automatic){exit 0}
+        Clear-IwinUpdateDownloads
         if(Test-IwinAppOpen){Write-Log 'Actualización pospuesta: iWinInstaller está abierto.';exit 0}
         if(Update-Self){exit 0}else{exit 1}
     }catch{Write-Log "Actualización pendiente: $($_.Exception.Message)";exit 1}
@@ -2379,7 +2382,7 @@ $script:PostInstallReadOnly=$false
 try{$script:PostInstallState=Get-PostInstallState}catch{$script:PostInstallState=@{};$script:PostInstallReadOnly=$true}
 foreach($app in $Apps){
     if($ConfiguredApps[$app.id] -and $app.postInstall -and -not $script:PostInstallState.ContainsKey($app.id)){
-        $script:PostInstallState[$app.id]=@{steps=@(0..(@($app.postInstall.steps).Count-1));note='Pasos confirmados manualmente antes de v3.2. Vuelve a comprobar el estado técnico.'}
+        $script:PostInstallState[$app.id]=@{steps=@();note='Marcaste esta configuración como lista antes de v3.2. Revisa y confirma los nuevos pasos detallados.'}
     }
 }
 foreach($app in $Apps){
@@ -2967,11 +2970,17 @@ Update-IwinRecoveryUi
 $ui.MAutoUpdate.IsChecked=$Prefs.autoUpdate
 $ui.MAutoUpdate.Add_Click({
     if($script:Busy){$ui.MAutoUpdate.IsChecked=$Prefs.autoUpdate;return}
+    $previous=$Prefs.autoUpdate
     try{
         Set-IwinAutoUpdate ([bool]$ui.MAutoUpdate.IsChecked)
-        $Prefs.autoUpdate=[bool]$ui.MAutoUpdate.IsChecked;Save-Prefs
+        $Prefs.autoUpdate=[bool]$ui.MAutoUpdate.IsChecked
+        Write-IwinJson $PrefsFile $Prefs
         Set-Status $(if($Prefs.autoUpdate){'Actualización automática activada: al abrir, al iniciar sesión y una vez al día. Solo iWinInstaller.'}else{'Actualización automática desactivada.'})
-    }catch{$ui.MAutoUpdate.IsChecked=$Prefs.autoUpdate;Set-Status "No se pudo cambiar: $($_.Exception.Message)"}
+    }catch{
+        $Prefs.autoUpdate=$previous;$ui.MAutoUpdate.IsChecked=$previous
+        try{Set-IwinAutoUpdate $previous}catch{Write-Log 'No se pudo recuperar el estado anterior de la tarea; revísala en el Programador de tareas.'}
+        Set-Status "No se pudo guardar el cambio: $($_.Exception.Message)"
+    }
 })
 $ui.MAppUpdate.Add_Click({
     if($script:Busy){return}

@@ -72,6 +72,14 @@ static class Launcher {
                 }
             }
             if (Array.IndexOf(args, "--uninstall") >= 0) {
+                foreach(Process running in Process.GetProcessesByName("iWinInstaller")) {
+                    using(running) {
+                        if(running.Id == Process.GetCurrentProcess().Id) continue;
+                        string path; try { path=running.MainModule.FileName; } catch { continue; }
+                        if(String.Equals(path,Path.Combine(InstallDirectory(),"iWinInstaller.exe"),StringComparison.OrdinalIgnoreCase))
+                            throw new Exception("Cierra la ventana de iWinInstaller antes de desinstalar y vuelve a intentarlo.");
+                    }
+                }
                 string ps = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "powershell.exe");
                 ProcessStartInfo remove = new ProcessStartInfo(ps, "-NoProfile -ExecutionPolicy Bypass -File \"" + Path.Combine(root, "install.ps1") + "\" -Uninstall -WaitForPid " + Process.GetCurrentProcess().Id);
                 remove.UseShellExecute=false; remove.CreateNoWindow=true;

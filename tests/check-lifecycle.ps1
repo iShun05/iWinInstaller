@@ -80,6 +80,10 @@ try{
     $before=@($script:PostInstallState.base.steps).Count
     $technical=Test-PostInstall $guide
     Assert ($technical.Ok -and @($script:PostInstallState.base.steps).Count -eq $before) 'Una comprobación técnica no marca pasos manuales'
+    $script:PostInstallState.base.guideHash='guía antigua'
+    Save-PostInstallState
+    $changed=Get-PostInstallState
+    Assert (@($changed.base.steps).Count -eq 0 -and $changed.base.note -eq $script:PostInstallState.base.note) 'Un cambio de guía conserva notas pero exige confirmar los pasos nuevos'
     Set-Content (Join-Path $LogDir 'postinstalacion.json') 'archivo roto' -Encoding UTF8
     $rejected=$false;try{[void](Get-PostInstallState)}catch{$rejected=$true}
     Assert $rejected 'No se pierde silenciosamente un seguimiento dañado'

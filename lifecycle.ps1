@@ -140,6 +140,11 @@ function Get-PostInstallGuide($app) {
     if ($app.postInstall -and @($app.postInstall.steps).Count) { return $app.postInstall }
     [pscustomobject]@{ steps=@('Abre la aplicación y revisa sus preferencias.', 'Prueba la función que necesitas antes de marcarla como lista.'); note='La detección técnica no comprueba cuentas, licencias ni datos personales.' }
 }
+function Get-IwinGuideHash($app) {
+    $guide=Get-PostInstallGuide $app
+    $sha=[Security.Cryptography.SHA256]::Create()
+    try{([BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes((@($guide.steps) | ConvertTo-Json -Compress))))).Replace('-','')}finally{$sha.Dispose()}
+}
 function Get-PostInstallState {
     $path=Join-Path $LogDir 'postinstalacion.json'
     $state=@{}
@@ -150,13 +155,25 @@ function Get-PostInstallState {
             $saved=Get-Content $path -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
             foreach ($entry in $saved.PSObject.Properties) {
                 if ($entry.Name -notin @($Apps.id)) { continue }
-                $state[$entry.Name]=@{ steps=@($entry.Value.steps | Where-Object { ($_ -is [int] -or $_ -is [long]) -and $_ -ge 0 -and $_ -lt 100 }); note=([string]$entry.Value.note).Substring(0,[math]::Min(2000,([string]$entry.Value.note).Length)) }
+                $app=$Apps | Where-Object id -eq $entry.Name | Select-Object -First 1
+                $hash=Get-IwinGuideHash $app
+                $steps=if($entry.Value.guideHash -eq $hash){@($entry.Value.steps | Where-Object { ($_ -is [int] -or $_ -is [long]) -and $_ -ge 0 -and $_ -lt 100 })}else{@()}
+                $state[$entry.Name]=@{ steps=@($steps); guideHash=$hash; note=([string]$entry.Value.note).Substring(0,[math]::Min(2000,([string]$entry.Value.note).Length)) }
             }
         } catch { Write-Log 'No se pudo leer el seguimiento de postinstalación; no se sobrescribe automáticamente.'; throw }
     }
     $state
 }
-function Save-PostInstallState { if($script:PostInstallReadOnly){throw 'Seguimiento ilegible: se conserva el original para evitar perder tus notas.'}; Write-IwinJson (Join-Path $LogDir 'postinstalacion.json') $script:PostInstallState }
+function Save-PostInstallState {
+    if($script:PostInstallReadOnly){throw 'Seguimiento ilegible: se conserva el original para evitar perder tus notas.'}
+    foreach($id in @($script:PostInstallState.Keys)){
+        if(-not $script:PostInstallState[$id].guideHash){
+            $app=$Apps | Where-Object id -eq $id | Select-Object -First 1
+            if($app){$script:PostInstallState[$id].guideHash=Get-IwinGuideHash $app}
+        }
+    }
+    Write-IwinJson (Join-Path $LogDir 'postinstalacion.json') $script:PostInstallState
+}
 function Test-PostInstall($app) {
     try {
         if (-not (Test-AppInstalled $app)) { return [pscustomobject]@{ Ok=$false; Text='No se detecta instalada o aplicada. Instala y vuelve a comprobar.' } }
