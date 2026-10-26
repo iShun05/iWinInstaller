@@ -24,7 +24,7 @@
 
 ### Añadido
 - **Grupo Sistema › Acceso remoto** y perfil **Escritorio remoto (este PC como servidor)** para usar el PC de casa desde fuera con Moonlight.
-- **PC siempre disponible** (ajuste, pide administrador): sin suspensión ni hibernación con corriente (también quita el inicio rápido), Wake-on-LAN y sin ahorro de energía en los adaptadores, Sunshine y Tailscale automáticos con reinicio tras fallo y Tailscale en modo desatendido si ya hay sesión. Si Autologon está instalado y no configurado, lo abre para escribir la contraseña. Se deshace desde la app.
+- **PC siempre disponible** (ajuste, pide administrador): sin suspensión ni hibernación con corriente (también quita el inicio rápido), Wake-on-LAN y sin ahorro de energía en los adaptadores, Sunshine y Tailscale automáticos con reinicio tras fallo y Tailscale en modo desatendido si ya hay sesión. Crea la carpeta **Acceso remoto** (escritorio y menú Inicio públicos) con accesos al panel de Sunshine, los equipos de Tailscale y Escritorio remoto de Chrome; se quita al deshacer. Si Autologon está instalado y no configurado, lo abre para escribir la contraseña. Se deshace desde la app.
 - **Autologon (Sysinternals)**: inicio de sesión automático con la contraseña guardada cifrada por Windows.
 - **Escritorio remoto de Chrome (anfitrión)**: respaldo por navegador en redes que solo dejan HTTPS.
 
