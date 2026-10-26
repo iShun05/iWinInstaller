@@ -53,7 +53,7 @@ Algunos productos necesitan su asistente o una suscripción. Norton VPN se insta
 2. Abre `https://localhost:47990`, crea el usuario de Sunshine y empareja Moonlight con el PIN (una vez, en casa).
 3. En la BIOS/UEFI: **Restore on AC Power Loss = Power On**, para que arranque solo tras un corte.
 4. En el equipo cliente: Tailscale y Moonlight con la misma cuenta. Conecta a la IP `100.x` del PC.
-5. Sin monitor: **Pantalla virtual** (Virtual Display Driver) mantiene un monitor virtual, así que Sunshine sigue funcionando con las pantallas apagadas o el HDMI desconectado. Con el monitor encendido, `Win + P` › Duplicar.
+5. Sin monitor: **Pantalla virtual** (Virtual Display Driver) instala el controlador y **Activar monitor virtual** crea el monitor, así que Sunshine sigue funcionando con las pantallas apagadas o el HDMI desconectado. Con el monitor encendido, `Win + P` › Duplicar.
 6. Portapapeles compartido: KDE Connect en los dos equipos (en macOS, `brew install --cask kde-connect`). Vincúlalos añadiendo la IP `100.x` del PC y acepta en el PC; lo copiado en uno se pega en el otro.
 7. Control por comandos: **Control remoto por SSH (Tailscale)** activa OpenSSH Server con PowerShell, solo claves y el puerto 22 abierto únicamente para `100.64.0.0/10`. Pega la clave pública del Mac en el archivo que abre la app y conecta con `ssh <usuario>@<IP 100.x>`.
 
