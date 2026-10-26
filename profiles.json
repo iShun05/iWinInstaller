@@ -69,6 +69,10 @@
     "tailscale",
     "autologon",
     "remotehost",
-    "chromeremote"
+    "chromeremote",
+    "rgboff"
+  ],
+  "Apps de mis componentes (detectadas)": [
+    "@hardware"
   ]
 }
