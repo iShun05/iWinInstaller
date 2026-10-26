@@ -1606,6 +1606,30 @@ $ButtonStyles = @'
         WindowStartupLocation="CenterScreen" Background="#0F0F13" Foreground="#EDEDF2"
         FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="13" UseLayoutRounding="True">
   <Window.Resources>
+    <Style x:Key="PostStep" TargetType="CheckBox">
+      <Setter Property="MinHeight" Value="32"/><Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="Template"><Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <Border x:Name="focus" Background="Transparent" CornerRadius="7" BorderBrush="Transparent" BorderThickness="1" Padding="5">
+            <Grid>
+              <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+              <Border x:Name="box" Width="18" Height="18" CornerRadius="5" BorderBrush="#777782" BorderThickness="1.5" VerticalAlignment="Top" Margin="0,1,0,0">
+                <Path x:Name="tick" Data="M3,8 L6,11 L13,4" Stroke="#0B0B0F" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Visibility="Collapsed"/>
+              </Border>
+              <ContentPresenter Grid.Column="1" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+            </Grid>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True"><Setter TargetName="box" Property="Background" Value="#8CC4FF"/><Setter TargetName="box" Property="BorderBrush" Value="#8CC4FF"/><Setter TargetName="tick" Property="Visibility" Value="Visible"/></Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="focus" Property="BorderBrush" Value="#8CC4FF"/></Trigger>
+            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="focus" Property="Background" Value="#19191D"/></Trigger>
+            <Trigger Property="IsPressed" Value="True"><Setter TargetName="focus" Property="Background" Value="#26262C"/></Trigger>
+            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="focus" Property="Opacity" Value="0.45"/></Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value></Setter>
+    </Style>
     <Style x:Key="AfterExpander" TargetType="Expander">
       <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
       <Setter Property="Template"><Setter.Value>
@@ -2077,19 +2101,21 @@ $ButtonStyles = @'
       </Grid>
     </Grid>
 
-    <Border x:Name="AfterPanel" Grid.Row="1" Panel.ZIndex="10" Background="#08080A" CornerRadius="18" Margin="12,4,12,8" BorderBrush="#303034" BorderThickness="1" Visibility="Collapsed">
+    <Border x:Name="AfterPanel" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="10" Background="#08080A" CornerRadius="18" Margin="12,4,12,8" BorderBrush="#303034" BorderThickness="1" Visibility="Collapsed">
       <Grid Margin="20,16">
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
         <StackPanel Margin="0,0,0,14">
           <TextBlock Text="Después de instalar" FontSize="24" FontWeight="SemiBold" Foreground="#F5F5F7"/>
-          <TextBlock x:Name="AfterSummary" TextWrapping="Wrap" Foreground="#ADADB5" Margin="0,6,0,12"/>
-          <WrapPanel>
+          <WrapPanel Margin="0,12,0,0">
             <Button x:Name="AfterCheckAll" Style="{StaticResource Primary}" Content="Comprobar todo" Margin="0,0,8,6"/>
             <Button x:Name="AfterBack" Style="{StaticResource Btn}" Content="Volver al catálogo" Margin="0,0,0,6"/>
           </WrapPanel>
         </StackPanel>
         <ScrollViewer x:Name="AfterScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-          <StackPanel x:Name="AfterRows"/>
+          <StackPanel>
+            <TextBlock x:Name="AfterSummary" TextWrapping="Wrap" Foreground="#ADADB5" Margin="0,0,0,16"/>
+            <StackPanel x:Name="AfterRows"/>
+          </StackPanel>
         </ScrollViewer>
       </Grid>
     </Border>
@@ -2354,6 +2380,12 @@ try{$script:PostInstallState=Get-PostInstallState}catch{$script:PostInstallState
 foreach($app in $Apps){
     if($ConfiguredApps[$app.id] -and $app.postInstall -and -not $script:PostInstallState.ContainsKey($app.id)){
         $script:PostInstallState[$app.id]=@{steps=@(0..(@($app.postInstall.steps).Count-1));note='Pasos confirmados manualmente antes de v3.2. Vuelve a comprobar el estado técnico.'}
+    }
+}
+foreach($app in $Apps){
+    if($app.postInstall -and $script:PostInstallState.ContainsKey($app.id)){
+        $count=@($app.postInstall.steps).Count
+        $ConfiguredApps[$app.id]=@($script:PostInstallState[$app.id].steps | Where-Object {$_ -ge 0 -and $_ -lt $count} | Select-Object -Unique).Count -eq $count
     }
 }
 # ---- Catálogo ----
@@ -2843,6 +2875,8 @@ function Show-AfterInstall([string]$focusId='') {
         $expander.Tag=$row
         for($index=0;$index -lt @($guide.steps).Count;$index++){
             $stepCheck=New-Object Windows.Controls.CheckBox
+            $stepCheck.Style=$win.FindResource('PostStep')
+            [Windows.Automation.AutomationProperties]::SetName($stepCheck,[string]$guide.steps[$index])
             $label=New-Object Windows.Controls.TextBlock
             $label.Text=$guide.steps[$index];$label.TextWrapping='Wrap';$label.Foreground='#E6E6EB'
             $stepCheck.Content=$label;$stepCheck.Margin='0,4,0,7';$stepCheck.Padding='4,0,0,0';$stepCheck.HorizontalContentAlignment='Stretch'
@@ -2888,6 +2922,7 @@ function Show-AfterInstall([string]$focusId='') {
         $label.Text='Tus notas · no incluyas contraseñas';$label.Foreground='#ADADB5';$label.Margin='0,6,0,6'
         [void]$body.Children.Add($label)
         $field=New-Object Windows.Controls.TextBox
+        [Windows.Automation.AutomationProperties]::SetName($field,('Tus notas para '+$app.name))
         $field.Text=$script:PostInstallState[$app.id].note;$field.Tag=$app.id;$field.AcceptsReturn=$true;$field.TextWrapping='Wrap'
         $field.MinHeight=62;$field.MaxHeight=150;$field.VerticalScrollBarVisibility='Auto';$field.MaxLength=2000
         $field.Background='#1C1C20';$field.Foreground='#F5F5F7';$field.CaretBrush='#8CC4FF';$field.BorderBrush='#3B3B42';$field.Padding='10';$field.IsReadOnly=$script:PostInstallReadOnly
@@ -2902,6 +2937,11 @@ function Show-AfterInstall([string]$focusId='') {
     if([Windows.SystemParameters]::ClientAreaAnimation){
         $fade=New-Object Windows.Media.Animation.DoubleAnimation(0.85,1,[TimeSpan]::FromMilliseconds(140))
         $ui.AfterPanel.BeginAnimation([Windows.UIElement]::OpacityProperty,$fade)
+    }
+    $win.UpdateLayout()
+    if($focusId){
+        $target=$ui.AfterRows.Children | Where-Object {$_.Tag -and $_.Tag.App.id -eq $focusId} | Select-Object -First 1
+        if($target){$position=$target.TranslatePoint((New-Object Windows.Point(0,0)),$ui.AfterScroll.Content);$ui.AfterScroll.ScrollToVerticalOffset($position.Y)}
     }
     [void]$ui.AfterBack.Focus()
 }
