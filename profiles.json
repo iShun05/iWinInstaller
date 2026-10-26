@@ -71,5 +71,8 @@
     "remotehost",
     "chromeremote",
     "rgboff"
+  ],
+  "Apps de mis componentes (detectadas)": [
+    "@hardware"
   ]
 }

@@ -911,7 +911,7 @@ function Install-App($app) {
             return $ok
         }
         'winget' { return (Install-WingetPackage $app $app.winget) }
-        'manual' { Write-Log '  Necesita instalarse desde la cuenta del proveedor; no se marca como instalada.'; if (-not $Silent) { Start-Process $app.page }; return $false }
+        'manual' { Write-Log '  Se instala desde la web o la cuenta del proveedor: completa su asistente y vuelve a verificar.'; if (-not $Silent) { Start-Process $app.page }; return $false }
     }
     # type = download: instalador oficial con asistente (HoYoPlay y Riot no ofrecen instalación silenciosa)
     if ($Silent) { Write-Log '  Necesita su asistente: se omite en modo sin ventana.'; return $false }
@@ -1000,6 +1000,33 @@ function Get-CustomProfiles {
     $result
 }
 
+# Marcas del hardware de este PC en líneas «Placa: …», «GPU: …», «GPUVEN_xxxx», «VID_xxxx»… para los «hardware» de apps.json
+function Get-HardwareText {
+    if ($null -ne $script:HardwareText) { return $script:HardwareText }
+    $lines = @()
+    try {
+        foreach ($b in @(Get-CimInstance Win32_BaseBoard -ErrorAction Stop)) { $lines += "Placa: $($b.Manufacturer) $($b.Product)" }
+        foreach ($c in @(Get-CimInstance Win32_Processor -ErrorAction Stop)) { $lines += "CPU: $($c.Name)" }
+        foreach ($g in @(Get-CimInstance Win32_VideoController -ErrorAction Stop)) {
+            $lines += "GPU: $($g.Name)"
+            # Fabricante de la tarjeta (ASUS, MSI, Gigabyte…): subsistema del identificador PCI
+            if ($g.PNPDeviceID -match 'SUBSYS_[0-9A-F]{4}([0-9A-F]{4})') { $lines += "GPUVEN_$($Matches[1].ToUpper())" }
+        }
+        foreach ($r in @(Get-CimInstance Win32_PhysicalMemory -ErrorAction Stop)) { $lines += "RAM: $($r.Manufacturer) $(([string]$r.PartNumber).Trim())" }
+        foreach ($d in @(Get-CimInstance Win32_DiskDrive -ErrorAction Stop)) { $lines += "Disco: $($d.Model)" }
+    } catch { Write-Log "  Inventario de hardware incompleto: $($_.Exception.Message)" }
+    foreach ($dev in @(Get-PnpDevice -PresentOnly -ErrorAction SilentlyContinue)) {
+        if ($dev.InstanceId -match 'VID_([0-9A-F]{4})') { $lines += "VID_$($Matches[1].ToUpper())" }
+    }
+    $script:HardwareText = @($lines | Select-Object -Unique)
+    $script:HardwareText
+}
+# Apps del fabricante que corresponden a este PC; con las luces apagadas se omiten las que vuelven a encenderlas
+function Get-HardwareApps {
+    $text = Get-HardwareText
+    $rgbOff = Test-RgbOff
+    @($Apps | Where-Object { $_.hardware -and ($text -match $_.hardware) -and -not ($rgbOff -and $_.rgb) })
+}
 function Get-ProfileApps($name) {
     # Perfil exportado (archivo) o guardado en este equipo: exactamente los ids que contiene
     $ids = $null
@@ -1016,6 +1043,7 @@ function Get-ProfileApps($name) {
     if ($match) { $name = $match }
     $groups = @($Profiles.$name)
     if (-not $groups) { return @() }
+    if ($groups -contains '@hardware') { return (Get-HardwareApps) }
     if ($groups -contains '*') { return @($Apps | Where-Object { -not (Test-Optional $_) }) }
     # «@Sistema», «@Terminal» o «@Aplicaciones» incluyen toda esa sección
     @($Apps | Where-Object { ($groups -contains $_.id -and -not $_.optin) -or (($groups -contains $_.group -or $groups -contains "@$($_.section)") -and -not (Test-Optional $_)) })
@@ -1063,6 +1091,9 @@ function Invoke-Install($sel, [scriptblock]$onProgress) {
         switch ($app.type) {
             'vboxga' { $required += 'virtualbox' }
         }
+    }
+    if (($sel | Where-Object id -eq 'rgboff') -and ($clash = @($sel | Where-Object rgb))) {
+        Write-Log "Aviso: $(($clash | ForEach-Object name) -join ', ') puede volver a encender las luces que apaga «Apagar todas las luces RGB»."
     }
     $deps = @($Apps | Where-Object { $required -contains $_.id })
     $sel = $deps + @($sel | Where-Object { $required -notcontains $_.id })
