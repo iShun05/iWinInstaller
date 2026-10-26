@@ -23,7 +23,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v2.8'
+$Version = 'v2.9'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -499,6 +499,7 @@ function Invoke-MachineTweak($cmd) {
 # Deja el PC disponible sin estar delante: no se suspende, los servicios arrancan solos y se reinician si fallan.
 # Sunshine corre como servicio y transmite también la pantalla de inicio de sesión: tras un corte se entra desde Moonlight.
 $RemoteServices = @('SunshineService', 'Tailscale')
+$KdeRuleGroup = 'iWinInstaller KDE Connect'
 $WinlogonKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon'
 $PasswordLessKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device'
 # Valor de corriente alterna de un ajuste de energía del plan activo (powercfg muestra CA y después CC)
@@ -564,6 +565,14 @@ function Set-RemoteHost {
         Start-Service $svc -ErrorAction SilentlyContinue
         Write-Log "  ${svc}: automático y con reinicio tras fallo"
     }
+    # KDE Connect (portapapeles compartido): sus puertos solo desde la red de Tailscale, sea cual sea el perfil de red
+    try {
+        Remove-NetFirewallRule -Group $KdeRuleGroup -ErrorAction SilentlyContinue
+        foreach ($proto in 'TCP', 'UDP') {
+            New-NetFirewallRule -DisplayName "KDE Connect por Tailscale ($proto)" -Group $KdeRuleGroup -Direction Inbound -Action Allow -Protocol $proto -LocalPort '1714-1764' -RemoteAddress '100.64.0.0/10' -Profile Any | Out-Null
+        }
+        Write-Log '  Firewall: KDE Connect permitido desde Tailscale (puertos 1714-1764).'
+    } catch { Write-Log "  No se pudo abrir KDE Connect en el firewall: $($_.Exception.Message)" }
     # Tailscale sin sesión de Windows abierta (modo desatendido); requiere haber iniciado sesión en Tailscale
     $ts = Get-TailscaleExe
     if ($ts) {
@@ -604,6 +613,7 @@ function Reset-RemoteHost {
     $ts = Get-TailscaleExe
     if ($ts) { & $ts set --unattended=false *> $null }
     foreach ($dir in Get-RemoteLinkDirs) { Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue }
+    Remove-NetFirewallRule -Group $KdeRuleGroup -ErrorAction SilentlyContinue
     Write-Log '  El inicio de sesión automático se quita desde Autologon (Disable).'
     return $true
 }

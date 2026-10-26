@@ -16,7 +16,7 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa portátil: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprimir y abrir `iWinInstaller.exe`. Para desinstalar el programa, ejecuta `install.ps1 -Uninstall`; las aplicaciones instaladas se conservan.
 
-**Versión actual: v2.8** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v2.9** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 ## Funciones principales
 
@@ -46,6 +46,7 @@ Algunos productos necesitan su asistente o una suscripción. Norton VPN se insta
 2. Abre `https://localhost:47990`, crea el usuario de Sunshine y empareja Moonlight con el PIN (una vez, en casa).
 3. En la BIOS/UEFI: **Restore on AC Power Loss = Power On**, para que arranque solo tras un corte.
 4. En el equipo cliente: Tailscale y Moonlight con la misma cuenta. Conecta a la IP `100.x` del PC.
+5. Portapapeles compartido: KDE Connect en los dos equipos (en macOS, `brew install --cask kde-connect`). Vincúlalos añadiendo la IP `100.x` del PC y acepta en el PC; lo copiado en uno se pega en el otro.
 
 Si la red bloquea UDP, Tailscale va por sus relés HTTPS (443): funciona, con más latencia. Para jugar fluido en una red muy filtrada, conecta el cliente a los datos del móvil. Escritorio remoto de Chrome es el respaldo para trabajar desde un navegador. Respeta las normas de uso de la red en la que estés.
 
@@ -83,8 +84,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v2.8
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v2.8
+git checkout v2.9
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v2.9
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -101,7 +102,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v2.8](https://github.com/iShun05/iWinInstaller/releases/tag/v2.8) **(actual)** | 2026-10-26 | Luces RGB apagadas siempre con OpenRGB y apps de los fabricantes según el hardware detectado | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.8.zip) |
+| [v2.9](https://github.com/iShun05/iWinInstaller/releases/tag/v2.9) **(actual)** | 2026-10-26 | Portapapeles compartido Mac ↔ Windows con KDE Connect por Tailscale | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.9.zip) |
+| [v2.8](https://github.com/iShun05/iWinInstaller/releases/tag/v2.8) | 2026-10-26 | Luces RGB apagadas siempre con OpenRGB y apps de los fabricantes según el hardware detectado | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.8.zip) |
 | [v2.7](https://github.com/iShun05/iWinInstaller/releases/tag/v2.7) | 2026-10-26 | Escritorio remoto: PC siempre disponible con Sunshine y Tailscale, Autologon y Escritorio remoto de Chrome | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.7) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.7.zip) |
 | [v2.6](https://github.com/iShun05/iWinInstaller/releases/tag/v2.6) | 2026-10-19 | Inicio manual sin selecciones automáticas, arquitectura visible y prueba de Windows corregida | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.6) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.6.zip) |
 | [v2.5](https://github.com/iShun05/iWinInstaller/releases/tag/v2.5) | 2026-10-17 | Etiqueta Terminal, abrir desde el clic derecho, catálogo reorganizado y más apps de notas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.5) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.5.zip) |

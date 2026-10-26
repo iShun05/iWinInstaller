@@ -1,5 +1,17 @@
 # Historial de versiones
 
+## v2.9 — 2026-10-26
+
+### Añadido
+- **Portapapeles compartido Mac ↔ Windows**: el perfil **Escritorio remoto** incluye **KDE Connect**, y **PC siempre disponible** abre sus puertos (TCP/UDP 1714-1764) solo para la red de Tailscale (`100.64.0.0/10`) en cualquier perfil de red. La regla se quita al deshacer.
+
+### Cambiado
+- La descripción de KDE Connect indica su uso como portapapeles con el Mac.
+
+### Archivos y pruebas
+- **Archivos**: `iWinInstaller.ps1`, `apps.json`, `profiles.json`, `README.md`, `tests/check-acceptance.ps1`.
+- **Verificación**: parser de PowerShell sin errores y JSON válidos. Pendiente: runners Windows y vinculación real con el Mac.
+
 ## v2.8 — 2026-10-26
 
 ### Añadido
