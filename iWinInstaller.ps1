@@ -1918,7 +1918,7 @@ $ButtonStyles = @'
       </DockPanel>
     </Border>
 
-    <Grid Grid.Row="1">
+    <Grid x:Name="CatalogPanel" Grid.Row="1">
       <Grid.ColumnDefinitions>
         <ColumnDefinition x:Name="NavColumn" Width="232"/>
         <ColumnDefinition Width="*"/>
@@ -2124,7 +2124,7 @@ $ButtonStyles = @'
     </Border>
 
     <!-- Barra inferior: actividad, estado y acciones -->
-    <Border Grid.Row="2" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0">
+    <Border x:Name="ActionPanel" Grid.Row="2" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0">
       <Grid Margin="16,10,16,12">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -2935,6 +2935,7 @@ function Show-AfterInstall([string]$focusId='') {
         $expander.Content=$body
         [void]$ui.AfterRows.Children.Add($expander)
     }
+    $ui.CatalogPanel.IsEnabled=$false;$ui.ActionPanel.IsEnabled=$false;$ui.Search.IsEnabled=$false
     $ui.AfterPanel.Visibility='Visible'
     Update-AfterSummary
     if([Windows.SystemParameters]::ClientAreaAnimation){
@@ -2953,6 +2954,7 @@ $ui.MAfter.Add_Click({Show-AfterInstall})
 $ui.AfterBack.Add_Click({
     try{Save-PostInstallState}catch{Set-Status 'No se pudieron guardar las notas.'}
     $ui.AfterPanel.Visibility='Collapsed'
+    $ui.CatalogPanel.IsEnabled=$true;$ui.ActionPanel.IsEnabled=$true;$ui.Search.IsEnabled=$true
     [void]$ui.BtnAfter.Focus()
 })
 $ui.AfterCheckAll.Add_Click({
@@ -3097,6 +3099,7 @@ if ($env:IWIN_PRUEBA_GUI) {
         $LogDir=$postFixture;$ConfigFile=Join-Path $postFixture 'configuracion.json';$script:PostInstallState=@{}
         Show-AfterInstall 'remotehost';Invoke-UiPump
         if($ui.AfterPanel.Visibility -ne 'Visible'){throw 'El panel de postinstalación debe abrirse sin salir de la app'}
+        if($ui.CatalogPanel.IsEnabled -or $ui.ActionPanel.IsEnabled){throw 'El teclado no debe enfocar controles ocultos detrás de las notas'}
         $row=$ui.AfterRows.Children | Where-Object {$_.Tag -and $_.Tag.App.id -eq 'remotehost'} | Select-Object -First 1
         if(-not $row -or -not $row.IsExpanded){throw 'La nota de la fila debe abrir sus pasos'}
         $field=$row.Content.Children | Where-Object {$_ -is [Windows.Controls.TextBox]} | Select-Object -First 1
@@ -3113,7 +3116,7 @@ if ($env:IWIN_PRUEBA_GUI) {
         if($ui.AfterScroll.ActualHeight -lt 100){throw 'La postinstalación debe dejar espacio para desplazarse en una pantalla pequeña'}
         Save-IwinUiSnapshot 'postinstalacion-compacta'
         $ui.AfterBack.RaiseEvent((New-Object Windows.RoutedEventArgs ([Windows.Controls.Button]::ClickEvent)))
-        if($ui.AfterPanel.Visibility -ne 'Collapsed'){throw 'Volver debe recuperar el catálogo'}
+        if($ui.AfterPanel.Visibility -ne 'Collapsed' -or -not $ui.CatalogPanel.IsEnabled -or -not $ui.ActionPanel.IsEnabled){throw 'Volver debe recuperar el catálogo y sus controles'}
         Save-IwinUiSnapshot 'catalogo-compacto'
     }finally{
         $LogDir=$previousLogDir;$ConfigFile=$previousConfig;$script:PostInstallState=$previousPostState;$ConfiguredApps=$previousConfigured
