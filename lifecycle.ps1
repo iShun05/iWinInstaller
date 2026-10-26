@@ -250,14 +250,21 @@ function Restore-TweakSnapshot($id) {
         if ($value.exists) {
             if ($value.kind -notin @('String','ExpandString','DWord','QWord','Binary','MultiString')) { throw 'Tipo de registro no válido.' }
             if(-not (Test-Path $target[0])){New-Item $target[0] -Force -ErrorAction Stop | Out-Null}
-            $key=Get-Item -LiteralPath $target[0] -ErrorAction Stop
+            $hive=if($target[0].StartsWith('HKCU:\')){[Microsoft.Win32.Registry]::CurrentUser}else{[Microsoft.Win32.Registry]::LocalMachine}
+            $key=$hive.OpenSubKey($target[0].Substring(6),$true)
+            if(-not $key){throw 'No se pudo abrir el estado anterior para escribirlo.'}
             $data=$value.value
             if ($value.kind -eq 'DWord') { $data=[int]$data }
             if ($value.kind -eq 'QWord') { $data=[long]$data }
             if ($value.kind -eq 'Binary') { $data=[byte[]]$data }
             if ($value.kind -eq 'MultiString') { $data=[string[]]$data }
-            $key.SetValue([string]$target[1],$data,[Microsoft.Win32.RegistryValueKind]$value.kind)
-        } elseif (Test-Path $target[0]) { (Get-Item -LiteralPath $target[0]).DeleteValue([string]$target[1],$false) }
+            try{$key.SetValue([string]$target[1],$data,[Microsoft.Win32.RegistryValueKind]$value.kind)}finally{$key.Dispose()}
+        } elseif (Test-Path $target[0]) {
+            $hive=if($target[0].StartsWith('HKCU:\')){[Microsoft.Win32.Registry]::CurrentUser}else{[Microsoft.Win32.Registry]::LocalMachine}
+            $key=$hive.OpenSubKey($target[0].Substring(6),$true)
+            if(-not $key){throw 'No se pudo recuperar la ausencia original del valor.'}
+            try{$key.DeleteValue([string]$target[1],$false)}finally{$key.Dispose()}
+        }
     }
     if ($id -eq 'classicmenu' -and -not $state.values[0].exists) {
         $key=Get-Item "$ClassicMenu\InprocServer32" -ErrorAction SilentlyContinue

@@ -157,8 +157,8 @@ foreach ($l in $Links) {
 $registration='HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\iWinInstaller'
 if(-not (Test-Path $registration)){New-Item $registration -Force | Out-Null}
 $native=Join-Path $Dir 'iWinInstaller.exe'
-$uninstall=if(Test-Path $native){'"'+$native+'" --uninstall'}else{'"'+$ps+'" -NoProfile -ExecutionPolicy Bypass -File "'+(Join-Path $Dir 'install.ps1')+'" -Uninstall'}
-$properties=@{DisplayName='iWinInstaller';DisplayVersion=$tag.TrimStart('v');Publisher='iShun05';InstallLocation=$Dir;DisplayIcon=(Join-Path $Dir 'assets\icon.ico');UninstallString=$uninstall;URLInfoAbout='https://github.com/iShun05/iWinInstaller';InstallDate=(Get-Date -Format 'yyyyMMdd')}
+$uninstallCommand=if(Test-Path $native){'"'+$native+'" --uninstall'}else{'"'+$ps+'" -NoProfile -ExecutionPolicy Bypass -File "'+(Join-Path $Dir 'install.ps1')+'" -Uninstall'}
+$properties=@{DisplayName='iWinInstaller';DisplayVersion=$tag.TrimStart('v');Publisher='iShun05';InstallLocation=$Dir;DisplayIcon=(Join-Path $Dir 'assets\icon.ico');UninstallString=$uninstallCommand;URLInfoAbout='https://github.com/iShun05/iWinInstaller';InstallDate=(Get-Date -Format 'yyyyMMdd')}
 foreach($name in $properties.Keys){Set-ItemProperty $registration -Name $name -Value $properties[$name] -Type String -ErrorAction Stop}
 Set-ItemProperty $registration -Name NoModify -Value 1 -Type DWord
 Set-ItemProperty $registration -Name NoRepair -Value 1 -Type DWord
