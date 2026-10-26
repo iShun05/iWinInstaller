@@ -2,7 +2,7 @@ name: Prueba del instalador inicial
 on:
   push:
     branches: [main, 'codex/**']
-    paths: ['lifecycle.ps1', 'install.ps1', 'apps.json', 'scripts/**', 'installer-header.bat', 'tests/check-bootstrap.ps1', 'tests/check-reliability.ps1', 'tests/check-audit.ps1', 'tests/check-lifecycle.ps1', 'tests/check-x86.ps1', 'tests/check-public.ps1', 'iWinInstaller.ps1', '.github/workflows/bootstrap.yml']
+    paths: ['*.ps1', 'apps.json', 'profiles.json', 'native/**', 'scripts/**', 'tests/**', 'installer-header.bat', '.github/workflows/**']
   workflow_dispatch:
 permissions:
   contents: read

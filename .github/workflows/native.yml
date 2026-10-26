@@ -2,7 +2,7 @@ name: Ejecutable y estabilidad
 on:
   push:
     branches: [main, 'codex/**']
-    paths: ['lifecycle.ps1', 'native/**', 'scripts/build_exe.ps1', 'launch.ps1', 'iWinInstaller.ps1', 'install.ps1', 'tests/check-native.ps1', 'tests/check-icons.ps1', '.github/workflows/native.yml']
+    paths: ['*.ps1', 'apps.json', 'profiles.json', 'native/**', 'scripts/**', 'tests/**', 'installer-header.bat', '.github/workflows/**']
   workflow_dispatch:
 permissions:
   contents: read
