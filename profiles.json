@@ -69,6 +69,7 @@
     "tailscale",
     "autologon",
     "remotehost",
-    "chromeremote"
+    "chromeremote",
+    "rgboff"
   ]
 }

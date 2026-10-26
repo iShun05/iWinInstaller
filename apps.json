@@ -206,6 +206,47 @@
     "noopen": true
   },
   {
+    "id": "openrgb",
+    "section": "Sistema",
+    "group": "Iluminación RGB",
+    "name": "OpenRGB",
+    "desc": "Controla las luces de placa base, RAM, gráfica, ventiladores y controladoras de casi cualquier marca sin el software del fabricante",
+    "icon": "openrgb.org",
+    "type": "winget",
+    "winget": "OpenRGB.OpenRGB",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "pawnio",
+    "section": "Sistema",
+    "group": "Iluminación RGB",
+    "name": "PawnIO",
+    "desc": "Driver firmado que usa OpenRGB para llegar a la placa base y la RAM (sustituye a WinRing0, que Windows bloquea)",
+    "icon": "glyph:E950",
+    "type": "winget",
+    "winget": "namazso.PawnIO",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "rgboff",
+    "section": "Sistema",
+    "group": "Iluminación RGB",
+    "name": "Apagar todas las luces RGB",
+    "desc": "Apaga los LED de todos los componentes que detecta OpenRGB y lo repite en cada arranque, también sin iniciar sesión",
+    "icon": "glyph:E7E8",
+    "type": "tweak",
+    "context": "machine",
+    "extra": true,
+    "requires": [
+      "openrgb",
+      "pawnio"
+    ]
+  },
+  {
     "id": "bleachbit",
     "section": "Sistema",
     "group": "Optimización y privacidad",

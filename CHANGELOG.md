@@ -1,5 +1,19 @@
 # Historial de versiones
 
+## v2.8 — 2026-10-26
+
+### Añadido
+- **Grupo Sistema › Iluminación RGB** con **OpenRGB** (`OpenRGB.OpenRGB`) y su driver **PawnIO** (`namazso.PawnIO`).
+- **Apagar todas las luces RGB** (ajuste, pide administrador): anota en el registro placa base, módulos de RAM, gráficas, controladoras USB con posible RGB y software RGB del fabricante; apaga cada dispositivo que detecta OpenRGB con su modo *Off* o, si no lo tiene, *Direct*/*Static* en negro y brillo 0; crea la tarea `\iWinInstaller\Apagar luces RGB` como SYSTEM al arrancar (30 s) y al iniciar sesión (20 s), con una segunda pasada al minuto para controladoras USB que se reinician. Se deshace desde la app.
+- El perfil **Escritorio remoto** incluye el apagado de luces.
+
+### Seguridad
+- La carpeta `C:\ProgramData\iWinInstaller\OpenRGB` (script, configuración y plugins de OpenRGB) queda solo para SYSTEM y administradores; los usuarios solo leen, porque la tarea corre como SYSTEM.
+
+### Archivos y pruebas
+- **Archivos**: `iWinInstaller.ps1`, `apps.json`, `profiles.json`, `README.md`, `tests/check-acceptance.ps1`.
+- **Verificación**: JSON válido sin ids duplicados (403 entradas); ids y dependencia PawnIO comprobados en el manifiesto de winget-pkgs; argumentos de la CLI contrastados con `cli.cpp` de OpenRGB 1.1. Parser de PowerShell, `check-ids.ps1` y prueba con hardware RGB real pendientes en Windows.
+
 ## v2.7 — 2026-10-26
 
 ### Añadido
