@@ -11,7 +11,7 @@ $Apps=@(Get-Content (Join-Path $root 'apps.json') -Raw -Encoding UTF8 | ConvertF
 $Profiles=Get-Content (Join-Path $root 'profiles.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 if (@($Profiles.Manual).Count) { throw 'El perfil Manual debe empezar sin seleccionar aplicaciones.' }
 $Root=$root; $WorkerMode='machine'; $UI=$false; $Check=$false; $Silent=$true
-$Version='v3.3'; $LogDir=Join-Path $env:TEMP 'iwin-aceptacion'; New-Item $LogDir -ItemType Directory -Force | Out-Null
+$Version='v3.4'; $LogDir=Join-Path $env:TEMP 'iwin-aceptacion'; New-Item $LogDir -ItemType Directory -Force | Out-Null
 $LogFile=Join-Path $LogDir 'prueba.log'; $log=$null; $wingetOk=@(0,3010,-1978335135,-1978335189)
 if (-not (Ensure-Winget)) { throw 'winget no disponible' }
 Update-WingetCache

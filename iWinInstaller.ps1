@@ -25,7 +25,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v3.3'
+$Version = 'v3.4'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -779,14 +779,19 @@ function Get-AllInstalledEntries {
     $paths = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
     @(Get-ItemProperty $paths -ErrorAction SilentlyContinue | Where-Object DisplayName)
 }
-# Elige, por dispositivo de «OpenRGB --list-devices», el modo que deja los LED apagados: Off, Direct o Static en negro
+# Elige, por dispositivo de «OpenRGB --list-detailed», el modo que deja los LED apagados: Off, Direct o Static en negro.
+# OpenRGB 1.1 marca el modo activo entre corchetes y entrecomilla con ' los nombres con espacios: [Direct] Pulse 'Double Flash'
+function Get-RgbTokens {
+    param([string]$Text)
+    @([regex]::Matches($Text, "\[?'[^']*'\]?|\[?""[^""]*""\]?|\S+") | ForEach-Object { $_.Value.Trim('[', ']').Trim("'", '"') })
+}
 function Get-RgbOffArguments {
     param([string[]]$Lines)
     $result = @(); $device = $null
     foreach ($line in $Lines) {
         if ($line -match '^(\d+): ') { $device = $Matches[1]; continue }
         if ($null -eq $device -or $line -notmatch '^\s+Modes:(.*)$') { continue }
-        $modes = @([regex]::Matches($Matches[1], '\[?"[^"]*"\]?|\S+') | ForEach-Object { $_.Value.Trim('[', ']').Trim('"') })
+        $modes = Get-RgbTokens $Matches[1]
         $pick = $null
         foreach ($want in 'Off', 'Direct', 'Static') { if ($modes -contains $want) { $pick = $want; break } }
         $result += @('-d', $device)
@@ -794,6 +799,24 @@ function Get-RgbOffArguments {
         elseif ($pick) { $result += @('-m', $pick, '-c', '000000', '-b', '0') }
         else { $result += @('-c', '000000', '-b', '0') }  # sin modo conocido: negro en el modo actual
         $device = $null
+    }
+    , $result
+}
+# Zonas direccionables (JRAINBOW, ARGB…) que OpenRGB crea con 0 LED: sin tamaño, el negro no llega a la tira.
+# Devuelve un comando por zona porque un tamaño fuera de rango hace que OpenRGB descarte toda la orden.
+function Get-RgbResizeArguments {
+    param([string[]]$Lines, [int]$Size = 60)
+    $result = @(); $device = $null; $zones = @()
+    foreach ($line in @($Lines) + @('999999: fin')) {
+        if ($line -match '^(\d+): ') {
+            if ($null -ne $device) {
+                for ($z = 0; $z -lt $zones.Count; $z++) {
+                    if ($zones[$z] -match '(?i)rainbow|argb|addressable') { $result += , @('-d', $device, '-z', "$z", '-sz', "$Size") }
+                }
+            }
+            $device = $Matches[1]; $zones = @(); continue
+        }
+        if ($null -ne $device -and $line -match '^\s+Zones:(.*)$') { $zones = Get-RgbTokens $Matches[1] }
     }
     , $result
 }
@@ -810,7 +833,7 @@ Add-Type -Namespace IwinRgb -Name Native -MemberDefinition '[DllImport("kernel32
 [void][IwinRgb.Native]::FreeConsole()
 function Invoke-OpenRgb([string[]]`$ArgumentList, [int]`$TimeoutMs = 300000) {
     `$psi = New-Object Diagnostics.ProcessStartInfo `$exe
-    `$psi.Arguments = (@('--config', ('"' + `$config + '"'), '--noautoconnect') + `$ArgumentList) -join ' '
+    `$psi.Arguments = (@('--config', ('"' + `$config + '"')) + `$script:baseArgs + `$ArgumentList) -join ' '
     `$psi.UseShellExecute = `$false; `$psi.CreateNoWindow = `$true
     `$psi.RedirectStandardOutput = `$true; `$psi.RedirectStandardError = `$true
     `$p = [Diagnostics.Process]::Start(`$psi)
@@ -827,9 +850,22 @@ function Invoke-OpenRgb([string[]]`$ArgumentList, [int]`$TimeoutMs = 300000) {
         @((`$stdout.Result + "``n" + `$stderr.Result) -split "``r?``n" | Where-Object { `$_ })
     } finally { `$p.Dispose() }
 }
+function Get-RgbTokens {
+$(${function:Get-RgbTokens}.ToString())
+}
 function Get-RgbOffArguments {
 $(${function:Get-RgbOffArguments}.ToString())
 }
+function Get-RgbResizeArguments {
+$(${function:Get-RgbResizeArguments}.ToString())
+}
+# Si el servicio OpenRGB está instalado, es él quien tiene el hardware: se le envían las órdenes como cliente
+# (conexión automática a 127.0.0.1:6742, sin detectar por segunda vez). Sin servicio, OpenRGB detecta por su cuenta.
+`$service = Get-Service OpenRGB -ErrorAction SilentlyContinue
+if (`$service) {
+    if (`$service.Status -ne 'Running') { Start-Service OpenRGB -ErrorAction SilentlyContinue }
+    `$script:baseArgs = @('--nodetect')
+} else { `$script:baseArgs = @('--noautoconnect') }
 `$out = @("`$(Get-Date -Format s) Inicio")
 `$passes = if (`$Once) { 1 } else { 2 }
 `$failed = `$false
@@ -837,9 +873,20 @@ try {
 for (`$pass = 1; `$pass -le `$passes; `$pass++) {
     # Las controladoras USB pueden reiniciarse al cargar sus drivers: una segunda pasada al minuto las vuelve a apagar
     if (`$pass -gt 1) { Start-Sleep -Seconds 60 }
-    `$list = Invoke-OpenRgb @('--list-devices')
+    # Al arrancar, el servicio tarda en detectar: se reintenta hasta tener dispositivos
+    for (`$try = 1; `$try -le 8; `$try++) {
+        `$list = Invoke-OpenRgb @('--list-detailed')
+        `$devices = @(`$list | Where-Object { `$_ -match '^\d+: ' })
+        if (`$code -eq 0 -and `$devices.Count) { break }
+        Start-Sleep -Seconds 15
+    }
     if (`$code -ne 0) { throw "OpenRGB no pudo enumerar dispositivos (código `$code)." }
-    `$devices = @(`$list | Where-Object { `$_ -match '^\d+: ' })
+    if (`$service) { `$out += "Servicio OpenRGB: `$((Get-Service OpenRGB).Status)" }
+    foreach (`$resize in Get-RgbResizeArguments `$list) {
+        `$res = Invoke-OpenRgb `$resize
+        `$out += "  Tamaño `$(`$resize -join ' '): código `$code"
+        `$out += `$res | Where-Object { `$_ -match '(?i)error' } | ForEach-Object { "    `$_" }
+    }
     `$out += "Pasada `${pass}: `$(`$devices.Count) dispositivos"
     `$out += `$devices | ForEach-Object { "  `$_" }
     `$offArgs = Get-RgbOffArguments `$list
@@ -882,6 +929,12 @@ function Set-RgbOff {
     if (-not $exe) { Write-Log '  Falta OpenRGB: instálalo desde Sistema › Iluminación RGB.'; return $false }
     if (-not (Get-AllInstalledEntries | Where-Object DisplayName -like 'PawnIO*')) { Write-Log '  Falta PawnIO: sin él OpenRGB no llega a la placa base ni a la RAM.' }
     Write-RgbInventory
+    # El servicio de OpenRGB, si existe, es quien controla el hardware: debe arrancar siempre con Windows
+    if (Get-Service OpenRGB -ErrorAction SilentlyContinue) {
+        Set-Service OpenRGB -StartupType Automatic
+        Start-Service OpenRGB -ErrorAction SilentlyContinue
+        Write-Log '  Servicio OpenRGB: automático; las órdenes se le envían como cliente.'
+    }
     # Carpeta solo para SYSTEM y administradores: la tarea corre como SYSTEM y OpenRGB carga plugins de su configuración
     New-Item $RgbDir -ItemType Directory -Force | Out-Null
     & icacls.exe $RgbDir /inheritance:r /grant:r '*S-1-5-18:(OI)(CI)F' '*S-1-5-32-544:(OI)(CI)F' '*S-1-5-32-545:(OI)(CI)RX' | Out-Null

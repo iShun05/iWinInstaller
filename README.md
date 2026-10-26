@@ -16,7 +16,7 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v3.3** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v3.4** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 ## Funciones principales
 
@@ -95,8 +95,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v3.3
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.3
+git checkout v3.4
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.4
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -115,7 +115,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v3.3](https://github.com/iShun05/iWinInstaller/releases/tag/v3.3) **(actual)** | 2026-10-26 | Control remoto por SSH solo desde Tailscale y solo con clave | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.3) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.3.zip) |
+| [v3.4](https://github.com/iShun05/iWinInstaller/releases/tag/v3.4) **(actual)** | 2026-10-26 | Apagar luces RGB funciona con OpenRGB 1.1 y su servicio | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.4) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.4.zip) |
+| [v3.3](https://github.com/iShun05/iWinInstaller/releases/tag/v3.3) | 2026-10-26 | Control remoto por SSH solo desde Tailscale y solo con clave | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.3) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.3.zip) |
 | [v3.2](https://github.com/iShun05/iWinInstaller/releases/tag/v3.2) | 2026-10-26 | Postinstalación guiada, notas, comprobaciones, lotes reanudables, restauración, instalación registrada y actualización automática opcional | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.2) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.2.zip) |
 | [v3.1](https://github.com/iShun05/iWinInstaller/releases/tag/v3.1) | 2026-10-26 | Detección RGB corregida, bloqueo acotado, errores comprobados y versión coherente del instalador | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.1.zip) |
 | [v3.0](https://github.com/iShun05/iWinInstaller/releases/tag/v3.0) | 2026-10-26 | Pantalla virtual para transmitir con los monitores apagados o desconectados | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.0.zip) |
