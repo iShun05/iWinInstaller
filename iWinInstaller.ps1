@@ -2920,6 +2920,15 @@ function Show-AfterInstall([string]$focusId='') {
             $panel.Add_Click({Start-Process 'https://localhost:47990'})
             [void]$buttons.Children.Add($panel)
         }
+        $guideUri=$null
+        if($guide.link){try{$guideUri=[uri]$guide.link}catch{}}
+        if($guideUri -and $guideUri.IsAbsoluteUri -and $guideUri.Scheme -eq 'https' -and -not $guideUri.UserInfo){
+            $help=New-Object Windows.Controls.Button
+            $help.Content=if($guide.linkLabel){$guide.linkLabel}else{'Ver instrucciones'}
+            $help.Style=$win.FindResource('Btn');$help.Margin='0,0,8,8';$help.Tag=$guideUri.AbsoluteUri
+            $help.Add_Click({param($sender)try{Start-Process ([string]$sender.Tag)}catch{Set-Status 'No se pudo abrir el navegador. Revisa tu navegador predeterminado.'}})
+            [void]$buttons.Children.Add($help)
+        }
         [void]$body.Children.Add($buttons)
         $label=New-Object Windows.Controls.TextBlock
         $label.Text='Tus notas · no incluyas contraseñas';$label.Foreground='#ADADB5';$label.Margin='0,6,0,6'

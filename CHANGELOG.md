@@ -3,7 +3,7 @@
 ## v3.2 — 2026-10-26
 
 ### Añadido
-- **Después de instalar**: panel dentro de la ventana, acceso desde cada fila, 117 guías con pasos, notas personales persistentes y comprobaciones técnicas de solo lectura. Distingue explícitamente funcionamiento detectado de cuentas, emparejamientos y pruebas físicas confirmadas por el usuario.
+- **Después de instalar**: panel dentro de la ventana, acceso desde cada fila, 121 guías con pasos, notas personales persistentes y comprobaciones técnicas de solo lectura. Distingue explícitamente funcionamiento detectado de cuentas, emparejamientos y pruebas físicas confirmadas por el usuario.
 - **Reanudar y pausar**: lotes persistidos de forma atómica con resultados por ID. Una pausa deja terminar la aplicación actual. Tras cerrar o reiniciar, el usuario puede continuar lo pendiente, sin repetir resultados completados ni ejecutar lotes por su cuenta.
 - **Resumen previo** de aplicaciones, dependencias, permisos, ajustes y reinicios, con comprobación de espacio y conexión HTTPS al origen de WinGet.
 - **Reinicio pendiente** por aplicación y comprobación posterior, incluyendo códigos del instalador y HRESULT de WinGet. No se fuerza el reinicio.

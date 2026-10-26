@@ -303,10 +303,13 @@
     "noopen": true,
     "postInstall": {
       "steps": [
-        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
-        "Revisa preferencias y prueba la función que vayas a utilizar."
+        "Abre la web de Escritorio remoto de Chrome e inicia sesión.",
+        "En Configurar acceso remoto, asigna un nombre y PIN al equipo y completa la autorización.",
+        "Conecta desde otro dispositivo y prueba también después de reiniciar el PC."
       ],
-      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+      "note": "El servicio instalado no demuestra que hayas registrado el equipo en tu cuenta.",
+      "link": "https://remotedesktop.google.com/access",
+      "linkLabel": "Configurar acceso remoto"
     }
   },
   {
@@ -1381,7 +1384,14 @@
       "python",
       "pythonw",
       "pyw"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Abre una terminal nueva y prueba python --version y python -m pip --version.",
+        "En tu editor, selecciona el intérprete que acabas de instalar y prepara el entorno de tu proyecto si lo necesitas."
+      ],
+      "note": "No se modifican proyectos ni se instalan paquetes de Python automáticamente."
+    }
   },
   {
     "id": "node",
@@ -1497,7 +1507,15 @@
       "rustdoc",
       "rustfmt",
       "rustup"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Abre una terminal nueva y prueba rustup show y rustc --version.",
+        "Si tu toolchain usa MSVC, abre Visual Studio Installer y añade Desarrollo para el escritorio con C++ y el SDK de Windows.",
+        "Compila una aplicación de prueba de tu proyecto para comprobar el enlazador."
+      ],
+      "note": "Instalar Rust no garantiza que estén presentes el SDK y el enlazador que exige tu proyecto."
+    }
   },
   {
     "id": "java",
@@ -2071,10 +2089,10 @@
     "context": "user",
     "postInstall": {
       "steps": [
-        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
-        "Revisa preferencias y prueba la función que vayas a utilizar."
+        "Abre una terminal y ejecuta rclone config para crear la conexión con tu proveedor.",
+        "Completa su autorización y prueba el listado de una carpeta antes de copiar o sincronizar."
       ],
-      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+      "note": "Las credenciales se introducen en rclone o en el proveedor; iWinInstaller no las lee. Revisa el origen y destino antes de sincronizar."
     }
   },
   {
@@ -3375,7 +3393,15 @@
     "type": "winget",
     "winget": "Oracle.VirtualBox",
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre VirtualBox y revisa los requisitos de tu arquitectura y la virtualización del equipo.",
+        "Crea o abre una máquina de prueba y comprueba que arranca.",
+        "Si necesitas integración de pantalla o carpetas, instala Guest Additions dentro del invitado."
+      ],
+      "note": "La presencia de VirtualBox no demuestra que sus controladores o una máquina invitada funcionen. Cada controlador debe corresponder a la arquitectura de Windows."
+    }
   },
   {
     "id": "vboxga",
@@ -3435,7 +3461,15 @@
     "winget": "Docker.DockerDesktop",
     "extra": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre Docker Desktop y completa su asistente inicial.",
+        "Habilita la virtualización y el backend WSL 2 si lo solicita; reinicia cuando proceda.",
+        "Espera a que indique que el motor está en ejecución y prueba docker version desde una terminal nueva."
+      ],
+      "note": "La comprobación consulta el cliente y el motor. Las condiciones y la licencia dependen de tu uso del producto."
+    }
   },
   {
     "id": "githubdesktop",
@@ -5903,10 +5937,11 @@
     ],
     "postInstall": {
       "steps": [
-        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
-        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+        "Abre el panel local de Syncthing en http://127.0.0.1:8384.",
+        "Añade el ID del otro dispositivo y acepta la vinculación en ambos equipos.",
+        "Elige una carpeta de prueba y comprueba el envío de un archivo nuevo."
       ],
-      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+      "note": "Confirma las carpetas y los permisos antes de incluir datos reales."
     }
   },
   {
@@ -5924,10 +5959,11 @@
     "context": "machine",
     "postInstall": {
       "steps": [
-        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
-        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+        "Abre Duplicati y crea la copia eligiendo origen, destino y las opciones de cifrado.",
+        "Guarda la clave de recuperación en tu lugar seguro.",
+        "Completa una copia de prueba y comprueba que puedes restaurar un archivo."
       ],
-      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+      "note": "Una instalación o una copia terminada no sustituye la prueba de restauración. La app no recibe tu clave."
     }
   },
   {
