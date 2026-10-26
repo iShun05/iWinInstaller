@@ -54,6 +54,8 @@ try{
     function Install-App($app){$script:calls+=$app.id;if($script:pause){Request-IwinStop};$true}
     $fail=@(Invoke-Install @($Apps[0],$Apps[2]) $null)
     Assert ($fail.Count -eq 2 -and ($script:calls -join ',') -eq 'base') 'Pausa segura entre aplicaciones'
+    $script:Batch.items+= [pscustomobject]@{id='opcion-retirada';state='pending';reboot=$false;boot='';code=0}
+    Save-IwinBatch
     $pending=Get-IwinPendingBatches | Select-Object -First 1
     Assert ($pending -and @($pending.Data.items | Where-Object state -eq 'done').Count -eq 1) 'Debe conservar el resultado completado en disco'
     $script:pause=$false
@@ -72,8 +74,10 @@ try{
     function Invoke-Winget{ -1978335212 }
     Assert (-not (Test-StillInstalled ([pscustomobject]@{id='base';type='winget';winget='Ejemplo.Base'}))) 'Solo el código de ausencia confirma retirada'
     $script:PostInstallState=@{base=@{steps=@(0);note='Texto literal $(no ejecutar) con acentos y salto' + "`n" + 'Segunda línea'}}
+    $script:PostInstallState['opcion-retirada']=@{steps=@(0);note='Nota que debe sobrevivir a un cambio de catálogo'}
     Save-PostInstallState
     $read=Get-PostInstallState
+    Assert ($read['opcion-retirada'].note -eq $script:PostInstallState['opcion-retirada'].note) 'Las notas de opciones retiradas no deben perderse al actualizar'
     Assert ($read.base.note -eq $script:PostInstallState.base.note -and @($read.base.steps).Count -eq 1) 'Notas y pasos persistidos sin evaluación'
     function Test-AppInstalled{$true}
     $guide=[pscustomobject]@{id='base';postInstall=[pscustomobject]@{steps=@('Inicia sesión','Prueba el uso')}}

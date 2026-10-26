@@ -74,8 +74,8 @@ function Get-IwinPendingBatches {
             if ($file.Length -gt 2MB) { continue }
             $data = Get-Content $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
             if ($data.format -ne 'iWinInstaller-lote' -or $data.version -ne 1 -or $data.operation -notin @('install','upgrade','uninstall')) { continue }
-            if (@($data.items | Where-Object { $_.id -notin $known -or $_.state -notin @('pending','running','failed','done') }).Count) { continue }
-            if (@($data.items | Where-Object state -ne 'done').Count) { [pscustomobject]@{ Path=$file.FullName; Data=$data } }
+            if (@($data.items | Where-Object { $_.id -notmatch '^[a-z0-9_-]{1,80}$' -or $_.state -notin @('pending','running','failed','done') }).Count) { continue }
+            if (@($data.items | Where-Object { $_.state -ne 'done' -and $known -contains $_.id }).Count) { [pscustomobject]@{ Path=$file.FullName; Data=$data } }
         } catch { Write-Log "  Lote ilegible ignorado: $($file.Name)." }
     }
 }
@@ -154,10 +154,10 @@ function Get-PostInstallState {
             if ($file.Length -gt 4MB) { throw 'Seguimiento demasiado grande.' }
             $saved=Get-Content $path -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
             foreach ($entry in $saved.PSObject.Properties) {
-                if ($entry.Name -notin @($Apps.id)) { continue }
+                if ($entry.Name -notmatch '^[a-z0-9_-]{1,80}$') { continue }
                 $app=$Apps | Where-Object id -eq $entry.Name | Select-Object -First 1
-                $hash=Get-IwinGuideHash $app
-                $steps=if($entry.Value.guideHash -eq $hash){@($entry.Value.steps | Where-Object { ($_ -is [int] -or $_ -is [long]) -and $_ -ge 0 -and $_ -lt 100 })}else{@()}
+                $hash=if($app){Get-IwinGuideHash $app}else{[string]$entry.Value.guideHash}
+                $steps=if(-not $app -or $entry.Value.guideHash -eq $hash){@($entry.Value.steps | Where-Object { ($_ -is [int] -or $_ -is [long]) -and $_ -ge 0 -and $_ -lt 100 })}else{@()}
                 $state[$entry.Name]=@{ steps=@($steps); guideHash=$hash; note=([string]$entry.Value.note).Substring(0,[math]::Min(2000,([string]$entry.Value.note).Length)) }
             }
         } catch { Write-Log 'No se pudo leer el seguimiento de postinstalación; no se sobrescribe automáticamente.'; throw }
