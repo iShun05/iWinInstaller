@@ -521,6 +521,25 @@ function Get-AutologonExe {
     }
     $null
 }
+# Accesos web en el escritorio y el menú Inicio públicos (carpeta «Acceso remoto»; Organize-Desktop no mueve carpetas)
+$RemoteLinks = [ordered]@{
+    'Sunshine (panel)' = 'https://localhost:47990'
+    'Tailscale (equipos)' = 'https://login.tailscale.com/admin/machines'
+    'Escritorio remoto de Chrome' = 'https://remotedesktop.google.com/access'
+}
+function Get-RemoteLinkDirs {
+    @([Environment]::GetFolderPath('CommonDesktopDirectory'), [Environment]::GetFolderPath('CommonPrograms')) |
+        Where-Object { $_ } | ForEach-Object { Join-Path $_ 'Acceso remoto' }
+}
+function Set-RemoteLinks {
+    foreach ($dir in Get-RemoteLinkDirs) {
+        New-Item $dir -ItemType Directory -Force | Out-Null
+        foreach ($name in $RemoteLinks.Keys) {
+            Set-Content (Join-Path $dir "$name.url") @('[InternetShortcut]', "URL=$($RemoteLinks[$name])") -Encoding ASCII
+        }
+        Write-Log "  Accesos directos en $dir"
+    }
+}
 function Set-RemoteHost {
     if (-not (Test-Administrator)) { Write-Log '  Necesita permiso de administrador.'; return $false }
     $ok = $true
@@ -569,6 +588,7 @@ function Set-RemoteHost {
             Write-Log '  Sin inicio automático: tras un reinicio, inicia sesión desde Moonlight en la pantalla de bloqueo.'
         }
     }
+    try { Set-RemoteLinks } catch { Write-Log "  No se pudieron crear los accesos directos: $($_.Exception.Message)" }
     Write-Log '  Primera vez en casa: abre https://localhost:47990, crea el usuario de Sunshine y empareja Moonlight con su PIN.'
     Write-Log '  BIOS/UEFI: «Restore on AC Power Loss» = Power On para que arranque solo tras un corte de luz.'
     return $ok
@@ -583,6 +603,7 @@ function Reset-RemoteHost {
     }
     $ts = Get-TailscaleExe
     if ($ts) { & $ts set --unattended=false *> $null }
+    foreach ($dir in Get-RemoteLinkDirs) { Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue }
     Write-Log '  El inicio de sesión automático se quita desde Autologon (Disable).'
     return $true
 }
