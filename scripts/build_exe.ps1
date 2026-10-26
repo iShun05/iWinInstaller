@@ -20,7 +20,7 @@ $archive=[IO.Compression.ZipFile]::Open($zip,[IO.Compression.ZipArchiveMode]::Up
 try {
     [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$launcher,'iWinInstaller/iWinInstaller.exe')
     $lines=@()
-    foreach ($name in @('iWinInstaller.ps1','apps.json','profiles.json','launch.ps1','iWinInstaller.exe')) {
+    foreach ($name in @('iWinInstaller.ps1','apps.json','profiles.json','lifecycle.ps1','install.ps1','launch.ps1','iWinInstaller.exe')) {
         $entry=$archive.GetEntry('iWinInstaller/'+$name)
         $stream=$entry.Open(); $sha=[Security.Cryptography.SHA256]::Create()
         try { $hash=([BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-','').ToLowerInvariant(); $lines+="$hash  $name" }

@@ -1,5 +1,6 @@
 ﻿param([string]$SourceFile=(Join-Path $PSScriptRoot '..\iWinInstaller.ps1'))
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot '../lifecycle.ps1')
 $errors=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile($SourceFile,[ref]$null,[ref]$errors)
 if ($errors) { throw ($errors | Out-String) }

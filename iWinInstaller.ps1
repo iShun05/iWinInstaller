@@ -16,27 +16,31 @@ param(
     [string]$ResultFile,
     [string]$SharedLog,
     [switch]$UpgradePackages,
-    [switch]$RemovePackages
+    [switch]$RemovePackages,
+    [switch]$Resume,
+    [switch]$AutoUpdate
 )
 $ProgressPreference = 'SilentlyContinue'
 # Salida de herramientas en UTF-8
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v3.1'
+$Version = 'v3.2'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
 $Apps = @(Get-Content (Join-Path $Root 'apps.json') -Raw -Encoding UTF8 | ConvertFrom-Json | ForEach-Object { $_ })
 $Profiles = Get-Content (Join-Path $Root 'profiles.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $ReleaseApi = 'https://api.github.com/repos/iShun05/iWinInstaller/releases/latest'
-$UI = -not ($Check -or $Silent -or $Update -or $WorkerMode)
+$UI = -not ($Check -or $Silent -or $Update -or $WorkerMode -or $Resume -or $AutoUpdate)
 
 # Registro en archivo: %LOCALAPPDATA%\iWinInstaller\iWinInstaller_AAAA-MM-DD.log
 $LogDir = Join-Path $env:LOCALAPPDATA 'iWinInstaller'
 New-Item $LogDir -ItemType Directory -Force | Out-Null
 $LogFile = Join-Path $LogDir ('iWinInstaller_{0:yyyy-MM-dd_HH-mm-ss-fff}.log' -f (Get-Date))
 if ($WorkerMode -and $SharedLog) { $LogFile = $SharedLog }
+
+. (Join-Path $Root 'lifecycle.ps1')
 
 # ---------- Utilidades comunes ----------
 $log = $null
@@ -187,7 +191,7 @@ function Invoke-Elevated($cmd) {
 
 # ---------- winget ----------
 # winget devuelve estos códigos cuando la app ya estaba instalada / sin actualización: se consideran éxito.
-$wingetOk = @(0, 3010, -1978335135, -1978335189)
+$wingetOk = @(0, 3010, 1641, -1978334967, -1978334965, -1978335135, -1978335189)
 
 # Argumentos comunes de winget: id exacto y, si la entrada lo indica, origen (p. ej. msstore para ChatGPT).
 function Get-WingetArgs($app) {
@@ -286,7 +290,7 @@ function Invoke-Winget([string[]]$arguments, [string]$label, [int]$timeoutSec = 
         }
     }
     Write-Log "  $label · codigo $code · $([math]::Round($timer.Elapsed.TotalSeconds, 1)) s"
-    $script:LastInstallCode = $code
+    if ($label -notlike '*-verificar') { $script:LastInstallCode = $code }
     return $code
 }
 # Google cambia el MSI estable sin mantener la huella del catalogo: exige su firma valida.
@@ -334,6 +338,7 @@ function Install-WingetPackage($app, [string]$id) {
     if ($app.architecture) { $arguments += @('--architecture', $app.architecture) }
     $code = Invoke-Winget $arguments $app.id
     if ($code -notin $wingetOk) { return $false }
+    if (Test-IwinRebootCode $code) { Write-Log '  Requiere reiniciar Windows y volver a verificar.'; return $true }
     Update-LocalInventory -Appx:((Get-InstallContext $app) -eq 'user')
     # El codigo de exito no basta: debe aparecer en el inventario o en winget list.
     if ($app.type -ne 'wingetall' -and (Test-LocalApp $app)) { $script:WingetIds += $id; return $true }
@@ -351,6 +356,8 @@ function Invoke-InstallWorker($selection, [scriptblock]$onProgress, [switch]$AsU
     $plan = "$stem.plan.json"; $result = "$stem.result.jsonl"
     @($selection | ForEach-Object id) | ConvertTo-Json -Compress | Set-Content $plan -Encoding UTF8
     New-Item $result -ItemType File -Force | Out-Null
+    if (Test-IwinStop) { foreach ($app in $selection) { Complete-IwinItem $app $false $onProgress; $app }; return }
+    $script:ActiveCancelFile = $plan + '.cancel'
     $mode = if ($AsUser) { 'user' } else { 'machine' }
     $args0 = "-NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $Root 'iWinInstaller.ps1')`" -WorkerMode $mode -PlanFile `"$plan`" -ResultFile `"$result`" -SharedLog `"$LogFile`""
     if ($UpgradePackages) { $args0 += ' -UpgradePackages' }
@@ -386,6 +393,7 @@ function Invoke-InstallWorker($selection, [scriptblock]$onProgress, [switch]$AsU
                 if ($event.message -is [string] -and $event.message.Length -le 2000 -and $log) {
                     $log.AppendText("$(Get-Date -Format HH:mm:ss)  $($event.message)`r`n"); $log.ScrollToEnd()
                 }
+                if ($event.current) { $currentApp=$selection | Where-Object id -eq $event.current | Select-Object -First 1; if($currentApp){Set-IwinBatchRunning $currentApp} }
                 if ($event.current -and $UI -and $byId -and $byId.ContainsKey($event.current)) {
                     $byId[$event.current].Status = $busyText; $byId[$event.current].StatusKind = 'busy'
                     if ($event.phase -in @('Descargando','Instalando','Verificando','Desinstalando')) { $byId[$event.current].Status=$event.phase+'…'; Set-Status "$($byId[$event.current].Name) · $($event.phase)…" } else { Set-Status "$($busyText.TrimEnd('…')) $($byId[$event.current].Name)…" }
@@ -394,7 +402,8 @@ function Invoke-InstallWorker($selection, [scriptblock]$onProgress, [switch]$AsU
                     $app = $selection | Where-Object id -eq $event.id | Select-Object -First 1
                     if ($app -and -not $reported.ContainsKey($event.id)) {
                         $reported[$event.id] = [bool]$event.ok
-                        if ($onProgress) { & $onProgress $app ([bool]$event.ok) }
+                        $script:LastInstallCode = if ($event.code -is [int] -or $event.code -is [long]) { $event.code } else { 0 }
+                        Complete-IwinItem $app ([bool]$event.ok) $onProgress
                     }
                 }
                 if ($event.done) { $done = $true }
@@ -406,9 +415,9 @@ function Invoke-InstallWorker($selection, [scriptblock]$onProgress, [switch]$AsU
             Invoke-UiPump; Start-Sleep -Milliseconds 250
         }
     } catch { Write-Log "  No se pudo completar el lote $mode`: $($_.Exception.Message)" }
-    finally { Remove-Item $plan, $result -Force -ErrorAction SilentlyContinue }
+    finally { Remove-Item $plan, $result, ($plan + '.cancel') -Force -ErrorAction SilentlyContinue; $script:ActiveCancelFile=$null }
     foreach ($app in $selection) {
-        if (-not $reported.ContainsKey($app.id)) { if ($onProgress) { & $onProgress $app $false }; $app }
+        if (-not $reported.ContainsKey($app.id)) { $script:LastInstallCode=0; Complete-IwinItem $app $false $onProgress; $app }
         elseif (-not $reported[$app.id]) { $app }
     }
     Update-LocalInventory -Appx
@@ -606,21 +615,8 @@ function Set-RemoteHost {
     Write-Log '  BIOS/UEFI: «Restore on AC Power Loss» = Power On para que arranque solo tras un corte de luz.'
     return $ok
 }
-function Reset-RemoteHost {
-    if (-not (Test-Administrator)) { Write-Log '  Necesita permiso de administrador.'; return $false }
-    # Valores habituales de Windows en sobremesa
-    & powercfg /change standby-timeout-ac 30
-    & powercfg /hibernate on 2>$null
-    foreach ($svc in $RemoteServices) {
-        if (Get-Service $svc -ErrorAction SilentlyContinue) { & cmd.exe /d /c "sc.exe failure $svc reset= 0 actions= `"`"" | Out-Null }
-    }
-    $ts = Get-TailscaleExe
-    if ($ts) { & $ts set --unattended=false *> $null }
-    foreach ($dir in Get-RemoteLinkDirs) { Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue }
-    Remove-NetFirewallRule -Group $KdeRuleGroup -ErrorAction SilentlyContinue
-    Write-Log '  El inicio de sesión automático se quita desde Autologon (Disable).'
-    return $true
-}
+function Reset-RemoteHost { Restore-TweakSnapshot 'remotehost' }
+
 function Test-RemoteHost {
     if ((Get-AcPowerValue 'SUB_SLEEP' 'STANDBYIDLE') -ne 0) { return $false }
     foreach ($svc in $RemoteServices) {
@@ -806,6 +802,8 @@ function Test-RgbOff {
 }
 function Install-Tweak($id) {
     try {
+        $ErrorActionPreference = 'Stop'
+        Save-TweakSnapshot $id
         switch ($id) {
             'wsl' {
                 $ok = Invoke-Elevated 'wsl.exe --install --no-launch'
@@ -855,27 +853,10 @@ function Install-Tweak($id) {
 
 # Deshace un ajuste dejando el valor que trae Windows. WSL y el punto de restauración no se deshacen desde aquí.
 function Uninstall-Tweak($id) {
-    try {
-        switch ($id) {
-            'showext' { Set-RegDword $ExplorerAdv 'HideFileExt' 1; return $true }
-            'showhidden' { Set-RegDword $ExplorerAdv 'Hidden' 2; return $true }
-            'darkmode' { Set-RegDword $Personalize 'AppsUseLightTheme' 1; Set-RegDword $Personalize 'SystemUsesLightTheme' 1; return $true }
-            'power' { & powercfg /setactive $Balanced 2>$null; return ($LASTEXITCODE -eq 0) }
-            'devmode' { return (Invoke-MachineTweak "Set-ItemProperty '$AppModelUnlock' -Name AllowDevelopmentWithoutDevLicense -Value 0 -Type DWord -Force") }
-            'longpaths' { return (Invoke-MachineTweak "Set-ItemProperty '$FileSystemKey' -Name LongPathsEnabled -Value 0 -Type DWord -Force") }
-            'classicmenu' { Remove-Item $ClassicMenu -Recurse -Force -ErrorAction SilentlyContinue; return $true }
-            'nobing' { Remove-ItemProperty $SearchPolicy -Name 'DisableSearchBoxSuggestions' -ErrorAction SilentlyContinue; return $true }
-            'taskbarleft' { Set-RegDword $ExplorerAdv 'TaskbarAl' 1; return $true }
-            'clockseconds' { Set-RegDword $ExplorerAdv 'ShowSecondsInSystemClock' 0; return $true }
-            'thispc' { Remove-ItemProperty $ExplorerAdv -Name 'LaunchTo' -ErrorAction SilentlyContinue; return $true }
-            'endtask' { Set-RegDword $DevSettings 'TaskbarEndTask' 0; return $true }
-            'remotehost' { return (Reset-RemoteHost) }
-            'rgboff' { return (Reset-RgbOff) }
-            'mouseaccel' { Set-RegString $MouseKey 'MouseSpeed' '1'; Set-RegString $MouseKey 'MouseThreshold1' '6'; Set-RegString $MouseKey 'MouseThreshold2' '10'; return $true }
-        }
-    } catch { Write-Log "  $($_.Exception.Message)" }
-    return $false
+    try { return (Restore-TweakSnapshot $id) }
+    catch { Write-Log "  $($_.Exception.Message)"; return $false }
 }
+
 function Test-Tweak($id) {
     # wsl.exe y powercfg escriben en stderr cuando falta la función; con Stop eso cortaría la ventana
     $ErrorActionPreference = 'Continue'
@@ -911,30 +892,42 @@ function Test-TweakCore($id) {
 
 function Update-Self {
     if (-not (Test-Path (Join-Path $Root 'instalado.txt'))) { return $true }
-    $release = Invoke-RestMethod $ReleaseApi
-    $tag = $release.tag_name
-    if (-not $tag) { throw 'No se pudo consultar la última versión.' }
-    if ($tag -eq $Version) { Write-Log "  iWinInstaller ya está en la última versión ($Version)."; return $true }
-    Write-Log "  iWinInstaller: actualizando de $Version a $tag"
-    if (Test-Path (Join-Path $Root 'iWinInstaller.exe')) {
-        $updateDir=Join-Path $LogDir 'actualizacion'
-        New-Item $updateDir -ItemType Directory -Force | Out-Null
-        $asset = $release.assets | Where-Object name -eq 'iWinInstaller-Setup.exe' | Select-Object -First 1
-        if (-not $asset -or $asset.digest -notmatch '^sha256:([a-fA-F0-9]{64})$') { throw 'Falta la descarga con su hash SHA256.' }
-        $expected = $Matches[1]
-        $setup=Join-Path $updateDir 'iWinInstaller-Setup.exe'
-        Invoke-WebRequest $asset.browser_download_url -OutFile $setup -UseBasicParsing
-        if ((Get-FileHash $setup).Hash -ne $expected) { throw 'La actualización no supera la comprobación SHA256.' }
-        $p=Start-Process $setup -ArgumentList '--silent' -PassThru
-        if ($UI -and $env:IWIN_HOST_PID -match '^\d+$') {
-            Write-Log '  La nueva version se instalara al cerrar la app; no interrumpe la sesion actual.'
-            return $true
+    $lock=New-Object Threading.Mutex($false,('Local\iWinInstaller-update-'+[Security.Principal.WindowsIdentity]::GetCurrent().User.Value))
+    $locked=$false
+    try {
+        try{$locked=$lock.WaitOne(0)}catch [Threading.AbandonedMutexException]{$locked=$true}
+        if(-not $locked){Write-Log '  Ya hay una actualización en preparación.';return $true}
+        $release = Invoke-RestMethod $ReleaseApi -TimeoutSec 20
+        $tag = $release.tag_name
+        if ($tag -notmatch '^v\d+\.\d+$') { throw 'No se pudo consultar una versión válida.' }
+        if ([version]$tag.Substring(1) -le [version]$Version.Substring(1)) { Write-Log "  iWinInstaller ya está al día ($Version)."; return $true }
+        Write-Log "  iWinInstaller: actualizando de $Version a $tag"
+        if (Test-Path (Join-Path $Root 'iWinInstaller.exe')) {
+            $updateDir=Join-Path (Join-Path $LogDir 'actualizacion') $tag
+            New-Item $updateDir -ItemType Directory -Force | Out-Null
+            $asset = $release.assets | Where-Object name -eq 'iWinInstaller-Setup.exe' | Select-Object -First 1
+            if (-not $asset -or $asset.digest -notmatch '^sha256:([a-fA-F0-9]{64})$') { throw 'Falta la descarga con su hash SHA256.' }
+            $expected=$Matches[1]
+            $setup=Join-Path $updateDir 'iWinInstaller-Setup.exe'
+            if(-not (Test-Path $setup) -or (Get-FileHash $setup).Hash -ne $expected){
+                $download=$setup+'.part'
+                try{
+                    Invoke-WebRequest $asset.browser_download_url -OutFile $download -UseBasicParsing -TimeoutSec 600
+                    if((Get-FileHash $download).Hash -ne $expected){throw 'La actualización no supera la comprobación SHA256.'}
+                    Move-Item $download $setup -Force -ErrorAction Stop
+                }finally{Remove-Item $download -Force -ErrorAction SilentlyContinue}
+            }
+            $p=Start-Process $setup -ArgumentList '--silent' -PassThru
+            if (($UI -or $AutoUpdate) -and $env:IWIN_HOST_PID -match '^\d+$') {
+                Write-Log '  Versión verificada. Se aplica cuando cierre iWinInstaller; conserva notas, perfiles y lotes.'
+                return $true
+            }
+        } else {
+            $p=Start-Process powershell -PassThru -WindowStyle Hidden -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $Root 'install.ps1')`" -Silent"
         }
-    } else {
-        $p = Start-Process powershell -PassThru -WindowStyle Hidden -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $Root 'install.ps1')`" -Silent"
-    }
-    Wait-Proc $p 600
-    $p.HasExited -and $p.ExitCode -eq 0
+        Wait-Proc $p 600
+        return ($p.HasExited -and $p.ExitCode -eq 0)
+    }finally{if($locked){$lock.ReleaseMutex()};$lock.Dispose()}
 }
 
 function Invoke-Update {
@@ -1142,20 +1135,15 @@ function Organize-Desktop([string]$destinationFolder = (Join-Path ([Environment]
 
 # Instala dependencias y apps antes de la configuracion; devuelve los fallos confirmados.
 function Invoke-Install($sel, [scriptblock]$onProgress) {
-    $required = @($sel | ForEach-Object { $_.requires })
-    foreach ($app in $sel) {
-        switch ($app.type) {
-            'vboxga' { $required += 'virtualbox' }
-        }
-    }
+    $sel = @(Get-InstallPlan $sel)
+    if ($script:ResumingBatch -and $script:Batch) { $done=@($script:Batch.items | Where-Object state -eq 'done' | ForEach-Object id); $sel=@($sel | Where-Object { $done -notcontains $_.id }) }
+    if (-not $WorkerMode -and -not $script:ResumingBatch) { Start-IwinBatch $sel $(if($UpgradePackages){'upgrade'}else{'install'}) }
+    $script:LastInstallCode = 0
     if (($sel | Where-Object id -eq 'rgboff') -and ($clash = @($sel | Where-Object rgb))) {
-        Write-Log "Aviso: $(($clash | ForEach-Object name) -join ', ') puede volver a encender las luces que apaga «Apagar todas las luces RGB»."
+        Write-Log "Aviso: $(($clash | ForEach-Object name) -join ', ') puede volver a encender las luces."
     }
-    $deps = @($Apps | Where-Object { $required -contains $_.id })
-    $sel = $deps + @($sel | Where-Object { $required -notcontains $_.id })
-    $sel = @($sel | Where-Object type -ne 'download') + @($sel | Where-Object type -eq 'download')
     if (($sel | Where-Object { $_.type -in @('winget', 'wingetall') }) -and -not (Ensure-Winget)) {
-        foreach ($app in $sel) { if ($onProgress) { & $onProgress $app $false } }
+        foreach ($app in $sel) { Complete-IwinItem $app $false $onProgress }
         return $sel
     }
 
@@ -1178,16 +1166,19 @@ function Invoke-Install($sel, [scriptblock]$onProgress) {
         }
     }
     foreach ($app in $sel) {
+        $script:LastInstallCode = 0
+        if (Test-IwinStop) { $fail += $app; Complete-IwinItem $app $false $onProgress; continue }
+        Set-IwinBatchRunning $app
         # Lo que ya está instalado no se vuelve a instalar
         try { $alreadyInstalled = (Test-AppInstalled $app) } catch {
             Write-Log "  No se pudo comprobar $($app.name): $($_.Exception.Message)"
             $fail += $app
-            if ($onProgress) { & $onProgress $app $false }
+            Complete-IwinItem $app $false $onProgress
             continue
         }
         if ($alreadyInstalled -and -not $UpgradePackages) {
             Write-Log "Ya instalada, se omite: $($app.name)"
-            if ($onProgress) { & $onProgress $app $true }
+            Complete-IwinItem $app $true $onProgress
             continue
         }
         Write-Log "Instalando $($app.name)..."
@@ -1210,7 +1201,7 @@ function Invoke-Install($sel, [scriptblock]$onProgress) {
             }
         } catch { Write-Log "  Error: $($_.Exception.Message)"; $ok = $false }
         if ($ok) { Write-Log "  OK: $($app.name)" } else { Write-Log "  FALLÓ: $($app.name)"; $fail += $app }
-        if ($onProgress) { & $onProgress $app $ok }
+        Complete-IwinItem $app $ok $onProgress
     }
     Organize-Desktop
     if ($fail) {
@@ -1279,11 +1270,14 @@ function Test-StillInstalled($app) {
     if (Test-LocalApp $app) { return $true }
     # Sin rastro en el inventario local: winget confirma que su paquete ya no figura
     $source = if ($app.source) { $app.source } else { 'winget' }
-    (Invoke-Winget @('list', '-e', '--id', $app.winget, '--source', $source, '--disable-interactivity', '--accept-source-agreements') ($app.id + '-verificar') 45) -eq 0
+    $code = Invoke-Winget @('list', '-e', '--id', $app.winget, '--source', $source, '--disable-interactivity', '--accept-source-agreements') ($app.id + '-verificar') 45
+    if ($code -eq 0) { return $true }
+    if ($code -eq -1978335212) { return $false }
+    throw 'No se pudo comprobar la desinstalación. No se considera ausente; comprueba la conexión y vuelve a verificar.'
 }
 
 function Uninstall-App($app) {
-    if ($app.type -eq 'tweak') { return ((Uninstall-Tweak $app.id) -and -not (Test-Tweak $app.id)) }
+    if ($app.type -eq 'tweak') { return (Uninstall-Tweak $app.id) }
     if ($app.type -eq 'winget') {
         $source = if ($app.source) { $app.source } else { 'winget' }
         $code = Invoke-Winget @('uninstall', '-e', '--id', $app.winget, '--source', $source, '--silent', '--disable-interactivity', '--accept-source-agreements') $app.id
@@ -1299,12 +1293,14 @@ function Uninstall-App($app) {
 
 # Mismo reparto que la instalación: un lote de administrador y otro del usuario de escritorio
 function Invoke-Uninstall($sel, [scriptblock]$onProgress) {
+    if (-not $WorkerMode -and -not $script:ResumingBatch) { Start-IwinBatch $sel 'uninstall' }
+    $script:LastInstallCode = 0
     $skip = @($sel | Where-Object { -not (Test-Uninstallable $_) })
-    foreach ($app in $skip) { Write-Log "No se desinstala desde aquí: $($app.name)"; if ($onProgress) { & $onProgress $app $false } }
+    foreach ($app in $skip) { Write-Log "No se desinstala desde aquí: $($app.name)"; Complete-IwinItem $app $false $onProgress }
     $sel = @($sel | Where-Object { Test-Uninstallable $_ })
     $fail = @($skip)
     if (($sel | Where-Object type -eq 'winget') -and -not (Ensure-Winget)) {
-        foreach ($app in $sel) { if ($onProgress) { & $onProgress $app $false } }
+        foreach ($app in $sel) { Complete-IwinItem $app $false $onProgress }
         return @($fail + $sel)
     }
     Write-Log "Desinstalando $($sel.Count) elementos · registro: $LogFile"
@@ -1325,10 +1321,13 @@ function Invoke-Uninstall($sel, [scriptblock]$onProgress) {
         }
     }
     foreach ($app in $sel) {
+        $script:LastInstallCode = 0
+        if (Test-IwinStop) { $fail += $app; Complete-IwinItem $app $false $onProgress; continue }
+        Set-IwinBatchRunning $app
         try { $present = Test-AppInstalled $app } catch { $present = $true }
         if (-not $present) {
             Write-Log "No estaba instalada: $($app.name)"
-            if ($onProgress) { & $onProgress $app $true }
+            Complete-IwinItem $app $true $onProgress
             continue
         }
         Write-Log "Desinstalando $($app.name)..."
@@ -1337,7 +1336,7 @@ function Invoke-Uninstall($sel, [scriptblock]$onProgress) {
         $ok = $false
         try { $ok = Uninstall-App $app } catch { Write-Log "  Error: $($_.Exception.Message)" }
         if ($ok) { Write-Log "  Desinstalada: $($app.name)" } else { Write-Log "  SIGUE INSTALADA: $($app.name)"; $fail += $app }
-        if ($onProgress) { & $onProgress $app $ok }
+        Complete-IwinItem $app $ok $onProgress
     }
     if ($fail) { Write-Log "Desinstalación terminada con fallos en: $(($fail | ForEach-Object name) -join ', ')" } else { Write-Log 'Desinstalación terminada.' }
     $fail
@@ -1352,12 +1351,41 @@ if ($WorkerMode) {
         $ids = @(Get-Content $PlanFile -Raw -Encoding UTF8 | ConvertFrom-Json | ForEach-Object { $_ })
         $selection = @($Apps | Where-Object { $ids -contains $_.id })
         if ($selection.Count -ne @($ids | Select-Object -Unique).Count -or ($selection | Where-Object { $_.type -notin @('winget', 'wingetall', 'tweak') -or (Get-InstallContext $_) -ne $WorkerMode })) { throw 'El lote contiene operaciones no permitidas.' }
-        $report = { param($app,$ok) Write-WorkerEvent @{id=$app.id; ok=[bool]$ok} }
+        $report = { param($app,$ok) Write-WorkerEvent @{id=$app.id; ok=[bool]$ok; code=$script:LastInstallCode} }
         $fail = if ($RemovePackages) { @(Invoke-Uninstall $selection $report) } else { @(Invoke-Install $selection $report) }
         $exitCode = $fail.Count
     } catch { Write-Log "Error del lote: $($_.Exception.Message)"; $exitCode=1 }
     Write-WorkerEvent @{done=$true; exitCode=$exitCode}
     exit $exitCode
+}
+
+function Resume-IwinBatch($pending, [scriptblock]$onProgress) {
+    if (-not $pending) { throw 'No hay lotes pendientes.' }
+    $script:Batch=$pending.Data; $script:BatchPath=$pending.Path
+    $script:ResumingBatch=$true; $script:StopRequested=$false
+    $priorUpgrade=$UpgradePackages
+    $script:UpgradePackages=$script:Batch.operation -eq 'upgrade'
+    try {
+        $ids=@($script:Batch.items | Where-Object state -ne 'done' | ForEach-Object id)
+        $selection=@($Apps | Where-Object { $ids -contains $_.id })
+        if ($script:Batch.operation -eq 'uninstall') { Invoke-Uninstall $selection $onProgress }
+        else { Invoke-Install $selection $onProgress }
+    } finally { $script:ResumingBatch=$false; $script:UpgradePackages=$priorUpgrade }
+}
+if ($Resume) {
+    $pending=Get-IwinPendingBatches | Select-Object -First 1
+    if (-not $pending) { Write-Log 'No hay lotes pendientes.'; exit 0 }
+    $fail=@(Resume-IwinBatch $pending $null)
+    exit $fail.Count
+}
+
+if ($AutoUpdate) {
+    try {
+        $prefsPath=Join-Path $LogDir 'preferencias.json'
+        if(-not (Test-Path $prefsPath) -or -not (Get-Content $prefsPath -Raw -Encoding UTF8 | ConvertFrom-Json).autoUpdate){exit 0}
+        if(Test-IwinAppOpen){Write-Log 'Actualización pospuesta: iWinInstaller está abierto.';exit 0}
+        if(Update-Self){exit 0}else{exit 1}
+    }catch{Write-Log "Actualización pendiente: $($_.Exception.Message)";exit 1}
 }
 
 # ---------- Modos sin ventana ----------
@@ -1444,7 +1472,7 @@ public class IwinApp : INotifyPropertyChanged {
     public bool ShowOpen { get { return i && CanOpen; } }
     public bool NeedsConfiguration { get; set; }
     bool configured; public bool Configured { get { return configured; } set { configured = value; N("Configured"); N("Configuration"); } }
-    public string Configuration { get { return !Installed || !NeedsConfiguration ? "" : configured ? "Configuración confirmada por ti" : "Por configurar · sesión sin comprobar"; } }
+    public string Configuration { get { return !Installed || !NeedsConfiguration ? "" : configured ? "Configuración confirmada por ti" : "Después de instalar · pasos pendientes"; } }
     string s = ""; public string Status { get { return s; } set { s = value; N("Status"); } }
     string k = "none"; public string StatusKind { get { return k; } set { k = value; N("StatusKind"); } }
 }
@@ -1538,7 +1566,7 @@ $ButtonStyles = @'
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Opacity" Value="0.88"/></Trigger>
               <Trigger Property="IsPressed" Value="True"><Setter TargetName="b" Property="Opacity" Value="0.7"/></Trigger>
-              <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="b" Property="BorderBrush" Value="#BEACFF"/></Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="b" Property="BorderBrush" Value="#8CC4FF"/></Trigger>
               <Trigger Property="IsEnabled" Value="False"><Setter TargetName="b" Property="Opacity" Value="0.4"/></Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
@@ -1546,8 +1574,8 @@ $ButtonStyles = @'
       </Setter>
     </Style>
     <Style x:Key="Primary" TargetType="Button" BasedOn="{StaticResource Btn}">
-      <Setter Property="Background" Value="#BEACFF"/>
-      <Setter Property="BorderBrush" Value="#BEACFF"/>
+      <Setter Property="Background" Value="#8CC4FF"/>
+      <Setter Property="BorderBrush" Value="#8CC4FF"/>
       <Setter Property="Foreground" Value="#0B0B0F"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
@@ -1575,12 +1603,42 @@ $ButtonStyles = @'
         WindowStartupLocation="CenterScreen" Background="#0F0F13" Foreground="#EDEDF2"
         FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="13" UseLayoutRounding="True">
   <Window.Resources>
-    <SolidColorBrush x:Key="Panel" Color="#141419"/>
-    <SolidColorBrush x:Key="Card" Color="#1A1A21"/>
-    <SolidColorBrush x:Key="Line" Color="#26262F"/>
-    <SolidColorBrush x:Key="Muted" Color="#9494A0"/>
-    <SolidColorBrush x:Key="Faint" Color="#63636E"/>
-    <SolidColorBrush x:Key="Accent" Color="#BEACFF"/>
+    <Style x:Key="AfterExpander" TargetType="Expander">
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="Template"><Setter.Value>
+        <ControlTemplate TargetType="Expander">
+          <Border BorderBrush="#2B2B30" BorderThickness="0,0,0,1" Margin="0,0,0,4">
+            <StackPanel>
+              <ToggleButton IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" HorizontalContentAlignment="Stretch" Padding="0,14" Foreground="#F5F5F7">
+                <ToggleButton.Template><ControlTemplate TargetType="ToggleButton">
+                  <Border x:Name="hover" Background="Transparent" Padding="{TemplateBinding Padding}" CornerRadius="8">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="28"/></Grid.ColumnDefinitions>
+                      <ContentPresenter/>
+                      <Path x:Name="arrow" Grid.Column="1" Data="M1,1 L6,6 L1,11" Stroke="#ADADB5" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"><Path.RenderTransform><RotateTransform Angle="0"/></Path.RenderTransform></Path>
+                    </Grid>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="hover" Property="Background" Value="#19191D"/></Trigger>
+                    <Trigger Property="IsPressed" Value="True"><Setter TargetName="hover" Property="Background" Value="#26262C"/></Trigger>
+                    <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="hover" Property="BorderBrush" Value="#8CC4FF"/><Setter TargetName="hover" Property="BorderThickness" Value="1"/></Trigger>
+                    <Trigger Property="IsChecked" Value="True"><Setter TargetName="arrow" Property="RenderTransform"><Setter.Value><RotateTransform Angle="90"/></Setter.Value></Setter></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate></ToggleButton.Template>
+                <ContentPresenter Content="{TemplateBinding Header}"/>
+              </ToggleButton>
+              <ContentPresenter x:Name="body" Content="{TemplateBinding Content}" Visibility="Collapsed"/>
+            </StackPanel>
+          </Border>
+          <ControlTemplate.Triggers><Trigger Property="IsExpanded" Value="True"><Setter TargetName="body" Property="Visibility" Value="Visible"/></Trigger></ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value></Setter>
+    </Style>
+    <SolidColorBrush x:Key="Panel" Color="#111113"/>
+    <SolidColorBrush x:Key="Card" Color="#19191C"/>
+    <SolidColorBrush x:Key="Line" Color="#2B2B30"/>
+    <SolidColorBrush x:Key="Muted" Color="#ADADB5"/>
+    <SolidColorBrush x:Key="Faint" Color="#8B8B95"/>
+    <SolidColorBrush x:Key="Accent" Color="#8CC4FF"/>
     <BooleanToVisibilityConverter x:Key="Vis"/>
 
     <!-- Barras de desplazamiento finas y oscuras: las de serie son claras y anchas -->
@@ -1591,7 +1649,7 @@ $ButtonStyles = @'
             <Border x:Name="t" Background="#3A3A46" CornerRadius="4"/>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="t" Property="Background" Value="#565668"/></Trigger>
-              <Trigger Property="IsDragging" Value="True"><Setter TargetName="t" Property="Background" Value="#BEACFF"/></Trigger>
+              <Trigger Property="IsDragging" Value="True"><Setter TargetName="t" Property="Background" Value="#8CC4FF"/></Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
@@ -1648,7 +1706,7 @@ $ButtonStyles = @'
             <Border x:Name="row" CornerRadius="6" Padding="12,8" Margin="2" Background="Transparent">
               <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="22"/></Grid.ColumnDefinitions>
                 <ContentPresenter/>
-                <TextBlock x:Name="mark" Grid.Column="1" Text="✓" Foreground="#BEACFF" Visibility="Hidden" HorizontalAlignment="Right"/>
+                <TextBlock x:Name="mark" Grid.Column="1" Text="✓" Foreground="#8CC4FF" Visibility="Hidden" HorizontalAlignment="Right"/>
               </Grid>
             </Border>
             <ControlTemplate.Triggers>
@@ -1673,19 +1731,19 @@ $ButtonStyles = @'
                             IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                 <ToggleButton.Template>
                   <ControlTemplate TargetType="ToggleButton">
-                    <Border x:Name="surface" Background="#1A1A21" BorderBrush="#33333D" BorderThickness="1" CornerRadius="8">
+                    <Border x:Name="surface" Background="#19191C" BorderBrush="#33333D" BorderThickness="1" CornerRadius="8">
                       <Path Data="M0,0 L4,4 L8,0" Stroke="#C8C8D0" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"/>
                     </Border>
                     <ControlTemplate.Triggers>
                       <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="surface" Property="Background" Value="#22222A"/></Trigger>
-                      <Trigger Property="IsPressed" Value="True"><Setter TargetName="surface" Property="Background" Value="#2C263D"/></Trigger>
-                      <Trigger Property="IsChecked" Value="True"><Setter TargetName="surface" Property="BorderBrush" Value="#BEACFF"/></Trigger>
+                      <Trigger Property="IsPressed" Value="True"><Setter TargetName="surface" Property="Background" Value="#23344A"/></Trigger>
+                      <Trigger Property="IsChecked" Value="True"><Setter TargetName="surface" Property="BorderBrush" Value="#8CC4FF"/></Trigger>
                     </ControlTemplate.Triggers>
                   </ControlTemplate>
                 </ToggleButton.Template>
               </ToggleButton>
               <ContentPresenter Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" Margin="12,0,34,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
-              <Border x:Name="focus" BorderBrush="#BEACFF" BorderThickness="2" CornerRadius="8" Visibility="Collapsed" IsHitTestVisible="False"/>
+              <Border x:Name="focus" BorderBrush="#8CC4FF" BorderThickness="2" CornerRadius="8" Visibility="Collapsed" IsHitTestVisible="False"/>
               <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True" Focusable="False" IsOpen="{TemplateBinding IsDropDownOpen}">
                 <Border Background="#111115" BorderBrush="#41414B" BorderThickness="1" CornerRadius="10" Padding="4" Margin="0,6,0,0" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
                   <ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer>
@@ -1722,7 +1780,7 @@ $ButtonStyles = @'
     </Style>
 <!--BOTONES-->
     <Style x:Key="Chip" TargetType="RadioButton">
-      <Setter Property="Foreground" Value="#9494A0"/>
+      <Setter Property="Foreground" Value="#ADADB5"/>
       <Setter Property="Margin" Value="0,0,6,6"/>
       <Setter Property="Cursor" Value="Hand"/>
       <Setter Property="Template">
@@ -1734,8 +1792,8 @@ $ButtonStyles = @'
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#1C1C24"/></Trigger>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="b" Property="Background" Value="#2A2440"/>
-                <Setter TargetName="b" Property="BorderBrush" Value="#BEACFF"/>
+                <Setter TargetName="b" Property="Background" Value="#182536"/>
+                <Setter TargetName="b" Property="BorderBrush" Value="#8CC4FF"/>
                 <Setter Property="Foreground" Value="#EDEDF2"/>
               </Trigger>
             </ControlTemplate.Triggers>
@@ -1754,8 +1812,8 @@ $ButtonStyles = @'
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="box" Property="BorderBrush" Value="#8C80C0"/></Trigger>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="box" Property="Background" Value="#BEACFF"/>
-                <Setter TargetName="box" Property="BorderBrush" Value="#BEACFF"/>
+                <Setter TargetName="box" Property="Background" Value="#8CC4FF"/>
+                <Setter TargetName="box" Property="BorderBrush" Value="#8CC4FF"/>
                 <Setter TargetName="tick" Property="Visibility" Value="Visible"/>
               </Trigger>
             </ControlTemplate.Triggers>
@@ -1773,7 +1831,7 @@ $ButtonStyles = @'
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#1C1C24"/></Trigger>
-              <Trigger Property="IsSelected" Value="True"><Setter TargetName="b" Property="Background" Value="#2A2440"/></Trigger>
+              <Trigger Property="IsSelected" Value="True"><Setter TargetName="b" Property="Background" Value="#182536"/></Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
@@ -1814,7 +1872,7 @@ $ButtonStyles = @'
           <Grid>
             <TextBlock Text="&#xE721;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Foreground="{StaticResource Faint}" VerticalAlignment="Center" Margin="12,0,0,0" IsHitTestVisible="False"/>
             <TextBlock x:Name="SearchHint" Text="Buscar aplicaciones (Ctrl + F)" Foreground="{StaticResource Faint}" VerticalAlignment="Center" Margin="36,0,8,0" IsHitTestVisible="False" TextTrimming="CharacterEllipsis"/>
-            <TextBox x:Name="Search" Background="Transparent" BorderThickness="0" Foreground="#EDEDF2" CaretBrush="#BEACFF" VerticalContentAlignment="Center" Padding="32,0,10,0" FontSize="14">
+            <TextBox x:Name="Search" Background="Transparent" BorderThickness="0" Foreground="#EDEDF2" CaretBrush="#8CC4FF" VerticalContentAlignment="Center" Padding="32,0,10,0" FontSize="14">
               <TextBox.ContextMenu>
                 <ContextMenu Style="{StaticResource TextMenu}">
                   <MenuItem Header="Cortar" Command="ApplicationCommands.Cut"/>
@@ -1871,7 +1929,7 @@ $ButtonStyles = @'
                 <DataTemplate.Triggers>
                   <DataTrigger Binding="{Binding Kind}" Value="section">
                     <Setter TargetName="row" Property="Margin" Value="0,10,0,0"/>
-                    <Setter TargetName="label" Property="Foreground" Value="#BEACFF"/>
+                    <Setter TargetName="label" Property="Foreground" Value="#8CC4FF"/>
                     <Setter TargetName="label" Property="FontWeight" Value="SemiBold"/>
                     <Setter TargetName="label" Property="FontSize" Value="12"/>
                   </DataTrigger>
@@ -1924,7 +1982,7 @@ $ButtonStyles = @'
             <GroupStyle>
               <GroupStyle.HeaderTemplate>
                 <DataTemplate>
-                  <TextBlock Text="{Binding Name}" Foreground="#BEACFF" FontSize="12" FontWeight="SemiBold" Margin="10,16,0,6"/>
+                  <TextBlock Text="{Binding Name}" Foreground="#8CC4FF" FontSize="12" FontWeight="SemiBold" Margin="10,16,0,6"/>
                 </DataTemplate>
               </GroupStyle.HeaderTemplate>
             </GroupStyle>
@@ -1934,13 +1992,13 @@ $ButtonStyles = @'
               <Setter Property="Template">
                 <Setter.Value>
                   <ControlTemplate TargetType="ListBoxItem">
-                    <Border x:Name="card" Background="#1A1A21" CornerRadius="10" Padding="12,9" Margin="6,2" BorderThickness="1" BorderBrush="#202029">
+                    <Border x:Name="card" Background="#19191C" CornerRadius="10" Padding="12,9" Margin="6,2" BorderThickness="1" BorderBrush="#29292E">
                       <ContentPresenter/>
                     </Border>
                     <ControlTemplate.Triggers>
-                      <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="card" Property="Background" Value="#20202A"/></Trigger>
+                      <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="card" Property="Background" Value="#222227"/></Trigger>
                       <Trigger Property="IsSelected" Value="True"><Setter TargetName="card" Property="BorderBrush" Value="#3A3A48"/></Trigger>
-                      <DataTrigger Binding="{Binding Checked}" Value="True"><Setter TargetName="card" Property="BorderBrush" Value="#6A5AA8"/></DataTrigger>
+                      <DataTrigger Binding="{Binding Checked}" Value="True"><Setter TargetName="card" Property="BorderBrush" Value="#3D82C4"/></DataTrigger>
                     </ControlTemplate.Triggers>
                   </ControlTemplate>
                 </Setter.Value>
@@ -1957,10 +2015,10 @@ $ButtonStyles = @'
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <CheckBox Grid.Column="0" Style="{StaticResource Check}" IsChecked="{Binding Checked, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <Border Grid.Column="1" Width="36" Height="36" CornerRadius="9" Background="#2A2440" Margin="0,0,12,0" VerticalAlignment="Center">
+                <Border Grid.Column="1" Width="36" Height="36" CornerRadius="9" Background="#182536" Margin="0,0,12,0" VerticalAlignment="Center">
                   <Grid>
-                    <TextBlock x:Name="ini" Text="{Binding Initials}" Foreground="#BEACFF" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="gly" Text="{Binding Glyph}" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="17" Foreground="#BEACFF" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                    <TextBlock x:Name="ini" Text="{Binding Initials}" Foreground="#8CC4FF" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="gly" Text="{Binding Glyph}" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="17" Foreground="#8CC4FF" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
                     <Border x:Name="pic" Width="28" Height="28" CornerRadius="7" Background="#F2F2F5" Visibility="Collapsed">
                       <Image Source="{Binding Image}" Width="20" Height="20" RenderOptions.BitmapScalingMode="HighQuality" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
@@ -1973,13 +2031,14 @@ $ButtonStyles = @'
                     </Border>
                     <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="#EDEDF2" TextTrimming="CharacterEllipsis"/>
                   </DockPanel>
-                  <TextBlock Text="{Binding Desc}" Foreground="#9494A0" TextWrapping="Wrap" Margin="0,1,0,0"/>
-                  <TextBlock x:Name="config" Text="{Binding Configuration}" Foreground="#BEACFF" TextWrapping="Wrap" FontSize="11" Margin="0,3,0,0"/>
+                  <TextBlock Text="{Binding Desc}" Foreground="#ADADB5" TextWrapping="Wrap" Margin="0,1,0,0"/>
+                  <TextBlock x:Name="config" Text="{Binding Configuration}" Foreground="#8CC4FF" TextWrapping="Wrap" FontSize="11" Margin="0,3,0,0"/>
                 </StackPanel>
-                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Center" MaxWidth="145">
                   <Border x:Name="badge" CornerRadius="10" Padding="10,3" VerticalAlignment="Center" Background="Transparent">
-                    <TextBlock x:Name="badgeText" Text="{Binding Status}" FontSize="12" Foreground="#9494A0"/>
+                    <TextBlock x:Name="badgeText" Text="{Binding Status}" FontSize="12" Foreground="#ADADB5"/>
                   </Border>
+                  <Button Tag="setup" Style="{StaticResource Ghost}" Content="Pasos y notas" Visibility="{Binding NeedsConfiguration, Converter={StaticResource Vis}}" ToolTip="Qué falta configurar y cómo comprobarlo"/>
                   <Button Tag="open" Style="{StaticResource Ghost}" Content="{Binding OpenLabel}" Margin="4,0,0,0" Visibility="{Binding ShowOpen, Converter={StaticResource Vis}}" ToolTip="Abre la aplicación"/>
                   <Button Tag="uninstall" Style="{StaticResource GhostDanger}" Content="{Binding UninstallLabel}" Margin="2,0,0,0" Visibility="{Binding ShowUninstall, Converter={StaticResource Vis}}" ToolTip="Quitar de este PC (pide confirmación)"/>
                 </StackPanel>
@@ -2005,8 +2064,8 @@ $ButtonStyles = @'
                   <Setter TargetName="badgeText" Property="Foreground" Value="#FF7878"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding StatusKind}" Value="busy">
-                  <Setter TargetName="badge" Property="Background" Value="#2A2440"/>
-                  <Setter TargetName="badgeText" Property="Foreground" Value="#BEACFF"/>
+                  <Setter TargetName="badge" Property="Background" Value="#182536"/>
+                  <Setter TargetName="badgeText" Property="Foreground" Value="#8CC4FF"/>
                 </DataTrigger>
               </DataTemplate.Triggers>
             </DataTemplate>
@@ -2014,6 +2073,23 @@ $ButtonStyles = @'
         </ListBox>
       </Grid>
     </Grid>
+
+    <Border x:Name="AfterPanel" Grid.Row="1" Panel.ZIndex="10" Background="#08080A" CornerRadius="18" Margin="12,4,12,8" BorderBrush="#303034" BorderThickness="1" Visibility="Collapsed">
+      <Grid Margin="20,16">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,14">
+          <TextBlock Text="Después de instalar" FontSize="24" FontWeight="SemiBold" Foreground="#F5F5F7"/>
+          <TextBlock x:Name="AfterSummary" TextWrapping="Wrap" Foreground="#ADADB5" Margin="0,6,0,12"/>
+          <WrapPanel>
+            <Button x:Name="AfterCheckAll" Style="{StaticResource Primary}" Content="Comprobar todo" Margin="0,0,8,6"/>
+            <Button x:Name="AfterBack" Style="{StaticResource Btn}" Content="Volver al catálogo" Margin="0,0,0,6"/>
+          </WrapPanel>
+        </StackPanel>
+        <ScrollViewer x:Name="AfterScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <StackPanel x:Name="AfterRows"/>
+        </ScrollViewer>
+      </Grid>
+    </Border>
 
     <!-- Barra inferior: actividad, estado y acciones -->
     <Border Grid.Row="2" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0">
@@ -2028,7 +2104,7 @@ $ButtonStyles = @'
         <StackPanel Grid.Row="1">
           <TextBlock x:Name="StatusText" Text="Elige las aplicaciones. Los accesos del escritorio se agrupan al terminar." Foreground="{StaticResource Muted}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="36"
                      ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
-          <ProgressBar x:Name="Bar" Height="4" Margin="0,8,0,0" Background="#24242C" Foreground="#BEACFF" BorderThickness="0"/>
+          <ProgressBar x:Name="Bar" Height="4" Margin="0,8,0,0" Background="#24242C" Foreground="#8CC4FF" BorderThickness="0"/>
         </StackPanel>
         <WrapPanel Grid.Row="2" HorizontalAlignment="Right" Margin="0,8,0,0">
           <!-- En ventanas pequeñas las acciones secundarias pasan a este menú -->
@@ -2038,12 +2114,19 @@ $ButtonStyles = @'
                 <MenuItem x:Name="MLog" Header="Mostrar actividad"/>
                 <MenuItem x:Name="MExport" Header="Exportar diagnóstico"/>
                 <MenuItem x:Name="MUpdate" Header="Actualizar todo"/>
+                <MenuItem x:Name="MAppUpdate" Header="Buscar nueva versión de iWinInstaller"/>
+                <MenuItem x:Name="MAutoUpdate" Header="Actualizar iWinInstaller automáticamente" IsCheckable="True" ToolTip="Comprueba GitHub al abrir, al iniciar sesión y cada día; no actualiza otras aplicaciones"/>
+                <MenuItem x:Name="MAfter" Header="Después de instalar…"/>
+                <MenuItem x:Name="MResume" Header="Reanudar lote pendiente…"/>
               </ContextMenu>
             </Button.ContextMenu>
           </Button>
           <Button x:Name="LogToggle" Style="{StaticResource Ghost}" Content="Mostrar actividad" Margin="0,4,6,0"/>
           <Button x:Name="BtnExport" Style="{StaticResource Btn}" Content="Exportar diagnóstico" Margin="0,4,6,0"/>
           <Button x:Name="BtnUpdate" Style="{StaticResource Btn}" Content="Actualizar todo" Margin="0,4,6,0"/>
+          <Button x:Name="BtnResume" Style="{StaticResource Btn}" Content="Reanudar lote" Margin="0,4,6,0" Visibility="Collapsed"/>
+          <Button x:Name="BtnCancel" Style="{StaticResource Btn}" Content="Pausar al terminar esta app" Margin="0,4,6,0" Visibility="Collapsed"/>
+          <Button x:Name="BtnAfter" Style="{StaticResource Btn}" Content="Después de instalar" Margin="0,4,6,0"/>
           <Button x:Name="BtnVerify" Style="{StaticResource Btn}" Content="Verificar" Margin="0,4,6,0"/>
           <Button x:Name="BtnRemove" Style="{StaticResource Danger}" Content="Desinstalar" Margin="0,4,6,0" Visibility="Collapsed"/>
           <Button x:Name="BtnInstall" Style="{StaticResource Primary}" Content="Instalar" MinWidth="150" Margin="0,4,0,0"/>
@@ -2077,8 +2160,8 @@ $dialogXaml = @'
             </StackPanel>
             <ControlTemplate.Triggers>
               <Trigger Property="IsChecked" Value="True">
-                <Setter TargetName="box" Property="Background" Value="#BEACFF"/>
-                <Setter TargetName="box" Property="BorderBrush" Value="#BEACFF"/>
+                <Setter TargetName="box" Property="Background" Value="#8CC4FF"/>
+                <Setter TargetName="box" Property="BorderBrush" Value="#8CC4FF"/>
                 <Setter TargetName="tick" Property="Visibility" Value="Visible"/>
               </Trigger>
             </ControlTemplate.Triggers>
@@ -2087,15 +2170,15 @@ $dialogXaml = @'
       </Setter>
     </Style>
   </Window.Resources>
-  <Border x:Name="Frame" Background="#16161C" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="12" Padding="22,18,22,18" Margin="12">
-    <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="0" Opacity="0.6"/></Border.Effect>
+  <Border x:Name="Frame" Background="#18181B" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="12" Padding="22,18,22,18" Margin="12">
+    <Border.Effect><DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.6"/></Border.Effect>
     <StackPanel Width="420">
       <TextBlock x:Name="DTitle" FontSize="17" FontWeight="SemiBold" TextWrapping="Wrap"/>
       <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto" Margin="0,8,0,0">
         <TextBlock x:Name="DText" Foreground="#A4A4B0" TextWrapping="Wrap"/>
       </ScrollViewer>
       <Border x:Name="DInputFrame" Background="#1E1E26" BorderBrush="#33333D" BorderThickness="1" CornerRadius="8" Height="36" Margin="0,14,0,0" Visibility="Collapsed">
-        <TextBox x:Name="DInput" Background="Transparent" BorderThickness="0" Foreground="#EDEDF2" CaretBrush="#BEACFF" VerticalContentAlignment="Center" Padding="8,0" FontSize="14"/>
+        <TextBox x:Name="DInput" Background="Transparent" BorderThickness="0" Foreground="#EDEDF2" CaretBrush="#8CC4FF" VerticalContentAlignment="Center" Padding="8,0" FontSize="14"/>
       </Border>
       <CheckBox x:Name="DCheck" Style="{StaticResource CheckLabel}" Margin="0,12,0,0" Visibility="Collapsed"/>
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
@@ -2142,7 +2225,7 @@ function Set-Status($text) { $ui.StatusText.Text = $text; Invoke-UiPump }
 
 # ---- Preferencias de la ventana (zoom, actividad y barra lateral), solo en este equipo ----
 $PrefsFile = Join-Path $LogDir 'preferencias.json'
-$Prefs = @{ zoom = 1.0; actividad = $false; secciones = $true }
+$Prefs = @{ zoom = 1.0; actividad = $false; secciones = $true; autoUpdate = $false }
 $PrefsSaved = $false
 if (Test-Path $PrefsFile) {
     try {
@@ -2150,6 +2233,7 @@ if (Test-Path $PrefsFile) {
         if ($saved.zoom -is [double] -or $saved.zoom -is [int] -or $saved.zoom -is [decimal]) { $Prefs.zoom = [double]$saved.zoom; $PrefsSaved = $true }
         if ($saved.actividad -is [bool]) { $Prefs.actividad = $saved.actividad }
         if ($saved.secciones -is [bool]) { $Prefs.secciones = $saved.secciones }
+        if ($saved.autoUpdate -is [bool]) { $Prefs.autoUpdate = $saved.autoUpdate }
     } catch { }
 }
 function Save-Prefs {
@@ -2183,7 +2267,8 @@ function Update-Layout {
     $compact = $height -lt 640 -or $width -lt 900
     $secondary = if ($compact) { 'Collapsed' } else { 'Visible' }
     foreach ($name in 'LogToggle', 'BtnExport', 'BtnUpdate') { $ui[$name].Visibility = $secondary }
-    $ui.BtnMore.Visibility = if ($compact) { 'Visible' } else { 'Collapsed' }
+    $ui.BtnMore.Visibility = 'Visible'
+    if ($compact -and $ui.BtnResume.Visibility -eq 'Visible') { $ui.BtnResume.Visibility='Collapsed' }
     $ui.Heading.FontSize = if ($compact) { 18 } else { 22 }
 }
 function Set-Zoom([double]$value) {
@@ -2261,6 +2346,13 @@ if (Test-Path $ConfigFile) {
         foreach ($property in $saved.PSObject.Properties) { if ($property.Value -is [bool]) { $ConfiguredApps[$property.Name] = $property.Value } }
     } catch { Write-Log 'No se pudo leer el seguimiento de configuracion anterior.' }
 }
+$script:PostInstallReadOnly=$false
+try{$script:PostInstallState=Get-PostInstallState}catch{$script:PostInstallState=@{};$script:PostInstallReadOnly=$true}
+foreach($app in $Apps){
+    if($ConfiguredApps[$app.id] -and $app.postInstall -and -not $script:PostInstallState.ContainsKey($app.id)){
+        $script:PostInstallState[$app.id]=@{steps=@(0..(@($app.postInstall.steps).Count-1));note='Pasos confirmados manualmente antes de v3.2. Vuelve a comprobar el estado técnico.'}
+    }
+}
 # ---- Catálogo ----
 $items = New-Object 'System.Collections.ObjectModel.ObservableCollection[IwinApp]'
 $byId = @{}
@@ -2271,7 +2363,7 @@ foreach ($app in $Apps) {
     $it.Initials = if ($words.Count -ge 2) { ($words[0].Substring(0, 1) + $words[1].Substring(0, 1)).ToUpper() } else { $app.name.Substring(0, [Math]::Min(2, $app.name.Length)) }
     $it.IconSpec = $app.icon
     if ("$($app.icon)" -match '^glyph:([0-9A-Fa-f]{4})$') { $it.Glyph = [string][char][Convert]::ToInt32($Matches[1], 16) }
-    $it.NeedsConfiguration = [bool]$app.configure
+    $it.NeedsConfiguration = [bool]($app.configure -or $app.postInstall)
     $it.Configured = [bool]$ConfiguredApps[$app.id]
     $it.Optional = Test-Optional $app
     $it.IsTweak = $app.type -eq 'tweak'
@@ -2479,11 +2571,12 @@ function Switch-Configured($item) {
     Update-Filter
 }
 
-function Set-Busy($busy) {
+function Set-Busy($busy, [bool]$CanPause = $false) {
     $script:Busy = $busy
-    foreach ($b in 'BtnInstall', 'BtnVerify', 'BtnUpdate', 'MUpdate', 'BtnRemove', 'Profile', 'ProfileSave', 'ProfileImport') { $ui[$b].IsEnabled = -not $busy }
+    foreach ($b in 'BtnInstall', 'BtnVerify', 'BtnUpdate', 'MUpdate', 'MAppUpdate', 'MAutoUpdate', 'BtnRemove', 'BtnResume', 'MResume', 'AfterCheckAll', 'Profile', 'ProfileSave', 'ProfileImport') { $ui[$b].IsEnabled = -not $busy }
     $win.Cursor = if ($busy) { [Windows.Input.Cursors]::AppStarting } else { $null }
-    if (-not $busy) { Update-Count }
+    $ui.BtnCancel.Visibility = if ($busy -and $CanPause) { 'Visible' } else { 'Collapsed' }
+    if (-not $busy) { Update-Count; Update-IwinRecoveryUi }
 }
 
 # Desinstala con confirmación; se puede pedir desde la fila, el menú, la tecla Supr o lo marcado
@@ -2494,17 +2587,17 @@ function Start-Uninstall($targets) {
     $list = ($targets | ForEach-Object { '•  ' + $_.Name }) -join "`n"
     $onlyTweaks = @($targets | Where-Object IsTweak).Count -eq $targets.Count
     $title = if ($targets.Count -eq 1) { "¿$($targets[0].UninstallLabel) $($targets[0].Name)?" } else { "¿Desinstalar $($targets.Count) elementos?" }
-    $text = if ($onlyTweaks) { "Se vuelve al valor de Windows:`n$list" } else { "Se quita de este PC:`n$list`n`nSe usa el desinstalador oficial de cada aplicación; algunas abren su propio asistente. Tus documentos no se borran salvo que ese asistente lo pregunte." }
+    $text = if ($onlyTweaks) { "Se recuperan los valores guardados antes del cambio (desde v3.2):`n$list" } else { "Se quita de este PC:`n$list`n`nSe usa el desinstalador oficial de cada aplicación; algunas abren su propio asistente. Tus documentos no se borran salvo que ese asistente lo pregunte." }
     $okText = if ($onlyTweaks) { 'Deshacer' } else { 'Desinstalar' }
     if (-not (Show-IwinDialog -Title $title -Text $text -Ok $okText -Danger).Ok) { return }
     $sel = @($Apps | Where-Object { $targets.Id -contains $_.id })
-    Set-Busy $true; Show-Log $true
+    Set-Busy $true $true; Show-Log $true
     $ui.Bar.Maximum = $sel.Count; $ui.Bar.Value = 0
     foreach ($a in $sel) { $byId[$a.id].Status = 'En cola'; $byId[$a.id].StatusKind = 'busy' }
     $fail = @(Invoke-Uninstall $sel {
         param($a, $ok)
         $it = $byId[$a.id]
-        if ($ok) { $it.Installed = $false; $it.Checked = $false; $it.Status = $(if ($it.IsTweak) { 'Deshecho' } else { 'Desinstalada' }); $it.StatusKind = 'none' }
+        if ($ok) { $it.Installed = if($it.IsTweak){Test-Tweak $a.id}else{$false}; $it.Checked = $false; $it.Status = $(if ($it.IsTweak) { 'Deshecho' } else { 'Desinstalada' }); $it.StatusKind = 'none' }
         else { $it.Status = 'Sigue instalada'; $it.StatusKind = 'bad' }
         if ($ui.Bar.Value -ge $ui.Bar.Maximum) { $ui.Bar.Maximum++ }
         $ui.Bar.Value++
@@ -2522,6 +2615,7 @@ $ui.List.AddHandler([Windows.Controls.Primitives.ButtonBase]::ClickEvent, [Windo
     if (-not ($button -is [Windows.Controls.Button]) -or -not $button.Tag) { return }
     $item = $button.DataContext
     switch ([string]$button.Tag) {
+        'setup' { Show-AfterInstall $item.Id }
         'open' { Open-AppItem $item }
         'uninstall' { Start-Uninstall @($item) }
     }
@@ -2536,14 +2630,14 @@ $ui.List.Add_ContextMenuOpening({
     & $show $ui.MOpen $item.ShowOpen
     $ui.MOpen.Header = $item.OpenLabel
     & $show $ui.MConfigured ($item.Installed -and $item.NeedsConfiguration)
-    $ui.MConfigured.Header = if ($item.Configured) { 'Marcar configuración pendiente' } else { 'Marcar como configurada' }
+    $ui.MConfigured.Header = 'Pasos, notas y comprobación…'
     & $show $ui.MUninstall $item.ShowUninstall
     $ui.MUninstall.IsEnabled = -not $script:Busy
     $ui.MUninstall.Header = "$($item.UninstallLabel)…"
     if (-not ($item.ShowOpen -or $item.ShowUninstall -or ($item.Installed -and $item.NeedsConfiguration))) { $e.Handled = $true }
 })
 $ui.MOpen.Add_Click({ Open-AppItem $ui.List.SelectedItem })
-$ui.MConfigured.Add_Click({ Switch-Configured $ui.List.SelectedItem })
+$ui.MConfigured.Add_Click({ if($ui.List.SelectedItem){Show-AfterInstall $ui.List.SelectedItem.Id} })
 $ui.MUninstall.Add_Click({ Start-Uninstall @($ui.List.SelectedItem) })
 $ui.BtnRemove.Add_Click({ Start-Uninstall @($items | Where-Object { $_.Checked -and $_.Installed -and $_.CanUninstall }) })
 
@@ -2555,6 +2649,7 @@ $win.Add_PreviewKeyDown({
     elseif ($ctrl -and $e.Key -in @('OemMinus', 'Subtract')) { Set-Zoom ($ui.Zoom.ScaleX - 0.1); $e.Handled = $true }
     elseif ($ctrl -and $e.Key -in @('D0', 'NumPad0')) { Set-Zoom 1; $e.Handled = $true }
     elseif ($ctrl -and $e.Key -eq 'F') { [void]$ui.Search.Focus(); $ui.Search.SelectAll(); $e.Handled = $true }
+    elseif ($e.Key -eq 'Escape' -and $ui.AfterPanel.Visibility -eq 'Visible' -and -not $script:Busy) { $ui.AfterBack.RaiseEvent((New-Object Windows.RoutedEventArgs ([Windows.Controls.Button]::ClickEvent)));$e.Handled=$true }
     elseif ($e.Key -eq 'Escape' -and $ui.Search.IsKeyboardFocusWithin -and $ui.Search.Text) { $ui.Search.Text = ''; $e.Handled = $true }
     elseif ($ui.List.IsKeyboardFocusWithin -and $ui.List.SelectedItem) {
         if ($e.Key -eq 'Delete') { Start-Uninstall @($ui.List.SelectedItem); $e.Handled = $true }
@@ -2585,6 +2680,7 @@ function Invoke-Verify([switch]$Quiet) {
     $total = @($Apps | Where-Object { -not (Test-Optional $_) }).Count
     $ok = $total - $missing.Count
     $msg = if ($missing) { "$ok de $total listas. Faltan: $($missing -join ', ')" } else { "Todo listo ($ok/$total)." }
+    if (@(Get-IwinRebootPending).Count) { $msg += ' Hay cambios pendientes de reiniciar.' }
     if (-not $Quiet) { Write-Log "Verificación: $msg" }
     Set-Status $msg
     Update-Nav; Update-Filter
@@ -2594,7 +2690,7 @@ function Invoke-Verify([switch]$Quiet) {
 $ui.BtnVerify.Add_Click({ Invoke-Verify })
 $updateAll = {
     if ($script:Busy) { return }
-    Set-Busy $true; Show-Log $true
+    Set-Busy $true $true; Show-Log $true
     Set-Status 'Actualizando aplicaciones…'
     $ok = Invoke-Update
     Set-Status $(if ($ok) { 'Actualización terminada.' } else { 'Actualización incompleta. Consulta el registro.' })
@@ -2602,26 +2698,242 @@ $updateAll = {
 }
 $ui.BtnUpdate.Add_Click($updateAll)
 $ui.MUpdate.Add_Click($updateAll)
-$ui.BtnInstall.Add_Click({
-    if ($script:Busy) { return }
-    $sel = @($Apps | Where-Object { $byId[$_.id].Checked -and -not $byId[$_.id].Installed })
-    if (-not $sel) { return }
-    Set-Busy $true; Show-Log $true
-    $ui.Bar.Maximum = $sel.Count; $ui.Bar.Value = 0
-    foreach ($a in $sel) { $byId[$a.id].Status = 'En cola'; $byId[$a.id].StatusKind = 'busy' }
-    $fail = @(Invoke-Install $sel {
-        param($a, $ok)
-        $it = $byId[$a.id]
-        if ($ok) { $it.Status = 'Instalada'; $it.StatusKind = 'ok'; $it.Installed = $true; $it.Checked = $false }
-        else { $it.Status = 'Falló'; $it.StatusKind = 'bad'; $it.Checked = $true }
-        if ($ui.Bar.Value -ge $ui.Bar.Maximum) { $ui.Bar.Maximum++ }
-        $ui.Bar.Value++
-        Set-Status "$($a.name) · $(if ($ok) {'Completada'} else {'Falló'}) · $($ui.Bar.Value)/$($ui.Bar.Maximum)"
+function Confirm-IwinPlan($selection, [string]$operation = 'install') {
+    $plan = if ($operation -eq 'uninstall') { @($selection) } else { @(Get-InstallPlan $selection) }
+    $check = if ($operation -eq 'uninstall') { [pscustomobject]@{Ok=$true;Text='Se usará el desinstalador oficial o el estado anterior guardado.'} } else { Get-IwinPreflight $plan }
+    $lines=@($plan | ForEach-Object {
+        $context = if ((Get-InstallContext $_) -eq 'machine') { 'administrador' } else { 'tu usuario' }
+        $extra = if ($_.type -eq 'tweak') { ' · ajuste de Windows' } else { '' }
+        if ($_.restart) { $extra += ' · reinicio o nueva sesión' }
+        "• $($_.name) · $context$extra"
     })
-    # Quedan marcadas solo las que fallaron: pulsar otra vez reintenta solo esas
-    Set-Status $(if ($fail) { "Terminado con $($fail.Count) fallo(s): siguen marcadas para reintentar." } else { 'Instalación terminada. Revisa «Por configurar» para completar tus sesiones.' })
-    Update-Nav
-    Set-Busy $false
+    $title = if($operation -eq 'uninstall'){'Antes de reanudar la desinstalación'}else{'Antes de instalar'}
+    $body = $check.Text + "`n`n" + ($lines -join "`n") + "`n`nPuedes pausar entre aplicaciones. No se reinicia Windows automáticamente."
+    if (-not $check.Ok) { [void](Show-IwinDialog -Title 'Revisa el equipo antes de continuar' -Text $body -Ok 'Volver'); return $false }
+    (Show-IwinDialog -Title $title -Text $body -Ok $(if($operation -eq 'uninstall'){'Reanudar'}else{'Continuar'})).Ok
+}
+function Start-IwinUiInstall($selection, $pending = $null) {
+    if ($script:Busy) { return }
+    Set-Busy $true $true
+    try {
+        if (-not (Confirm-IwinPlan $selection $(if($pending){$pending.Data.operation}else{'install'}))) { return }
+        Show-Log $true
+        $ui.Bar.Maximum = [math]::Max(1,$selection.Count); $ui.Bar.Value = 0
+        $progress = {
+            param($a,$ok)
+            $it=$byId[$a.id]
+            if (-not $it) { return }
+            $reboot=(Test-IwinRebootCode $script:LastInstallCode) -or ($ok -and [bool]$a.restart)
+            $removing=$script:Batch -and $script:Batch.operation -eq 'uninstall'
+            if ($ok) {
+                $it.Installed=if($removing){Test-AppInstalled $a}else{$true};$it.Checked=$false
+                $it.Status=if($reboot){'Requiere reinicio'}elseif($removing){'Restaurada / retirada'}else{'Instalada'}
+                $it.StatusKind=if($reboot){'busy'}else{'ok'}
+            } else {
+                $it.Status=if(Test-IwinStop){'Pendiente'}else{'No completada'};$it.StatusKind='bad';$it.Checked=$true
+            }
+            if ($ui.Bar.Value -ge $ui.Bar.Maximum) { $ui.Bar.Maximum++ }
+            $ui.Bar.Value++
+            Set-Status "$($a.name) · $($it.Status) · $($ui.Bar.Value)/$($ui.Bar.Maximum)"
+        }
+        $fail=if($pending){@(Resume-IwinBatch $pending $progress)}else{@(Invoke-Install $selection $progress)}
+        $msg=if(Test-IwinStop){'Lote pausado. Reanuda cuando quieras; no se interrumpió la aplicación en curso.'}elseif($fail.Count){"Quedan $($fail.Count) elementos pendientes. Puedes reanudar y volver a comprobar."}else{'Instalación terminada. Abre «Después de instalar» para completar y comprobar la configuración.'}
+        if (@(Get-IwinRebootPending).Count) { $msg += ' Hay cambios que requieren reiniciar Windows.' }
+        Set-Status $msg
+        Update-Nav; Update-Filter
+    } catch { Write-Log "No se pudo completar: $($_.Exception.Message)"; Set-Status $_.Exception.Message }
+    finally { Set-Busy $false }
+}
+$ui.BtnInstall.Add_Click({
+    $selection=@($Apps | Where-Object { $byId[$_.id].Checked -and -not $byId[$_.id].Installed })
+    if($selection.Count){Start-IwinUiInstall $selection}
+})
+$ui.BtnCancel.Add_Click({ Request-IwinStop; $ui.BtnCancel.IsEnabled=$false; Set-Status 'Se pausará cuando termine esta aplicación. El resto quedará guardado.' })
+$resumeClick={
+    if($script:Busy){return}
+    $pending=Get-IwinPendingBatches | Select-Object -First 1
+    if(-not $pending){Update-IwinRecoveryUi;return}
+    $ids=@($pending.Data.items | Where-Object state -ne 'done' | ForEach-Object id)
+    $selection=@($Apps | Where-Object {$ids -contains $_.id})
+    Start-IwinUiInstall $selection $pending
+}
+$ui.BtnResume.Add_Click($resumeClick)
+$ui.MResume.Add_Click($resumeClick)
+$win.Add_Closing({
+    param($sender,$eventArgs)
+    if($script:Busy){$eventArgs.Cancel=$true;Request-IwinStop;Set-Status 'Termina la aplicación actual antes de cerrar. Los pendientes están guardados.'}
+    elseif($script:PostInstallState){try{Save-PostInstallState}catch{Write-Log 'No se pudieron guardar las notas.'}}
+})
+
+
+# Seguimiento por paso: el usuario confirma el uso; las pruebas técnicas se muestran aparte.
+function Update-IwinRecoveryUi {
+    $pending=@(Get-IwinPendingBatches)
+    $ui.BtnResume.Visibility=if($pending.Count){'Visible'}else{'Collapsed'}
+    $ui.MResume.IsEnabled=$pending.Count -gt 0 -and -not $script:Busy
+    $ui.BtnCancel.IsEnabled=$true
+    $reboot=@(Get-IwinRebootPending).Count
+    $ui.BtnAfter.Content=if($reboot){'Después de instalar · reinicio'}else{'Después de instalar'}
+    Update-Layout
+}
+function Update-AfterSummary {
+    $remaining=0; $checked=0
+    foreach($expander in $ui.AfterRows.Children){
+        $row=$expander.Tag
+        if(-not $row){continue}
+        $entry=$script:PostInstallState[$row.App.id]
+        $left=@($row.Guide.steps).Count - @($entry.steps | Where-Object {$_ -ge 0 -and $_ -lt @($row.Guide.steps).Count} | Select-Object -Unique).Count
+        $remaining += $left
+        $row.Header.Text=$row.App.name + $(if($left){" · $left paso(s) pendiente(s)"}else{' · pasos confirmados por ti'})
+        if($row.TechnicalOk -eq $true){$checked++}
+    }
+    $ui.AfterSummary.Text="$(@($ui.AfterRows.Children | Where-Object Tag).Count) opciones · $remaining pasos pendientes · $checked comprobadas técnicamente en esta sesión. Las cuentas, vinculaciones y pruebas físicas las confirmas tú."
+    if(@(Get-IwinRebootPending).Count){$ui.AfterSummary.Text+=' Reinicia Windows para terminar los cambios indicados y vuelve a comprobar.'}
+}
+function Sync-PostInstallManual($id) {
+    $app=$Apps | Where-Object id -eq $id | Select-Object -First 1
+    $guide=Get-PostInstallGuide $app
+    $complete=@($script:PostInstallState[$id].steps | Select-Object -Unique).Count -eq @($guide.steps).Count
+    $ConfiguredApps[$id]=$complete
+    if($byId.ContainsKey($id)){$byId[$id].Configured=$complete}
+    Save-PostInstallState
+    Write-IwinJson $ConfigFile $ConfiguredApps
+    Update-AfterSummary
+    Update-Filter
+}
+function Invoke-AfterRowCheck($row) {
+    $row.Technical.Text='Comprobando…'
+    Invoke-UiPump
+    $result=Test-PostInstall $row.App
+    $row.Technical.Text=$result.Text
+    $row.TechnicalOk=$result.Ok
+    $row.Technical.Foreground=if($result.Ok){'#86DBA4'}else{'#EBC186'}
+    Update-AfterSummary
+}
+function Show-AfterInstall([string]$focusId='') {
+    if($script:Busy){Set-Status 'Espera a que termine o pausa el lote para revisar los pasos.';return}
+    $ui.AfterRows.Children.Clear()
+    $pendingIds=@(Get-IwinPendingBatches | ForEach-Object {$_.Data.items.id}) + @(Get-IwinRebootPending)
+    $relevant=@($Apps | Where-Object {$_.postInstall -and ($byId[$_.id].Installed -or $_.id -eq $focusId -or $pendingIds -contains $_.id)})
+    if(-not $relevant.Count){
+        $empty=New-Object Windows.Controls.TextBlock
+        $empty.Text='Aún no hay opciones que configurar. Instala una aplicación o abre «Pasos y notas» en su fila para consultar las instrucciones.'
+        $empty.TextWrapping='Wrap';$empty.Foreground='#ADADB5';$empty.Margin='0,16,0,0'
+        [void]$ui.AfterRows.Children.Add($empty)
+    }
+    foreach($app in $relevant){
+        $guide=Get-PostInstallGuide $app
+        if(-not $script:PostInstallState.ContainsKey($app.id)){$script:PostInstallState[$app.id]=@{steps=@();note=''}}
+        $expander=New-Object Windows.Controls.Expander
+        $expander.Style=$win.FindResource('AfterExpander')
+        $expander.IsExpanded=($app.id -eq $focusId -or ($relevant.Count -eq 1))
+        $header=New-Object Windows.Controls.TextBlock
+        $header.TextWrapping='Wrap';$header.FontSize=15;$header.FontWeight='SemiBold';$header.Foreground='#F5F5F7'
+        $expander.Header=$header
+        $body=New-Object Windows.Controls.StackPanel
+        $body.Margin='0,4,0,20'
+        $technical=New-Object Windows.Controls.TextBlock
+        $technical.Text='Sin comprobar en esta sesión. Los pasos marcados son tu confirmación manual.'
+        $technical.TextWrapping='Wrap';$technical.Foreground='#ADADB5';$technical.Margin='0,0,0,12'
+        [void]$body.Children.Add($technical)
+        $row=[pscustomobject]@{App=$app;Guide=$guide;Header=$header;Technical=$technical;TechnicalOk=$null}
+        $expander.Tag=$row
+        for($index=0;$index -lt @($guide.steps).Count;$index++){
+            $check=New-Object Windows.Controls.CheckBox
+            $label=New-Object Windows.Controls.TextBlock
+            $label.Text=$guide.steps[$index];$label.TextWrapping='Wrap';$label.Foreground='#E6E6EB'
+            $check.Content=$label;$check.Margin='0,4,0,7';$check.Padding='4,0,0,0';$check.HorizontalContentAlignment='Stretch'
+            $check.IsChecked=@($script:PostInstallState[$app.id].steps) -contains $index
+            $check.Tag=@{Id=$app.id;Index=$index}
+            $check.IsEnabled=-not $script:PostInstallReadOnly
+            $check.Add_Click({
+                param($sender)
+                $id=$sender.Tag.Id;$index=[int]$sender.Tag.Index
+                $entry=$script:PostInstallState[$id]
+                $entry.steps=@($entry.steps | Where-Object {$_ -ne $index})
+                if($sender.IsChecked){$entry.steps+= $index}
+                try{Sync-PostInstallManual $id}catch{Set-Status "No se pudo guardar el seguimiento: $($_.Exception.Message)"}
+            })
+            [void]$body.Children.Add($check)
+        }
+        $note=New-Object Windows.Controls.TextBlock
+        $note.Text=$guide.note;$note.TextWrapping='Wrap';$note.Foreground='#ADADB5';$note.Margin='0,10,0,12'
+        [void]$body.Children.Add($note)
+        $buttons=New-Object Windows.Controls.WrapPanel
+        $verify=New-Object Windows.Controls.Button
+        $verify.Content='Comprobar de nuevo';$verify.Style=$win.FindResource('Btn');$verify.Margin='0,0,8,8';$verify.Tag=$row
+        $verify.Add_Click({param($sender)
+            if($script:Busy){return}
+            Set-Busy $true
+            try{Update-LocalInventory -Appx;Invoke-AfterRowCheck $sender.Tag}catch{Set-Status $_.Exception.Message}finally{Set-Busy $false}
+        })
+        [void]$buttons.Children.Add($verify)
+        if($byId[$app.id].CanOpen){
+            $open=New-Object Windows.Controls.Button
+            $open.Content=$byId[$app.id].OpenLabel;$open.Style=$win.FindResource('Btn');$open.Margin='0,0,8,8';$open.Tag=$app.id
+            $open.Add_Click({param($sender)Open-AppItem $byId[[string]$sender.Tag]})
+            [void]$buttons.Children.Add($open)
+        }
+        if($app.id -in @('sunshine','remotehost')){
+            $panel=New-Object Windows.Controls.Button
+            $panel.Content='Abrir panel de Sunshine';$panel.Style=$win.FindResource('Btn');$panel.Margin='0,0,8,8'
+            $panel.Add_Click({Start-Process 'https://localhost:47990'})
+            [void]$buttons.Children.Add($panel)
+        }
+        [void]$body.Children.Add($buttons)
+        $label=New-Object Windows.Controls.TextBlock
+        $label.Text='Tus notas · no incluyas contraseñas';$label.Foreground='#ADADB5';$label.Margin='0,6,0,6'
+        [void]$body.Children.Add($label)
+        $field=New-Object Windows.Controls.TextBox
+        $field.Text=$script:PostInstallState[$app.id].note;$field.Tag=$app.id;$field.AcceptsReturn=$true;$field.TextWrapping='Wrap'
+        $field.MinHeight=62;$field.MaxHeight=150;$field.VerticalScrollBarVisibility='Auto';$field.MaxLength=2000
+        $field.Background='#1C1C20';$field.Foreground='#F5F5F7';$field.CaretBrush='#8CC4FF';$field.BorderBrush='#3B3B42';$field.Padding='10';$field.IsReadOnly=$script:PostInstallReadOnly
+        $field.Add_TextChanged({param($sender)$script:PostInstallState[[string]$sender.Tag].note=$sender.Text})
+        $field.Add_LostKeyboardFocus({try{Save-PostInstallState}catch{Set-Status 'No se pudieron guardar las notas. Comprueba el espacio y los permisos.'}})
+        [void]$body.Children.Add($field)
+        $expander.Content=$body
+        [void]$ui.AfterRows.Children.Add($expander)
+    }
+    $ui.AfterPanel.Visibility='Visible'
+    Update-AfterSummary
+    if([Windows.SystemParameters]::ClientAreaAnimation){
+        $fade=New-Object Windows.Media.Animation.DoubleAnimation(0.85,1,[TimeSpan]::FromMilliseconds(140))
+        $ui.AfterPanel.BeginAnimation([Windows.UIElement]::OpacityProperty,$fade)
+    }
+    [void]$ui.AfterBack.Focus()
+}
+$ui.BtnAfter.Add_Click({Show-AfterInstall})
+$ui.MAfter.Add_Click({Show-AfterInstall})
+$ui.AfterBack.Add_Click({
+    try{Save-PostInstallState}catch{Set-Status 'No se pudieron guardar las notas.'}
+    $ui.AfterPanel.Visibility='Collapsed'
+    [void]$ui.BtnAfter.Focus()
+})
+$ui.AfterCheckAll.Add_Click({
+    if($script:Busy){return}
+    Set-Busy $true
+    try{
+        Update-LocalInventory -Appx
+        foreach($expander in $ui.AfterRows.Children){if($expander.Tag){Invoke-AfterRowCheck $expander.Tag}}
+        Set-Status 'Comprobación terminada. Revisa los resultados técnicos y los pasos manuales pendientes.'
+    }catch{Set-Status $_.Exception.Message}finally{Set-Busy $false}
+})
+
+Update-IwinRecoveryUi
+
+$ui.MAutoUpdate.IsChecked=$Prefs.autoUpdate
+$ui.MAutoUpdate.Add_Click({
+    if($script:Busy){$ui.MAutoUpdate.IsChecked=$Prefs.autoUpdate;return}
+    try{
+        Set-IwinAutoUpdate ([bool]$ui.MAutoUpdate.IsChecked)
+        $Prefs.autoUpdate=[bool]$ui.MAutoUpdate.IsChecked;Save-Prefs
+        Set-Status $(if($Prefs.autoUpdate){'Actualización automática activada: al abrir, al iniciar sesión y una vez al día. Solo iWinInstaller.'}else{'Actualización automática desactivada.'})
+    }catch{$ui.MAutoUpdate.IsChecked=$Prefs.autoUpdate;Set-Status "No se pudo cambiar: $($_.Exception.Message)"}
+})
+$ui.MAppUpdate.Add_Click({
+    if($script:Busy){return}
+    Set-Busy $true
+    try{[void](Update-Self);Set-Status 'Consulta el resultado en Actividad. Si hay versión nueva, se aplica al cerrar.'}catch{Set-Status $_.Exception.Message}finally{Set-Busy $false}
 })
 
 # Iconos en segundo plano (la lista no espera a internet; sin red quedan las iniciales)
@@ -2636,6 +2948,10 @@ $win.Add_ContentRendered({
         $win.BeginAnimation([Windows.UIElement]::OpacityProperty, $animation)
     }
     Invoke-Verify -Quiet
+    if($Prefs.autoUpdate -and -not $env:IWIN_PRUEBA_GUI){
+        Set-Busy $true
+        try{[void](Update-Self)}catch{Write-Log "Actualización pendiente: $($_.Exception.Message)"}finally{Set-Busy $false}
+    }
 })
 
 # Prueba automática (GitHub Actions): construye la ventana y sale sin mostrarla
@@ -2708,6 +3024,51 @@ if ($env:IWIN_PRUEBA_GUI) {
         if (-not $rejected) { throw 'Un archivo que no es un perfil debe rechazarse.' }
     } finally { Remove-Item $profileFile -Force -ErrorAction SilentlyContinue }
     Write-Host 'Perfiles: exportar, importar y rechazar archivos ajenos OK'
+    function Save-IwinUiSnapshot($name) {
+        if(-not $env:RUNNER_TEMP){return}
+        $dir=Join-Path $env:RUNNER_TEMP 'iwin-ui';New-Item $dir -ItemType Directory -Force | Out-Null
+        $win.UpdateLayout();Invoke-UiPump
+        $content=$win.Content
+        $bitmap=New-Object Windows.Media.Imaging.RenderTargetBitmap ([int]$content.ActualWidth,[int]$content.ActualHeight,96,96,[Windows.Media.PixelFormats]::Pbgra32)
+        $bitmap.Render($content)
+        $png=New-Object Windows.Media.Imaging.PngBitmapEncoder
+        $png.Frames.Add([Windows.Media.Imaging.BitmapFrame]::Create($bitmap))
+        $stream=[IO.File]::Create((Join-Path $dir ($name+'.png')))
+        try{$png.Save($stream)}finally{$stream.Dispose()}
+    }
+    $win.Width=1180;$win.Height=780;Invoke-UiPump;Update-Layout
+    Save-IwinUiSnapshot 'catalogo-escritorio'
+    $previousLogDir=$LogDir;$previousConfig=$ConfigFile;$previousPostState=$script:PostInstallState;$previousConfigured=$ConfiguredApps.Clone()
+    $postFixture=Join-Path $env:TEMP ('iwin-post-ui-'+[guid]::NewGuid().ToString('N'))
+    try{
+        $LogDir=$postFixture;$ConfigFile=Join-Path $postFixture 'configuracion.json';$script:PostInstallState=@{}
+        Show-AfterInstall 'remotehost';Invoke-UiPump
+        if($ui.AfterPanel.Visibility -ne 'Visible'){throw 'El panel de postinstalación debe abrirse sin salir de la app'}
+        $row=$ui.AfterRows.Children | Where-Object {$_.Tag -and $_.Tag.App.id -eq 'remotehost'} | Select-Object -First 1
+        if(-not $row -or -not $row.IsExpanded){throw 'La nota de la fila debe abrir sus pasos'}
+        $field=$row.Content.Children | Where-Object {$_ -is [Windows.Controls.TextBox]} | Select-Object -First 1
+        $field.Text="Vincular el Mac · prueba de notas largas con acentos y varias líneas.`nPendiente comprobar desde otra red."
+        $check=$row.Content.Children | Where-Object {$_ -is [Windows.Controls.CheckBox]} | Select-Object -First 1
+        $check.IsChecked=$true
+        $check.RaiseEvent((New-Object Windows.RoutedEventArgs ([Windows.Controls.Primitives.ButtonBase]::ClickEvent)))
+        Save-PostInstallState
+        $stored=Get-PostInstallState
+        if($stored.remotehost.note -ne $field.Text -or @($stored.remotehost.steps).Count -ne 1){throw 'Pasos y notas deben guardarse desde los controles reales'}
+        if($row.Tag.TechnicalOk -ne $null){throw 'Marcar pasos no demuestra una comprobación técnica'}
+        Save-IwinUiSnapshot 'postinstalacion-escritorio'
+        $win.Width=600;$win.Height=440;Invoke-UiPump;Update-Layout
+        if($ui.AfterScroll.ActualHeight -lt 100){throw 'La postinstalación debe dejar espacio para desplazarse en una pantalla pequeña'}
+        Save-IwinUiSnapshot 'postinstalacion-compacta'
+        $ui.AfterBack.RaiseEvent((New-Object Windows.RoutedEventArgs ([Windows.Controls.Button]::ClickEvent)))
+        if($ui.AfterPanel.Visibility -ne 'Collapsed'){throw 'Volver debe recuperar el catálogo'}
+        Save-IwinUiSnapshot 'catalogo-compacto'
+    }finally{
+        $LogDir=$previousLogDir;$ConfigFile=$previousConfig;$script:PostInstallState=$previousPostState;$ConfiguredApps=$previousConfigured
+        $win.Width=1180;$win.Height=780
+        Remove-Item $postFixture -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    Write-Host 'Postinstalación: controles reales, notas, confirmación manual y ventanas de 1180x780/600x440 correctos.'
+
 
     # Las tres secciones filtran solo lo suyo
     foreach ($sec in @('Sistema','Terminal','Aplicaciones')) {

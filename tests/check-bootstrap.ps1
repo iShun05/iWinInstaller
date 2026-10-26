@@ -1,5 +1,6 @@
 ﻿# Prueba aislada: simula Windows sin gh ni winget, sin instalar nada.
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '../lifecycle.ps1')
 $errors = $null
 $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot '..\install.ps1'), [ref]$null, [ref]$errors)
 if ($errors) { throw ($errors | Out-String) }

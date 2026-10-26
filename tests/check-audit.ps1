@@ -1,5 +1,6 @@
 ﻿# Regresiones aisladas: no instala aplicaciones ni modifica hardware o ajustes de Windows.
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '../lifecycle.ps1')
 $root = Split-Path $PSScriptRoot
 $errors = $null
 $source = Get-Content (Join-Path $root 'iWinInstaller.ps1') -Raw -Encoding UTF8

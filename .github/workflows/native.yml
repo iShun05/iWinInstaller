@@ -2,7 +2,7 @@ name: Ejecutable y estabilidad
 on:
   push:
     branches: [main, 'codex/**']
-    paths: ['native/**', 'scripts/build_exe.ps1', 'launch.ps1', 'iWinInstaller.ps1', 'install.ps1', 'tests/check-native.ps1', 'tests/check-icons.ps1', '.github/workflows/native.yml']
+    paths: ['lifecycle.ps1', 'native/**', 'scripts/build_exe.ps1', 'launch.ps1', 'iWinInstaller.ps1', 'install.ps1', 'tests/check-native.ps1', 'tests/check-icons.ps1', '.github/workflows/native.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -39,3 +39,4 @@ jobs:
             ${{ runner.temp }}/iwin-native/iWinInstaller-Setup.exe
             ${{ runner.temp }}/iwin-native/iWinInstaller.zip
             ${{ runner.temp }}/iwin-native/diagnostico/
+            ${{ runner.temp }}/iwin-ui/

@@ -1,5 +1,30 @@
 # Historial de versiones
 
+## v3.2 — 2026-10-26
+
+### Añadido
+- **Después de instalar**: panel dentro de la ventana, acceso desde cada fila, 117 guías con pasos, notas personales persistentes y comprobaciones técnicas de solo lectura. Distingue explícitamente funcionamiento detectado de cuentas, emparejamientos y pruebas físicas confirmadas por el usuario.
+- **Reanudar y pausar**: lotes persistidos de forma atómica con resultados por ID. Una pausa deja terminar la aplicación actual. Tras cerrar o reiniciar, el usuario puede continuar lo pendiente, sin repetir resultados completados ni ejecutar lotes por su cuenta.
+- **Resumen previo** de aplicaciones, dependencias, permisos, ajustes y reinicios, con comprobación de espacio y conexión HTTPS al origen de WinGet.
+- **Reinicio pendiente** por aplicación y comprobación posterior, incluyendo códigos del instalador y HRESULT de WinGet. No se fuerza el reinicio.
+- **Aplicación registrada en Windows** con Inicio, escritorio y desinstalación desde Aplicaciones instaladas. La primera apertura del ZIP instala en la misma ubicación canónica. Una versión nueva reemplaza la anterior conservando datos locales fuera de la carpeta de programa.
+- **Actualización automática opcional**, desactivada inicialmente: comprobación al abrir, al iniciar sesión y diaria mediante tarea del usuario. Solo actualiza iWinInstaller, verifica SHA256, evita versiones anteriores y espera a cerrar antes de sustituir. Controles de consulta manual y desactivación.
+
+### Mejorado
+- **Estética Apple adaptada a WPF**: negro profundo, superficies sobrias, acento azul, mayor legibilidad, filas con acciones claras, panel no modal, expansión accesible por teclado y transición breve que respeta la preferencia de movimiento.
+- **Restauración de ajustes**: conserva valores y tipos previos; para acceso remoto también energía, adaptadores, recuperación de servicios, firewall y accesos. Los registros de equipo se guardan con permisos restringidos.
+- **Publicación condicionada** al éxito de bootstrap, aceptación y EXE/estabilidad en x64 y ARM64 del mismo commit.
+
+### Corregido
+- **Desinstalación incierta**: un error de consulta se conserva como pendiente; solo el código documentado de ausencia acredita que el paquete ya no aparece.
+- **Actualizador**: comparación numérica de versiones, exclusión mutua entre comprobaciones, descarga temporal y validación antes de ejecutar, sin esperar a sí mismo.
+
+### Archivos y pruebas
+- **Afecta a** Windows 10/11 x86, x64 y ARM64; no existen variantes macOS/iOS/web.
+- **Archivos**: `iWinInstaller.ps1`, nuevo `lifecycle.ps1`, `apps.json`, `install.ps1`, `native/Launcher.cs`, `scripts/build_exe.ps1`, `tests/`, workflows y README.
+- **Pruebas**: sintaxis PowerShell y XML, compilación del puente de servicios y regresiones locales de dependencias, pausa/reanudación, reinicios, incertidumbre de desinstalación y notas. CI verifica Windows PowerShell 5.1, restauración en claves aisladas y servicio efímero, interfaz y capturas en dos tamaños, registro, primera apertura desde ZIP, sustitución, conservación de datos y desinstalación real en runners desechables x64/ARM64.
+- **Límites**: los estados anteriores a v3.2 sin registro previo no se pueden reconstruir; Autologon se desactiva desde su herramienta y RGB no recupera colores anteriores. Pendientes de prueba física: hardware RGB, BIOS, acceso desde otra red y cuentas personales; Windows 10/x86 no se prueban en esta matriz. Las comprobaciones no garantizan todas las funciones de las 418 aplicaciones.
+
 ## v3.1 — 2026-10-26
 
 ### Corregido

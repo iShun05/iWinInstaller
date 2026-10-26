@@ -14,11 +14,18 @@ Instalador de aplicaciones para Windows 10 y 11: selecciona programas, instálal
 
 El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. Las aplicaciones se descargan de sus fuentes oficiales y necesitan conexión. No requiere cuenta de GitHub ni contraseña propia. Windows puede mostrar SmartScreen porque el ejecutable no tiene certificado comercial: comprueba que procede de esta release antes de abrirlo.
 
-Alternativa portátil: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprimir y abrir `iWinInstaller.exe`. Para desinstalar el programa, ejecuta `install.ps1 -Uninstall`; las aplicaciones instaladas se conservan.
+Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v3.1** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v3.2** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 ## Funciones principales
+
+- **Después de instalar**: botón permanente y «Pasos y notas» en cada opción relevante. Hay guías para **117 opciones**, pasos marcables y notas propias; «Comprobar de nuevo» y «Comprobar todo» separan la detección técnica de las confirmaciones manuales de cuentas, conexiones, licencias y pruebas físicas. El seguimiento se conserva al cerrar y actualizar.
+- **Lotes recuperables**: el progreso se guarda antes y después de cada aplicación. **Pausar al terminar esta app** deja finalizar el instalador actual y conserva el resto. **Reanudar lote** continúa los pendientes más recientes; los anteriores también se conservan y se ofrecen al completar ese lote. Desde consola: `iWinInstaller.ps1 -Resume`. No se ejecuta un lote automáticamente tras reiniciar.
+- **Resumen antes de instalar**: incluye dependencias, permisos, ajustes y reinicios previstos; comprueba espacio de preparación y conexión HTTPS al origen de WinGet. Los requisitos finales de cada proveedor pueden ser mayores.
+- **Deshacer con estado anterior**: los ajustes reversibles aplicados desde v3.2 guardan valores y tipos originales. El ajuste de acceso remoto conserva energía, red, servicios y accesos. Si el cambio viene de una versión antigua sin estado guardado, se explica y se evita imponer valores genéricos. WSL y puntos de restauración no se deshacen desde aquí; RGB retira su tarea, sin recuperar colores físicos anteriores.
+- **Reinicios visibles**: las aplicaciones que lo solicitan quedan identificadas hasta un nuevo arranque y se pueden comprobar otra vez. iWinInstaller no reinicia por su cuenta.
+- **Actualización opcional de iWinInstaller**: en **⋯ › Actualizar iWinInstaller automáticamente**. Desactivada inicialmente; al activarla comprueba GitHub al abrir, al iniciar sesión y una vez al día con tu usuario. Descarga solo la nueva versión estable, verifica SHA256 y sustituye la app cuando se cierra. Si está abierta, la comprobación programada pospone el cambio. No actualiza otras aplicaciones ni ejecuta lotes pendientes. Se puede desactivar en el mismo menú; **Buscar nueva versión** permite hacerlo manualmente.
 
 - **418 entradas en tres secciones**, cada una con sus categorías:
   - **Sistema**: ajustes de Windows (tema oscuro, extensiones visibles, menú contextual clásico, rutas largas, Inicio sin Bing, punto de restauración, alto rendimiento, modo desarrollador, WSL…), optimización y privacidad (O&O ShutUp10++, WinToys, Winhance, privacy.sexy, BleachBit…) y drivers y componentes (Visual C++, .NET, DirectX, NVIDIA, Intel).
@@ -28,14 +35,14 @@ Alternativa portátil: [iWinInstaller.zip](https://github.com/iShun05/iWinInstal
 - **Escritorio remoto para jugar desde fuera** (Sistema › Acceso remoto o perfil «Escritorio remoto»): **PC siempre disponible** desactiva la suspensión y la hibernación con corriente, activa Wake-on-LAN y deja Sunshine y Tailscale como servicios automáticos que se reinician solos; Tailscale pasa a modo desatendido y deja una carpeta **Acceso remoto** en el escritorio y el menú Inicio con el panel de Sunshine, los equipos de Tailscale y Escritorio remoto de Chrome. **Autologon** (Sysinternals) inicia sesión al encender con la contraseña cifrada por Windows, y **Escritorio remoto de Chrome** sirve de respaldo por navegador cuando la red solo deja HTTPS. Ver [Jugar en remoto](#jugar-en-remoto).
 - **Luces RGB apagadas** (Sistema › Iluminación RGB): **Apagar todas las luces RGB** instala OpenRGB y su driver PawnIO, anota placa, RAM, gráfica, controladoras USB y software RGB del fabricante en el registro, apaga cada dispositivo (modo Off o negro) y crea una tarea de SYSTEM que lo repite en cada arranque, también sin sesión. Incluido en el perfil «Escritorio remoto». Ver [Luces RGB](#luces-rgb).
 - **Apps de tus componentes** (Sistema › Software de los fabricantes o perfil «Apps de mis componentes (detectadas)»): el perfil lee placa base, procesador, gráfica (y su fabricante), RAM, discos y dispositivos USB, y marca solo las apps de esas marcas: NVIDIA App, AMD Adrenalin, Intel DSA, Armoury Crate, GPU Tweak III, MSI Center, RGB Fusion, iCUE, NZXT CAM, L-Connect 3, G HUB, Synapse, SteelSeries GG, Samsung Magician, Kingston SSD Manager y Crucial Storage Executive. Cada una se puede instalar por separado. Con **Apagar todas las luces RGB** aplicado, el perfil omite las que gestionan iluminación, porque vuelven a encender los LED.
-- **Desinstalar desde la app**: botón en cada fila instalada (o marca varias y pulsa **Desinstalar**). Pide confirmación, usa winget, Microsoft Store o el desinstalador oficial y comprueba que la app ya no está. Los ajustes de Windows se deshacen igual. Visual C++, .NET, DirectX, Edge y Store no se ofrecen.
+- **Desinstalar desde la app**: botón en cada fila instalada (o marca varias y pulsa **Desinstalar**). Pide confirmación, usa winget, Microsoft Store o el desinstalador oficial y comprueba que la app ya no está. Los ajustes reversibles recuperan el estado anterior guardado desde v3.2. Visual C++, .NET, DirectX, Edge y Store no se ofrecen.
 - **Perfiles propios para llevar a otro PC**: **Guardar…** guarda lo marcado (y, si quieres, lo ya instalado); **⋯ › Exportar** crea un `.iwin.json`; en el otro PC, **Importar…** lo marca todo de una vez, o sin ventana: `iWinInstaller.ps1 -Silent -Perfil archivo.iwin.json`. Solo contiene ids del catálogo.
 - **Pantallas pequeñas y máquinas virtuales**: la ventana se ajusta a la pantalla, oculta las secciones tras ☰ y agrupa acciones en ⋯ cuando falta sitio. **A− / A+**, `Ctrl + rueda` o `Ctrl + + / − / 0` cambian el tamaño de todo del 70 % al 200 % y se recuerda.
 - **Detección de aplicaciones existentes** para evitar reinstalarlas. Una operación no se confirma únicamente por su código de salida.
 - **Selección segura**: la ventana abre con el perfil Manual vacío; elige un perfil o marca elementos antes de instalar. La cabecera muestra la arquitectura del Windows, incluida ARM64.
 - **Actividad visible**: aplicación actual, fases que comunica WinGet, resultado y duración. El TXT conserva la salida técnica completa de la sesión.
 - **Escritorio organizado**: mueve accesos `.lnk` a ejecutables y accesos de juegos Steam/Epic a una carpeta Aplicaciones del escritorio del usuario. Incluye los accesos públicos cuando el lote tiene permisos. No mueve documentos, carpetas ni enlaces web generales; conserva ambos archivos cuando coincide el nombre.
-- **Interfaz oscura** con búsqueda (`Ctrl + F`), filtros, navegación por teclado (`Espacio` marca, `Supr` desinstala), apertura de aplicaciones y seguimiento manual de sesiones pendientes.
+- **Interfaz oscura** con búsqueda (`Ctrl + F`), filtros, navegación por teclado (`Espacio` marca, `Supr` desinstala), apertura de aplicaciones y notas y seguimiento de postinstalación con comprobaciones técnicas y pasos manuales.
 - **Actualización pública** del instalador, con comprobación SHA256. Los lotes separan las instalaciones por usuario de las que requieren administrador.
 
 Algunos productos necesitan su asistente o una suscripción. Norton VPN se instala desde la cuenta del proveedor: abrir sus instrucciones no se considera una instalación correcta. WSL puede requerir reiniciar Windows. La app no importa configuraciones personales ni administra proyectos de código.
@@ -65,14 +72,15 @@ Deshacer quita la tarea; las luces vuelven a su efecto de serie al quitar la cor
 
 ## Tecnología
 
-PowerShell 5.1 y WPF para la interfaz; C# y .NET Framework incluido en Windows para los ejecutables; WinGet y Microsoft Store para los paquetes; Python estándar para construir la alternativa BAT. Sin servicio propio ni telemetría propia.
+PowerShell 5.1 y WPF para la interfaz; C# y .NET Framework incluido en Windows para los ejecutables; WinGet y Microsoft Store para los paquetes; Python estándar para construir la alternativa BAT. Sin servicio propio ni telemetría propia. La actualización opcional utiliza una tarea de Windows de tu usuario; permanece desactivada hasta que la habilites.
 
 ## Estructura
 
 | Archivo | Función |
 | --- | --- |
 | `iWinInstaller.ps1` | Interfaz, inventario, lotes, organización del escritorio y diagnóstico |
-| `apps.json`, `profiles.json` | Catálogo y perfiles |
+| `apps.json`, `profiles.json` | Catálogo, guías de postinstalación y perfiles |
+| `lifecycle.ps1` | Lotes, comprobaciones, restauración y actualizaciones opcionales |
 | `install.ps1`, `launch.ps1`, `Iniciar.bat` | Instalación, desinstalación y apertura |
 | `native/` | Lanzador C#, manifiesto y dependencias Microsoft verificadas |
 | `scripts/` | Construcción del EXE y BAT |
@@ -86,8 +94,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v3.1
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.1
+git checkout v3.2
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.2
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -104,7 +112,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v3.1](https://github.com/iShun05/iWinInstaller/releases/tag/v3.1) **(actual)** | 2026-10-26 | Detección RGB corregida, bloqueo acotado, errores comprobados y versión coherente del instalador | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.1.zip) |
+| [v3.2](https://github.com/iShun05/iWinInstaller/releases/tag/v3.2) **(actual)** | 2026-10-26 | Postinstalación guiada, notas, comprobaciones, lotes reanudables, restauración, instalación registrada y actualización automática opcional | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.2) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.2.zip) |
+| [v3.1](https://github.com/iShun05/iWinInstaller/releases/tag/v3.1) | 2026-10-26 | Detección RGB corregida, bloqueo acotado, errores comprobados y versión coherente del instalador | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.1.zip) |
 | [v3.0](https://github.com/iShun05/iWinInstaller/releases/tag/v3.0) | 2026-10-26 | Pantalla virtual para transmitir con los monitores apagados o desconectados | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.0.zip) |
 | [v2.9](https://github.com/iShun05/iWinInstaller/releases/tag/v2.9) | 2026-10-26 | Portapapeles compartido Mac ↔ Windows con KDE Connect por Tailscale | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.9.zip) |
 | [v2.8](https://github.com/iShun05/iWinInstaller/releases/tag/v2.8) | 2026-10-26 | Luces RGB apagadas siempre con OpenRGB y apps de los fabricantes según el hardware detectado | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.8.zip) |

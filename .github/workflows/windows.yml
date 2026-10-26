@@ -3,7 +3,7 @@ on:
   # Solo se prueba cuando cambia el código de la app.
   push:
     branches: [main]
-    paths: ['iWinInstaller.ps1', 'apps.json', 'profiles.json', 'install.ps1', 'tests/**', '.github/workflows/windows.yml']
+    paths: ['lifecycle.ps1', 'iWinInstaller.ps1', 'apps.json', 'profiles.json', 'install.ps1', 'tests/**', '.github/workflows/windows.yml']
   workflow_dispatch:
 permissions:
   contents: read

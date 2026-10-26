@@ -1,5 +1,6 @@
 ﻿# Pruebas de regresión en carpetas temporales: nunca ordenan el escritorio del runner.
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot '../lifecycle.ps1')
 $root=Split-Path $PSScriptRoot
 $errors=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'iWinInstaller.ps1'),[ref]$null,[ref]$errors)

@@ -1,5 +1,6 @@
 ﻿# Pruebas aisladas: no instalan programas ni cambian ajustes reales.
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '../lifecycle.ps1')
 $errors = $null
 $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot '..\iWinInstaller.ps1'), [ref]$null, [ref]$errors)
 if ($errors) { throw ($errors | Out-String) }

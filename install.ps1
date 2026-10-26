@@ -4,7 +4,7 @@
 # No necesita una cuenta de GitHub ni una clave de acceso.
 # Opciones: -Silent (no abre la app al terminar), -Uninstall (desinstala)
 # (Solo ASCII a proposito: tambien va incrustado en iWinInstaller-Setup.bat.)
-param([switch]$Silent, [switch]$Uninstall)
+param([switch]$Silent, [switch]$Uninstall, [int]$WaitForPid = 0)
 $ErrorActionPreference = 'Stop'
 
 $Repo = 'iShun05/iWinInstaller'
@@ -15,10 +15,17 @@ $Links = @(
 )
 
 if ($Uninstall) {
-    $Links | ForEach-Object { Remove-Item $_ -ErrorAction SilentlyContinue }
+    if($WaitForPid -gt 0){$running=Get-Process -Id $WaitForPid -ErrorAction SilentlyContinue;if($running -and -not $running.WaitForExit(30000)){throw 'Cierra iWinInstaller antes de desinstalar.'}}
+    foreach($running in @(Get-Process -Name iWinInstaller -ErrorAction SilentlyContinue)){
+        try{$openPath=$running.Path}catch{$openPath=''}
+        if($openPath -eq (Join-Path $Dir 'iWinInstaller.exe')){throw 'Cierra iWinInstaller antes de desinstalar.'}
+    }
+    Unregister-ScheduledTask -TaskName 'iWinInstaller actualizaciones' -Confirm:$false -ErrorAction SilentlyContinue
     Unregister-ScheduledTask -TaskName 'iWinInstaller semanal' -Confirm:$false -ErrorAction SilentlyContinue
-    Remove-Item $Dir -Recurse -Force -ErrorAction SilentlyContinue
-    Write-Host 'iWinInstaller desinstalado. Las apps que instalaste con el siguen instaladas.'
+    $Links | ForEach-Object { Remove-Item $_ -ErrorAction SilentlyContinue }
+    Remove-Item $Dir -Recurse -Force -ErrorAction Stop
+    Remove-Item 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\iWinInstaller' -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host 'iWinInstaller desinstalado. Se conservan tus notas, perfiles, lotes y las aplicaciones instaladas.'
     return
 }
 
@@ -64,7 +71,7 @@ function Install-ReleaseFiles($sourceDir, $installDir, $tagName) {
 
 }
 function Show-InstallProgress([int]$step, [string]$status) {
-    Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.1' -Status "Etapa $($step + 1) de 7: $status" -PercentComplete ([int](100 * $step / 7))
+    Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.2' -Status "Etapa $($step + 1) de 7: $status" -PercentComplete ([int](100 * $step / 7))
     Write-Host "[$($step + 1)/7] $status"
 }
 function Read-EmbeddedArchive([string]$file, [string]$destination) {
@@ -81,10 +88,14 @@ function Read-EmbeddedArchive([string]$file, [string]$destination) {
     [IO.File]::WriteAllBytes($destination, $bytes)
     return $true
 }
-$tag = 'v3.1'
+$tag = 'v3.2'
 $tmp = Join-Path $env:TEMP ('iWinInstaller-' + [Guid]::NewGuid().ToString())
 New-Item -ItemType Directory $tmp -Force | Out-Null
 $archive = Join-Path $tmp 'iWinInstaller.zip'
+if($env:IWIN_SOURCE_DIRECTORY){
+    $src=Get-Item (Join-Path $env:IWIN_SOURCE_DIRECTORY 'iWinInstaller.ps1') -ErrorAction Stop
+    Show-InstallProgress 4 'Preparando la primera instalacion desde la copia verificada'
+}else{
 Show-InstallProgress 0 'Comprobando el paquete incluido'
 $embedded = $false
 if ($env:IWIN_PACKAGE_PATH -and (Test-Path $env:IWIN_PACKAGE_PATH)) { Copy-Item $env:IWIN_PACKAGE_PATH $archive; $embedded = $true }
@@ -112,7 +123,13 @@ Expand-Archive (Join-Path $tmp 'iWinInstaller.zip') (Join-Path $tmp 'x') -Force
 $src = Get-Item (Join-Path $tmp 'x\iWinInstaller\iWinInstaller.ps1') -ErrorAction SilentlyContinue
 if (-not $src) { throw 'El ZIP no contiene iWinInstaller.ps1.' }
 
+}
+
 Unregister-ScheduledTask -TaskName 'iWinInstaller semanal' -Confirm:$false -ErrorAction SilentlyContinue
+$previousTag=Get-Content (Join-Path $Dir 'instalado.txt') -Raw -ErrorAction SilentlyContinue
+if($previousTag -and $previousTag.Trim() -match '^v\d+\.\d+$' -and $tag -match '^v\d+\.\d+$'){
+    if([version]$previousTag.Trim().Substring(1) -gt [version]$tag.Substring(1)){Remove-InstallerDirectory $tmp;throw 'Ya hay una version mas nueva instalada. No se sustituye por una anterior.'}
+}
 Show-InstallProgress 5 'Instalando la nueva version'
 try { Install-ReleaseFiles $src.DirectoryName $Dir $tag } finally { Remove-InstallerDirectory $tmp }
 
@@ -131,7 +148,23 @@ foreach ($l in $Links) {
     $s.Description = 'Instala aplicaciones para Windows'
     $s.Save()
 }
-Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.1' -Completed
+# Registro por usuario en Aplicaciones instaladas: sin permisos globales ni instalaciones duplicadas.
+$registration='HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\iWinInstaller'
+if(-not (Test-Path $registration)){New-Item $registration -Force | Out-Null}
+$native=Join-Path $Dir 'iWinInstaller.exe'
+$uninstall=if(Test-Path $native){'"'+$native+'" --uninstall'}else{'"'+$ps+'" -NoProfile -ExecutionPolicy Bypass -File "'+(Join-Path $Dir 'install.ps1')+'" -Uninstall'}
+$properties=@{DisplayName='iWinInstaller';DisplayVersion=$tag.TrimStart('v');Publisher='iShun05';InstallLocation=$Dir;DisplayIcon=(Join-Path $Dir 'assets\icon.ico');UninstallString=$uninstall;URLInfoAbout='https://github.com/iShun05/iWinInstaller';InstallDate=(Get-Date -Format 'yyyyMMdd')}
+foreach($name in $properties.Keys){Set-ItemProperty $registration -Name $name -Value $properties[$name] -Type String -ErrorAction Stop}
+Set-ItemProperty $registration -Name NoModify -Value 1 -Type DWord
+Set-ItemProperty $registration -Name NoRepair -Value 1 -Type DWord
+$prefsPath=Join-Path (Join-Path $env:LOCALAPPDATA 'iWinInstaller') 'preferencias.json'
+if((Test-Path $prefsPath) -and (Test-Path (Join-Path $Dir 'lifecycle.ps1'))){
+    try{
+        $preferences=Get-Content $prefsPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        if($preferences.autoUpdate -eq $true){. (Join-Path $Dir 'lifecycle.ps1');Set-IwinAutoUpdate $true}
+    }catch{Write-Host 'La app esta instalada. No se pudo renovar la tarea de actualizacion; revisala desde la app.'}
+}
+Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.2' -Completed
 Write-Host '[7/7] Instalacion completada.'
 Write-Host "iWinInstaller $tag instalado en $Dir"
 Write-Host 'Accesos directos creados en el menu Inicio y en el Escritorio.'

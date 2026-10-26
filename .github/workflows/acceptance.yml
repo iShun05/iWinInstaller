@@ -2,7 +2,7 @@ name: Aceptación real de instalación
 on:
   push:
     branches: [main, 'codex/**']
-    paths: ['iWinInstaller.ps1', 'apps.json', 'tests/check-acceptance.ps1', 'tests/check-embedded-install.ps1', 'install.ps1', 'scripts/**', 'installer-header.bat', '.github/workflows/acceptance.yml']
+    paths: ['lifecycle.ps1', 'iWinInstaller.ps1', 'apps.json', 'tests/check-acceptance.ps1', 'tests/check-embedded-install.ps1', 'install.ps1', 'scripts/**', 'installer-header.bat', '.github/workflows/acceptance.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -35,3 +35,4 @@ jobs:
           path: |
             tests/aceptacion.log
             ${{ runner.temp }}/iwin-aceptacion/
+            ${{ runner.temp }}/iwin-ui/

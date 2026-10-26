@@ -7,8 +7,8 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-[assembly: AssemblyVersion("3.1.0.0")]
-[assembly: AssemblyFileVersion("3.1.0.0")]
+[assembly: AssemblyVersion("3.2.0.0")]
+[assembly: AssemblyFileVersion("3.2.0.0")]
 
 static class Launcher {
     static readonly object LogLock = new object();
@@ -21,12 +21,12 @@ static class Launcher {
         try {
             Directory.CreateDirectory(logs);
             Environment.CurrentDirectory = logs;
-            Log("iWinInstaller v3.1; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem);
+            Log("iWinInstaller v3.2; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem);
 #if SETUP
             bool quiet = Array.IndexOf(args, "--silent") >= 0;
             if (quiet) { Install(); return 0; }
             using (Form form = new Form()) {
-                form.Text = "iWinInstaller v3.1"; form.Width = 560; form.Height = 230;
+                form.Text = "iWinInstaller v3.2"; form.Width = 560; form.Height = 230;
                 form.StartPosition = FormStartPosition.CenterScreen;
                 form.FormBorderStyle = FormBorderStyle.FixedDialog; form.ControlBox = false;
                 form.BackColor = System.Drawing.Color.Black; form.ForeColor = System.Drawing.Color.White;
@@ -60,16 +60,28 @@ static class Launcher {
                     }
                 }
             } catch { }
-            foreach (string name in new[] { "iWinInstaller.ps1", "apps.json", "profiles.json", "launch.ps1" })
+            foreach (string name in new[] { "iWinInstaller.ps1", "apps.json", "profiles.json", "lifecycle.ps1", "install.ps1", "launch.ps1" })
                 if (!File.Exists(Path.Combine(root, name))) throw new FileNotFoundException("Falta un archivo esencial. Ejecuta de nuevo iWinInstaller-Setup.exe.", name);
             string manifest = File.ReadAllText(Path.Combine(root, "integrity.sha256"));
-            foreach (string name in new[] { "iWinInstaller.ps1", "apps.json", "profiles.json", "launch.ps1", "iWinInstaller.exe" }) {
+            foreach (string name in new[] { "iWinInstaller.ps1", "apps.json", "profiles.json", "lifecycle.ps1", "install.ps1", "launch.ps1", "iWinInstaller.exe" }) {
                 string expected = null;
                 foreach (string line in manifest.Split('\n')) if (line.Trim().EndsWith("  " + name)) expected = line.Substring(0, 64);
                 using (SHA256 sha = SHA256.Create()) using (FileStream file = File.OpenRead(Path.Combine(root, name))) {
                     string actual = BitConverter.ToString(sha.ComputeHash(file)).Replace("-", "").ToLowerInvariant();
                     if (expected != actual) throw new Exception("Archivo esencial dañado: " + name + ". Ejecuta de nuevo iWinInstaller-Setup.exe.");
                 }
+            }
+            if (Array.IndexOf(args, "--uninstall") >= 0) {
+                string ps = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "powershell.exe");
+                ProcessStartInfo remove = new ProcessStartInfo(ps, "-NoProfile -ExecutionPolicy Bypass -File \"" + Path.Combine(root, "install.ps1") + "\" -Uninstall -WaitForPid " + Process.GetCurrentProcess().Id);
+                remove.UseShellExecute=false; remove.CreateNoWindow=true;
+                Process.Start(remove); return 0;
+            }
+            if (Array.IndexOf(args, "--update-only") >= 0) return RunPowerShell(Path.Combine(root, "iWinInstaller.ps1"), "-AutoUpdate", logs, null);
+            if (!Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar).Equals(InstallDirectory(), StringComparison.OrdinalIgnoreCase)) {
+                int installed = RunPowerShell(Path.Combine(root, "install.ps1"), "-Silent", logs, null, root.TrimEnd(Path.DirectorySeparatorChar));
+                if (installed != 0) throw new Exception("No se pudo instalar la aplicación: " + installed);
+                Process.Start(Path.Combine(InstallDirectory(), "iWinInstaller.exe")); return 0;
             }
             int code = RunPowerShell(Path.Combine(root, "launch.ps1"), "", logs, null);
             if (code != 0) throw new Exception("La aplicación terminó con el código " + code + ". El diagnóstico contiene los detalles disponibles.");
@@ -106,7 +118,7 @@ static class Launcher {
         }
     }
     static string InstallDirectory() { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "iWinInstaller"); }
-    static int RunPowerShell(string script, string arguments, string root, string package) {
+    static int RunPowerShell(string script, string arguments, string root, string package, string localSource = null) {
         string ps = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "powershell.exe");
         if (!File.Exists(ps)) throw new FileNotFoundException("Windows PowerShell, incluido en Windows 10/11, no está disponible.", ps);
         ProcessStartInfo start = new ProcessStartInfo(ps, "-NoProfile -ExecutionPolicy Bypass -STA -File \"" + script + "\" " + arguments);
@@ -114,6 +126,9 @@ static class Launcher {
         start.RedirectStandardOutput = true; start.RedirectStandardError = true;
         // No hereda modulos de PowerShell 7 al ejecutar el host 5.1 de Windows.
         start.EnvironmentVariables["PSModulePath"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "WindowsPowerShell", "Modules") + ";" + Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "WindowsPowerShell", "Modules") + ";" + Path.Combine(Path.GetDirectoryName(ps), "Modules");
+        start.EnvironmentVariables.Remove("IWIN_SOURCE_DIRECTORY");
+        start.EnvironmentVariables.Remove("IWIN_PACKAGE_PATH");
+        if(localSource != null) start.EnvironmentVariables["IWIN_SOURCE_DIRECTORY"] = localSource;
         if (package != null) start.EnvironmentVariables["IWIN_PACKAGE_PATH"] = package;
         else start.EnvironmentVariables["IWIN_HOST_PID"] = Process.GetCurrentProcess().Id.ToString();
         using (Process process = new Process()) {

@@ -63,7 +63,15 @@
     "icon": "glyph:EC7A",
     "type": "tweak",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows o la sesión si el cambio aún no aparece.",
+        "Comprueba el comportamiento de Windows que acabas de cambiar."
+      ],
+      "note": "Deshacer recupera el valor guardado antes de aplicar este ajuste con v3.2. Los ajustes antiguos sin registro previo requieren revisión manual."
+    },
+    "restart": true
   },
   {
     "id": "wsl",
@@ -73,7 +81,16 @@
     "desc": "Instala WSL con Ubuntu. Requiere reiniciar (pide permiso de administrador)",
     "icon": "ubuntu.com",
     "type": "tweak",
-    "optin": true
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows cuando termine la preparación.",
+        "Abre la distribución de Linux y crea su usuario y contraseña.",
+        "Abre su terminal y ejecuta una orden sencilla."
+      ],
+      "note": "La comprobación técnica consulta wsl --status; no verifica tu usuario Linux."
+    },
+    "restart": true
   },
   {
     "id": "longpaths",
@@ -84,7 +101,15 @@
     "icon": "glyph:E8B7",
     "type": "tweak",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows o la sesión si el cambio aún no aparece.",
+        "Comprueba el comportamiento de Windows que acabas de cambiar."
+      ],
+      "note": "Deshacer recupera el valor guardado antes de aplicar este ajuste con v3.2. Los ajustes antiguos sin registro previo requieren revisión manual."
+    },
+    "restart": true
   },
   {
     "id": "classicmenu",
@@ -95,7 +120,15 @@
     "icon": "glyph:E8FD",
     "type": "tweak",
     "context": "user",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows o la sesión si el cambio aún no aparece.",
+        "Comprueba el comportamiento de Windows que acabas de cambiar."
+      ],
+      "note": "Deshacer recupera el valor guardado antes de aplicar este ajuste con v3.2. Los ajustes antiguos sin registro previo requieren revisión manual."
+    },
+    "restart": true
   },
   {
     "id": "nobing",
@@ -106,7 +139,15 @@
     "icon": "glyph:E721",
     "type": "tweak",
     "context": "user",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows o la sesión si el cambio aún no aparece.",
+        "Comprueba el comportamiento de Windows que acabas de cambiar."
+      ],
+      "note": "Deshacer recupera el valor guardado antes de aplicar este ajuste con v3.2. Los ajustes antiguos sin registro previo requieren revisión manual."
+    },
+    "restart": true
   },
   {
     "id": "taskbarleft",
@@ -117,7 +158,15 @@
     "icon": "glyph:E8E4",
     "type": "tweak",
     "context": "user",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows o la sesión si el cambio aún no aparece.",
+        "Comprueba el comportamiento de Windows que acabas de cambiar."
+      ],
+      "note": "Deshacer recupera el valor guardado antes de aplicar este ajuste con v3.2. Los ajustes antiguos sin registro previo requieren revisión manual."
+    },
+    "restart": true
   },
   {
     "id": "clockseconds",
@@ -128,7 +177,15 @@
     "icon": "glyph:E823",
     "type": "tweak",
     "context": "user",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows o la sesión si el cambio aún no aparece.",
+        "Comprueba el comportamiento de Windows que acabas de cambiar."
+      ],
+      "note": "Deshacer recupera el valor guardado antes de aplicar este ajuste con v3.2. Los ajustes antiguos sin registro previo requieren revisión manual."
+    },
+    "restart": true
   },
   {
     "id": "thispc",
@@ -139,7 +196,15 @@
     "icon": "glyph:E7F8",
     "type": "tweak",
     "context": "user",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows o la sesión si el cambio aún no aparece.",
+        "Comprueba el comportamiento de Windows que acabas de cambiar."
+      ],
+      "note": "Deshacer recupera el valor guardado antes de aplicar este ajuste con v3.2. Los ajustes antiguos sin registro previo requieren revisión manual."
+    },
+    "restart": true
   },
   {
     "id": "endtask",
@@ -150,7 +215,15 @@
     "icon": "glyph:E711",
     "type": "tweak",
     "context": "user",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows o la sesión si el cambio aún no aparece.",
+        "Comprueba el comportamiento de Windows que acabas de cambiar."
+      ],
+      "note": "Deshacer recupera el valor guardado antes de aplicar este ajuste con v3.2. Los ajustes antiguos sin registro previo requieren revisión manual."
+    },
+    "restart": true
   },
   {
     "id": "mouseaccel",
@@ -161,7 +234,15 @@
     "icon": "glyph:E962",
     "type": "tweak",
     "context": "user",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows o la sesión si el cambio aún no aparece.",
+        "Comprueba el comportamiento de Windows que acabas de cambiar."
+      ],
+      "note": "Deshacer recupera el valor guardado antes de aplicar este ajuste con v3.2. Los ajustes antiguos sin registro previo requieren revisión manual."
+    },
+    "restart": true
   },
   {
     "id": "autologon",
@@ -173,7 +254,14 @@
     "type": "winget",
     "winget": "Microsoft.Sysinternals.Autologon",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre Autologon, introduce la cuenta y contraseña de Windows y pulsa Enable si deseas inicio automático.",
+        "Reinicia y comprueba el inicio de sesión. Usa Disable para retirarlo."
+      ],
+      "note": "Es opcional. La contraseña se introduce en la herramienta oficial, nunca en iWinInstaller."
+    }
   },
   {
     "id": "remotehost",
@@ -188,7 +276,16 @@
     "requires": [
       "sunshine",
       "tailscale"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Inicia sesión en Tailscale y vuelve a aplicar PC siempre disponible si faltaba la sesión.",
+        "Crea el usuario de Sunshine y empareja Moonlight con su PIN desde casa.",
+        "Prueba Moonlight desde otra red y, después, con el PC reiniciado y sin sesión abierta.",
+        "Configura en BIOS el arranque tras un corte de luz y revisa la caducidad de la clave de Tailscale."
+      ],
+      "note": "La app comprueba energía, servicios y conexión de Tailscale. El acceso externo, la BIOS y el emparejamiento requieren prueba manual."
+    }
   },
   {
     "id": "chromeremote",
@@ -203,7 +300,14 @@
     "context": "machine",
     "extra": true,
     "configure": true,
-    "noopen": true
+    "noopen": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "virtualdisplay",
@@ -215,7 +319,15 @@
     "type": "winget",
     "winget": "VirtualDrivers.Virtual-Display-Driver",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la configuración de pantalla de Windows y comprueba que aparece el monitor virtual.",
+        "Ajusta resolución y duplicación; prueba Sunshine con el monitor físico desconectado."
+      ],
+      "note": "La detección del controlador no demuestra que Sunshine esté transmitiendo."
+    },
+    "restart": true
   },
   {
     "id": "openrgb",
@@ -228,7 +340,14 @@
     "winget": "OpenRGB.OpenRGB",
     "scope": "machine",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre OpenRGB y revisa qué componentes reconoce.",
+        "Prueba cada dispositivo; evita ejecutar a la vez controladores RGB de varios fabricantes."
+      ],
+      "note": "El hardware compatible depende de los controladores disponibles."
+    }
   },
   {
     "id": "pawnio",
@@ -241,7 +360,15 @@
     "winget": "namazso.PawnIO",
     "scope": "machine",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows para cargar el controlador.",
+        "Abre OpenRGB y verifica que detecta los componentes esperados."
+      ],
+      "note": "Un controlador instalado puede necesitar reiniciar antes de estar operativo."
+    },
+    "restart": true
   },
   {
     "id": "rgboff",
@@ -256,7 +383,15 @@
     "requires": [
       "openrgb",
       "pawnio"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Reinicia Windows si acabas de instalar PawnIO y aplica otra vez el apagado.",
+        "Cierra el software RGB del fabricante y comprueba físicamente las luces.",
+        "Apaga y enciende el PC; comprueba que las luces siguen apagadas."
+      ],
+      "note": "La prueba técnica revisa el informe de OpenRGB, no mide los LED. Al deshacer se quita la tarea; el color anterior no se puede recuperar automáticamente."
+    }
   },
   {
     "id": "bleachbit",
@@ -361,7 +496,14 @@
     "winget": "Wagnardsoft.DisplayDriverUninstaller",
     "extra": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "sdio",
@@ -373,7 +515,14 @@
     "type": "winget",
     "winget": "GlennDelahoy.SnappyDriverInstallerOrigin",
     "extra": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "vclibs14",
@@ -390,7 +539,14 @@
     ],
     "extra": true,
     "architecture": "x86",
-    "keep": true
+    "keep": true,
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "vcredist",
@@ -403,7 +559,14 @@
     "winget": "Microsoft.VCRedist.2015+.x64",
     "scope": "machine",
     "context": "machine",
-    "keep": true
+    "keep": true,
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "vcredistall",
@@ -439,7 +602,14 @@
       "Microsoft Visual C++ 2013 Redistributable (x64) - 12.0.40664",
       "Microsoft Visual C++ 2013 Redistributable (x86) - 12.0.40664"
     ],
-    "keep": true
+    "keep": true,
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "dotnet",
@@ -457,7 +627,14 @@
       "Microsoft Windows Desktop Runtime - 8.0.32 (x64)",
       "Microsoft Windows Desktop Runtime - 8.0.32 (x86)"
     ],
-    "keep": true
+    "keep": true,
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "directx",
@@ -472,7 +649,14 @@
     "families": [
       "Microsoft.DirectXRuntime_8wekyb3d8bbwe"
     ],
-    "keep": true
+    "keep": true,
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "nvcleanstall",
@@ -485,7 +669,14 @@
     "winget": "TechPowerUp.NVCleanstall",
     "extra": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "heif",
@@ -498,7 +689,14 @@
     "winget": "9PMMSR1CGPWG",
     "source": "msstore",
     "extra": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "nvidiaapp",
@@ -512,7 +710,14 @@
     "extra": true,
     "source": "msstore",
     "context": "user",
-    "hardware": "GPU: .*NVIDIA"
+    "hardware": "GPU: .*NVIDIA",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "webview2",
@@ -525,7 +730,14 @@
     "winget": "Microsoft.EdgeWebView2Runtime",
     "context": "machine",
     "extra": true,
-    "keep": true
+    "keep": true,
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "dotnet10",
@@ -539,7 +751,14 @@
     "scope": "machine",
     "context": "machine",
     "extra": true,
-    "keep": true
+    "keep": true,
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "inteldsa",
@@ -552,7 +771,14 @@
     "winget": "Intel.IntelDriverAndSupportAssistant",
     "context": "machine",
     "extra": true,
-    "hardware": "CPU: .*Intel|GPU: .*Intel"
+    "hardware": "CPU: .*Intel|GPU: .*Intel",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "amdsoftware",
@@ -567,7 +793,14 @@
     "detect": "AMD Software",
     "hardware": "GPU: .*(AMD|Radeon)|CPU: .*AMD",
     "configure": true,
-    "optin": true
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "armourycrate",
@@ -582,7 +815,14 @@
     "detect": "Armoury Crate",
     "hardware": "Placa: (ASUS|ASUSTeK)|GPUVEN_1043|VID_0B05",
     "rgb": true,
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "gputweak3",
@@ -596,7 +836,14 @@
     "scope": "machine",
     "context": "machine",
     "hardware": "GPUVEN_1043",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "msicenter",
@@ -610,7 +857,14 @@
     "context": "machine",
     "hardware": "Placa: (Micro-Star|MSI)|GPUVEN_1462|VID_1462",
     "rgb": true,
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "rgbfusion",
@@ -624,7 +878,14 @@
     "context": "machine",
     "hardware": "Placa: Gigabyte|GPUVEN_1458",
     "rgb": true,
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "icue",
@@ -640,7 +901,14 @@
     "detect": "iCUE",
     "hardware": "VID_1B1C|RAM: (Corsair|CM[A-Z])",
     "rgb": true,
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "nzxtcam",
@@ -655,7 +923,14 @@
     "context": "machine",
     "hardware": "VID_1E71",
     "rgb": true,
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "lconnect3",
@@ -670,7 +945,14 @@
     "detect": "L-Connect 3",
     "hardware": "VID_0CF2",
     "rgb": true,
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "ghub",
@@ -686,7 +968,14 @@
     "detect": "Logitech G HUB",
     "hardware": "VID_046D",
     "rgb": true,
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "synapse4",
@@ -701,7 +990,14 @@
     "detect": "Razer Synapse",
     "hardware": "VID_1532",
     "rgb": true,
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "steelseriesgg",
@@ -716,7 +1012,14 @@
     "context": "machine",
     "hardware": "VID_1038",
     "rgb": true,
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "samsungmagician",
@@ -731,7 +1034,14 @@
     "detect": "Samsung Magician",
     "hardware": "Disco: .*Samsung",
     "configure": true,
-    "optin": true
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "kingstonssd",
@@ -745,7 +1055,14 @@
     "scope": "machine",
     "context": "machine",
     "hardware": "Disco: .*Kingston",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "crucialse",
@@ -758,7 +1075,14 @@
     "winget": "Crucial.StorageExecutive",
     "context": "machine",
     "hardware": "Disco: .*(Crucial|CT\\d)",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    }
   },
   {
     "id": "javaruntime",
@@ -771,7 +1095,14 @@
     "winget": "EclipseAdoptium.Temurin.21.JRE",
     "scope": "machine",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "msstore",
@@ -785,7 +1116,14 @@
     "source": "msstore",
     "extra": true,
     "context": "user",
-    "keep": true
+    "keep": true,
+    "postInstall": {
+      "steps": [
+        "Abre su herramienta o la configuración de Windows y comprueba que el componente está disponible.",
+        "Reinicia si el fabricante lo solicita y prueba la función prevista."
+      ],
+      "note": "No se aplican cambios de firmware ni se reinicia Windows automáticamente."
+    }
   },
   {
     "id": "terminal",
@@ -995,7 +1333,14 @@
     "context": "machine",
     "commands": [
       "git"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Configura tu nombre y correo de autor con git config.",
+        "Prueba el acceso al repositorio que vayas a utilizar."
+      ],
+      "note": "La app no lee ni guarda tus credenciales de repositorios."
+    }
   },
   {
     "id": "gh",
@@ -1011,7 +1356,14 @@
     "context": "machine",
     "commands": [
       "gh"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Abre una terminal y ejecuta gh auth login.",
+        "Completa el acceso en el navegador y vuelve a comprobar desde aquí."
+      ],
+      "note": "La comprobación usa gh auth status y solo conserva si tuvo éxito."
+    }
   },
   {
     "id": "python",
@@ -1524,7 +1876,14 @@
     "context": "user",
     "commands": [
       "claude"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Abre Claude Code y completa su acceso con tu cuenta.",
+        "Revisa los permisos del proyecto y prueba una petición manual."
+      ],
+      "note": "La app no envía peticiones de IA ni activa consumo por su cuenta."
+    }
   },
   {
     "id": "neovim",
@@ -1709,7 +2068,14 @@
     "winget": "Rclone.Rclone",
     "extra": true,
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "lazygit",
@@ -1859,7 +2225,14 @@
     "extra": true,
     "commands": [
       "codex"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Abre Codex y completa el acceso con tu cuenta.",
+        "Revisa permisos y modelo; prueba una petición manual."
+      ],
+      "note": "La app no envía peticiones de IA ni activa consumo por su cuenta."
+    }
   },
   {
     "id": "azurecli",
@@ -1934,7 +2307,14 @@
     "winget": "Valve.Steam",
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y revisa la carpeta donde guardarás los juegos.",
+        "Abre un juego y comprueba acceso, controles y sonido."
+      ],
+      "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
+    }
   },
   {
     "id": "epic",
@@ -1947,7 +2327,14 @@
     "winget": "EpicGames.EpicGamesLauncher",
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y revisa la carpeta donde guardarás los juegos.",
+        "Abre un juego y comprueba acceso, controles y sonido."
+      ],
+      "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
+    }
   },
   {
     "id": "hoyo",
@@ -1962,7 +2349,14 @@
     "page": "https://hoyoplay.hoyoverse.com/",
     "detect": "HoYoPlay",
     "configure": true,
-    "optin": true
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y revisa la carpeta donde guardarás los juegos.",
+        "Abre un juego y comprueba acceso, controles y sonido."
+      ],
+      "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
+    }
   },
   {
     "id": "riot",
@@ -1977,7 +2371,14 @@
     "page": "https://www.riotgames.com/es",
     "detect": "Riot",
     "configure": true,
-    "optin": true
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y revisa la carpeta donde guardarás los juegos.",
+        "Abre un juego y comprueba acceso, controles y sonido."
+      ],
+      "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
+    }
   },
   {
     "id": "gog",
@@ -1991,7 +2392,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y revisa la carpeta donde guardarás los juegos.",
+        "Abre un juego y comprueba acceso, controles y sonido."
+      ],
+      "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
+    }
   },
   {
     "id": "eaapp",
@@ -2005,7 +2413,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y revisa la carpeta donde guardarás los juegos.",
+        "Abre un juego y comprueba acceso, controles y sonido."
+      ],
+      "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
+    }
   },
   {
     "id": "ubisoft",
@@ -2019,7 +2434,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y revisa la carpeta donde guardarás los juegos.",
+        "Abre un juego y comprueba acceso, controles y sonido."
+      ],
+      "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
+    }
   },
   {
     "id": "battlenet",
@@ -2033,7 +2455,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y revisa la carpeta donde guardarás los juegos.",
+        "Abre un juego y comprueba acceso, controles y sonido."
+      ],
+      "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
+    }
   },
   {
     "id": "playnite",
@@ -2130,7 +2559,14 @@
     "winget": "MoonlightGameStreamingProject.Moonlight",
     "extra": true,
     "scope": "user",
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Añade la IP del PC con Sunshine y completa el emparejamiento por PIN.",
+        "Prueba imagen, sonido y controles desde la red donde vas a jugar."
+      ],
+      "note": "La instalación no demuestra que el servidor remoto sea accesible."
+    }
   },
   {
     "id": "xboxapp",
@@ -2144,7 +2580,14 @@
     "source": "msstore",
     "extra": true,
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y revisa la carpeta donde guardarás los juegos.",
+        "Abre un juego y comprueba acceso, controles y sonido."
+      ],
+      "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
+    }
   },
   {
     "id": "itch",
@@ -2291,7 +2734,14 @@
     "type": "winget",
     "winget": "LizardByte.Sunshine",
     "context": "machine",
-    "extra": true
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre el panel de Sunshine en https://localhost:47990 y crea sus credenciales.",
+        "Empareja Moonlight con su PIN y prueba imagen, sonido y controles."
+      ],
+      "note": "La cuenta y el emparejamiento no se marcan automáticamente."
+    }
   },
   {
     "id": "vortex",
@@ -2316,7 +2766,14 @@
     "winget": "Google.Chrome",
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre el navegador y revisa el perfil, sincronización y extensiones que quieras usar.",
+        "Abre una página y comprueba que funciona con tu red."
+      ],
+      "note": "El inicio de sesión y las preferencias se confirman manualmente."
+    }
   },
   {
     "id": "brave",
@@ -2329,7 +2786,14 @@
     "winget": "Brave.Brave",
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre el navegador y revisa el perfil, sincronización y extensiones que quieras usar.",
+        "Abre una página y comprueba que funciona con tu red."
+      ],
+      "note": "El inicio de sesión y las preferencias se confirman manualmente."
+    }
   },
   {
     "id": "firefox",
@@ -2343,7 +2807,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre el navegador y revisa el perfil, sincronización y extensiones que quieras usar.",
+        "Abre una página y comprueba que funciona con tu red."
+      ],
+      "note": "El inicio de sesión y las preferencias se confirman manualmente."
+    }
   },
   {
     "id": "arc",
@@ -2359,7 +2830,14 @@
     "context": "user",
     "families": [
       "TheBrowserCompany.Arc_ttt1ap7aakyb4"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Abre el navegador y revisa el perfil, sincronización y extensiones que quieras usar.",
+        "Abre una página y comprueba que funciona con tu red."
+      ],
+      "note": "El inicio de sesión y las preferencias se confirman manualmente."
+    }
   },
   {
     "id": "zen",
@@ -2373,7 +2851,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre el navegador y revisa el perfil, sincronización y extensiones que quieras usar.",
+        "Abre una página y comprueba que funciona con tu red."
+      ],
+      "note": "El inicio de sesión y las preferencias se confirman manualmente."
+    }
   },
   {
     "id": "vivaldi",
@@ -2387,7 +2872,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre el navegador y revisa el perfil, sincronización y extensiones que quieras usar.",
+        "Abre una página y comprueba que funciona con tu red."
+      ],
+      "note": "El inicio de sesión y las preferencias se confirman manualmente."
+    }
   },
   {
     "id": "operagx",
@@ -2401,7 +2893,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre el navegador y revisa el perfil, sincronización y extensiones que quieras usar.",
+        "Abre una página y comprueba que funciona con tu red."
+      ],
+      "note": "El inicio de sesión y las preferencias se confirman manualmente."
+    }
   },
   {
     "id": "librewolf",
@@ -2442,7 +2941,14 @@
     "configure": true,
     "scope": "machine",
     "context": "machine",
-    "keep": true
+    "keep": true,
+    "postInstall": {
+      "steps": [
+        "Abre el navegador y revisa el perfil, sincronización y extensiones que quieras usar.",
+        "Abre una página y comprueba que funciona con tu red."
+      ],
+      "note": "El inicio de sesión y las preferencias se confirman manualmente."
+    }
   },
   {
     "id": "tor",
@@ -2468,7 +2974,14 @@
     "winget": "9PLM9XGG6VKS",
     "source": "msstore",
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "claude",
@@ -2484,7 +2997,14 @@
     "context": "user",
     "families": [
       "Claude_pzs8sxrjxfjjc"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "gemini",
@@ -2497,7 +3017,14 @@
     "winget": "Google.GeminiDesktop",
     "configure": true,
     "scope": "user",
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "antigravity",
@@ -2510,7 +3037,14 @@
     "winget": "Google.Antigravity",
     "configure": true,
     "scope": "user",
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "antigravityide",
@@ -2523,7 +3057,14 @@
     "winget": "Google.AntigravityIDE",
     "configure": true,
     "scope": "user",
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "copilot",
@@ -2537,7 +3078,14 @@
     "source": "msstore",
     "extra": true,
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "ollama",
@@ -2592,7 +3140,14 @@
     "winget": "Obsidian.Obsidian",
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre o crea tu bóveda en la ubicación que quieras conservar.",
+        "Revisa sincronización y abre una nota para comprobar los permisos."
+      ],
+      "note": "No se importan ni inspeccionan tus notas."
+    }
   },
   {
     "id": "notion",
@@ -2609,7 +3164,14 @@
     "context": "user",
     "families": [
       "com.notion.app.desktop.notion_87smfmv0eebam"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "logseq",
@@ -2660,7 +3222,14 @@
     "extra": true,
     "configure": true,
     "scope": "user",
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "mstodo",
@@ -2815,7 +3384,14 @@
     "name": "VirtualBox Guest Additions",
     "desc": "ISO de Guest Additions de la última versión, para montar en las máquinas virtuales",
     "icon": "virtualbox.org",
-    "type": "vboxga"
+    "type": "vboxga",
+    "postInstall": {
+      "steps": [
+        "Monta el ISO de Guest Additions en la máquina virtual adecuada y completa su asistente.",
+        "Reinicia el invitado y comprueba pantalla, ratón y carpetas compartidas."
+      ],
+      "note": "Descargar el ISO no equivale a instalar los complementos en el invitado."
+    }
   },
   {
     "id": "vscode",
@@ -2876,7 +3452,14 @@
     "context": "machine",
     "detectNames": [
       "GitHub Desktop Deployment Tool"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "postman",
@@ -3389,7 +3972,14 @@
     "source": "msstore",
     "extra": true,
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "hpsmart",
@@ -3403,7 +3993,14 @@
     "source": "msstore",
     "extra": true,
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "scrcpy",
@@ -3593,7 +4190,15 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre KDE Connect en ambos equipos y añade la IP de Tailscale si no aparecen.",
+        "Acepta la vinculación en ambos y habilita el complemento de portapapeles.",
+        "Copia texto en cada dirección y comprueba que se pega en el otro equipo."
+      ],
+      "note": "El portapapeles requiere vinculación y una prueba en ambos equipos."
+    }
   },
   {
     "id": "localsend",
@@ -3606,7 +4211,14 @@
     "winget": "LocalSend.LocalSend",
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre LocalSend en ambos dispositivos y permite el acceso en redes privadas.",
+        "Envía un archivo de prueba y comprueba que llega al destino."
+      ],
+      "note": "La instalación no comprueba la comunicación con otro dispositivo."
+    }
   },
   {
     "id": "flux",
@@ -3658,7 +4270,14 @@
     "source": "msstore",
     "extra": true,
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "flameshot",
@@ -4197,7 +4816,14 @@
     "winget": "Discord.Discord",
     "configure": true,
     "scope": "user",
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu móvil y revisa los permisos.",
+        "Comprueba notificaciones y, si procede, micrófono, cámara y sonido."
+      ],
+      "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
+    }
   },
   {
     "id": "whatsapp",
@@ -4211,7 +4837,14 @@
     "source": "msstore",
     "extra": true,
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu móvil y revisa los permisos.",
+        "Comprueba notificaciones y, si procede, micrófono, cámara y sonido."
+      ],
+      "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
+    }
   },
   {
     "id": "telegram",
@@ -4225,7 +4858,14 @@
     "extra": true,
     "configure": true,
     "scope": "user",
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu móvil y revisa los permisos.",
+        "Comprueba notificaciones y, si procede, micrófono, cámara y sonido."
+      ],
+      "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
+    }
   },
   {
     "id": "signal",
@@ -4239,7 +4879,14 @@
     "extra": true,
     "configure": true,
     "scope": "user",
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu móvil y revisa los permisos.",
+        "Comprueba notificaciones y, si procede, micrófono, cámara y sonido."
+      ],
+      "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
+    }
   },
   {
     "id": "slack",
@@ -4256,7 +4903,14 @@
     "context": "user",
     "families": [
       "com.tinyspeck.slackdesktop_8yrtsj140pw4g"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu móvil y revisa los permisos.",
+        "Comprueba notificaciones y, si procede, micrófono, cámara y sonido."
+      ],
+      "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
+    }
   },
   {
     "id": "teams",
@@ -4272,7 +4926,14 @@
     "context": "user",
     "families": [
       "MSTeams_8wekyb3d8bbwe"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu móvil y revisa los permisos.",
+        "Comprueba notificaciones y, si procede, micrófono, cámara y sonido."
+      ],
+      "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
+    }
   },
   {
     "id": "zoom",
@@ -4286,7 +4947,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu móvil y revisa los permisos.",
+        "Comprueba notificaciones y, si procede, micrófono, cámara y sonido."
+      ],
+      "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
+    }
   },
   {
     "id": "thunderbird",
@@ -4339,7 +5007,14 @@
     "winget": "Proton.ProtonMail",
     "context": "user",
     "extra": true,
-    "configure": true
+    "configure": true,
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu móvil y revisa los permisos.",
+        "Comprueba notificaciones y, si procede, micrófono, cámara y sonido."
+      ],
+      "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
+    }
   },
   {
     "id": "viber",
@@ -4380,7 +5055,14 @@
     "extra": true,
     "configure": true,
     "scope": "user",
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "obs",
@@ -4483,7 +5165,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "kdenlive",
@@ -4523,7 +5212,14 @@
     "source": "msstore",
     "extra": true,
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "appletv",
@@ -4537,7 +5233,14 @@
     "source": "msstore",
     "extra": true,
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "jellyfin",
@@ -4732,7 +5435,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "canva",
@@ -4746,7 +5456,14 @@
     "extra": true,
     "configure": true,
     "scope": "user",
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "darktable",
@@ -5004,7 +5721,14 @@
     "winget": "Microsoft.Office",
     "context": "machine",
     "extra": true,
-    "configure": true
+    "configure": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y completa el acceso, licencia o asistente inicial si lo solicita.",
+        "Revisa preferencias y prueba la función que vayas a utilizar."
+      ],
+      "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
+    }
   },
   {
     "id": "drawio",
@@ -5091,7 +5815,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
+        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+      ],
+      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+    }
   },
   {
     "id": "onedrive",
@@ -5105,7 +5836,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
+        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+      ],
+      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+    }
   },
   {
     "id": "icloud",
@@ -5118,7 +5856,14 @@
     "winget": "9PKTQ5699M62",
     "source": "msstore",
     "configure": true,
-    "context": "user"
+    "context": "user",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión en tu cuenta de Apple y completa la verificación.",
+        "Elige qué sincronizar y comprueba que aparecen tus archivos."
+      ],
+      "note": "No borres archivos para probar la sincronización; comprueba con un archivo nuevo."
+    }
   },
   {
     "id": "mega",
@@ -5132,7 +5877,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
+        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+      ],
+      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+    }
   },
   {
     "id": "syncthing",
@@ -5148,7 +5900,14 @@
     "context": "user",
     "commands": [
       "syncthing"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
+        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+      ],
+      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+    }
   },
   {
     "id": "duplicati",
@@ -5162,7 +5921,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
+        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+      ],
+      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+    }
   },
   {
     "id": "protondrive",
@@ -5175,7 +5941,14 @@
     "winget": "Proton.ProtonDrive",
     "context": "user",
     "extra": true,
-    "configure": true
+    "configure": true,
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
+        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+      ],
+      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+    }
   },
   {
     "id": "nextcloud",
@@ -5188,7 +5961,14 @@
     "winget": "Nextcloud.NextcloudDesktop",
     "context": "machine",
     "extra": true,
-    "configure": true
+    "configure": true,
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
+        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+      ],
+      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+    }
   },
   {
     "id": "malwarebytes",
@@ -5215,7 +5995,14 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y completa la autorización o licencia del proveedor.",
+        "Conecta y comprueba el acceso a la red o servicio que necesitas."
+      ],
+      "note": "Una aplicación instalada no garantiza que su conexión o suscripción esté activa."
+    }
   },
   {
     "id": "mullvad",
@@ -5232,7 +6019,14 @@
     "context": "machine",
     "detectNames": [
       "Mullvad VPN 2026.40"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y completa la autorización o licencia del proveedor.",
+        "Conecta y comprueba el acceso a la red o servicio que necesitas."
+      ],
+      "note": "Una aplicación instalada no garantiza que su conexión o suscripción esté activa."
+    }
   },
   {
     "id": "nortonvpn",
@@ -5245,7 +6039,14 @@
     "page": "https://support.norton.com/sp/en/aa/norton-vpn-standard/current/solutions/v117122884",
     "detect": "Norton VPN",
     "configure": true,
-    "optin": true
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y completa la autorización o licencia del proveedor.",
+        "Conecta y comprueba el acceso a la red o servicio que necesitas."
+      ],
+      "note": "Una aplicación instalada no garantiza que su conexión o suscripción esté activa."
+    }
   },
   {
     "id": "warp",
@@ -5272,7 +6073,15 @@
     "extra": true,
     "configure": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y autoriza este equipo en tu red de Tailscale.",
+        "Comprueba desde otro equipo que puedes acceder a la IP de Tailscale.",
+        "Si debe funcionar sin sesión, activa el modo desatendido y prueba después de reiniciar."
+      ],
+      "note": "La comprobación lee el estado de conexión; no guarda credenciales ni prueba otro equipo por ti."
+    }
   },
   {
     "id": "veracrypt",
@@ -5349,7 +6158,14 @@
     "winget": "NordSecurity.NordVPN",
     "context": "machine",
     "extra": true,
-    "configure": true
+    "configure": true,
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y completa la autorización o licencia del proveedor.",
+        "Conecta y comprueba el acceso a la red o servicio que necesitas."
+      ],
+      "note": "Una aplicación instalada no garantiza que su conexión o suscripción esté activa."
+    }
   },
   {
     "id": "windscribe",
@@ -5362,7 +6178,14 @@
     "winget": "Windscribe.Windscribe",
     "context": "machine",
     "extra": true,
-    "configure": true
+    "configure": true,
+    "postInstall": {
+      "steps": [
+        "Inicia sesión y completa la autorización o licencia del proveedor.",
+        "Conecta y comprueba el acceso a la red o servicio que necesitas."
+      ],
+      "note": "Una aplicación instalada no garantiza que su conexión o suscripción esté activa."
+    }
   },
   {
     "id": "wireguard",
@@ -5474,7 +6297,14 @@
     "context": "machine",
     "commands": [
       "bitwarden"
-    ]
+    ],
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
+        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+      ],
+      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+    }
   },
   {
     "id": "keepassxc",
@@ -5516,7 +6346,14 @@
     "winget": "Proton.ProtonPass",
     "context": "user",
     "extra": true,
-    "configure": true
+    "configure": true,
+    "postInstall": {
+      "steps": [
+        "Inicia sesión o vincula tu bóveda, servidor o carpeta.",
+        "Revisa permisos y sincronización; prueba con un elemento nuevo."
+      ],
+      "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
+    }
   },
   {
     "id": "windhawk",

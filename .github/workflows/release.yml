@@ -9,6 +9,7 @@ on:
         required: true
 permissions:
   contents: write
+  checks: read
   # Procedencia firmada de cada descarga (gh attestation verify)
   id-token: write
   attestations: write
@@ -23,6 +24,8 @@ jobs:
           fetch-depth: 0
       - name: Compilar el EXE y preparar notas
         shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           $tag=$env:RELEASE_TAG
           if ($tag -notmatch '^v\d+\.\d+$') { throw 'Tag no valido' }
@@ -36,13 +39,21 @@ jobs:
           }
           git checkout -q $tag
           if ($LASTEXITCODE) { throw 'El tag debe existir antes de publicar' }
+          $commit=(git rev-parse HEAD).Trim()
+          $env:GH_TOKEN=$env:GITHUB_TOKEN
+          $checks=(gh api "repos/$env:GITHUB_REPOSITORY/commits/$commit/check-runs?per_page=100" | ConvertFrom-Json).check_runs
+          if($LASTEXITCODE){throw 'No se pudieron comprobar las pruebas previas a publicación'}
+          foreach($required in @('bootstrap (windows-2025)','bootstrap (windows-11-arm)','acceptance (windows-2025)','acceptance (windows-11-arm)','native (windows-2025)','native (windows-11-arm)')){
+            $check=$checks | Where-Object name -eq $required | Sort-Object started_at -Descending | Select-Object -First 1
+            if(-not $check -or $check.conclusion -ne 'success'){throw "Publicación detenida: falta la prueba correcta $required para $commit"}
+          }
           $output=Join-Path $env:RUNNER_TEMP 'release'
           ./scripts/build_exe.ps1 -OutputDirectory $output -Ref $tag
           Copy-Item install.ps1 $output
           $content=Get-Content CHANGELOG.md -Raw
           $entry=($content -split "(?m)^## $([regex]::Escape($tag)) [^\r\n]*\r?\n",2)[1]
           $entry=($entry -split '(?m)^## v',2)[0]
-          $entry+="`n## Descargar e instalar`nDescarga **iWinInstaller-Setup.exe** y abrelo con doble clic. Incluye la app, winget y sus dependencias de Microsoft. Alternativa portatil: iWinInstaller.zip y abrir iWinInstaller.exe.`n`n[Codigo de esta version](https://github.com/iShun05/iWinInstaller/tree/$tag) · [Historial completo](https://github.com/iShun05/iWinInstaller/blob/main/CHANGELOG.md)`n"
+          $entry+="`n## Descargar e instalar`nDescarga **iWinInstaller-Setup.exe** y abrelo con doble clic. Incluye la app, winget y sus dependencias de Microsoft. Alternativa ZIP: descomprime iWinInstaller.zip y abre iWinInstaller.exe; la primera apertura registra la misma instalación de Windows.`n`n[Codigo de esta version](https://github.com/iShun05/iWinInstaller/tree/$tag) · [Historial completo](https://github.com/iShun05/iWinInstaller/blob/main/CHANGELOG.md)`n"
           $entry | Set-Content (Join-Path $output 'notas.md') -Encoding UTF8
           "OUTPUT=$output" >> $env:GITHUB_ENV
       - name: Firmar la procedencia de las descargas
