@@ -25,7 +25,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v3.2'
+$Version = 'v3.3'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -634,6 +634,72 @@ function Test-RemoteHost {
     }catch{return $false}
 }
 
+# ---------- Control remoto por SSH (solo Tailscale y solo con clave) ----------
+# Permite administrar el PC desde el Mac con PowerShell por SSH. El puerto 22 solo acepta la red de Tailscale
+# y el servidor no admite contraseñas: hace falta una clave pública autorizada.
+$SshDir = Join-Path $env:ProgramData 'ssh'
+$SshConfig = Join-Path $SshDir 'sshd_config'
+$SshAdminKeys = Join-Path $SshDir 'administrators_authorized_keys'
+$SshRuleGroup = 'iWinInstaller SSH'
+$SshShellKey = 'HKLM:\SOFTWARE\OpenSSH'
+$SshMarker = '# iWinInstaller: solo claves'
+$SshDirectives = @($SshMarker, 'PubkeyAuthentication yes', 'PasswordAuthentication no', 'PermitEmptyPasswords no', 'KbdInteractiveAuthentication no', '# iWinInstaller: fin')
+function Get-SshdExe { Join-Path $env:SystemRoot 'System32\OpenSSH\sshd.exe' }
+# Directivas al principio: sshd usa la primera aparición de cada opción, también antes de los bloques Match
+function Set-SshKeyOnlyConfig {
+    $lines = @(Get-Content $SshConfig -Encoding UTF8 -ErrorAction Stop)
+    $start = [array]::IndexOf($lines, $SshMarker)
+    if ($start -ge 0) {
+        $end = [array]::IndexOf($lines, '# iWinInstaller: fin')
+        if ($end -lt $start) { throw 'Bloque de iWinInstaller incompleto en sshd_config.' }
+        $lines = @($lines[0..($start - 1)] | Where-Object { $start -gt 0 }) + @(if ($end + 1 -lt $lines.Count) { $lines[($end + 1)..($lines.Count - 1)] })
+    }
+    [IO.File]::WriteAllLines($SshConfig, [string[]](@($SshDirectives) + @($lines)), (New-Object Text.UTF8Encoding $false))
+}
+function Set-SshAdminKeysAcl {
+    if (-not (Test-Path $SshAdminKeys)) { [IO.File]::WriteAllText($SshAdminKeys, '', (New-Object Text.UTF8Encoding $false)) }
+    & icacls.exe $SshAdminKeys /inheritance:r /grant:r '*S-1-5-32-544:F' '*S-1-5-18:F' | Out-Null
+    if ($LASTEXITCODE) { throw 'No se pudieron proteger las claves autorizadas.' }
+}
+function Set-RemoteSsh {
+    if (-not (Test-Administrator)) { Write-Log '  Necesita permiso de administrador.'; return $false }
+    if (-not (Get-Service sshd -ErrorAction SilentlyContinue)) {
+        $capability = Get-WindowsCapability -Online -ErrorAction Stop | Where-Object Name -like 'OpenSSH.Server*' | Select-Object -First 1
+        if (-not $capability) { throw 'Este Windows no ofrece el componente OpenSSH Server.' }
+        Write-Log "  Instalando $($capability.Name)..."
+        Add-WindowsCapability -Online -Name $capability.Name -ErrorAction Stop | Out-Null
+    }
+    # El primer arranque genera las claves del equipo y sshd_config
+    if (-not (Test-Path $SshConfig)) { Start-Service sshd -ErrorAction Stop; Start-Sleep -Seconds 2; Stop-Service sshd -ErrorAction SilentlyContinue }
+    if (-not (Test-Path $SshConfig)) { throw 'OpenSSH no creó sshd_config.' }
+    $backup = [IO.File]::ReadAllBytes($SshConfig)
+    Set-SshKeyOnlyConfig
+    & (Get-SshdExe) -t 2>&1 | ForEach-Object { Write-Log "    $_" }
+    if ($LASTEXITCODE) { [IO.File]::WriteAllBytes($SshConfig, $backup); throw 'La configuración de SSH no es válida; se ha dejado como estaba.' }
+    Set-SshAdminKeysAcl
+    Set-RegString $SshShellKey 'DefaultShell' (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe')
+    # Firewall: la regla de Windows abre el 22 a cualquier red; se sustituye por una limitada a Tailscale
+    Get-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -ErrorAction SilentlyContinue | Disable-NetFirewallRule
+    Remove-NetFirewallRule -Group $SshRuleGroup -ErrorAction SilentlyContinue
+    New-NetFirewallRule -DisplayName 'SSH por Tailscale' -Group $SshRuleGroup -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22 -RemoteAddress '100.64.0.0/10' -Profile Any -ErrorAction Stop | Out-Null
+    Set-Service sshd -StartupType Automatic -ErrorAction Stop
+    Restart-Service sshd -ErrorAction Stop
+    $keys = @(Get-Content $SshAdminKeys -ErrorAction SilentlyContinue | Where-Object { $_ -match '^(ssh-|ecdsa-|sk-)' })
+    if ($keys.Count) { Write-Log "  SSH listo: $($keys.Count) clave(s) autorizada(s). Conecta con ssh <usuario>@<IP 100.x del PC>." }
+    else {
+        Write-Log "  Falta autorizar una clave: pega la clave pública del Mac (~/.ssh/id_ed25519.pub) en $SshAdminKeys y guarda."
+        if (-not $Silent) { Start-Process notepad.exe -ArgumentList "`"$SshAdminKeys`"" }
+    }
+    return (Test-RemoteSsh)
+}
+function Test-RemoteSsh {
+    $service = Get-Service sshd -ErrorAction SilentlyContinue
+    if (-not $service -or $service.StartType -ne 'Automatic' -or $service.Status -ne 'Running') { return $false }
+    if (-not (Get-NetFirewallRule -Group $SshRuleGroup -ErrorAction SilentlyContinue)) { return $false }
+    $first = @(Get-Content $SshConfig -ErrorAction SilentlyContinue | Where-Object { $_ -match '^\s*PasswordAuthentication\s' } | Select-Object -First 1)
+    return ($first.Count -eq 1 -and $first[0] -match '\bno\s*$')
+}
+
 # ---------- Luces RGB apagadas (OpenRGB) ----------
 # Muchas placas, memorias, gráficas y controladoras vuelven a su efecto de serie al quitarles la corriente:
 # una tarea del sistema vuelve a apagarlas en cada arranque, sin necesidad de iniciar sesión.
@@ -849,6 +915,7 @@ function Install-Tweak($id) {
             'thispc' { Set-RegDword $ExplorerAdv 'LaunchTo' 1; return $true }
             'endtask' { Set-RegDword $DevSettings 'TaskbarEndTask' 1; return $true }
             'remotehost' { return (Set-RemoteHost) }
+            'remotessh' { return (Set-RemoteSsh) }
             'rgboff' { return (Set-RgbOff) }
             'mouseaccel' {
                 Set-RegString $MouseKey 'MouseSpeed' '0'; Set-RegString $MouseKey 'MouseThreshold1' '0'; Set-RegString $MouseKey 'MouseThreshold2' '0'
@@ -894,6 +961,7 @@ function Test-TweakCore($id) {
         'endtask' { return ((Get-RegValue $DevSettings 'TaskbarEndTask') -eq 1) }
         'mouseaccel' { return ((Get-RegValue $MouseKey 'MouseSpeed') -eq '0' -and (Get-RegValue $MouseKey 'MouseThreshold1') -eq '0' -and (Get-RegValue $MouseKey 'MouseThreshold2') -eq '0') }
         'remotehost' { return (Test-RemoteHost) }
+        'remotessh' { return (Test-RemoteSsh) }
         'rgboff' { return (Test-RgbOff) }
     }
     return $false

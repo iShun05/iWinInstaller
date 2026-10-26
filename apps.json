@@ -288,6 +288,28 @@
     }
   },
   {
+    "id": "remotessh",
+    "section": "Sistema",
+    "group": "Acceso remoto",
+    "name": "Control remoto por SSH (Tailscale)",
+    "desc": "PowerShell por SSH solo desde tu red de Tailscale y solo con clave, sin contraseñas; para administrar el PC desde el Mac",
+    "icon": "glyph:E756",
+    "type": "tweak",
+    "context": "machine",
+    "extra": true,
+    "requires": [
+      "tailscale"
+    ],
+    "postInstall": {
+      "steps": [
+        "En el Mac crea una clave con ssh-keygen -t ed25519 si no tienes una.",
+        "Pega el contenido de ~/.ssh/id_ed25519.pub en el archivo que abre la app (administrators_authorized_keys) y guarda.",
+        "Desde el Mac prueba ssh <usuario>@<IP 100.x del PC>."
+      ],
+      "note": "La app comprueba servicio, firewall y que las contraseñas están desactivadas; la clave autorizada la añades tú."
+    }
+  },
+  {
     "id": "chromeremote",
     "section": "Sistema",
     "group": "Acceso remoto",
