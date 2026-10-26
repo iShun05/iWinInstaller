@@ -164,6 +164,48 @@
     "extra": true
   },
   {
+    "id": "autologon",
+    "section": "Sistema",
+    "group": "Acceso remoto",
+    "name": "Autologon (Sysinternals)",
+    "desc": "Inicia sesión sola al encender; la contraseña la guarda Windows cifrada. Ábrelo con «PC siempre disponible»",
+    "icon": "sysinternals.com",
+    "type": "winget",
+    "winget": "Microsoft.Sysinternals.Autologon",
+    "context": "machine",
+    "extra": true
+  },
+  {
+    "id": "remotehost",
+    "section": "Sistema",
+    "group": "Acceso remoto",
+    "name": "PC siempre disponible (escritorio remoto)",
+    "desc": "Sin suspensión, Wake-on-LAN y Sunshine y Tailscale como servicios que se reinician solos; para jugar desde fuera con Moonlight",
+    "icon": "glyph:E7F4",
+    "type": "tweak",
+    "context": "machine",
+    "extra": true,
+    "requires": [
+      "sunshine",
+      "tailscale"
+    ]
+  },
+  {
+    "id": "chromeremote",
+    "section": "Sistema",
+    "group": "Acceso remoto",
+    "name": "Escritorio remoto de Chrome (anfitrión)",
+    "desc": "Respaldo por navegador en remotedesktop.google.com cuando la red solo deja HTTPS; sin instalar nada en el otro equipo",
+    "icon": "remotedesktop.google.com",
+    "type": "winget",
+    "winget": "Google.ChromeRemoteDesktopHost",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true,
+    "configure": true,
+    "noopen": true
+  },
+  {
     "id": "bleachbit",
     "section": "Sistema",
     "group": "Optimización y privacidad",

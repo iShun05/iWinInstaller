@@ -23,7 +23,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v2.6'
+$Version = 'v2.7'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -495,6 +495,126 @@ function Invoke-MachineTweak($cmd) {
     if (Test-Administrator) { Invoke-Expression $cmd; return $true }
     Invoke-Elevated $cmd
 }
+# ---------- PC anfitrión de escritorio remoto (Sunshine + Tailscale) ----------
+# Deja el PC disponible sin estar delante: no se suspende, los servicios arrancan solos y se reinician si fallan.
+# Sunshine corre como servicio y transmite también la pantalla de inicio de sesión: tras un corte se entra desde Moonlight.
+$RemoteServices = @('SunshineService', 'Tailscale')
+$WinlogonKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon'
+$PasswordLessKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device'
+# Valor de corriente alterna de un ajuste de energía del plan activo (powercfg muestra CA y después CC)
+function Get-AcPowerValue([string]$sub, [string]$setting) {
+    $hex = [regex]::Matches((& powercfg /query SCHEME_CURRENT $sub $setting 2>$null | Out-String), '0x[0-9a-fA-F]{8}')
+    if ($hex.Count -lt 2) { return $null }
+    [Convert]::ToInt64($hex[$hex.Count - 2].Value, 16)
+}
+function Get-TailscaleExe {
+    $exe = Join-Path $env:ProgramFiles 'Tailscale\tailscale.exe'
+    if (Test-Path $exe) { return $exe }
+    (Get-Command tailscale.exe -ErrorAction SilentlyContinue).Source
+}
+function Get-AutologonExe {
+    $dirs = @((Join-Path $env:ProgramFiles 'WinGet\Links'), (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links'))
+    foreach ($name in 'Autologon64.exe', 'Autologon.exe') {
+        foreach ($dir in $dirs) { $path = Join-Path $dir $name; if (Test-Path $path) { return $path } }
+        $cmd = Get-Command $name -ErrorAction SilentlyContinue
+        if ($cmd) { return $cmd.Source }
+    }
+    $null
+}
+# Accesos web en el escritorio y el menú Inicio públicos (carpeta «Acceso remoto»; Organize-Desktop no mueve carpetas)
+$RemoteLinks = [ordered]@{
+    'Sunshine (panel)' = 'https://localhost:47990'
+    'Tailscale (equipos)' = 'https://login.tailscale.com/admin/machines'
+    'Escritorio remoto de Chrome' = 'https://remotedesktop.google.com/access'
+}
+function Get-RemoteLinkDirs {
+    @([Environment]::GetFolderPath('CommonDesktopDirectory'), [Environment]::GetFolderPath('CommonPrograms')) |
+        Where-Object { $_ } | ForEach-Object { Join-Path $_ 'Acceso remoto' }
+}
+function Set-RemoteLinks {
+    foreach ($dir in Get-RemoteLinkDirs) {
+        New-Item $dir -ItemType Directory -Force | Out-Null
+        foreach ($name in $RemoteLinks.Keys) {
+            Set-Content (Join-Path $dir "$name.url") @('[InternetShortcut]', "URL=$($RemoteLinks[$name])") -Encoding ASCII
+        }
+        Write-Log "  Accesos directos en $dir"
+    }
+}
+function Set-RemoteHost {
+    if (-not (Test-Administrator)) { Write-Log '  Necesita permiso de administrador.'; return $false }
+    $ok = $true
+    # Energía: nunca suspender ni hibernar con corriente; sin hibernación tampoco hay inicio rápido,
+    # que deja el equipo a medias tras un corte e impide Wake-on-LAN desde apagado
+    & powercfg /change standby-timeout-ac 0
+    & powercfg /change hibernate-timeout-ac 0
+    & powercfg /hibernate off 2>$null
+    if ((Get-AcPowerValue 'SUB_SLEEP' 'STANDBYIDLE') -ne 0) { Write-Log '  No se pudo desactivar la suspensión.'; $ok = $false }
+    # Red: Wake-on-LAN y sin ahorro de energía en los adaptadores físicos
+    foreach ($nic in @(Get-NetAdapter -Physical -ErrorAction SilentlyContinue | Where-Object Status -ne 'Disabled')) {
+        try {
+            Set-NetAdapterPowerManagement -Name $nic.Name -WakeOnMagicPacket Enabled -AllowComputerToTurnOffDevice Disabled -ErrorAction Stop
+            Write-Log "  Wake-on-LAN activado en $($nic.Name)"
+        } catch { Write-Log "  $($nic.Name): el adaptador no admite Wake-on-LAN o ahorro configurable." }
+    }
+    # Servicios: arranque automático y reinicio a los 10 s si se cierran
+    foreach ($svc in $RemoteServices) {
+        if (-not (Get-Service $svc -ErrorAction SilentlyContinue)) { Write-Log "  Falta el servicio ${svc}: instala Sunshine y Tailscale."; $ok = $false; continue }
+        Set-Service $svc -StartupType Automatic
+        & sc.exe failure $svc reset= 86400 actions= restart/10000/restart/10000/restart/60000 | Out-Null
+        Start-Service $svc -ErrorAction SilentlyContinue
+        Write-Log "  ${svc}: automático y con reinicio tras fallo"
+    }
+    # Tailscale sin sesión de Windows abierta (modo desatendido); requiere haber iniciado sesión en Tailscale
+    $ts = Get-TailscaleExe
+    if ($ts) {
+        & $ts status *> $null
+        if ($LASTEXITCODE -eq 0) {
+            & $ts set --unattended=true 2>&1 | ForEach-Object { Write-Log "    $_" }
+            if ($LASTEXITCODE -eq 0) { Write-Log '  Tailscale en modo desatendido.' } else { Write-Log '  Tailscale no aceptó el modo desatendido; actívalo en su menú (Preferences › Run unattended).' }
+        } else {
+            Write-Log '  Tailscale: abre la app, inicia sesión y vuelve a aplicar este ajuste para el modo desatendido.'
+        }
+        Write-Log '  En login.tailscale.com › Machines › este PC › «Disable key expiry» para que no caduque.'
+    }
+    # Inicio de sesión automático (opcional): Autologon guarda la contraseña cifrada como secreto LSA
+    if ((Get-RegValue $WinlogonKey 'AutoAdminLogon') -ne '1') {
+        $autologon = Get-AutologonExe
+        if ($autologon) {
+            # Con «solo Windows Hello» activado, Windows ignora el inicio automático
+            Set-RegDword $PasswordLessKey 'DevicePasswordLessBuildVersion' 0
+            Start-Process $autologon -ArgumentList '/accepteula'
+            Write-Log '  Autologon abierto: escribe tu contraseña de Windows (no el PIN) y pulsa Enable.'
+        } else {
+            Write-Log '  Sin inicio automático: tras un reinicio, inicia sesión desde Moonlight en la pantalla de bloqueo.'
+        }
+    }
+    try { Set-RemoteLinks } catch { Write-Log "  No se pudieron crear los accesos directos: $($_.Exception.Message)" }
+    Write-Log '  Primera vez en casa: abre https://localhost:47990, crea el usuario de Sunshine y empareja Moonlight con su PIN.'
+    Write-Log '  BIOS/UEFI: «Restore on AC Power Loss» = Power On para que arranque solo tras un corte de luz.'
+    return $ok
+}
+function Reset-RemoteHost {
+    if (-not (Test-Administrator)) { Write-Log '  Necesita permiso de administrador.'; return $false }
+    # Valores habituales de Windows en sobremesa
+    & powercfg /change standby-timeout-ac 30
+    & powercfg /hibernate on 2>$null
+    foreach ($svc in $RemoteServices) {
+        if (Get-Service $svc -ErrorAction SilentlyContinue) { & cmd.exe /d /c "sc.exe failure $svc reset= 0 actions= `"`"" | Out-Null }
+    }
+    $ts = Get-TailscaleExe
+    if ($ts) { & $ts set --unattended=false *> $null }
+    foreach ($dir in Get-RemoteLinkDirs) { Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue }
+    Write-Log '  El inicio de sesión automático se quita desde Autologon (Disable).'
+    return $true
+}
+function Test-RemoteHost {
+    if ((Get-AcPowerValue 'SUB_SLEEP' 'STANDBYIDLE') -ne 0) { return $false }
+    foreach ($svc in $RemoteServices) {
+        $s = Get-Service $svc -ErrorAction SilentlyContinue
+        if (-not $s -or $s.StartType -ne 'Automatic') { return $false }
+    }
+    $true
+}
 function Install-Tweak($id) {
     try {
         switch ($id) {
@@ -532,6 +652,7 @@ function Install-Tweak($id) {
             'clockseconds' { Set-RegDword $ExplorerAdv 'ShowSecondsInSystemClock' 1; return $true }
             'thispc' { Set-RegDword $ExplorerAdv 'LaunchTo' 1; return $true }
             'endtask' { Set-RegDword $DevSettings 'TaskbarEndTask' 1; return $true }
+            'remotehost' { return (Set-RemoteHost) }
             'mouseaccel' {
                 Set-RegString $MouseKey 'MouseSpeed' '0'; Set-RegString $MouseKey 'MouseThreshold1' '0'; Set-RegString $MouseKey 'MouseThreshold2' '0'
                 Write-Log '  Se aplica al reiniciar la sesión.'
@@ -558,6 +679,7 @@ function Uninstall-Tweak($id) {
             'clockseconds' { Set-RegDword $ExplorerAdv 'ShowSecondsInSystemClock' 0; return $true }
             'thispc' { Remove-ItemProperty $ExplorerAdv -Name 'LaunchTo' -ErrorAction SilentlyContinue; return $true }
             'endtask' { Set-RegDword $DevSettings 'TaskbarEndTask' 0; return $true }
+            'remotehost' { return (Reset-RemoteHost) }
             'mouseaccel' { Set-RegString $MouseKey 'MouseSpeed' '1'; Set-RegString $MouseKey 'MouseThreshold1' '6'; Set-RegString $MouseKey 'MouseThreshold2' '10'; return $true }
         }
     } catch { Write-Log "  $($_.Exception.Message)" }
@@ -590,6 +712,7 @@ function Test-TweakCore($id) {
         'thispc' { return ((Get-RegValue $ExplorerAdv 'LaunchTo') -eq 1) }
         'endtask' { return ((Get-RegValue $DevSettings 'TaskbarEndTask') -eq 1) }
         'mouseaccel' { return ((Get-RegValue $MouseKey 'MouseSpeed') -eq '0') }
+        'remotehost' { return (Test-RemoteHost) }
     }
     return $false
 }
