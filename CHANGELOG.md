@@ -1,5 +1,15 @@
 # Historial de versiones
 
+## v3.0 — 2026-10-26
+
+### Añadido
+- **Pantalla virtual (Virtual Display Driver)** en Sistema › Acceso remoto y en el perfil **Escritorio remoto**: Windows conserva un monitor virtual, de modo que Sunshine sigue transmitiendo con las pantallas apagadas o el HDMI desconectado.
+- **PC siempre disponible** indica en el registro si hay pantalla virtual y, con el monitor encendido, cómo duplicar (`Win + P`).
+
+### Archivos y pruebas
+- **Archivos**: `iWinInstaller.ps1`, `apps.json`, `profiles.json`, `README.md`, `tests/check-acceptance.ps1`.
+- **Verificación**: parser de PowerShell sin errores y JSON válidos. Pendiente: id de winget en los runners y prueba sin monitor en el PC.
+
 ## v2.9 — 2026-10-26
 
 ### Añadido

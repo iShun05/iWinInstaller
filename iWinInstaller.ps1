@@ -23,7 +23,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v2.9'
+$Version = 'v3.0'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -599,6 +599,11 @@ function Set-RemoteHost {
     }
     try { Set-RemoteLinks } catch { Write-Log "  No se pudieron crear los accesos directos: $($_.Exception.Message)" }
     Write-Log '  Primera vez en casa: abre https://localhost:47990, crea el usuario de Sunshine y empareja Moonlight con su PIN.'
+    if (Get-PnpDevice -Class Display -ErrorAction SilentlyContinue | Where-Object FriendlyName -match 'Virtual Display') {
+        Write-Log '  Pantalla virtual presente: Sunshine transmite aunque apagues o desconectes los monitores. Con el monitor encendido, Win + P › Duplicar evita que el ratón se vaya a la pantalla virtual.'
+    } else {
+        Write-Log '  Sin pantalla virtual: al apagar o desconectar el monitor Sunshine se queda sin imagen. Instala «Pantalla virtual» o usa un adaptador HDMI fantasma.'
+    }
     Write-Log '  BIOS/UEFI: «Restore on AC Power Loss» = Power On para que arranque solo tras un corte de luz.'
     return $ok
 }
