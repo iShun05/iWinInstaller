@@ -257,8 +257,9 @@
     "extra": true,
     "postInstall": {
       "steps": [
-        "Abre Autologon, introduce la cuenta y contraseña de Windows y pulsa Enable si deseas inicio automático.",
-        "Reinicia y comprueba el inicio de sesión. Usa Disable para retirarlo."
+        "Abre Autologon e introduce tu usuario, dominio (el nombre del equipo) y contraseña de Windows; pulsa Enable.",
+        "Si cambias el nombre del equipo en Windows, vuelve a abrir Autologon y pulsa Enable con el nombre nuevo.",
+        "Reinicia y comprueba que entra solo. Usa Disable para retirarlo."
       ],
       "note": "Es opcional. La contraseña se introduce en la herramienta oficial, nunca en iWinInstaller."
     }
@@ -302,9 +303,9 @@
     ],
     "postInstall": {
       "steps": [
-        "En el Mac crea una clave con ssh-keygen -t ed25519 si no tienes una.",
-        "Pega el contenido de ~/.ssh/id_ed25519.pub en el archivo que abre la app (administrators_authorized_keys) y guarda.",
-        "Desde el Mac prueba ssh <usuario>@<IP 100.x del PC>."
+        "En el otro equipo crea una clave con ssh-keygen -t ed25519 si no tienes una.",
+        "Pega tu clave pública (~/.ssh/id_ed25519.pub) en el archivo que abre la app (administrators_authorized_keys) y guarda. Nunca compartas la clave privada.",
+        "Prueba ssh <usuario>@<IP 100.x del PC>; opcionalmente añade un alias en ~/.ssh/config con Host, HostName y User."
       ],
       "note": "La app comprueba servicio, firewall y que las contraseñas están desactivadas; la clave autorizada la añades tú."
     }
@@ -369,7 +370,9 @@
     ],
     "postInstall": {
       "steps": [
-        "Abre Configuración › Pantalla y comprueba que aparece un monitor más.",
+        "Aplica también «Pantalla virtual» si falta el controlador: este ajuste crea el monitor con devcon (Root\\MttVDD) y copia vdd_settings.xml a C:\\VirtualDisplayDriver.",
+        "Abre Configuración › Pantalla y comprueba que aparece un monitor más; elige su resolución y, con el monitor físico encendido, Win + P › Duplicar.",
+        "En Sunshine (https://localhost:47990) › Audio/Video deja la pantalla en automático o elige la virtual si se queda en negro.",
         "Apaga los monitores o quita el HDMI y conéctate con Moonlight desde otro equipo."
       ],
       "note": "Al deshacer se quita el monitor virtual; el controlador sigue instalado."
@@ -2631,8 +2634,9 @@
     "context": "user",
     "postInstall": {
       "steps": [
-        "Añade la IP del PC con Sunshine y completa el emparejamiento por PIN.",
-        "Prueba imagen, sonido y controles desde la red donde vas a jugar."
+        "Con Tailscale conectado, pulsa + y escribe la IP 100.x del PC con Sunshine.",
+        "Introduce el PIN que muestra Moonlight en el panel de Sunshine (https://localhost:47990 › PIN).",
+        "Prueba imagen, sonido y controles desde la red donde vas a jugar; si la red bloquea UDP, baja la tasa de bits."
       ],
       "note": "La instalación no demuestra que el servidor remoto sea accesible."
     }
@@ -2807,6 +2811,7 @@
     "postInstall": {
       "steps": [
         "Abre el panel de Sunshine en https://localhost:47990 y crea sus credenciales.",
+        "En Audio/Video deja el dispositivo de audio en automático para que el sonido llegue al cliente (y no suene en el PC si no hay nadie).",
         "Empareja Moonlight con su PIN y prueba imagen, sonido y controles."
       ],
       "note": "La cuenta y el emparejamiento no se marcan automáticamente."
@@ -4278,8 +4283,10 @@
     "context": "machine",
     "postInstall": {
       "steps": [
-        "Abre KDE Connect en ambos equipos y añade la IP de Tailscale si no aparecen.",
-        "Acepta la vinculación en ambos y habilita el complemento de portapapeles.",
+        "Abre KDE Connect en ambos equipos con Tailscale conectado.",
+        "Si no se ven, en Configuración › Dispositivos › Añadir dispositivo escribe la IP 100.x del otro equipo.",
+        "Si Windows bloquea la conexión, marca la red como Privada o vuelve a aplicar «PC siempre disponible», que abre los puertos 1714-1764 solo para Tailscale.",
+        "Acepta la vinculación en ambos y, en el complemento Portapapeles, activa compartir automáticamente.",
         "Copia texto en cada dirección y comprueba que se pega en el otro equipo."
       ],
       "note": "El portapapeles requiere vinculación y una prueba en ambos equipos."
