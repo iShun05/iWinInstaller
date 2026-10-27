@@ -81,7 +81,7 @@ jobs:
           "Instalado: $(Test-Path "$d\iWinInstaller.ps1") · versión: $(Get-Content "$d\instalado.txt" -ErrorAction SilentlyContinue) · acceso directo: $(Test-Path $lnk)" | Tee-Object resultados\8-instalador.txt -Append
       - name: Conservar resultados de prueba
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: resultados-windows
           path: resultados/

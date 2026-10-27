@@ -29,7 +29,7 @@ jobs:
         run: ./iWinInstaller.ps1
       - name: Conservar el diagnóstico de la prueba
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: aceptacion-windows-${{ matrix.os }}
           path: |
