@@ -1,5 +1,18 @@
 # Historial de versiones
 
+## v3.5 — 2026-10-27
+
+### Añadido
+- **Brave normal y Brave limpio** en Aplicaciones → Navegadores. Ambos usan el instalador oficial `Brave.Brave`; la opción limpia añade políticas locales del usuario para desactivar Rewards, Wallet/Web3, VPN, Leo, noticias y Talk, manteniendo Shields y Sync. No desbloquea Brave Origin ni modifica licencias.
+- **Aspecto del perfil principal**: tema oscuro/ultraoscuro, fondo negro fijo, tarjetas y anuncios de nueva pestaña apagados, sin botones promocionales ni barra de marcadores. Los perfiles adicionales no se copian ni cambian de aspecto. Los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión de Brave.
+- **Deshacer** recupera las políticas anteriores y únicamente los valores visuales afectados. Conserva cuentas, contraseñas, marcadores y preferencias ajenas. Exige cerrar Brave antes de aplicar o restaurar; no termina procesos por su cuenta.
+
+### Archivos y pruebas
+- Windows 10/11 x86, x64 y ARM64 según disponibilidad del instalador oficial. Sin variantes macOS/iOS.
+- Archivos: `apps.json`, `iWinInstaller.ps1`, `lifecycle.ps1`, versiones de `install.ps1` y `native/Launcher.cs`, README, regresión `tests/check-brave-clean.ps1` y workflow bootstrap.
+- Regresión aislada: aplicación y verificación de políticas, conservación de datos ajenos, restauración de valores/ausencia, rechazo de JSON inválido y de perfiles abiertos. CI Windows x64/ARM64 pendiente antes de publicar.
+- Widevine requiere aceptación del usuario dentro de Brave; no se activa ni acepta un contrato automáticamente. La configuración puede mostrar «Administrado por tu organización» y se revierte desde Brave limpio → Deshacer. Brave normal no deshace una limpieza existente.
+
 ## v3.4 — 2026-10-26
 
 ### Corregido

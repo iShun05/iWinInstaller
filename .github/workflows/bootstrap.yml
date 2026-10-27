@@ -28,6 +28,9 @@ jobs:
       - name: Inventario, versiones y fallos RGB
         shell: powershell
         run: ./tests/check-audit.ps1
+      - name: Brave limpio sin datos personales
+        shell: powershell
+        run: ./tests/check-brave-clean.ps1
       - name: Reanudar, pausar, restaurar y comprobar postinstalación
         shell: powershell
         run: ./tests/check-lifecycle.ps1

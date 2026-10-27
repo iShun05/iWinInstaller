@@ -2853,8 +2853,8 @@
     "id": "brave",
     "section": "Aplicaciones",
     "group": "Navegadores",
-    "name": "Brave",
-    "desc": "Navegador privado con bloqueo de anuncios",
+    "name": "Brave normal",
+    "desc": "Brave oficial con su configuracion predeterminada (sin limpieza adicional)",
     "icon": "brave.com",
     "type": "winget",
     "winget": "Brave.Brave",
@@ -2867,6 +2867,29 @@
         "Abre una página y comprueba que funciona con tu red."
       ],
       "note": "El inicio de sesión y las preferencias se confirman manualmente."
+    }
+  },
+  {
+    "id": "braveclean",
+    "section": "Aplicaciones",
+    "group": "Navegadores",
+    "name": "Brave limpio",
+    "desc": "Instala Brave oficial y aplica un perfil principal oscuro, sin cripto, Leo, VPN ni tarjetas promocionales. Reversible.",
+    "icon": "brave.com",
+    "type": "tweak",
+    "context": "user",
+    "requires": [
+      "brave"
+    ],
+    "configure": true,
+    "postInstall": {
+      "steps": [
+        "Cierra Brave antes de aplicar o deshacer el ajuste. No se cierran ventanas automaticamente.",
+        "Abre Brave: comprueba el perfil principal oscuro y la nueva pestaña sin tarjetas. Los perfiles adicionales conservan su aspecto.",
+        "En brave://policy comprueba las politicas. Puede aparecer Administrado por tu organizacion por estos ajustes locales.",
+        "Configura Sync y tus extensiones personalmente. Para Netflix o Prime Video activa Widevine si aceptas sus condiciones y prueba la reproduccion."
+      ],
+      "note": "Es el navegador oficial gratuito, no Brave Origin ni un desbloqueo de pago. Guarda solo los valores afectados para Deshacer; no copia perfiles, cuentas, marcadores, contraseñas ni codigos Sync. Brave normal no revierte una limpieza existente: usa Deshacer en Brave limpio."
     }
   },
   {

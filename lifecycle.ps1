@@ -202,9 +202,124 @@ function Test-PostInstall($app) {
         [pscustomobject]@{ Ok=$true; Text='Comprobación técnica correcta. Confirma abajo las pruebas de uso que requieren tu intervención.' }
     } catch { [pscustomobject]@{ Ok=$false; Text=('No se pudo confirmar: ' + $_.Exception.Message) } }
 }
+
+# Brave oficial: solo preferencias visuales permitidas; nunca cuentas, claves ni perfiles copiados.
+function Get-BraveCleanPolicies {
+    [ordered]@{BraveRewardsDisabled=1;BraveWalletDisabled=1;BraveVPNDisabled=1;BraveAIChatEnabled=0;BraveNewsDisabled=1;BraveTalkDisabled=1}
+}
+function Get-BraveCleanPreferences {
+    [ordered]@{
+        'browser.theme.color_scheme2'=2
+        'brave.darker_mode'=$true
+        'brave.new_tab_page.background.random'=$false
+        'brave.new_tab_page.background.selected_value'='#000000'
+        'brave.new_tab_page.background.type'='color'
+        'brave.new_tab_page.show_background_image'=$true
+        'brave.new_tab_page.show_brave_news'=$false
+        'brave.new_tab_page.show_brave_vpn'=$false
+        'brave.new_tab_page.show_rewards'=$false
+        'brave.new_tab_page.show_stats'=$false
+        'brave.new_tab_page.show_together'=$false
+        'brave.brave_ads.sponsored.enabled'=$false
+        'brave.brave_vpn.show_button'=$false
+        'brave.ai_chat.show_toolbar_button'=$false
+        'brave.rewards.show_brave_rewards_button_in_location_bar'=$false
+        'brave.wallet.show_wallet_icon_on_toolbar'=$false
+        'brave.show_side_panel_button'=$false
+        'brave.today.should_show_toolbar_button'=$false
+        'bookmark_bar.visibility_state'=2
+        'bookmark_bar.show_on_all_tabs'=$false
+        'ntp.shortcust_visible'=$false
+    }
+}
+function Assert-BraveClosed {
+    if(Get-Process -Name brave -ErrorAction SilentlyContinue){throw 'Cierra Brave (incluidos sus procesos en segundo plano) y vuelve a aplicar. No se cierra el navegador ni se toca un perfil abierto.'}
+}
+function Get-BraveDefaultPreferencesPath {
+    $base=Join-Path $env:LOCALAPPDATA 'BraveSoftware\Brave-Browser\User Data'
+    foreach($path in @((Join-Path $env:LOCALAPPDATA 'BraveSoftware'),(Join-Path $env:LOCALAPPDATA 'BraveSoftware\Brave-Browser'),$base,(Join-Path $base 'Default'),(Join-Path $base 'Default\Preferences'))){
+        if((Test-Path -LiteralPath $path) -and ((Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'No se modifica Brave a traves de enlaces de archivos o carpetas.'}
+    }
+    Join-Path $base 'Default\Preferences'
+}
+function Read-BravePreferences {
+    $path=Get-BraveDefaultPreferencesPath
+    if(-not(Test-Path -LiteralPath $path)){return [pscustomobject]@{}}
+    if((Get-Item -LiteralPath $path).Length -gt 16MB){throw 'El archivo de preferencias de Brave es demasiado grande para editarlo de forma segura.'}
+    $value=Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
+    if($value -isnot [pscustomobject]){throw 'Las preferencias de Brave no son un objeto JSON valido.'}
+    $value
+}
+function Get-BravePreference($document,[string]$name) {
+    $node=$document
+    foreach($part in $name.Split('.')){
+        if($node -isnot [pscustomobject]){return [pscustomobject]@{exists=$false;value=$null}}
+        $property=$node.PSObject.Properties[$part]
+        if(-not $property){return [pscustomobject]@{exists=$false;value=$null}}
+        $node=$property.Value
+    }
+    [pscustomobject]@{exists=$true;value=$node}
+}
+function Set-BravePreference($document,[string]$name,$value,[bool]$exists=$true) {
+    $parts=$name.Split('.');$node=$document
+    for($index=0;$index -lt $parts.Length-1;$index++){
+        $property=$node.PSObject.Properties[$parts[$index]]
+        if(-not $property){if(-not $exists){return};$node | Add-Member NoteProperty $parts[$index] ([pscustomobject]@{});$property=$node.PSObject.Properties[$parts[$index]]}
+        if($property.Value -isnot [pscustomobject]){throw 'Una preferencia de Brave tiene una estructura inesperada; no se sobrescribe.'}
+        $node=$property.Value
+    }
+    $leaf=$parts[-1]
+    if($exists){$node | Add-Member NoteProperty $leaf $value -Force}else{$node.PSObject.Properties.Remove($leaf)}
+}
+function Get-BraveCleanSnapshot {
+    Assert-BraveClosed
+    $document=Read-BravePreferences
+    $values=@()
+    foreach($name in (Get-BraveCleanPreferences).Keys){$values+=Get-BravePreference $document $name}
+    [pscustomobject]@{format=1;values=$values}
+}
+function Set-BraveCleanPreferences($snapshot=$null) {
+    Assert-BraveClosed
+    $document=Read-BravePreferences
+    $settings=Get-BraveCleanPreferences
+    if($null -ne $snapshot -and ($snapshot.format -ne 1 -or @($snapshot.values).Count -ne $settings.Count)){throw 'Estado visual anterior de Brave no valido.'}
+    $index=0
+    foreach($name in $settings.Keys){
+        if($null -eq $snapshot){Set-BravePreference $document $name $settings[$name]}
+        else{$entry=$snapshot.values[$index];Set-BravePreference $document $name $entry.value ([bool]$entry.exists)}
+        $index++
+    }
+    # Profundidad suficiente para conservar campos ajenos; una serializacion truncada nunca se escribe.
+    $json=ConvertTo-Json -InputObject $document -Depth 100 -WarningAction Stop
+    $path=Get-BraveDefaultPreferencesPath;$parent=Split-Path $path -Parent
+    New-Item $parent -ItemType Directory -Force -ErrorAction Stop | Out-Null
+    $temporary=Join-Path $parent ([guid]::NewGuid().ToString('N')+'.tmp')
+    try{
+        [IO.File]::WriteAllText($temporary,$json,(New-Object Text.UTF8Encoding $false))
+        Assert-BraveClosed
+        if(Test-Path -LiteralPath $path){[IO.File]::Replace($temporary,$path,[NullString]::Value)}else{[IO.File]::Move($temporary,$path)}
+    }finally{Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue}
+}
+function Set-BraveClean {
+    Set-BraveCleanPreferences
+    foreach($name in (Get-BraveCleanPolicies).Keys){Set-RegDword 'HKCU:\Software\Policies\BraveSoftware\Brave' $name (Get-BraveCleanPolicies)[$name]}
+    Write-Log '  Brave limpio: cripto, Leo, VPN y noticias desactivados; perfil principal oscuro sin tarjetas. Sync y Shields se conservan. Deshacer restaura los valores anteriores.'
+    return (Test-BraveClean)
+}
+function Test-BraveClean {
+    $settings=Get-BraveCleanPolicies
+    foreach($name in $settings.Keys){if((Get-RegValue 'HKCU:\Software\Policies\BraveSoftware\Brave' $name) -ne $settings[$name]){return $false}}
+    try{
+        $document=Read-BravePreferences
+        foreach($name in (Get-BraveCleanPreferences).Keys){$entry=Get-BravePreference $document $name;if(-not $entry.exists -or $entry.value -cne (Get-BraveCleanPreferences)[$name]){return $false}}
+    }catch{return $false}
+    return $true
+}
+
 # Restauración: rutas y nombres permitidos proceden del código, nunca del archivo guardado.
 function Get-TweakRegistryTargets($id) {
     switch ($id) {
+        'braveclean' { foreach($name in (Get-BraveCleanPolicies).Keys){ ,@('HKCU:\Software\Policies\BraveSoftware\Brave',$name) } }
         'showext' { ,@($ExplorerAdv,'HideFileExt') }
         'showhidden' { ,@($ExplorerAdv,'Hidden') }
         'darkmode' { ,@($Personalize,'AppsUseLightTheme'); ,@($Personalize,'SystemUsesLightTheme') }
@@ -264,6 +379,7 @@ function Save-TweakSnapshot($id) {
     }
     if ($id -eq 'remotehost') { $state.remote=Get-RemoteSnapshot }
     if ($id -eq 'remotessh') { $state.remote=Get-SshSnapshot }
+    if ($id -eq 'braveclean') { $state.brave=Get-BraveCleanSnapshot }
     Write-IwinJson $path $state
 }
 function Restore-TweakSnapshot($id) {
@@ -276,6 +392,7 @@ function Restore-TweakSnapshot($id) {
     $state=Get-Content $path -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop
     $targets=@(Get-TweakRegistryTargets $id)
     if ($state.format -ne 'iWinInstaller-restauracion' -or $state.version -ne 1 -or $state.id -ne $id -or @($state.values).Count -ne $targets.Count) { throw 'Estado de restauración no válido.' }
+    if($id -eq 'braveclean'){if(-not $state.brave){throw 'Falta el estado visual anterior de Brave.'};Set-BraveCleanPreferences $state.brave}
     for ($index=0;$index -lt $targets.Count;$index++) {
         $target=$targets[$index];$value=$state.values[$index]
         if ($value.exists) {

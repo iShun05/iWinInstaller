@@ -7,8 +7,8 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-[assembly: AssemblyVersion("3.4.0.0")]
-[assembly: AssemblyFileVersion("3.4.0.0")]
+[assembly: AssemblyVersion("3.5.0.0")]
+[assembly: AssemblyFileVersion("3.5.0.0")]
 
 static class Launcher {
     static readonly object LogLock = new object();
@@ -21,12 +21,12 @@ static class Launcher {
         try {
             Directory.CreateDirectory(logs);
             Environment.CurrentDirectory = logs;
-            Log("iWinInstaller v3.4; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
+            Log("iWinInstaller v3.5; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
 #if SETUP
             bool quiet = Array.IndexOf(args, "--silent") >= 0;
             if (quiet) { Install(); return 0; }
             using (Form form = new Form()) {
-                form.Text = "iWinInstaller v3.4"; form.Width = 560; form.Height = 230;
+                form.Text = "iWinInstaller v3.5"; form.Width = 560; form.Height = 230;
                 form.StartPosition = FormStartPosition.CenterScreen;
                 form.FormBorderStyle = FormBorderStyle.FixedDialog; form.ControlBox = false;
                 form.BackColor = System.Drawing.Color.Black; form.ForeColor = System.Drawing.Color.White;
