@@ -9,7 +9,7 @@
 
 ### Archivos y pruebas
 - **Archivos**: `iWinInstaller.ps1`, `install.ps1`, `native/Launcher.cs`, `README.md`, `tests/check-acceptance.ps1`, `tests/check-audit.ps1` (carga los nuevos analizadores, simula `--list-detailed` y comprueba la elección de modo y de tamaño por zona).
-- **Verificación**: formato de `--list-detailed`, `--size` y conexión del cliente contrastados con `cli.cpp` de OpenRGB `release_1.1` y con la salida real del PC (MSI MPG B550 GAMING EDGE WIFI, GIGABYTE RTX 3070 MASTER y Corsair H100i Elite). Pendiente: comprobar el apagado tras reiniciar.
+- **Verificación**: formato de `--list-detailed`, `--size` y conexión del cliente contrastados con `cli.cpp` de OpenRGB `release_1.1` y con la salida real de un PC con placa, gráfica y refrigeración RGB. Pendiente: comprobar el apagado tras reiniciar.
 
 ## v3.3 — 2026-10-26
 
