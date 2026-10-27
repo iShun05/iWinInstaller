@@ -10,6 +10,7 @@
 ### Archivos y pruebas
 - Windows 10/11 x86, x64 y ARM64 según disponibilidad del instalador oficial. Sin variantes macOS/iOS.
 - Archivos: `apps.json`, `iWinInstaller.ps1`, `lifecycle.ps1`, versiones de `install.ps1` y `native/Launcher.cs`, README, regresión `tests/check-brave-clean.ps1` y workflow bootstrap.
+- Instalador incrustado: se conserva `install.ps1` sin BOM para evitar que PowerShell interprete un carácter invisible como parte de la primera orden.
 - Regresión aislada: aplicación y verificación de políticas, conservación de datos ajenos, restauración de valores/ausencia, rechazo de JSON inválido y de perfiles abiertos. CI Windows x64/ARM64 pendiente antes de publicar.
 - Widevine requiere aceptación del usuario dentro de Brave; no se activa ni acepta un contrato automáticamente. La configuración puede mostrar «Administrado por tu organización» y se revierte desde Brave limpio → Deshacer. Brave normal no deshace una limpieza existente.
 

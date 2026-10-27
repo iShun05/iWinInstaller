@@ -1,4 +1,4 @@
-﻿# iWinInstaller - instalador
+# iWinInstaller - instalador
 # Descarga la ultima version publica y la instala en
 # %LOCALAPPDATA%\Programs\iWinInstaller, crea accesos directos en el menu Inicio y el Escritorio y la abre.
 # No necesita una cuenta de GitHub ni una clave de acceso.
