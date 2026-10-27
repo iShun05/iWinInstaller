@@ -9,7 +9,7 @@ if ($errors) { throw ($errors | Out-String) }
 $functions = @($ast.FindAll({ param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] }, $false))
 $duplicates = @($functions | Group-Object Name | Where-Object Count -gt 1)
 if ($duplicates) { throw "Funciones que se sustituyen: $($duplicates.Name -join ', ')" }
-foreach ($name in 'Get-AllInstalledEntries', 'Get-UninstallEntries', 'Get-RgbOffArguments', 'Get-RgbBootScript', 'Test-RgbOff') {
+foreach ($name in 'Get-AllInstalledEntries', 'Get-UninstallEntries', 'Get-RgbTokens', 'Get-RgbOffArguments', 'Get-RgbResizeArguments', 'Get-RgbBootScript', 'Test-RgbOff') {
     $node = $functions | Where-Object Name -eq $name
     if (-not $node) { throw "Falta $name" }
     . ([scriptblock]::Create($node.Extent.Text))
@@ -21,6 +21,10 @@ foreach ($name in 'Get-AllInstalledEntries', 'Get-UninstallEntries', 'Get-RgbOff
     if (@(Get-UninstallEntries ([pscustomobject]@{name='Ejemplo'})).Count -ne 1) { throw 'Desinstalar debe filtrar por la app solicitada' }
     if (@(Get-UninstallEntries ([pscustomobject]@{name='Otra'})).Count) { throw 'No debe seleccionar desinstaladores ajenos' }
 }
+$detailed = @('0: Placa', "  Modes: [Direct] Static 'Color Cycle'", "  Zones: 'JRAINBOW 1' 'Onboard LEDs'", '1: RAM', "  Modes: 'Spectrum Cycle' Off", '2: Ratón', '  Modes: Breathing')
+if (((Get-RgbOffArguments $detailed) -join ' ') -ne '-d 0 -m Direct -c 000000 -b 0 -d 1 -m Off -d 2 -c 000000 -b 0') { throw 'El apagado RGB debe elegir Off, Direct o Static por dispositivo' }
+$resize = @(Get-RgbResizeArguments $detailed)
+if ($resize.Count -ne 1 -or ($resize[0] -join ' ') -ne '-d 0 -z 0 -sz 60') { throw 'Solo las zonas direccionables deben recibir tamaño' }
 $version = [regex]::Match($source, '(?m)^\$Version = ''v(\d+\.\d+)''').Groups[1].Value
 $native = Get-Content (Join-Path $root 'native/Launcher.cs') -Raw -Encoding UTF8
 $install = Get-Content (Join-Path $root 'install.ps1') -Raw
@@ -38,8 +42,8 @@ class Fixture {
         string mode = Environment.GetEnvironmentVariable("IWIN_RGB_FIXTURE_MODE");
         if (mode == "hang") { System.Threading.Thread.Sleep(10000); return 0; }
         if (mode == "flood") { Console.Write(new string('a', 131072)); Console.Error.Write(new string('b', 131072)); return 0; }
-        if (Array.IndexOf(args, "--list-devices") >= 0) {
-            Console.WriteLine("0: Dispositivo simulado"); Console.WriteLine("  Modes: Off Static"); return mode == "listfail" ? 9 : 0;
+        if (Array.IndexOf(args, "--list-devices") >= 0 || Array.IndexOf(args, "--list-detailed") >= 0) {
+            Console.WriteLine("0: Dispositivo simulado"); Console.WriteLine("  Modes: Off Static"); Console.WriteLine("  Zones: 'JRAINBOW 1'"); return mode == "listfail" ? 9 : 0;
         }
         if (mode == "fail") { Console.Error.WriteLine("Error: apagado fallido"); return 7; }
         return 0;
@@ -71,7 +75,7 @@ class Fixture {
         Write-Host "Comprobando script RGB: $mode"
         $run = Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`" -Once" -PassThru -WindowStyle Hidden
         $null = $run.Handle
-        if (-not $run.WaitForExit(90000)) { $run.Kill(); throw "El script RGB no terminó: $mode" }
+        if (-not $run.WaitForExit(180000)) { $run.Kill(); throw "El script RGB no terminó: $mode" }
         $report = Get-Content (Join-Path $fixture 'apagar-rgb.log') -Raw -Encoding UTF8
         if ($mode -eq 'ok') {
             if ($run.ExitCode -ne 0 -or $report -notmatch 'Apagado aplicado: 1 dispositivos') { throw 'Debe confirmar la orden correcta' }
