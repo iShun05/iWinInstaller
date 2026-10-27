@@ -818,7 +818,7 @@ function Get-RgbResizeArguments {
         }
         if ($null -ne $device -and $line -match '^\s+Zones:(.*)$') { $zones = Get-RgbTokens $Matches[1] }
     }
-    , $result
+    $result
 }
 # Script que ejecuta la tarea como SYSTEM; registra la última ejecución en apagar-rgb.log
 function Get-RgbBootScript([string]$exe) {
