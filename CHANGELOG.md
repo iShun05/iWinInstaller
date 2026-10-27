@@ -7,6 +7,10 @@
 - **Servicio de OpenRGB**: si está instalado, es él quien tiene el hardware. El script le envía las órdenes como cliente (`--nodetect`, conexión automática a 127.0.0.1:6742) en lugar de abrir una segunda detección. El ajuste deja el servicio en automático y lo arranca, y el script reintenta durante 2 minutos mientras el servicio detecta al arrancar Windows.
 - **Tiras ARGB de la placa (JRAINBOW de MSI y similares)**: OpenRGB las crea con 0 LED, así que el negro no les llegaba. Ahora se les da tamaño 60 antes de apagarlas, con una orden por zona para que un tamaño no admitido no anule el resto.
 
+### Incluye v3.3 (no se publicó aparte)
+- **Control remoto por SSH (Tailscale)**, solo con clave y con el puerto 22 abierto solo para Tailscale.
+- **Activar monitor virtual**: crea el monitor de Virtual Display Driver, porque el paquete de WinGet solo dejaba los archivos.
+
 ### Guías posteriores
 - **Acceso remoto documentado dentro de la app** (panel «Después de instalar»): monitor virtual y elección de pantalla en Sunshine, audio de Sunshine, emparejar Moonlight por IP de Tailscale, KDE Connect por IP con red Privada y portapapeles automático, Autologon tras cambiar el nombre del equipo y SSH con tu propia clave. Sin datos de ningún equipo concreto.
 
