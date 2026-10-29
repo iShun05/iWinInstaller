@@ -1796,11 +1796,11 @@ public static class IwinDisplay {
     // Modos admitidos a la profundidad de color actual, sin repetir: { ancho, alto, Hz }
     public static int[][] Modes(string dev) {
         DEVMODE cur = New(); EnumDisplaySettings(dev, Current, ref cur);
-        HashSet<long> seen = new HashSet<long>(); List<int[]> list = new List<int[]>();
+        HashSet<string> seen = new HashSet<string>(); List<int[]> list = new List<int[]>();
         DEVMODE m = New();
         for (int i = 0; EnumDisplaySettings(dev, i, ref m); i++) {
             if (m.dmBitsPerPel == cur.dmBitsPerPel && m.dmPelsWidth >= 640 && m.dmDisplayFrequency > 1) {
-                long key = ((long)m.dmPelsWidth << 32) | ((long)m.dmPelsHeight << 12) | (long)m.dmDisplayFrequency;
+                string key = m.dmPelsWidth + "x" + m.dmPelsHeight + "@" + m.dmDisplayFrequency;
                 if (seen.Add(key)) list.Add(new int[] { m.dmPelsWidth, m.dmPelsHeight, m.dmDisplayFrequency });
             }
             m = New();
