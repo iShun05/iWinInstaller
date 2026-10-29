@@ -48,7 +48,7 @@
     "section": "Sistema",
     "group": "Ajustes de Windows",
     "name": "Plan de energía: alto rendimiento",
-    "desc": "Prioriza el rendimiento sobre el ahorro (recomendado en sobremesa; en portátil gasta más batería)",
+    "desc": "Prioriza el rendimiento sobre el ahorro (recomendado en sobremesa; en portátil gasta más batería). Apagado de pantalla, suspensión e hibernación se ajustan en el botón de monitor de arriba",
     "icon": "glyph:E945",
     "type": "tweak",
     "context": "machine",

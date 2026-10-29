@@ -2156,7 +2156,7 @@ $ButtonStyles = @'
           <TextBlock Text="iWinInstaller" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
           <TextBlock x:Name="VersionText" Foreground="{StaticResource Muted}" FontSize="12" Margin="8,1,0,0" VerticalAlignment="Center"/>
         </StackPanel>
-        <Button x:Name="BtnDisplay" DockPanel.Dock="Right" Style="{StaticResource Ghost}" Padding="9,6" Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="Resolución y tasa de refresco del monitor">
+        <Button x:Name="BtnDisplay" DockPanel.Dock="Right" Style="{StaticResource Ghost}" Padding="9,6" Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="Pantalla y energía: resolución, Hz, apagado de pantalla, suspensión e hibernación">
           <TextBlock Text="&#xE7F4;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="15"/>
         </Button>
         <Border DockPanel.Dock="Right" Background="{StaticResource Card}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Margin="10,0,0,0" VerticalAlignment="Center">
@@ -2405,9 +2405,10 @@ $ButtonStyles = @'
 
     <!-- Pantalla: resolución y frecuencia de cada monitor sin abrir Configuración -->
     <Border x:Name="DisplayPanel" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="11" Background="#B0000000" Visibility="Collapsed">
-      <Border Background="#18181B" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="14" Padding="22,18" Width="440" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Border Background="#18181B" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="14" Padding="22,18" Width="460" HorizontalAlignment="Center" VerticalAlignment="Center">
+       <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="640">
         <StackPanel>
-          <TextBlock Text="Pantalla" FontSize="20" FontWeight="SemiBold" Foreground="#F5F5F7"/>
+          <TextBlock Text="Pantalla y energía" FontSize="20" FontWeight="SemiBold" Foreground="#F5F5F7"/>
           <TextBlock x:Name="DisplayCurrent" Foreground="#ADADB5" TextWrapping="Wrap" Margin="0,4,0,14"/>
           <TextBlock Text="MONITOR" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
           <ComboBox x:Name="DisplayMonitor" Style="{StaticResource ProfileMenu}" Height="36" Margin="0,0,0,12"/>
@@ -2419,9 +2420,26 @@ $ButtonStyles = @'
                      Text="Si la imagen no se ve bien, no toques nada: vuelve sola al modo anterior en 15 segundos."/>
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
             <Button x:Name="DisplayClose" Style="{StaticResource Btn}" Content="Cerrar" Margin="0,0,8,0" MinWidth="96"/>
-            <Button x:Name="DisplayApply" Style="{StaticResource Primary}" Content="Aplicar" MinWidth="110"/>
+            <Button x:Name="DisplayApply" Style="{StaticResource Primary}" Content="Aplicar pantalla" MinWidth="110"/>
+          </StackPanel>
+          <Border Height="1" Background="#2B2B30" Margin="0,18,0,14"/>
+          <TextBlock Text="Energía" FontSize="16" FontWeight="SemiBold" Foreground="#F5F5F7"/>
+          <TextBlock x:Name="PowerPlan" Foreground="#ADADB5" TextWrapping="Wrap" Margin="0,2,0,12"/>
+          <TextBlock Text="APAGAR LA PANTALLA TRAS" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <ComboBox x:Name="PowerMonitor" Style="{StaticResource ProfileMenu}" Height="36" Margin="0,0,0,12"/>
+          <TextBlock Text="SUSPENDER TRAS" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <ComboBox x:Name="PowerSleep" Style="{StaticResource ProfileMenu}" Height="36" Margin="0,0,0,12"/>
+          <TextBlock Text="HIBERNACIÓN" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <ComboBox x:Name="PowerHibernate" Style="{StaticResource ProfileMenu}" Height="36" Margin="0,0,0,12"/>
+          <TextBlock Text="HIBERNAR TRAS" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <ComboBox x:Name="PowerHibernateAfter" Style="{StaticResource ProfileMenu}" Height="36"/>
+          <TextBlock Foreground="{StaticResource Faint}" FontSize="11.5" TextWrapping="Wrap" Margin="0,12,0,0"
+                     Text="Se aplica al plan activo (también al de alto rendimiento), con corriente y con batería. Activar o desactivar la hibernación pide permiso de administrador."/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button x:Name="PowerApply" Style="{StaticResource Primary}" Content="Aplicar energía" MinWidth="110"/>
           </StackPanel>
         </StackPanel>
+       </ScrollViewer>
       </Border>
     </Border>
 
@@ -2451,7 +2469,7 @@ $ButtonStyles = @'
                 <MenuItem x:Name="MAppUpdate" Header="Buscar nueva versión de iWinInstaller"/>
                 <MenuItem x:Name="MAutoUpdate" Header="Actualizar iWinInstaller automáticamente" IsCheckable="True" ToolTip="Comprueba GitHub al abrir, al iniciar sesión y cada día; no actualiza otras aplicaciones"/>
                 <MenuItem x:Name="MAfter" Header="Después de instalar…"/>
-                <MenuItem x:Name="MDisplay" Header="Resolución y frecuencia de la pantalla…"/>
+                <MenuItem x:Name="MDisplay" Header="Pantalla y energía (resolución, Hz, suspensión)…"/>
                 <MenuItem x:Name="MResume" Header="Reanudar lote pendiente…"/>
               </ContextMenu>
             </Button.ContextMenu>
@@ -2719,8 +2737,52 @@ function Show-DisplayPanel {
     foreach ($mon in $script:DisplayMonitors) { $n++; [void]$ui.DisplayMonitor.Items.Add("$n. $($mon.Name)$(if ($mon.Primary) { ' (principal)' })") }
     $primary = [array]::IndexOf(@($script:DisplayMonitors | ForEach-Object Primary), $true)
     $ui.DisplayMonitor.SelectedIndex = [math]::Max(0, $primary)
+    try { Update-PowerPanel } catch { Write-Log "Energía: no se pudo leer el plan ($($_.Exception.Message))" }
     $ui.DisplayPanel.Visibility = 'Visible'
 }
+# ---- Energía: apagado de pantalla, suspensión e hibernación del plan activo (CA y CC por igual) ----
+$PowerSteps = @(0, 1, 2, 3, 5, 10, 15, 20, 30, 45, 60, 120, 180, 300)
+function Format-PowerMinutes([int]$m) { if ($m -eq 0) { 'Nunca' } elseif ($m -lt 60) { "$m min" } else { "$($m / 60) h" } }
+function Set-PowerCombo($combo, $seconds) {
+    $combo.Items.Clear()
+    foreach ($m in $PowerSteps) { [void]$combo.Items.Add((Format-PowerMinutes $m)) }
+    $minutes = if ($null -eq $seconds) { -1 } else { [int][math]::Ceiling($seconds / 60) }
+    $index = [array]::IndexOf([int[]]$PowerSteps, $minutes)
+    if ($index -lt 0 -and $minutes -gt 0) { [void]$combo.Items.Add((Format-PowerMinutes $minutes) + ' (actual)'); $index = $combo.Items.Count - 1 }
+    $combo.SelectedIndex = [math]::Max(0, $index)
+}
+function Get-PowerComboMinutes($combo) {
+    if ($combo.SelectedIndex -lt $PowerSteps.Count) { return $PowerSteps[$combo.SelectedIndex] }
+    [int]([regex]::Match([string]$combo.SelectedItem, '^\d+').Value) * $(if ([string]$combo.SelectedItem -match ' h') { 60 } else { 1 })
+}
+function Get-HibernateEnabled { try { [bool](Get-ItemPropertyValue 'HKLM:\SYSTEM\CurrentControlSet\Control\Power' HibernateEnabled -ErrorAction Stop) } catch { $false } }
+function Update-PowerPanel {
+    Set-PowerCombo $ui.PowerMonitor (Get-AcPowerValue SUB_VIDEO VIDEOIDLE)
+    Set-PowerCombo $ui.PowerSleep (Get-AcPowerValue SUB_SLEEP STANDBYIDLE)
+    Set-PowerCombo $ui.PowerHibernateAfter (Get-AcPowerValue SUB_SLEEP HIBERNATEIDLE)
+    $ui.PowerHibernate.Items.Clear(); [void]$ui.PowerHibernate.Items.Add('Activada'); [void]$ui.PowerHibernate.Items.Add('Desactivada (libera el archivo hiberfil.sys)')
+    $ui.PowerHibernate.SelectedIndex = if (Get-HibernateEnabled) { 0 } else { 1 }
+    $plan = (& powercfg /getactivescheme 2>$null | Out-String) -replace '^.*?:\s*', '' -replace '\s+$', ''
+    $ui.PowerPlan.Text = if ($plan) { "Plan activo: $plan" } else { '' }
+}
+$ui.PowerApply.Add_Click({
+    $monitor = Get-PowerComboMinutes $ui.PowerMonitor; $sleep = Get-PowerComboMinutes $ui.PowerSleep; $hibAfter = Get-PowerComboMinutes $ui.PowerHibernateAfter
+    $hibernate = $ui.PowerHibernate.SelectedIndex -eq 0
+    foreach ($pair in @(@('monitor-timeout', $monitor), @('standby-timeout', $sleep), @('hibernate-timeout', $hibAfter))) {
+        foreach ($side in 'ac', 'dc') { & powercfg /change "$($pair[0])-$side" $pair[1] 2>$null | Out-Null }
+    }
+    $failed = $false
+    if ($hibernate -ne (Get-HibernateEnabled)) {
+        $arg = if ($hibernate) { '/hibernate on' } else { '/hibernate off' }
+        try {
+            if (Test-Administrator) { & powercfg $arg.Split(' ') | Out-Null; $failed = $LASTEXITCODE -ne 0 }
+            else { $p = Start-Process powercfg -ArgumentList $arg -Verb RunAs -WindowStyle Hidden -Wait -PassThru; $failed = $p.ExitCode -ne 0 }
+        } catch { $failed = $true }
+    }
+    Write-Log "Energía: pantalla $monitor min, suspensión $sleep min, hibernar tras $hibAfter min, hibernación $hibernate"
+    Set-Status $(if ($failed) { 'Tiempos guardados. La hibernación no cambió (hace falta permiso de administrador).' } else { "Energía: pantalla $(Format-PowerMinutes $monitor), suspensión $(Format-PowerMinutes $sleep), hibernación $(if ($hibernate) { "tras $(Format-PowerMinutes $hibAfter)" } else { 'desactivada' })." })
+    Update-PowerPanel
+})
 $ui.DisplayMonitor.Add_SelectionChanged({ Update-DisplayResolutions })
 $ui.DisplayResolution.Add_SelectionChanged({ Update-DisplayRates })
 $ui.BtnDisplay.Add_Click({ Show-DisplayPanel })

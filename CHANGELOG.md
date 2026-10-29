@@ -6,6 +6,7 @@
 - **Subsecciones con comparativa** en todas las categorías con apps que se solapan: 84 subsecciones (Quitar telemetría y bloatware, Drivers de NVIDIA, Terminales, Prompt, Node.js, Python, Lanzadores unificados, Basados en Chromium/Firefox, IA local, Editores de código, Compresores, Capturas, VPN, Gestores de contraseñas…). Cada cabecera muestra **«Cuál elegir»**: cuándo compensa una, otra o ambas, y qué conflictos evitar.
 - **Línea comparativa en cada app agrupada**: qué ofrece frente a sus alternativas y qué no. Se puede buscar por ese texto.
 - **Resolución y tasa de refresco del monitor**: botón de monitor en la barra superior y **⋯ › Resolución y frecuencia de la pantalla…**. Lista monitores activos, resoluciones y frecuencias admitidas (misma profundidad de color), prueba el modo antes de aplicarlo y vuelve al anterior si no se confirma en 15 s.
+- **Energía en el mismo panel** («Pantalla y energía»): apagar la pantalla tras, suspender tras, hibernación activada/desactivada e hibernar tras, sobre el plan activo (incluido alto rendimiento), con corriente y con batería. Activar o quitar la hibernación pide administrador; los tiempos no.
 
 ### Cambiado
 - `apps.json` reordena cada categoría para que las apps de una subsección queden juntas; ids, perfiles e instalaciones no cambian. Campos nuevos opcionales: `subgroup`, `compare` y `subgroupNote` (en la primera app de cada subsección).
