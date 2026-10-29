@@ -25,7 +25,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v3.5'
+$Version = 'v3.6'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -1592,7 +1592,8 @@ if ($Check) {
         $ok = Test-AppInstalled $app
         # Del catálogo ampliado solo se listan las que están instaladas
         if ($app.extra -and -not $ok) { continue }
-        if ($app.group -ne $group) { $group = $app.group; Write-Host "`n[$group]" }
+        $label = if ($app.subgroup) { "$($app.group) › $($app.subgroup)" } else { $app.group }
+        if ($label -ne $group) { $group = $label; Write-Host "`n[$group]" }
         if ($ok) { Write-Host "✓ $($app.name)" }
         elseif ($app.optin) { Write-Host "– $($app.name) (opcional, no instalado)" }
         else { Write-Host "✗ $($app.name)"; $missing += $app.name }
@@ -1641,7 +1642,11 @@ public class IwinApp : INotifyPropertyChanged {
     public string Desc { get; set; }
     public string Group { get; set; }
     public string Section { get; set; }
-    public string GroupLabel { get { return Section + " · " + Group; } }
+    // Subsección: apps que hacen lo mismo, con su comparativa («Cuál elegir») en la cabecera
+    public string Subgroup { get; set; }
+    string subgroupNote = ""; public string SubgroupNote { get { return subgroupNote; } set { subgroupNote = value ?? ""; } }
+    string compare = ""; public string Compare { get { return compare; } set { compare = value ?? ""; } }
+    public string GroupLabel { get { return Section + " · " + Group + (string.IsNullOrEmpty(Subgroup) ? "" : " › " + Subgroup); } }
     public string Initials { get; set; }
     public string IconSpec { get; set; }
     public string Glyph { get; set; }
@@ -1738,6 +1743,80 @@ public static class IwinDwm {
     [DllImport("dwmapi.dll")] static extern int DwmSetWindowAttribute(IntPtr h, int a, ref int v, int s);
     // Barra de título oscura (Windows 10 20H1+ y 11)
     public static void Dark(IntPtr h) { int on = 1; DwmSetWindowAttribute(h, 20, ref on, 4); }
+}
+// Resolución y frecuencia de cada monitor (user32), sin abrir Configuración
+public static class IwinDisplay {
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct DEVMODE {
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string dmDeviceName;
+        public short dmSpecVersion, dmDriverVersion, dmSize, dmDriverExtra;
+        public int dmFields, dmPositionX, dmPositionY, dmDisplayOrientation, dmDisplayFixedOutput;
+        public short dmColor, dmDuplex, dmYResolution, dmTTOption, dmCollate;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string dmFormName;
+        public short dmLogPixels;
+        public int dmBitsPerPel, dmPelsWidth, dmPelsHeight, dmDisplayFlags, dmDisplayFrequency;
+        public int dmICMMethod, dmICMIntent, dmMediaType, dmDitherType, dmReserved1, dmReserved2, dmPanningWidth, dmPanningHeight;
+    }
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct DISPLAY_DEVICE {
+        public int cb;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string DeviceName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceString;
+        public int StateFlags;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceID;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceKey;
+    }
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern bool EnumDisplayDevices(string dev, int i, ref DISPLAY_DEVICE d, int flags);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern bool EnumDisplaySettings(string dev, int mode, ref DEVMODE m);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int ChangeDisplaySettingsEx(string dev, ref DEVMODE m, IntPtr hwnd, int flags, IntPtr param);
+    const int Current = -1, AttachedToDesktop = 1, Primary = 4;
+    const int PelsWidth = 0x80000, PelsHeight = 0x100000, Frequency = 0x400000;
+    static DEVMODE New() { DEVMODE m = new DEVMODE(); m.dmSize = (short)Marshal.SizeOf(typeof(DEVMODE)); return m; }
+    // Monitores activos: «\\.\DISPLAY1|Nombre del monitor|1» (1 = principal)
+    public static string[] Monitors() {
+        List<string> list = new List<string>();
+        DISPLAY_DEVICE d = new DISPLAY_DEVICE(); d.cb = Marshal.SizeOf(d);
+        for (int i = 0; EnumDisplayDevices(null, i, ref d, 0); i++) {
+            if ((d.StateFlags & AttachedToDesktop) != 0) {
+                string name = d.DeviceString;
+                DISPLAY_DEVICE mon = new DISPLAY_DEVICE(); mon.cb = Marshal.SizeOf(mon);
+                if (EnumDisplayDevices(d.DeviceName, 0, ref mon, 0) && !string.IsNullOrEmpty(mon.DeviceString)) name = mon.DeviceString;
+                list.Add(d.DeviceName + "|" + name + "|" + ((d.StateFlags & Primary) != 0 ? "1" : "0"));
+            }
+            d = new DISPLAY_DEVICE(); d.cb = Marshal.SizeOf(d);
+        }
+        return list.ToArray();
+    }
+    // Modo actual: { ancho, alto, Hz }
+    public static int[] CurrentMode(string dev) {
+        DEVMODE m = New();
+        if (!EnumDisplaySettings(dev, Current, ref m)) return null;
+        return new int[] { m.dmPelsWidth, m.dmPelsHeight, m.dmDisplayFrequency };
+    }
+    // Modos admitidos a la profundidad de color actual, sin repetir: { ancho, alto, Hz }
+    public static int[][] Modes(string dev) {
+        DEVMODE cur = New(); EnumDisplaySettings(dev, Current, ref cur);
+        HashSet<long> seen = new HashSet<long>(); List<int[]> list = new List<int[]>();
+        DEVMODE m = New();
+        for (int i = 0; EnumDisplaySettings(dev, i, ref m); i++) {
+            if (m.dmBitsPerPel == cur.dmBitsPerPel && m.dmPelsWidth >= 640 && m.dmDisplayFrequency > 1) {
+                long key = ((long)m.dmPelsWidth << 32) | ((long)m.dmPelsHeight << 12) | (long)m.dmDisplayFrequency;
+                if (seen.Add(key)) list.Add(new int[] { m.dmPelsWidth, m.dmPelsHeight, m.dmDisplayFrequency });
+            }
+            m = New();
+        }
+        return list.ToArray();
+    }
+    // 0 = aplicado, 1 = requiere reiniciar, negativo = rechazado (DISP_CHANGE_*). Primero se prueba sin aplicar.
+    public static int Apply(string dev, int width, int height, int hz) {
+        DEVMODE m = New();
+        if (!EnumDisplaySettings(dev, Current, ref m)) return -99;
+        m.dmPelsWidth = width; m.dmPelsHeight = height; m.dmDisplayFrequency = hz;
+        m.dmFields = PelsWidth | PelsHeight | Frequency;
+        int test = ChangeDisplaySettingsEx(dev, ref m, IntPtr.Zero, 2, IntPtr.Zero);
+        if (test != 0) return test;
+        return ChangeDisplaySettingsEx(dev, ref m, IntPtr.Zero, 1, IntPtr.Zero);
+    }
 }
 '@
 }
@@ -2077,6 +2156,9 @@ $ButtonStyles = @'
           <TextBlock Text="iWinInstaller" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
           <TextBlock x:Name="VersionText" Foreground="{StaticResource Muted}" FontSize="12" Margin="8,1,0,0" VerticalAlignment="Center"/>
         </StackPanel>
+        <Button x:Name="BtnDisplay" DockPanel.Dock="Right" Style="{StaticResource Ghost}" Padding="9,6" Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="Resolución y tasa de refresco del monitor">
+          <TextBlock Text="&#xE7F4;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="15"/>
+        </Button>
         <Border DockPanel.Dock="Right" Background="{StaticResource Card}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="8" Margin="10,0,0,0" VerticalAlignment="Center">
           <StackPanel Orientation="Horizontal">
             <Button x:Name="ZoomOut" Style="{StaticResource Ghost}" Content="A−" FontSize="12" Padding="10,5" ToolTip="Texto más pequeño (Ctrl + −)"/>
@@ -2200,7 +2282,15 @@ $ButtonStyles = @'
             <GroupStyle>
               <GroupStyle.HeaderTemplate>
                 <DataTemplate>
-                  <TextBlock Text="{Binding Name}" Foreground="#8CC4FF" FontSize="12" FontWeight="SemiBold" Margin="10,16,0,6"/>
+                  <StackPanel Margin="10,16,10,6">
+                    <TextBlock Text="{Binding Name}" Foreground="#8CC4FF" FontSize="12" FontWeight="SemiBold"/>
+                    <Border x:Name="note" Background="#15202B" BorderBrush="#24384D" BorderThickness="1" CornerRadius="8" Padding="10,6" Margin="0,6,0,0">
+                      <TextBlock Text="{Binding Items[0].SubgroupNote}" Foreground="#C8D8EA" FontSize="12" TextWrapping="Wrap"/>
+                    </Border>
+                  </StackPanel>
+                  <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Items[0].SubgroupNote}" Value=""><Setter TargetName="note" Property="Visibility" Value="Collapsed"/></DataTrigger>
+                  </DataTemplate.Triggers>
                 </DataTemplate>
               </GroupStyle.HeaderTemplate>
             </GroupStyle>
@@ -2250,6 +2340,7 @@ $ButtonStyles = @'
                     <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="#EDEDF2" TextTrimming="CharacterEllipsis"/>
                   </DockPanel>
                   <TextBlock Text="{Binding Desc}" Foreground="#ADADB5" TextWrapping="Wrap" Margin="0,1,0,0"/>
+                  <TextBlock x:Name="compare" Text="{Binding Compare}" Foreground="#8FB3D9" FontSize="11.5" TextWrapping="Wrap" Margin="0,3,0,0"/>
                   <TextBlock x:Name="config" Text="{Binding Configuration}" Foreground="#8CC4FF" TextWrapping="Wrap" FontSize="11" Margin="0,3,0,0"/>
                 </StackPanel>
                 <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Center" MaxWidth="145">
@@ -2263,6 +2354,7 @@ $ButtonStyles = @'
               </Grid>
               <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding Configuration}" Value=""><Setter TargetName="config" Property="Visibility" Value="Collapsed"/></DataTrigger>
+                <DataTrigger Binding="{Binding Compare}" Value=""><Setter TargetName="compare" Property="Visibility" Value="Collapsed"/></DataTrigger>
                 <DataTrigger Binding="{Binding Status}" Value=""><Setter TargetName="badge" Property="Visibility" Value="Collapsed"/></DataTrigger>
                 <DataTrigger Binding="{Binding HasGlyph}" Value="True">
                   <Setter TargetName="gly" Property="Visibility" Value="Visible"/>
@@ -2311,6 +2403,28 @@ $ButtonStyles = @'
       </Grid>
     </Border>
 
+    <!-- Pantalla: resolución y frecuencia de cada monitor sin abrir Configuración -->
+    <Border x:Name="DisplayPanel" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="11" Background="#B0000000" Visibility="Collapsed">
+      <Border Background="#18181B" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="14" Padding="22,18" Width="440" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel>
+          <TextBlock Text="Pantalla" FontSize="20" FontWeight="SemiBold" Foreground="#F5F5F7"/>
+          <TextBlock x:Name="DisplayCurrent" Foreground="#ADADB5" TextWrapping="Wrap" Margin="0,4,0,14"/>
+          <TextBlock Text="MONITOR" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <ComboBox x:Name="DisplayMonitor" Style="{StaticResource ProfileMenu}" Height="36" Margin="0,0,0,12"/>
+          <TextBlock Text="RESOLUCIÓN" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <ComboBox x:Name="DisplayResolution" Style="{StaticResource ProfileMenu}" Height="36" Margin="0,0,0,12"/>
+          <TextBlock Text="TASA DE REFRESCO" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <ComboBox x:Name="DisplayRate" Style="{StaticResource ProfileMenu}" Height="36"/>
+          <TextBlock Foreground="{StaticResource Faint}" FontSize="11.5" TextWrapping="Wrap" Margin="0,12,0,0"
+                     Text="Si la imagen no se ve bien, no toques nada: vuelve sola al modo anterior en 15 segundos."/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button x:Name="DisplayClose" Style="{StaticResource Btn}" Content="Cerrar" Margin="0,0,8,0" MinWidth="96"/>
+            <Button x:Name="DisplayApply" Style="{StaticResource Primary}" Content="Aplicar" MinWidth="110"/>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Border>
+
     <!-- Barra inferior: actividad, estado y acciones -->
     <Border x:Name="ActionPanel" Grid.Row="2" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0">
       <Grid Margin="16,10,16,12">
@@ -2337,6 +2451,7 @@ $ButtonStyles = @'
                 <MenuItem x:Name="MAppUpdate" Header="Buscar nueva versión de iWinInstaller"/>
                 <MenuItem x:Name="MAutoUpdate" Header="Actualizar iWinInstaller automáticamente" IsCheckable="True" ToolTip="Comprueba GitHub al abrir, al iniciar sesión y cada día; no actualiza otras aplicaciones"/>
                 <MenuItem x:Name="MAfter" Header="Después de instalar…"/>
+                <MenuItem x:Name="MDisplay" Header="Resolución y frecuencia de la pantalla…"/>
                 <MenuItem x:Name="MResume" Header="Reanudar lote pendiente…"/>
               </ContextMenu>
             </Button.ContextMenu>
@@ -2557,6 +2672,93 @@ function Show-IwinDialog {
     [pscustomobject]@{ Ok = $ok; Text = $dialog.Parts.DInput.Text; Checked = [bool]$dialog.Parts.DCheck.IsChecked }
 }
 
+# ---- Pantalla: resolución y tasa de refresco de cada monitor ----
+$script:DisplayMonitors = @(); $script:DisplayResList = @(); $script:DisplayRateList = @(); $script:DisplayModes = @()
+function Get-DisplayMonitor { if ($ui.DisplayMonitor.SelectedIndex -ge 0) { $script:DisplayMonitors[$ui.DisplayMonitor.SelectedIndex] } }
+function Update-DisplayCurrent {
+    $mon = Get-DisplayMonitor
+    $cur = if ($mon) { [IwinDisplay]::CurrentMode($mon.Dev) }
+    $ui.DisplayCurrent.Text = if ($cur) { "Ahora: $($cur[0]) × $($cur[1]) a $($cur[2]) Hz" } else { 'No se pudo leer el modo actual de este monitor.' }
+}
+function Update-DisplayRates {
+    $ui.DisplayRate.Items.Clear(); $script:DisplayRateList = @()
+    if ($ui.DisplayResolution.SelectedIndex -lt 0) { return }
+    $res = $script:DisplayResList[$ui.DisplayResolution.SelectedIndex]
+    $script:DisplayRateList = @($script:DisplayModes | Where-Object { $_[0] -eq $res[0] -and $_[1] -eq $res[1] } | ForEach-Object { $_[2] } | Sort-Object -Unique -Descending)
+    foreach ($hz in $script:DisplayRateList) { [void]$ui.DisplayRate.Items.Add("$hz Hz") }
+    $cur = [IwinDisplay]::CurrentMode((Get-DisplayMonitor).Dev)
+    $index = if ($cur) { [array]::IndexOf([int[]]$script:DisplayRateList, [int]$cur[2]) } else { -1 }
+    $ui.DisplayRate.SelectedIndex = if ($index -ge 0) { $index } else { 0 }
+}
+function Update-DisplayResolutions {
+    $ui.DisplayResolution.Items.Clear(); $script:DisplayResList = @(); $script:DisplayModes = @()
+    $mon = Get-DisplayMonitor
+    if (-not $mon) { return }
+    $script:DisplayModes = @([IwinDisplay]::Modes($mon.Dev))
+    $seen = @{}
+    foreach ($m in @($script:DisplayModes | Sort-Object { $_[0] * $_[1] }, { $_[0] } -Descending)) {
+        $key = "$($m[0])x$($m[1])"
+        if (-not $seen.ContainsKey($key)) { $seen[$key] = $true; $script:DisplayResList += , @($m[0], $m[1]) }
+    }
+    $cur = [IwinDisplay]::CurrentMode($mon.Dev); $select = 0
+    for ($i = 0; $i -lt $script:DisplayResList.Count; $i++) {
+        $r = $script:DisplayResList[$i]
+        $label = "$($r[0]) × $($r[1])"
+        if ($i -eq 0) { $label += ' (máxima)' }
+        if ($cur -and $r[0] -eq $cur[0] -and $r[1] -eq $cur[1]) { $select = $i; $label += ' · actual' }
+        [void]$ui.DisplayResolution.Items.Add($label)
+    }
+    $ui.DisplayResolution.SelectedIndex = $select
+    Update-DisplayCurrent
+}
+function Show-DisplayPanel {
+    $script:DisplayMonitors = @(foreach ($line in @([IwinDisplay]::Monitors())) { $p = $line -split '\|', 3; [pscustomobject]@{ Dev = $p[0]; Name = $p[1]; Primary = $p[2] -eq '1' } })
+    $ui.DisplayMonitor.Items.Clear()
+    if (-not $script:DisplayMonitors) { Set-Status 'No se encontró ningún monitor activo.'; return }
+    $n = 0
+    foreach ($mon in $script:DisplayMonitors) { $n++; [void]$ui.DisplayMonitor.Items.Add("$n. $($mon.Name)$(if ($mon.Primary) { ' (principal)' })") }
+    $primary = [array]::IndexOf(@($script:DisplayMonitors | ForEach-Object Primary), $true)
+    $ui.DisplayMonitor.SelectedIndex = [math]::Max(0, $primary)
+    $ui.DisplayPanel.Visibility = 'Visible'
+}
+$ui.DisplayMonitor.Add_SelectionChanged({ Update-DisplayResolutions })
+$ui.DisplayResolution.Add_SelectionChanged({ Update-DisplayRates })
+$ui.BtnDisplay.Add_Click({ Show-DisplayPanel })
+$ui.MDisplay.Add_Click({ Show-DisplayPanel })
+$ui.DisplayClose.Add_Click({ $ui.DisplayPanel.Visibility = 'Collapsed' })
+$ui.DisplayApply.Add_Click({
+    $mon = Get-DisplayMonitor
+    if (-not $mon -or $ui.DisplayResolution.SelectedIndex -lt 0 -or $ui.DisplayRate.SelectedIndex -lt 0) { return }
+    $res = $script:DisplayResList[$ui.DisplayResolution.SelectedIndex]; $hz = $script:DisplayRateList[$ui.DisplayRate.SelectedIndex]
+    $before = [IwinDisplay]::CurrentMode($mon.Dev)
+    if ($before -and $before[0] -eq $res[0] -and $before[1] -eq $res[1] -and $before[2] -eq $hz) { Set-Status 'Ese ya es el modo actual.'; return }
+    $code = [IwinDisplay]::Apply($mon.Dev, $res[0], $res[1], $hz)
+    if ($code -eq 1) { Set-Status 'Windows aplicará ese modo después de reiniciar.'; return }
+    if ($code -ne 0) { Set-Status "Windows no admite $($res[0]) × $($res[1]) a $hz Hz en este monitor (código $code)."; Write-Log "Pantalla: modo rechazado ($code) en $($mon.Dev)"; return }
+    Write-Log "Pantalla: $($mon.Name) a $($res[0])x$($res[1]) $hz Hz"
+    # Como Windows: si no se confirma en 15 s (p. ej. la pantalla se queda en negro) vuelve al modo anterior
+    $script:DisplayDialog = New-IwinDialog -Title '¿Mantener este modo?' -Text 'Vuelve al anterior en 15 s.' -Ok 'Mantener'
+    $script:DisplayDialog.Parts.DCancel.Content = 'Volver'
+    $script:DisplayLeft = 15
+    $timer = New-Object Windows.Threading.DispatcherTimer
+    $timer.Interval = [TimeSpan]::FromSeconds(1)
+    $timer.Add_Tick({
+        $script:DisplayLeft--
+        if ($script:DisplayLeft -le 0) { try { $script:DisplayDialog.Window.DialogResult = $false } catch { } }
+        else { $script:DisplayDialog.Parts.DText.Text = "Vuelve al anterior en $script:DisplayLeft s." }
+    })
+    $timer.Start()
+    $keep = [bool]$script:DisplayDialog.Window.ShowDialog()
+    $timer.Stop()
+    if ($keep) { Set-Status "Pantalla: $($res[0]) × $($res[1]) a $hz Hz." }
+    elseif ($before) {
+        [void][IwinDisplay]::Apply($mon.Dev, $before[0], $before[1], $before[2])
+        Set-Status "Se restauró $($before[0]) × $($before[1]) a $($before[2]) Hz."
+        Write-Log 'Pantalla: restaurado el modo anterior'
+    }
+    Update-DisplayResolutions
+})
+
 # Estado manual de configuracion: solo IDs y booleanos, sin credenciales.
 $ConfigFile = Join-Path $LogDir 'configuracion.json'
 $ConfiguredApps = @{}
@@ -2581,10 +2783,14 @@ foreach($app in $Apps){
 }
 # ---- Catálogo ----
 $items = New-Object 'System.Collections.ObjectModel.ObservableCollection[IwinApp]'
+$SubgroupNotes = @{}
+foreach ($app in $Apps) { if ($app.subgroupNote) { $SubgroupNotes["$($app.group)/$($app.subgroup)"] = $app.subgroupNote } }
 $byId = @{}
 foreach ($app in $Apps) {
     $it = New-Object IwinApp
     $it.Id = $app.id; $it.Name = $app.name; $it.Desc = $app.desc; $it.Group = $app.group; $it.Section = $app.section
+    $it.Subgroup = $app.subgroup; $it.Compare = $app.compare
+    if ($app.subgroup) { $it.SubgroupNote = $SubgroupNotes["$($app.group)/$($app.subgroup)"] }
     $words = @($app.name -split '[\s\.\-]+' | Where-Object { $_ -match '^[\p{L}\d]' })
     $it.Initials = if ($words.Count -ge 2) { ($words[0].Substring(0, 1) + $words[1].Substring(0, 1)).ToUpper() } else { $app.name.Substring(0, [Math]::Min(2, $app.name.Length)) }
     $it.IconSpec = $app.icon
@@ -2597,7 +2803,7 @@ foreach ($app in $Apps) {
     $it.IsCli = $app.section -eq 'Terminal'
     $it.OpensInConsole = $it.IsCli -and -not $app.gui
     $it.CanOpen = $app.type -notin @('tweak', 'vboxga') -and -not $app.noopen -and $app.section -ne 'Sistema'
-    $it.Search = "$($app.name) $($app.desc) $($app.group) $($app.section) $($app.winget)".ToLower()
+    $it.Search = "$($app.name) $($app.desc) $($app.group) $($app.subgroup) $($app.compare) $($app.section) $($app.winget)".ToLower()
     $it.Checked = -not $it.Optional
     $items.Add($it); $byId[$app.id] = $it
 }

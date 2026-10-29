@@ -1,5 +1,20 @@
 # Historial de versiones
 
+## v3.6 — 2026-10-29
+
+### Añadido
+- **Subsecciones con comparativa** en todas las categorías con apps que se solapan: 84 subsecciones (Quitar telemetría y bloatware, Drivers de NVIDIA, Terminales, Prompt, Node.js, Python, Lanzadores unificados, Basados en Chromium/Firefox, IA local, Editores de código, Compresores, Capturas, VPN, Gestores de contraseñas…). Cada cabecera muestra **«Cuál elegir»**: cuándo compensa una, otra o ambas, y qué conflictos evitar.
+- **Línea comparativa en cada app agrupada**: qué ofrece frente a sus alternativas y qué no. Se puede buscar por ese texto.
+- **Resolución y tasa de refresco del monitor**: botón de monitor en la barra superior y **⋯ › Resolución y frecuencia de la pantalla…**. Lista monitores activos, resoluciones y frecuencias admitidas (misma profundidad de color), prueba el modo antes de aplicarlo y vuelve al anterior si no se confirma en 15 s.
+
+### Cambiado
+- `apps.json` reordena cada categoría para que las apps de una subsección queden juntas; ids, perfiles e instalaciones no cambian. Campos nuevos opcionales: `subgroup`, `compare` y `subgroupNote` (en la primera app de cada subsección).
+- `-Check` en consola encabeza con «Categoría › Subsección».
+
+### Archivos y pruebas
+- `apps.json`, `iWinInstaller.ps1` (clase `IwinDisplay` sobre `EnumDisplaySettings`/`ChangeDisplaySettingsEx`, panel Pantalla, cabeceras de grupo), versiones de `install.ps1`, `native/Launcher.cs` y `tests/check-acceptance.ps1`, README.
+- Validado en la nube: JSON y referencias de ids de las subsecciones. Pendiente CI Windows (x64/ARM64) y prueba manual del cambio de modo en un PC con monitor real.
+
 ## v3.5 — 2026-10-27
 
 ### Añadido

@@ -16,13 +16,15 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v3.5** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v3.6** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
 
 ## Funciones principales
 
+- **Subsecciones con comparativa**: dentro de cada categoría, las apps que hacen lo mismo se agrupan en subsecciones (p. ej. Optimización y privacidad › Quitar telemetría y bloatware, Consola y shells › Terminales, Navegadores › Basados en Firefox). Cada subsección abre con un recuadro **«Cuál elegir»** que dice cuándo compensa una, otra o las dos juntas, y cada app añade una línea con lo que ofrece y lo que no. 84 subsecciones en 24 categorías; la búsqueda también encuentra por esas comparativas.
+- **Resolución y tasa de refresco** sin abrir Configuración: botón de monitor en la barra superior (o **⋯ › Resolución y frecuencia de la pantalla…**). Elige monitor, resolución y Hz entre los modos que admite; si no confirmas en 15 s vuelve solo al modo anterior, como hace Windows.
 - **Después de instalar**: botón permanente y «Pasos y notas» en cada opción relevante. Hay guías para **122 opciones**, pasos marcables y notas propias; «Comprobar de nuevo» y «Comprobar todo» separan la detección técnica de las confirmaciones manuales de cuentas, conexiones, licencias y pruebas físicas. El seguimiento se conserva al cerrar y actualizar.
 - **Lotes recuperables**: el progreso se guarda antes y después de cada aplicación. **Pausar al terminar esta app** deja finalizar el instalador actual y conserva el resto. **Reanudar lote** continúa los pendientes más recientes; los anteriores también se conservan y se ofrecen al completar ese lote. Desde consola: `iWinInstaller.ps1 -Resume`. No se ejecuta un lote automáticamente tras reiniciar.
 - **Resumen antes de instalar**: incluye dependencias, permisos, ajustes y reinicios previstos; comprueba espacio de preparación y conexión HTTPS al origen de WinGet. Los requisitos finales de cada proveedor pueden ser mayores.
@@ -98,8 +100,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v3.5
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.5
+git checkout v3.6
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.6
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -118,7 +120,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v3.5](https://github.com/iShun05/iWinInstaller/releases/tag/v3.5) **(actual)** | 2026-10-27 | Brave normal y Brave limpio reversible, sin datos personales | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.5) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.5.zip) |
+| [v3.6](https://github.com/iShun05/iWinInstaller/releases/tag/v3.6) **(actual)** | 2026-10-29 | Subsecciones con comparativa («Cuál elegir») y resolución/frecuencia del monitor desde la app | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.6) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.6.zip) |
+| [v3.5](https://github.com/iShun05/iWinInstaller/releases/tag/v3.5) | 2026-10-27 | Brave normal y Brave limpio reversible, sin datos personales | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.5) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.5.zip) |
 | [v3.4](https://github.com/iShun05/iWinInstaller/releases/tag/v3.4) | 2026-10-26 | Apagar luces RGB funciona con OpenRGB 1.1 y su servicio | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.4) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.4.zip) |
 | [v3.3](https://github.com/iShun05/iWinInstaller/releases/tag/v3.3) | 2026-10-26 | Control remoto por SSH solo desde Tailscale y solo con clave | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.3) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.3.zip) |
 | [v3.2](https://github.com/iShun05/iWinInstaller/releases/tag/v3.2) | 2026-10-26 | Postinstalación guiada, notas, comprobaciones, lotes reanudables, restauración, instalación registrada y actualización automática opcional | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.2) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.2.zip) |
