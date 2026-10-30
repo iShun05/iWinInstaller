@@ -302,7 +302,7 @@ function Set-BraveCleanPreferences($snapshot=$null) {
 }
 function Set-BraveClean {
     Set-BraveCleanPreferences
-    foreach($name in (Get-BraveCleanPolicies).Keys){Set-RegDword 'HKCU:\Software\Policies\BraveSoftware\Brave' $name (Get-BraveCleanPolicies)[$name]}
+    Set-PolicyDwords 'HKCU:\Software\Policies\BraveSoftware\Brave' (Get-BraveCleanPolicies)
     Write-Log '  Brave limpio: cripto, Leo, VPN y noticias desactivados; perfil principal oscuro sin tarjetas. Sync y Shields se conservan. Deshacer restaura los valores anteriores.'
     return (Test-BraveClean)
 }
@@ -393,8 +393,18 @@ function Restore-TweakSnapshot($id) {
     $targets=@(Get-TweakRegistryTargets $id)
     if ($state.format -ne 'iWinInstaller-restauracion' -or $state.version -ne 1 -or $state.id -ne $id -or @($state.values).Count -ne $targets.Count) { throw 'Estado de restauración no válido.' }
     if($id -eq 'braveclean'){if(-not $state.brave){throw 'Falta el estado visual anterior de Brave.'};Set-BraveCleanPreferences $state.brave}
+    $elevated=@()
     for ($index=0;$index -lt $targets.Count;$index++) {
         $target=$targets[$index];$value=$state.values[$index]
+        if ($target[0] -like 'HKCU:\Software\Policies\*') {
+            # Las directivas de usuario pueden exigir elevacion: se agrupan en una sola solicitud si hace falta.
+            $op=@{path=$target[0];name=[string]$target[1];value=$(if($value.exists){if($value.kind -ne 'DWord'){throw 'Tipo de registro no válido.'};[int]$value.value}else{$null})}
+            try{
+                if($null -ne $op.value){Set-RegDword $op.path $op.name $op.value}
+                elseif($null -ne (Get-RegValue $op.path $op.name)){Remove-ItemProperty $op.path -Name $op.name -ErrorAction Stop}
+            }catch{$elevated+=$op}
+            continue
+        }
         if ($value.exists) {
             if ($value.kind -notin @('String','ExpandString','DWord','QWord','Binary','MultiString')) { throw 'Tipo de registro no válido.' }
             if(-not (Test-Path $target[0])){New-Item $target[0] -Force -ErrorAction Stop | Out-Null}
@@ -414,6 +424,7 @@ function Restore-TweakSnapshot($id) {
             try{$key.DeleteValue([string]$target[1],$false)}finally{$key.Dispose()}
         }
     }
+    if ($elevated) { Invoke-UserPolicyElevated $elevated }
     if ($id -eq 'classicmenu' -and -not $state.values[0].exists) {
         $key=Get-Item "$ClassicMenu\InprocServer32" -ErrorAction SilentlyContinue
         if ($key -and -not $key.GetValueNames().Count -and -not $key.GetSubKeyNames().Count) { Remove-Item "$ClassicMenu\InprocServer32" -ErrorAction Stop }

@@ -25,7 +25,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v3.6'
+$Version = 'v3.7'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -337,6 +337,12 @@ function Install-WingetPackage($app, [string]$id) {
     if ($app.scope) { $arguments += @('--scope', $app.scope) }
     if ($app.architecture) { $arguments += @('--architecture', $app.architecture) }
     $code = Invoke-Winget $arguments $app.id
+    if ($code -eq -2147024891 -and $app.families -and $operation -eq 'install') {
+        # 0x80070005: el MSI no pudo escribir (antivirus, carpeta protegida o proceso abierto). El paquete MSIX no lo necesita.
+        Write-Log '  Acceso denegado al instalador clasico: se prueba el paquete MSIX oficial.'
+        $retry = @($arguments | Where-Object { $_ -ne '--scope' -and $_ -ne $app.scope }) + @('--installer-type', 'msix')
+        $code = Invoke-Winget $retry ($app.id + '-msix')
+    }
     if ($code -notin $wingetOk) { return $false }
     if (Test-IwinRebootCode $code) { Write-Log '  Requiere reiniciar Windows y volver a verificar.'; return $true }
     Update-LocalInventory -Appx:((Get-InstallContext $app) -eq 'user')
@@ -349,7 +355,12 @@ function Install-WingetPackage($app, [string]$id) {
 }
 
 function Write-WorkerEvent($event) {
-    Add-Content $ResultFile ($event | ConvertTo-Json -Compress) -Encoding UTF8
+    # La ventana principal lee este archivo cada 250 ms: un evento perdido marcaba como fallida una app instalada.
+    $line = ($event | ConvertTo-Json -Compress) + "`r`n"
+    for ($attempt = 1; ; $attempt++) {
+        try { $stream = [IO.File]::Open($ResultFile, 'Append', 'Write', 'ReadWrite'); try { $bytes = [Text.Encoding]::UTF8.GetBytes($line); $stream.Write($bytes, 0, $bytes.Length) } finally { $stream.Dispose() }; return }
+        catch { if ($attempt -ge 40) { throw }; Start-Sleep -Milliseconds 50 }
+    }
 }
 function Invoke-InstallWorker($selection, [scriptblock]$onProgress, [switch]$AsUser, [switch]$Remove) {
     $stem = Join-Path $env:TEMP ('iwin-batch-' + [Guid]::NewGuid().ToString('N'))
@@ -416,8 +427,14 @@ function Invoke-InstallWorker($selection, [scriptblock]$onProgress, [switch]$AsU
         }
     } catch { Write-Log "  No se pudo completar el lote $mode`: $($_.Exception.Message)" }
     finally { Remove-Item $plan, $result, ($plan + '.cancel') -Force -ErrorAction SilentlyContinue; $script:ActiveCancelFile=$null }
+    if (@($selection | Where-Object { -not $reported.ContainsKey($_.id) }).Count) { Update-LocalInventory -Appx; $script:WingetIds = $null }
     foreach ($app in $selection) {
-        if (-not $reported.ContainsKey($app.id)) { $script:LastInstallCode=0; Complete-IwinItem $app $false $onProgress; $app }
+        if (-not $reported.ContainsKey($app.id)) {
+            $present = $false
+            if (-not $Remove) { try { $present = [bool](Test-AppInstalled $app) } catch {} }
+            if ($present) { Write-Log "  Comprobado en el equipo: $($app.name)"; $script:LastInstallCode=0; Complete-IwinItem $app $true $onProgress; continue }
+            $script:LastInstallCode=0; Complete-IwinItem $app $false $onProgress; $app
+        }
         elseif (-not $reported[$app.id]) { $app }
     }
     Update-LocalInventory -Appx
@@ -493,6 +510,31 @@ function Get-RegValue($path, $name) { (Get-ItemProperty $path -Name $name -Error
 function Set-RegDword($path, $name, $value) {
     if (-not (Test-Path $path)) { New-Item $path -Force | Out-Null }
     Set-ItemProperty $path -Name $name -Value $value -Type DWord -Force
+}
+# HKCU\Software\Policies es de solo lectura para usuarios sin elevar: se reintenta con UNA solicitud
+# de administrador que escribe en la rama del usuario actual (HKEY_USERS\<SID>), tambien si el administrador es otra cuenta.
+function Invoke-UserPolicyElevated([object[]]$operations) {
+    $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    $lines = @('$ErrorActionPreference=''Stop''')
+    foreach ($op in $operations) {
+        if ($op.path -notmatch '^HKCU:\\Software\\Policies\\[A-Za-z0-9 ._\\-]+$' -or $op.name -notmatch '^[A-Za-z0-9_]+$') { throw 'Destino de directiva no permitido.' }
+        $key = 'Registry::HKEY_USERS\' + $sid + '\' + $op.path.Substring(6)
+        if ($null -eq $op.value) { $lines += "Remove-ItemProperty -LiteralPath '$key' -Name '$($op.name)' -ErrorAction SilentlyContinue" }
+        else { $lines += "if(-not (Test-Path -LiteralPath '$key')){New-Item -Path '$key' -Force | Out-Null}"; $lines += "Set-ItemProperty -LiteralPath '$key' -Name '$($op.name)' -Value $([int]$op.value) -Type DWord -Force" }
+    }
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes(($lines -join "`n")))
+    Write-Log '  Las directivas de usuario necesitan permiso de administrador: se pide una sola vez.'
+    try { $process = Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" -Verb RunAs -WindowStyle Hidden -Wait -PassThru }
+    catch { throw 'Se necesita aceptar el permiso de administrador para aplicar esta directiva.' }
+    if ($process.ExitCode -ne 0) { throw "No se pudo escribir la directiva como administrador (codigo $($process.ExitCode))." }
+}
+function Set-PolicyDwords([string]$path, [System.Collections.IDictionary]$values) {
+    $ErrorActionPreference = 'Stop'
+    try { foreach ($name in $values.Keys) { Set-RegDword $path $name $values[$name] } }
+    catch {
+        if ($path -notlike 'HKCU:\Software\Policies\*') { throw }
+        Invoke-UserPolicyElevated @($values.Keys | ForEach-Object { @{ path = $path; name = $_; value = $values[$_] } })
+    }
 }
 function Set-RegString($path, $name, $value) {
     if (-not (Test-Path $path)) { New-Item $path -Force | Out-Null }
@@ -1016,7 +1058,7 @@ function Install-Tweak($id) {
                 Write-Log '  Se verá al reiniciar el Explorador o la sesión.'
                 return $true
             }
-            'nobing' { Set-RegDword $SearchPolicy 'DisableSearchBoxSuggestions' 1; Write-Log '  Se aplica al reiniciar la sesión.'; return $true }
+            'nobing' { Set-PolicyDwords $SearchPolicy @{ DisableSearchBoxSuggestions = 1 }; Write-Log '  Se aplica al reiniciar la sesión.'; return $true }
             'taskbarleft' { Set-RegDword $ExplorerAdv 'TaskbarAl' 0; return $true }
             'clockseconds' { Set-RegDword $ExplorerAdv 'ShowSecondsInSystemClock' 1; return $true }
             'thispc' { Set-RegDword $ExplorerAdv 'LaunchTo' 1; return $true }
@@ -2156,6 +2198,9 @@ $ButtonStyles = @'
           <TextBlock Text="iWinInstaller" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
           <TextBlock x:Name="VersionText" Foreground="{StaticResource Muted}" FontSize="12" Margin="8,1,0,0" VerticalAlignment="Center"/>
         </StackPanel>
+        <Button x:Name="BtnSecurity" DockPanel.Dock="Right" Style="{StaticResource Ghost}" Padding="9,6" Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="Seguridad: estado y análisis con Microsoft Defender">
+          <TextBlock Text="&#xE83D;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="15"/>
+        </Button>
         <Button x:Name="BtnDisplay" DockPanel.Dock="Right" Style="{StaticResource Ghost}" Padding="9,6" Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="Pantalla y energía: resolución, Hz, apagado de pantalla, suspensión e hibernación">
           <TextBlock Text="&#xE7F4;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="15"/>
         </Button>
@@ -2443,6 +2488,35 @@ $ButtonStyles = @'
       </Border>
     </Border>
 
+    <!-- Seguridad: Microsoft Defender integrado, sin instalar otro antivirus -->
+    <Border x:Name="SecurityPanel" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="11" Background="#B0000000" Visibility="Collapsed">
+      <Border Background="#18181B" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="14" Padding="22,18" Width="480" HorizontalAlignment="Center" VerticalAlignment="Center">
+       <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="640">
+        <StackPanel>
+          <TextBlock Text="Seguridad" FontSize="20" FontWeight="SemiBold" Foreground="#F5F5F7"/>
+          <TextBlock x:Name="SecuritySummary" Foreground="#ADADB5" TextWrapping="Wrap" Margin="0,4,0,14"/>
+          <TextBlock Text="ESTADO" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <TextBlock x:Name="SecurityStatus" Foreground="#E4E4E7" TextWrapping="Wrap" FontSize="12.5" LineHeight="20" Margin="0,0,0,14"/>
+          <TextBlock Text="ANALIZAR" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <WrapPanel Margin="0,0,0,6">
+            <Button x:Name="SecurityQuick" Style="{StaticResource Primary}" Content="Análisis rápido" Margin="0,0,8,8" MinWidth="110"/>
+            <Button x:Name="SecurityFull" Style="{StaticResource Btn}" Content="Análisis completo" Margin="0,0,8,8" MinWidth="110"/>
+            <Button x:Name="SecurityFolder" Style="{StaticResource Btn}" Content="Analizar carpeta…" Margin="0,0,8,8" MinWidth="110"/>
+            <Button x:Name="SecurityUpdate" Style="{StaticResource Btn}" Content="Actualizar firmas" Margin="0,0,8,8" MinWidth="110"/>
+          </WrapPanel>
+          <TextBlock Text="AMENAZAS RECIENTES" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,4,0,6"/>
+          <TextBlock x:Name="SecurityThreats" Foreground="#E4E4E7" TextWrapping="Wrap" FontSize="12.5" LineHeight="20"/>
+          <TextBlock Foreground="{StaticResource Faint}" FontSize="11.5" TextWrapping="Wrap" Margin="0,12,0,0"
+                     Text="Usa el motor de Microsoft Defender que ya trae Windows. Los análisis siguen en segundo plano aunque cierres este panel; las amenazas se gestionan (cuarentena, permitir) en Seguridad de Windows."/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button x:Name="SecurityOpen" Style="{StaticResource Btn}" Content="Seguridad de Windows" Margin="0,0,8,0" MinWidth="110"/>
+            <Button x:Name="SecurityClose" Style="{StaticResource Btn}" Content="Cerrar" MinWidth="96"/>
+          </StackPanel>
+        </StackPanel>
+       </ScrollViewer>
+      </Border>
+    </Border>
+
     <!-- Barra inferior: actividad, estado y acciones -->
     <Border x:Name="ActionPanel" Grid.Row="2" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0">
       <Grid Margin="16,10,16,12">
@@ -2470,6 +2544,7 @@ $ButtonStyles = @'
                 <MenuItem x:Name="MAutoUpdate" Header="Actualizar iWinInstaller automáticamente" IsCheckable="True" ToolTip="Comprueba GitHub al abrir, al iniciar sesión y cada día; no actualiza otras aplicaciones"/>
                 <MenuItem x:Name="MAfter" Header="Después de instalar…"/>
                 <MenuItem x:Name="MDisplay" Header="Pantalla y energía (resolución, Hz, suspensión)…"/>
+                <MenuItem x:Name="MSecurity" Header="Seguridad (antivirus de Windows)…"/>
                 <MenuItem x:Name="MResume" Header="Reanudar lote pendiente…"/>
               </ContextMenu>
             </Button.ContextMenu>
@@ -2788,6 +2863,82 @@ $ui.DisplayResolution.Add_SelectionChanged({ Update-DisplayRates })
 $ui.BtnDisplay.Add_Click({ Show-DisplayPanel })
 $ui.MDisplay.Add_Click({ Show-DisplayPanel })
 $ui.DisplayClose.Add_Click({ $ui.DisplayPanel.Visibility = 'Collapsed' })
+# ---- Seguridad: estado y análisis con Microsoft Defender (cmdlets Defender de Windows) ----
+$script:SecurityJob = $null; $script:SecurityTimer = $null
+function Format-SecurityDate($date) { if (-not $date -or $date.Year -lt 2000) { 'nunca' } else { $days = [int]((Get-Date) - $date).TotalDays; if ($days -le 0) { 'hoy' } elseif ($days -eq 1) { 'ayer' } else { "hace $days días" } } }
+function Update-SecurityPanel {
+    $others = @()
+    try { $others = @(Get-CimInstance -Namespace root/SecurityCenter2 -ClassName AntiVirusProduct -ErrorAction Stop | Where-Object { $_.displayName -notmatch 'Defender' } | ForEach-Object displayName) } catch {}
+    try { $mp = Get-MpComputerStatus -ErrorAction Stop } catch { $mp = $null }
+    if (-not $mp) {
+        $ui.SecuritySummary.Text = if ($others) { "Protección a cargo de $($others -join ', '). Defender no está disponible en este equipo." } else { 'No se pudo leer Microsoft Defender en este equipo.' }
+        $ui.SecurityStatus.Text = 'Abre Seguridad de Windows para revisar la protección.'; $ui.SecurityThreats.Text = '—'
+        foreach ($b in 'SecurityQuick','SecurityFull','SecurityFolder','SecurityUpdate') { $ui[$b].IsEnabled = $false }
+        return
+    }
+    $passive = [string]$mp.AMRunningMode -notin @('Normal', '')
+    $ok = $mp.RealTimeProtectionEnabled -and $mp.AntivirusEnabled -and -not $passive
+    $age = [int]$mp.AntivirusSignatureAge
+    $ui.SecuritySummary.Text = if ($passive -and $others) { "Protección en tiempo real a cargo de $($others -join ', '). Defender sigue disponible para análisis manuales." }
+        elseif ($ok -and $age -le 3) { 'Protegido: tiempo real activado y firmas al día.' }
+        elseif ($ok) { "Protegido, pero las firmas tienen $age días: actualízalas." }
+        else { 'Atención: la protección en tiempo real está desactivada.' }
+    $ui.SecurityStatus.Text = (@(
+        "Tiempo real: $(if ($mp.RealTimeProtectionEnabled) { 'activado' } else { 'desactivado' })  ·  Modo: $($mp.AMRunningMode)",
+        "Protección contra alteraciones: $(if ($mp.IsTamperProtected) { 'activada' } else { 'desactivada' })",
+        "Firmas: $($mp.AntivirusSignatureVersion) · $(Format-SecurityDate $mp.AntivirusSignatureLastUpdated)",
+        "Último análisis rápido: $(Format-SecurityDate $mp.QuickScanEndTime)  ·  completo: $(Format-SecurityDate $mp.FullScanEndTime)"
+    ) -join "`n")
+    try {
+        $names = @{}; foreach ($t in @(Get-MpThreat -ErrorAction Stop)) { $names[[string]$t.ThreatID] = $t.ThreatName }
+        $recent = @(Get-MpThreatDetection -ErrorAction Stop | Sort-Object InitialDetectionTime -Descending | Select-Object -First 5)
+        $ui.SecurityThreats.Text = if ($recent) { ($recent | ForEach-Object { $name = if ($names.ContainsKey([string]$_.ThreatID)) { $names[[string]$_.ThreatID] } else { "Amenaza $($_.ThreatID)" }; "$($_.InitialDetectionTime.ToString('dd/MM HH:mm')) · $name · $(if ($_.ActionSuccess) { 'resuelta' } else { 'pendiente' })" }) -join "`n" } else { 'Ninguna detectada.' }
+    } catch { $ui.SecurityThreats.Text = 'Solo visible con permiso de administrador o en Seguridad de Windows.' }
+    $busy = $script:SecurityJob -and -not $script:SecurityJob.HasExited
+    foreach ($b in 'SecurityQuick','SecurityFull','SecurityFolder','SecurityUpdate') { $ui[$b].IsEnabled = -not $busy }
+}
+function Start-SecurityTask([string]$command, [string]$label) {
+    if ($script:SecurityJob -and -not $script:SecurityJob.HasExited) { Set-Status 'Ya hay un análisis en curso.'; return }
+    # Proceso aparte: un análisis completo puede durar horas y no debe bloquear la ventana.
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes("`$ErrorActionPreference='Stop'; $command"))
+    try { $script:SecurityJob = Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" -WindowStyle Hidden -PassThru }
+    catch { Set-Status "No se pudo iniciar: $($_.Exception.Message)"; return }
+    $script:SecurityLabel = $label
+    Write-Log "Seguridad: $label iniciado."; Set-Status "$label en curso…"
+    foreach ($b in 'SecurityQuick','SecurityFull','SecurityFolder','SecurityUpdate') { $ui[$b].IsEnabled = $false }
+    if (-not $script:SecurityTimer) {
+        $script:SecurityTimer = New-Object Windows.Threading.DispatcherTimer
+        $script:SecurityTimer.Interval = [TimeSpan]::FromSeconds(3)
+        $script:SecurityTimer.Add_Tick({
+            if (-not $script:SecurityJob -or -not $script:SecurityJob.HasExited) { return }
+            $script:SecurityTimer.Stop()
+            $code = $script:SecurityJob.ExitCode
+            $text = if ($code -eq 0) { "$script:SecurityLabel terminado." } else { "$script:SecurityLabel no se completó (código $code). Puede necesitar permiso de administrador." }
+            Write-Log "Seguridad: $text"; Set-Status $text
+            try { Update-SecurityPanel } catch {}
+        })
+    }
+    $script:SecurityTimer.Start()
+}
+function Show-SecurityPanel {
+    try { Update-SecurityPanel } catch { Write-Log "Seguridad: no se pudo leer el estado ($($_.Exception.Message))" }
+    $ui.SecurityPanel.Visibility = 'Visible'
+}
+$ui.MSecurity.Add_Click({ Show-SecurityPanel })
+$ui.BtnSecurity.Add_Click({ Show-SecurityPanel })
+$ui.SecurityClose.Add_Click({ $ui.SecurityPanel.Visibility = 'Collapsed' })
+$ui.SecurityOpen.Add_Click({ try { Start-Process 'windowsdefender://threat' } catch { Set-Status 'No se pudo abrir Seguridad de Windows.' } })
+$ui.SecurityQuick.Add_Click({ Start-SecurityTask 'Start-MpScan -ScanType QuickScan' 'Análisis rápido' })
+$ui.SecurityFull.Add_Click({ Start-SecurityTask 'Start-MpScan -ScanType FullScan' 'Análisis completo' })
+$ui.SecurityUpdate.Add_Click({ Start-SecurityTask 'Update-MpSignature' 'Actualización de firmas' })
+$ui.SecurityFolder.Add_Click({
+    Add-Type -AssemblyName System.Windows.Forms
+    $picker = New-Object System.Windows.Forms.FolderBrowserDialog
+    $picker.Description = 'Carpeta que quieres analizar'
+    if ($picker.ShowDialog() -ne 'OK' -or -not (Test-Path -LiteralPath $picker.SelectedPath)) { return }
+    $path = $picker.SelectedPath.Replace("'", "''")
+    Start-SecurityTask "Start-MpScan -ScanType CustomScan -ScanPath '$path'" "Análisis de $([IO.Path]::GetFileName($picker.SelectedPath.TrimEnd('\')))"
+})
 $ui.DisplayApply.Add_Click({
     $mon = Get-DisplayMonitor
     if (-not $mon -or $ui.DisplayResolution.SelectedIndex -lt 0 -or $ui.DisplayRate.SelectedIndex -lt 0) { return }
