@@ -498,6 +498,20 @@ function Set-RegString($path, $name, $value) {
     if (-not (Test-Path $path)) { New-Item $path -Force | Out-Null }
     Set-ItemProperty $path -Name $name -Value $value -Type String -Force
 }
+# DNS cifrado (DoH) de Cloudflare en los adaptadores conectados; Windows 11 ya conoce sus plantillas DoH
+$SecureDns = @('1.1.1.1', '1.0.0.1')
+function Get-SecureDnsCommand {
+    "foreach (`$a in Get-NetAdapter | Where-Object Status -eq 'Up') { Set-DnsClientServerAddress -InterfaceIndex `$a.ifIndex -ServerAddresses $($SecureDns -join ',') }; foreach (`$d in '$($SecureDns -join "','")') { if (-not (Get-DnsClientDohServerAddress -ServerAddress `$d -ErrorAction SilentlyContinue)) { Add-DnsClientDohServerAddress -ServerAddress `$d -DohTemplate 'https://cloudflare-dns.com/dns-query' -AllowFallbackToUdp `$false -AutoUpgrade `$true } else { Set-DnsClientDohServerAddress -ServerAddress `$d -AllowFallbackToUdp `$false -AutoUpgrade `$true } }; Clear-DnsClientCache"
+}
+function Test-SecureDns {
+    $up = @(Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object Status -eq 'Up')
+    if (-not $up) { return $false }
+    foreach ($a in $up) {
+        $dns = @((Get-DnsClientServerAddress -InterfaceIndex $a.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue).ServerAddresses)
+        if ($dns[0] -ne $SecureDns[0]) { return $false }
+    }
+    $true
+}
 # Ajustes de equipo: directamente si ya hay permisos, si no con una solicitud de administrador
 function Invoke-MachineTweak($cmd) {
     if (Test-Administrator) { Invoke-Expression $cmd; return $true }
@@ -1021,6 +1035,14 @@ function Install-Tweak($id) {
             'clockseconds' { Set-RegDword $ExplorerAdv 'ShowSecondsInSystemClock' 1; return $true }
             'thispc' { Set-RegDword $ExplorerAdv 'LaunchTo' 1; return $true }
             'endtask' { Set-RegDword $DevSettings 'TaskbarEndTask' 1; return $true }
+            'defenderhard' { return (Invoke-MachineTweak 'Set-MpPreference -PUAProtection Enabled -EnableControlledFolderAccess Enabled') }
+            'securedns' { return (Invoke-MachineTweak (Get-SecureDnsCommand)) }
+            'driverbackup' {
+                $dest = Join-Path ([Environment]::GetFolderPath('MyDocuments')) ('iWinInstaller\Drivers-' + (Get-Date -Format 'yyyy-MM-dd'))
+                $ok = Invoke-MachineTweak "New-Item -ItemType Directory -Force -Path '$dest' | Out-Null; Export-WindowsDriver -Online -Destination '$dest' | Out-Null"
+                if ($ok) { Write-Log "  Drivers copiados en $dest. Guárdala fuera del PC antes de formatear." }
+                return $ok
+            }
             'remotehost' { return (Set-RemoteHost) }
             'remotessh' { return (Set-RemoteSsh) }
             'virtualdisplayon' { return (Set-VirtualDisplay) }
@@ -1069,6 +1091,10 @@ function Test-TweakCore($id) {
         'thispc' { return ((Get-RegValue $ExplorerAdv 'LaunchTo') -eq 1) }
         'endtask' { return ((Get-RegValue $DevSettings 'TaskbarEndTask') -eq 1) }
         'mouseaccel' { return ((Get-RegValue $MouseKey 'MouseSpeed') -eq '0' -and (Get-RegValue $MouseKey 'MouseThreshold1') -eq '0' -and (Get-RegValue $MouseKey 'MouseThreshold2') -eq '0') }
+        'defenderhard' { $mp = Get-MpPreference; return ($mp.PUAProtection -eq 1 -and $mp.EnableControlledFolderAccess -eq 1) }
+        'securedns' { return (Test-SecureDns) }
+        # Copia puntual: siempre se puede repetir
+        'driverbackup' { return $false }
         'remotehost' { return (Test-RemoteHost) }
         'remotessh' { return (Test-RemoteSsh) }
         'virtualdisplayon' { return (Test-VirtualDisplay) }
@@ -1405,7 +1431,7 @@ function Invoke-Install($sel, [scriptblock]$onProgress) {
 # Componentes que Windows u otras apps necesitan (keep), lotes de runtimes y WSL no se ofrecen.
 function Test-Uninstallable($app) {
     if ($app.keep) { return $false }
-    if ($app.type -eq 'tweak') { return ($app.id -notin @('wsl', 'restorepoint')) }
+    if ($app.type -eq 'tweak') { return ($app.id -notin @('wsl', 'restorepoint', 'driverbackup')) }
     $app.type -in @('winget', 'download', 'manual')
 }
 

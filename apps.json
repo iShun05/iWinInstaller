@@ -245,6 +245,51 @@
     "restart": true
   },
   {
+    "id": "defenderhard",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Defender reforzado",
+    "desc": "Activa la protección contra ransomware (acceso controlado a carpetas) y el bloqueo de apps potencialmente no deseadas",
+    "icon": "glyph:E83D",
+    "type": "tweak",
+    "context": "machine",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Si un programa de confianza no puede guardar en Documentos, permítelo en Seguridad de Windows › Protección antivirus › Protección contra ransomware."
+      ],
+      "note": "Deshacer recupera los valores guardados antes de aplicarlo."
+    }
+  },
+  {
+    "id": "securedns",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "DNS cifrado (Cloudflare)",
+    "desc": "Usa 1.1.1.1 con DNS sobre HTTPS en las conexiones activas: más rápido y privado que el DNS del operador",
+    "icon": "glyph:E774",
+    "type": "tweak",
+    "context": "machine",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Comprueba en Configuración › Red › Propiedades que el DNS aparece como «Cifrado»."
+      ],
+      "note": "Deshacer recupera los valores guardados antes de aplicarlo."
+    }
+  },
+  {
+    "id": "driverbackup",
+    "section": "Sistema",
+    "group": "Ajustes de Windows",
+    "name": "Copia de seguridad de drivers",
+    "desc": "Exporta los drivers instalados a Documentos\\iWinInstaller para reinstalarlos tras formatear",
+    "icon": "glyph:E7B8",
+    "type": "tweak",
+    "context": "machine",
+    "extra": true
+  },
+  {
     "id": "autologon",
     "section": "Sistema",
     "group": "Acceso remoto",

@@ -356,13 +356,13 @@ function Get-TweakSnapshotPath($id, [switch]$ReadOnly) {
     Join-Path $base ($id + '.json')
 }
 function Test-IwinPreviousState($app) {
-    if($app.type -ne 'tweak' -or $app.id -in @('wsl','restorepoint')){return $false}
+    if($app.type -ne 'tweak' -or $app.id -in @('wsl','restorepoint','driverbackup')){return $false}
     if($app.id -eq 'rgboff'){return (Test-Path $RgbScript)}
     if($app.id -eq 'virtualdisplayon'){return (Test-VirtualDisplay)}
     try{return (Test-Path (Get-TweakSnapshotPath $app.id -ReadOnly))}catch{return $false}
 }
 function Save-TweakSnapshot($id) {
-    if ($id -in @('wsl','restorepoint','rgboff','virtualdisplayon')) { return }
+    if ($id -in @('wsl','restorepoint','driverbackup','rgboff','virtualdisplayon')) { return }
     $path=Get-TweakSnapshotPath $id
     if (Test-Path $path) { return }
     $values=@()
@@ -380,6 +380,8 @@ function Save-TweakSnapshot($id) {
     if ($id -eq 'remotehost') { $state.remote=Get-RemoteSnapshot }
     if ($id -eq 'remotessh') { $state.remote=Get-SshSnapshot }
     if ($id -eq 'braveclean') { $state.brave=Get-BraveCleanSnapshot }
+    if ($id -eq 'defenderhard') { $mp=Get-MpPreference -ErrorAction Stop; $state.defender=[ordered]@{pua=[int]$mp.PUAProtection;cfa=[int]$mp.EnableControlledFolderAccess} }
+    if ($id -eq 'securedns') { $state.dns=@(Get-NetAdapter | Where-Object Status -eq 'Up' | ForEach-Object { [pscustomobject]@{index=[int]$_.ifIndex;servers=@((Get-DnsClientServerAddress -InterfaceIndex $_.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue).ServerAddresses)} }) }
     Write-IwinJson $path $state
 }
 function Restore-TweakSnapshot($id) {
@@ -425,6 +427,18 @@ function Restore-TweakSnapshot($id) {
     }
     if ($id -eq 'remotehost') { Restore-RemoteSnapshot $state.remote }
     if ($id -eq 'remotessh') { Restore-SshSnapshot $state.remote }
+    if ($id -eq 'defenderhard') {
+        $pua=[int]$state.defender.pua; $cfa=[int]$state.defender.cfa
+        if ($pua -notin 0,1,2 -or $cfa -notin 0,1,2,3,4,5,6) { throw 'Estado de Defender no válido.' }
+        if (-not (Invoke-MachineTweak "Set-MpPreference -PUAProtection $pua -EnableControlledFolderAccess $cfa")) { throw 'No se pudo restaurar Defender.' }
+    }
+    if ($id -eq 'securedns') {
+        $cmds=foreach ($n in @($state.dns)) {
+            $servers=@($n.servers | Where-Object { $_ -as [ipaddress] })
+            if ($servers) { "Set-DnsClientServerAddress -InterfaceIndex $([int]$n.index) -ServerAddresses $($servers -join ',')" } else { "Set-DnsClientServerAddress -InterfaceIndex $([int]$n.index) -ResetServerAddresses" }
+        }
+        if ($cmds -and -not (Invoke-MachineTweak (($cmds -join '; ') + '; Clear-DnsClientCache'))) { throw 'No se pudieron restaurar los DNS.' }
+    }
     Remove-Item $path -Force -ErrorAction Stop
     Write-Log '  Estado anterior restaurado. Algunos ajustes requieren reiniciar la sesión o Windows.'
     return $true
