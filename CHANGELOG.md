@@ -16,6 +16,8 @@
 
 ## v3.7 — 2026-10-30
 
+> Sin release propia: sus pruebas se corrigieron después del tag y se publica dentro de **v3.8**.
+
 ### Añadido
 - **Panel Seguridad** (escudo en la barra superior y **⋯ › Seguridad (antivirus de Windows)…**): estado de Microsoft Defender (tiempo real, protección contra alteraciones, firmas, último análisis), análisis rápido, completo o de una carpeta, actualización de firmas y amenazas recientes. Los análisis corren en un proceso aparte y no bloquean la ventana. Si hay otro antivirus residente, lo indica y deja Defender para análisis manuales. No instala nada nuevo.
 - La sección **Antivirus y antimalware** del catálogo (Bitdefender Free, Malwarebytes, Emsisoft Emergency Kit, AdwCleaner) entra en esta versión.
