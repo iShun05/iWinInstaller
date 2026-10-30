@@ -232,7 +232,7 @@ $global:LASTEXITCODE = 0
         if (@($report.reboot) -notcontains 'WSL') { throw 'WSL debe aparecer como pendiente de reinicio' }
         $text = Format-IwinReportText $report
         foreach ($expected in 'FALLARON', 'REQUIEREN ACCIÓN MANUAL', 'PowerShell 7 [pwsh] · código 0x80070005', 'REQUIEREN REINICIAR WINDOWS') {
-            if ($text -notlike "*$expected*") { throw "Falta en el texto del informe: $expected" }
+            if (-not $text.Contains($expected)) { throw "Falta en el texto del informe: $expected" }
         }
         if ($text -match 'previo: no debe aparecer') { throw 'El informe solo debe leer el registro de esta pasada' }
         Save-IwinInstallReport $report
