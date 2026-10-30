@@ -1,5 +1,22 @@
 # Historial de versiones
 
+## v3.7 — 2026-10-30
+
+### Añadido
+- **Panel Seguridad** (escudo en la barra superior y **⋯ › Seguridad (antivirus de Windows)…**): estado de Microsoft Defender (tiempo real, protección contra alteraciones, firmas, último análisis), análisis rápido, completo o de una carpeta, actualización de firmas y amenazas recientes. Los análisis corren en un proceso aparte y no bloquean la ventana. Si hay otro antivirus residente, lo indica y deja Defender para análisis manuales. No instala nada nuevo.
+- La sección **Antivirus y antimalware** del catálogo (Bitdefender Free, Malwarebytes, Emsisoft Emergency Kit, AdwCleaner) entra en esta versión.
+
+### Corregido
+- **Instalador/actualizador**: «Acceso denegado» al sustituir `%LOCALAPPDATA%\Programs\iWinInstaller`. Ahora espera a que terminen los procesos de la app que usan la carpeta, reintenta el cambio de nombre (antivirus/indexador) y, como último recurso, actualiza los archivos dentro de la carpeta existente.
+- **Lanzador**: ya no muestra un error cuando Windows cierra la app al apagar, reiniciar o cerrar sesión (códigos `0x40010004` y `0xC000013A`).
+- **Inicio sin resultados de Bing** y **Brave limpio**: fallaban con «Se denegó el acceso» porque `HKCU\Software\Policies` exige administrador. Se pide permiso una sola vez y se escribe en la rama del usuario actual (`HKEY_USERS\<SID>`), también al deshacer.
+- **PowerShell 7**: si el MSI devuelve `0x80070005` (acceso denegado), se reintenta con el paquete MSIX oficial.
+- **Apps instaladas marcadas como fallidas** (p. ej. gsudo): el lote podía perder un evento si la ventana leía el archivo a la vez. Se escriben con reintento y, si falta un evento, se comprueba en el equipo antes de marcar el fallo.
+
+### Archivos y pruebas
+- `iWinInstaller.ps1`, `lifecycle.ps1`, `install.ps1`, `native/Launcher.cs`, versión en `tests/check-acceptance.ps1`, README.
+- Solo Windows 10/11 (x86, x64, ARM64); sin variantes macOS/iOS. Validado en el Mac: XAML bien formado y balance de llaves. Pendiente: CI Windows y prueba manual (actualizar con la app abierta, Brave limpio sin admin, PowerShell 7, panel Seguridad).
+
 ## v3.6 — 2026-10-29
 
 ### Añadido
