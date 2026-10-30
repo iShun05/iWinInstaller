@@ -21,6 +21,10 @@ try{
     $script:registry=@{}
     function Set-RegDword($path,$name,$value){$script:registry[$name]=$value}
     function Get-RegValue($path,$name){$script:registry[$name]}
+    # Las directivas reales pueden pedir elevacion; aqui se simulan sobre el mismo registro de prueba.
+    function Set-PolicyDwords($path,$values){foreach($k in $values.Keys){Set-RegDword $path $k $values[$k]}}
+    function Invoke-UserPolicyElevated($operations){foreach($op in $operations){if($null -eq $op.value){$script:registry.Remove($op.name)}else{$script:registry[$op.name]=$op.value}}}
+    function Remove-ItemProperty{param($Path,$Name,$ErrorAction) throw 'Acceso denegado simulado'}
     $path=Get-BraveDefaultPreferencesPath
     New-Item (Split-Path $path -Parent) -ItemType Directory -Force | Out-Null
     $original=[pscustomobject]@{browser=[pscustomobject]@{theme=[pscustomobject]@{color_scheme2=1}};preserve=[pscustomobject]@{nested=@('uno','dos')};brave=[pscustomobject]@{new_tab_page=[pscustomobject]@{show_stats=$true}}}
