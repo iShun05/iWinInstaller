@@ -590,6 +590,11 @@ function Restore-RemoteSnapshot($remote) {
 }
 function Complete-IwinItem($app, [bool]$ok, [scriptblock]$onProgress) {
     Set-IwinBatchResult $app $ok $script:LastInstallCode
+    # Resultado y código de cada elemento para el informe final (también los que llegan de los lotes).
+    if (-not $WorkerMode -and $app.id) {
+        if ($null -eq $script:RunResults) { $script:RunResults = @{} }
+        $script:RunResults[[string]$app.id] = [pscustomobject]@{ ok = $ok; code = [long]$script:LastInstallCode; stopped = (-not $ok -and [bool](Test-IwinStop)) }
+    }
     if ($onProgress) { & $onProgress $app $ok }
 }
 function Set-IwinAutoUpdate([bool]$enabled) {
@@ -645,4 +650,183 @@ function Invoke-IwinInstallAction($app) {
     if(-not $results.Count){Write-Log '  El instalador no devolvió un resultado comprobable.';return $false}
     # La salida de un asistente o una tarea .NET nunca convierte un false en éxito.
     [bool]$results[-1]
+}
+
+# ---------- Informe de la instalación: qué falló, por qué y qué hacer ----------
+# Se construye al terminar cada lote a partir de los resultados y del registro compartido con los lotes elevados.
+function Get-IwinCodeText($code) {
+    if ($null -eq $code -or [long]$code -eq 0) { return '' }
+    $value = [long]$code
+    if ($value -lt 0) { $value += 4294967296 }
+    if ($value -ge 65536) { return ('0x{0:X8}' -f $value) }
+    return [string]$code
+}
+function Get-IwinCodeHint($code) {
+    # Códigos documentados de WinGet (0x8A15…), HRESULT de Windows y de Windows Installer (MSI).
+    switch ([long]$code) {
+        -2147024891 { return @('Acceso denegado al instalar.', 'Cierra la app si está abierta. Si usas el «Acceso controlado a carpetas» de Seguridad de Windows u otro antivirus, permite el instalador o desactívalo un momento y reintenta.') }
+        -2147023673 { return @('Se canceló la ventana de permiso o el instalador.', 'Reintenta y acepta la solicitud de administrador.') }
+        -1978335224 { return @('No se pudo descargar el instalador.', 'Comprueba la conexión, la VPN o el proxy y reintenta.') }
+        -1978335215 { return @('La huella del instalador no coincide con el catálogo de WinGet.', 'El fabricante cambió el archivo. Reintenta más tarde o instala desde su web.') }
+        -1978335212 { return @('WinGet no encuentra el paquete.', 'Actualiza «Instalador de aplicación» desde Microsoft Store y reintenta.') }
+        -1978335189 { return @('No hay una versión nueva que aplicar.', 'No hace falta hacer nada.') }
+        -1978334975 { return @('La aplicación está abierta.', 'Ciérrala y reintenta.') }
+        -1978334974 { return @('Hay otra instalación en curso.', 'Espera a que termine y reintenta.') }
+        -1978334973 { return @('Un archivo necesario está en uso.', 'Cierra la aplicación o reinicia Windows y reintenta.') }
+        -1978334972 { return @('Falta una dependencia.', 'Reintenta: iWinInstaller prepara las dependencias del catálogo.') }
+        -1978334971 { return @('No queda espacio en el disco.', 'Libera espacio y reintenta.') }
+        -1978334969 { return @('No hay conexión a internet.', 'Conéctate y reintenta.') }
+        -1978334964 { return @('Se canceló el instalador.', 'Reintenta y completa el asistente si aparece.') }
+        -1978334963 { return @('Ya hay otra versión instalada.', 'Pulsa Verificar; si no aparece, desinstala la versión anterior y reintenta.') }
+        -1 { return @('El instalador no respondió a tiempo.', 'Puede haberse quedado esperando en una ventana. Reintenta y revisa si aparece un asistente.') }
+        1602 { return @('Se canceló el instalador.', 'Reintenta y complétalo.') }
+        1603 { return @('El instalador (MSI) terminó con un error grave.', 'Reinicia Windows y reintenta.') }
+        1618 { return @('Hay otra instalación de Windows en curso.', 'Espera a que termine (o reinicia) y reintenta.') }
+        1625 { return @('Una directiva del equipo bloquea la instalación.', 'Revisa las directivas o el antivirus del equipo.') }
+    }
+    return $null
+}
+function Get-IwinLogLength {
+    if (-not $LogFile -or -not (Test-Path -LiteralPath $LogFile)) { return [long]0 }
+    return [long](Get-Item -LiteralPath $LogFile).Length
+}
+function Get-IwinLogLinesSince([long]$offset) {
+    if (-not $LogFile -or -not (Test-Path -LiteralPath $LogFile)) { return @() }
+    $stream = [IO.File]::Open($LogFile, 'Open', 'Read', 'ReadWrite')
+    try {
+        if ($offset -gt 0 -and $offset -le $stream.Length) { [void]$stream.Seek($offset, 'Begin') }
+        $reader = New-Object IO.StreamReader($stream, [Text.Encoding]::UTF8)
+        $text = $reader.ReadToEnd()
+    } finally { $stream.Dispose() }
+    return @($text -split "\r?\n")
+}
+function Get-IwinAppLogSegment([string[]]$lines, [string]$name) {
+    # Líneas entre «Instalando <app>...» y el siguiente elemento del lote, sin la marca de hora.
+    $messages = @($lines | ForEach-Object { $_ -replace '^\d{2}:\d{2}:\d{2}\s{2}', '' })
+    $start = -1
+    for ($i = $messages.Count - 1; $i -ge 0; $i--) { if ($messages[$i] -eq "Instalando $name...") { $start = $i; break } }
+    if ($start -lt 0) { return @() }
+    $segment = @()
+    for ($i = $start + 1; $i -lt $messages.Count; $i++) {
+        $m = $messages[$i]
+        if ($m -match '^(Instalando .+\.\.\.|Ya instalada, se omite: |Terminado con fallos|Todo instalado|Escritorio organizado|Lote del sistema|Instalando \d+ elementos)') { break }
+        if ($m -match '^\s*(FALLÓ|OK): ') { continue }
+        $segment += $m.Trim()
+    }
+    return $segment
+}
+function Select-IwinKeyLines([string[]]$segment) {
+    $noise = '(?i)^(This application is licensed|Microsoft is not responsible|This package (requires|is provided)|Downloading https?://|Successfully (verified|extracted|installed)|Extracting archive|Starting package install|Found .+\[.+\]|Name\s+Id|Version\b|-{3,}|License|Privacy Url|Agreements|Category|Pricing|Free Trial|Terms of Transaction|Seizure Warning|Store License|Publisher|MSI \(s\)|Property\(S\)|Command line alias added|Path environment variable|\S+ · (Descargando|Instalando|Verificando|Desinstalando)…$|[-\\|/\s█▒\d.,%KMGBkmgb]+$)'
+    $clean = @($segment | Where-Object { $_ -and $_ -notmatch $noise -and $_ -notmatch ' · codigo 0 · ' })
+    $key = @($clean | Where-Object { $_ -match '(?i)fail|error|denied|denegad|no se |cannot|could not|unable|hash|blocked|bloque|timeout|sin respuesta|requiere|reinicia|necesita|asistente|permiso|0x[0-9a-f]{8}|codigo -?[1-9]|código -?[1-9]' })
+    $pick = if ($key.Count) { $key } else { $clean }
+    return @($pick | Select-Object -Last 6 | ForEach-Object { if ($_.Length -gt 240) { $_.Substring(0, 240) + '…' } else { $_ } })
+}
+function Get-IwinFailureInfo($app, $result, [string[]]$lines) {
+    $code = if ($result) { [long]$result.code } else { [long]0 }
+    $segment = @(Get-IwinAppLogSegment $lines ([string]$app.name))
+    $joined = $segment -join "`n"
+    $kind = 'fallo'
+    if ($result -and $result.stopped) { $kind = 'pausa' }
+    elseif ($app.type -in @('manual', 'download') -or $joined -match 'Se instala desde la web|Necesita su asistente') { $kind = 'manual' }
+    elseif (-not $result -and -not $segment.Count) { $kind = 'sin-ejecutar' }
+    $hint = Get-IwinCodeHint $code
+    $reason = $null; $advice = $null
+    if ($hint) { $reason = $hint[0]; $advice = $hint[1] }
+    $keyLines = @(Select-IwinKeyLines $segment)
+    if (-not $reason) {
+        switch ($kind) {
+            'manual' { $reason = 'Se instala desde la web o la cuenta del proveedor.' }
+            'pausa' { $reason = 'El lote se pausó antes de llegar a esta aplicación.' }
+            'sin-ejecutar' { $reason = 'No llegó a ejecutarse: el lote se interrumpió antes.' }
+            default { $reason = if ($keyLines.Count) { $keyLines[0] } else { 'El instalador terminó sin confirmar la instalación.' } }
+        }
+    }
+    if (-not $advice) {
+        if ($kind -eq 'manual') { $advice = 'Abre la web del proveedor, completa su instalador y pulsa Verificar.' }
+        elseif ($kind -in @('pausa', 'sin-ejecutar')) { $advice = 'Reanuda o reintenta la instalación.' }
+        elseif ($joined -match 'Se denegó el acceso a la clave de Registro|Access to the registry key') { $advice = 'Hace falta permiso de administrador. Reintenta y acepta la solicitud.' }
+        elseif ($joined -match 'Permiso de administrador denegado|aceptar el permiso') { $advice = 'Reintenta y acepta la ventana de permiso de administrador.' }
+        elseif ($joined -match 'No se confirm') { $advice = 'Pulsa Verificar: si aparece instalada, ya está. Si no, reintenta.' }
+        elseif ($joined -match 'Sin respuesta tras') { $advice = 'El instalador se quedó esperando. Reintenta y completa la ventana que aparezca.' }
+        elseif ($joined -match '(?i)cierra .+ antes|está abiert') { $advice = 'Cierra la aplicación y reintenta.' }
+        else { $advice = 'Reintenta. Si vuelve a fallar, copia este informe y compártelo.' }
+    }
+    [pscustomobject]@{ id = [string]$app.id; name = [string]$app.name; kind = $kind; code = $code; codeText = (Get-IwinCodeText $code); reason = [string]$reason; hint = [string]$advice; details = @($keyLines) }
+}
+function New-IwinInstallReport($plan, $failed, [long]$logOffset = 0, [string]$operation = 'install') {
+    $results = if ($script:RunResults) { $script:RunResults } else { @{} }
+    $lines = @(Get-IwinLogLinesSince $logOffset)
+    $failedIds = @(@($failed) | Where-Object { $_ -and $_.id } | ForEach-Object { [string]$_.id } | Select-Object -Unique)
+    $items = @(); $okCount = 0; $reboot = @()
+    foreach ($app in @(@($plan) | Where-Object { $_ -and $_.id })) {
+        $id = [string]$app.id
+        $result = if ($results.ContainsKey($id)) { $results[$id] } else { $null }
+        if ($failedIds -contains $id -or ($result -and -not $result.ok)) { $items += Get-IwinFailureInfo $app $result $lines; continue }
+        if ($result -and $result.ok) {
+            $okCount++
+            if ((Test-IwinRebootCode $result.code) -or [bool]$app.restart) { $reboot += [string]$app.name }
+        }
+    }
+    [pscustomobject]@{
+        format = 'iWinInstaller-informe'; version = 1; app = [string]$Version; operation = $operation
+        created = (Get-Date).ToString('yyyy-MM-dd HH:mm'); total = @($plan).Count; ok = $okCount
+        failed = @($items | Where-Object kind -eq 'fallo').Count; manual = @($items | Where-Object kind -eq 'manual').Count
+        pending = @($items | Where-Object { $_.kind -in @('pausa', 'sin-ejecutar') }).Count
+        reboot = @($reboot); items = @($items); log = [string]$LogFile
+    }
+}
+function Get-IwinReportPath { Join-Path (Join-Path $LogDir 'informes') 'ultimo.json' }
+function Save-IwinInstallReport($report) {
+    if (-not $LogDir -or -not $report) { return }
+    $path = Get-IwinReportPath
+    Write-IwinJson $path $report
+    # Conserva también los diez informes anteriores con fecha.
+    $folder = Split-Path $path -Parent
+    Copy-Item -LiteralPath $path -Destination (Join-Path $folder ('informe-' + (Get-Date -Format 'yyyy-MM-dd_HH-mm-ss') + '.json')) -Force
+    Get-ChildItem -LiteralPath $folder -Filter 'informe-*.json' -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -Skip 10 | Remove-Item -Force -ErrorAction SilentlyContinue
+}
+function Get-IwinLastReport {
+    if (-not $LogDir) { return $null }
+    $path = Get-IwinReportPath
+    if (-not (Test-Path -LiteralPath $path)) { return $null }
+    try { $data = Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop } catch { return $null }
+    if ($data.format -ne 'iWinInstaller-informe') { return $null }
+    $data
+}
+function Get-IwinReportSummary($report) {
+    $parts = @("$($report.ok) correctas")
+    if ($report.failed) { $parts += "$($report.failed) fallaron" }
+    if ($report.manual) { $parts += "$($report.manual) requieren acción manual" }
+    if ($report.pending) { $parts += "$($report.pending) pendientes" }
+    if (@($report.reboot).Count) { $parts += "$(@($report.reboot).Count) requieren reiniciar" }
+    "$($parts -join ' · ') (de $($report.total))"
+}
+function Format-IwinReportText($report) {
+    if (-not $report) { return '' }
+    $out = New-Object Collections.Generic.List[string]
+    $out.Add("=== INFORME DE INSTALACIÓN · iWinInstaller $($report.app) · $($report.created) ===")
+    $out.Add("Resultado: $(Get-IwinReportSummary $report)")
+    $groups = @(
+        @{ Title = 'FALLARON'; Kinds = @('fallo') },
+        @{ Title = 'REQUIEREN ACCIÓN MANUAL'; Kinds = @('manual') },
+        @{ Title = 'PENDIENTES (lote pausado o interrumpido)'; Kinds = @('pausa', 'sin-ejecutar') }
+    )
+    foreach ($group in $groups) {
+        $list = @($report.items | Where-Object { $group.Kinds -contains $_.kind })
+        if (-not $list.Count) { continue }
+        $out.Add(''); $out.Add($group.Title)
+        $n = 0
+        foreach ($item in $list) {
+            $n++
+            $out.Add("$n. $($item.name) [$($item.id)]$(if ($item.codeText) { ' · código ' + $item.codeText })")
+            $out.Add("   Motivo: $($item.reason)")
+            $out.Add("   Qué hacer: $($item.hint)")
+            if (@($item.details).Count) { $out.Add('   Detalle:'); foreach ($d in @($item.details)) { $out.Add("     $d") } }
+        }
+    }
+    if (@($report.reboot).Count) { $out.Add(''); $out.Add('REQUIEREN REINICIAR WINDOWS'); foreach ($r in @($report.reboot)) { $out.Add("- $r") } }
+    if (-not @($report.items).Count) { $out.Add(''); $out.Add('Sin fallos.') }
+    $out.Add('=== FIN DEL INFORME ===')
+    $out -join "`r`n"
 }

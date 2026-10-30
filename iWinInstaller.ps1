@@ -25,7 +25,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v3.8'
+$Version = 'v3.9'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -181,6 +181,7 @@ function Invoke-Elevated($cmd) {
         $start = @{FilePath='powershell'; PassThru=$true; WindowStyle='Hidden'; ArgumentList=@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', $enc)}
         if (-not (Test-Administrator)) { $start.Verb = 'RunAs' }
         $p = Start-Process @start
+        $null = $p.Handle
         Wait-Proc $p
         return ($p.HasExited -and $p.ExitCode -eq 0)
     } catch {
@@ -237,6 +238,10 @@ function Test-LocalApp($app) {
         if (@($app.families) -contains $pkg.PackageFamilyName -and (-not $app.architecture -or [string]$pkg.Architecture -eq $app.architecture)) { return $true }
         $short = ([string]$pkg.Name -split '\.')[-1] -replace 'Desktop$', ''
         if ((Get-NormName $short) -eq (Get-NormName $app.name)) { return $true }
+    }
+    # Kits portátiles sin entrada en Programas (p. ej. Emsisoft Emergency Kit en C:\EEK).
+    foreach ($path in @($app.detectPaths)) {
+        if ($path -and (Test-Path -LiteralPath ([Environment]::ExpandEnvironmentVariables([string]$path)))) { return $true }
     }
     foreach ($command in @($app.commands)) {
         if ($command) {
@@ -333,19 +338,26 @@ function Install-WingetPackage($app, [string]$id) {
     if ($id -eq 'Google.Chrome') { return (Install-Chrome $app) }
     $source = if ($app.source) { $app.source } else { 'winget' }
     $operation = if ($UpgradePackages) { 'upgrade' } else { 'install' }
-    $arguments = @($operation, '-e', '--id', $id, '--source', $source, '--silent', '--disable-interactivity', '--accept-package-agreements', '--accept-source-agreements')
+    # Algunos fabricantes solo publican un asistente sin modo silencioso: se muestra y se espera a que lo completes.
+    $mode = if ($app.interactive) { '--interactive' } else { '--silent' }
+    $timeout = if ($app.interactive) { 3600 } else { 900 }
+    if ($app.interactive) { Write-Log "  Se abrirá el asistente de $($app.name): complétalo para continuar." }
+    $arguments = @($operation, '-e', '--id', $id, '--source', $source, $mode, '--disable-interactivity', '--accept-package-agreements', '--accept-source-agreements')
     if ($app.scope) { $arguments += @('--scope', $app.scope) }
     if ($app.architecture) { $arguments += @('--architecture', $app.architecture) }
-    $code = Invoke-Winget $arguments $app.id
+    $code = Invoke-Winget $arguments $app.id $timeout
+    $usedMsix = $false
     if ($code -eq -2147024891 -and $app.families -and $operation -eq 'install') {
         # 0x80070005: el MSI no pudo escribir (antivirus, carpeta protegida o proceso abierto). El paquete MSIX no lo necesita.
         Write-Log '  Acceso denegado al instalador clasico: se prueba el paquete MSIX oficial.'
         $retry = @($arguments | Where-Object { $_ -ne '--scope' -and $_ -ne $app.scope }) + @('--installer-type', 'msix')
         $code = Invoke-Winget $retry ($app.id + '-msix')
+        $usedMsix = $true
     }
     if ($code -notin $wingetOk) { return $false }
     if (Test-IwinRebootCode $code) { Write-Log '  Requiere reiniciar Windows y volver a verificar.'; return $true }
-    Update-LocalInventory -Appx:((Get-InstallContext $app) -eq 'user')
+    # Un paquete MSIX solo aparece en el inventario de Appx: se relee también en ese caso.
+    Update-LocalInventory -Appx:((Get-InstallContext $app) -eq 'user' -or $usedMsix)
     # El codigo de exito no basta: debe aparecer en el inventario o en winget list.
     if ($app.type -ne 'wingetall' -and (Test-LocalApp $app)) { $script:WingetIds += $id; return $true }
     if ($app.architecture -and $app.families) { Write-Log '  No se confirma la arquitectura requerida del paquete.'; return $false }
@@ -448,6 +460,9 @@ function Export-Diagnostic {
     $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
     $header = "iWinInstaller $Version`r`nWindows: $($os.Caption) $($os.Version)`r`nArquitectura: $env:PROCESSOR_ARCHITECTURE`r`nAdministrador: $(Test-Administrator)`r`nFecha: $(Get-Date -Format o)`r`n`r`n"
     $body = if (Test-Path $LogFile) { Get-Content $LogFile -Raw -Encoding UTF8 } else { 'Sin operaciones registradas.' }
+    # El resumen de fallos va primero: se lee sin recorrer todo el registro.
+    $lastReport = if ($script:LastReport) { $script:LastReport } else { try { Get-IwinLastReport } catch { $null } }
+    if ($lastReport) { $header += (Format-IwinReportText $lastReport) + "`r`n`r`n=== REGISTRO COMPLETO ===`r`n" }
     $text = $header + $body
     if ($env:USERPROFILE) { $text = $text.Replace($env:USERPROFILE, '%USERPROFILE%') }
     $text = $text -replace '(?i)(https?://)[^/\s@]+@', '$1[OCULTO]@'
@@ -1149,12 +1164,14 @@ function Update-Self {
             }
             foreach($running in @(Get-Process -Name iWinInstaller-Setup -ErrorAction SilentlyContinue)){try{if($running.Path -eq $setup){Write-Log '  La nueva versión ya está preparada para aplicarse al cerrar.';return $true}}catch{}}
             $p=Start-Process $setup -ArgumentList '--silent' -PassThru
+            $null=$p.Handle
             if (($UI -or $AutoUpdate) -and $env:IWIN_HOST_PID -match '^\d+$') {
                 Write-Log '  Versión verificada. Se aplica cuando cierre iWinInstaller; conserva notas, perfiles y lotes.'
                 return $true
             }
         } else {
             $p=Start-Process powershell -PassThru -WindowStyle Hidden -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $Root 'install.ps1')`" -Silent"
+            $null=$p.Handle
         }
         Wait-Proc $p 600
         return ($p.HasExited -and $p.ExitCode -eq 0)
@@ -1371,6 +1388,9 @@ function Invoke-Install($sel, [scriptblock]$onProgress) {
     if ($script:ResumingBatch -and $script:Batch) { $done=@($script:Batch.items | Where-Object state -eq 'done' | ForEach-Object id); $sel=@($sel | Where-Object { $done -notcontains $_.id }) }
     if (-not $WorkerMode -and -not $script:ResumingBatch) { Start-IwinBatch $sel $(if($UpgradePackages){'upgrade'}else{'install'}) }
     $script:LastInstallCode = 0
+    # Punto de partida del informe final: resultados de esta pasada y registro desde aquí.
+    $reportPlan = @($sel); $script:RunResults = @{}
+    $reportOffset = 0; try { $reportOffset = Get-IwinLogLength } catch { }
     if (($sel | Where-Object id -eq 'rgboff') -and ($clash = @($sel | Where-Object rgb))) {
         Write-Log "Aviso: $(($clash | ForEach-Object name) -join ', ') puede volver a encender las luces."
     }
@@ -1436,8 +1456,19 @@ function Invoke-Install($sel, [scriptblock]$onProgress) {
         Complete-IwinItem $app $ok $onProgress
     }
     Organize-Desktop
+    if (-not $WorkerMode -and $LogDir) {
+        # Informe con el motivo de cada fallo: panel al terminar, portapapeles y cabecera del diagnóstico.
+        try {
+            $script:LastReport = New-IwinInstallReport $reportPlan $fail $reportOffset $(if ($UpgradePackages) { 'upgrade' } else { 'install' })
+            Save-IwinInstallReport $script:LastReport
+            if (@($script:LastReport.items).Count) {
+                Write-Log "Informe: $(Get-IwinReportSummary $script:LastReport)"
+                foreach ($item in @($script:LastReport.items)) { Write-Log "  ✗ $($item.name): $($item.reason)$(if ($item.codeText) { ' (código ' + $item.codeText + ')' })" }
+            }
+        } catch { $script:LastReport = $null; Write-Log "No se pudo preparar el informe: $($_.Exception.Message)" }
+    }
     if ($fail) {
-        Write-Log "Terminado con fallos en: $(($fail | ForEach-Object name) -join ', ')"
+        Write-Log "Terminado con fallos en: $(($fail | ForEach-Object name | Select-Object -Unique) -join ', ')"
         if (-not $WorkerMode -and $LogFile) { try { $report = Export-Diagnostic; Write-Log "Diagnostico guardado en $report" } catch { Write-Log "No se pudo exportar el diagnostico: $($_.Exception.Message)" } }
     } else { Write-Log 'Todo instalado correctamente.' }
     $fail
@@ -2562,6 +2593,31 @@ $ButtonStyles = @'
       </Border>
     </Border>
 
+    <!-- Informe al terminar: qué falló, por qué y qué hacer -->
+    <Border x:Name="ReportPanel" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="11" Background="#B0000000" Visibility="Collapsed">
+      <Border Background="#18181B" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="14" Padding="22,18" MaxWidth="640" Margin="16" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Top">
+            <TextBlock x:Name="ReportTitle" Text="Resultado de la instalación" FontSize="20" FontWeight="SemiBold" Foreground="#F5F5F7"/>
+            <TextBlock x:Name="ReportSummary" Foreground="#ADADB5" TextWrapping="Wrap" Margin="0,4,0,12"/>
+          </StackPanel>
+          <StackPanel DockPanel.Dock="Bottom" Margin="0,14,0,0">
+            <TextBlock Foreground="{StaticResource Faint}" FontSize="11.5" TextWrapping="Wrap" Margin="0,0,0,10"
+                       Text="«Copiar informe» deja el resumen listo para pegarlo en un chat o un correo. El diagnóstico completo también empieza por este resumen."/>
+            <WrapPanel HorizontalAlignment="Right">
+              <Button x:Name="ReportRetry" Style="{StaticResource Primary}" Content="Reintentar fallidas" Margin="0,0,8,6" MinWidth="120"/>
+              <Button x:Name="ReportCopy" Style="{StaticResource Btn}" Content="Copiar informe" Margin="0,0,8,6" MinWidth="110"/>
+              <Button x:Name="ReportExport" Style="{StaticResource Btn}" Content="Guardar diagnóstico" Margin="0,0,8,6" MinWidth="110"/>
+              <Button x:Name="ReportClose" Style="{StaticResource Btn}" Content="Cerrar" Margin="0,0,0,6" MinWidth="96"/>
+            </WrapPanel>
+          </StackPanel>
+          <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="460">
+            <StackPanel x:Name="ReportRows"/>
+          </ScrollViewer>
+        </DockPanel>
+      </Border>
+    </Border>
+
     <!-- Barra inferior: actividad, estado y acciones -->
     <Border x:Name="ActionPanel" Grid.Row="2" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0">
       <Grid Margin="16,10,16,12">
@@ -2591,6 +2647,7 @@ $ButtonStyles = @'
                 <MenuItem x:Name="MDisplay" Header="Pantalla y energía (resolución, Hz, suspensión)…"/>
                 <MenuItem x:Name="MLink" Header="Vincular equipos (Mac u otro Windows)…"/>
                 <MenuItem x:Name="MSecurity" Header="Seguridad (antivirus de Windows)…"/>
+                <MenuItem x:Name="MReport" Header="Informe de la última instalación…"/>
                 <MenuItem x:Name="MResume" Header="Reanudar lote pendiente…"/>
               </ContextMenu>
             </Button.ContextMenu>
@@ -2947,7 +3004,8 @@ function Start-SecurityTask([string]$command, [string]$label) {
     if ($script:SecurityJob -and -not $script:SecurityJob.HasExited) { Set-Status 'Ya hay un análisis en curso.'; return }
     # Proceso aparte: un análisis completo puede durar horas y no debe bloquear la ventana.
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes("`$ErrorActionPreference='Stop'; $command"))
-    try { $script:SecurityJob = Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" -WindowStyle Hidden -PassThru }
+    # El handle se guarda al lanzar: sin él, PowerShell 5.1 pierde el código de salida de un proceso que termina rápido.
+    try { $script:SecurityJob = Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" -WindowStyle Hidden -PassThru; $null = $script:SecurityJob.Handle }
     catch { Set-Status "No se pudo iniciar: $($_.Exception.Message)"; return }
     $script:SecurityLabel = $label
     Write-Log "Seguridad: $label iniciado."; Set-Status "$label en curso…"
@@ -3074,6 +3132,82 @@ $ui.LinkKeysFile.Add_Click({
     if (-not (Test-Path $path)) { Set-Status 'Todavía no hay equipos autorizados.'; return }
     $keys = @(Get-Content $path -ErrorAction SilentlyContinue | Where-Object { $_ -match '^(ssh-|ecdsa-|sk-)' } | ForEach-Object { $p = $_ -split ' ', 3; if ($p.Count -ge 3) { $p[2] } else { $p[0] + ' …' + $p[1].Substring([math]::Max(0, $p[1].Length - 8)) } })
     [void](Show-IwinDialog -Title 'Equipos autorizados' -Text $(if ($keys) { ($keys -join "`n") + "`n`nPara quitar uno, borra su línea en:`n$path (necesita administrador)." } else { 'Ninguno.' }) -Ok 'Cerrar')
+})
+# ---- Informe al terminar: una tarjeta por fallo con motivo, qué hacer y detalle del registro ----
+function New-ReportText([string]$text, [string]$color, [double]$size = 12.5, [string]$weight = 'Normal', [string]$font = '') {
+    $block = New-Object Windows.Controls.TextBlock
+    $block.Text = $text; $block.Foreground = $color; $block.FontSize = $size; $block.FontWeight = $weight
+    $block.TextWrapping = 'Wrap'; $block.Margin = '0,2,0,0'
+    if ($font) { $block.FontFamily = $font }
+    $block
+}
+function Show-InstallReport($report) {
+    if (-not $report) { $report = Get-IwinLastReport }
+    $ui.ReportRows.Children.Clear()
+    if (-not $report) {
+        $ui.ReportSummary.Text = 'Todavía no hay ninguna instalación registrada en este equipo.'
+        $ui.ReportRetry.Visibility = 'Collapsed'; $ui.ReportCopy.IsEnabled = $false
+        $ui.ReportPanel.Visibility = 'Visible'; return
+    }
+    $script:ShownReport = $report
+    $items = @($report.items)
+    $ui.ReportTitle.Text = if ($items.Count) { 'Resultado de la instalación' } else { 'Instalación completada' }
+    $ui.ReportSummary.Text = "$($report.created) · $(Get-IwinReportSummary $report)"
+    $badges = @{ 'fallo' = @('Falló', '#FF7878', '#3A1E22'); 'manual' = @('Acción manual', '#EBC186', '#3A3020'); 'pausa' = @('Pendiente', '#8CC4FF', '#1E2A3A'); 'sin-ejecutar' = @('Sin ejecutar', '#8CC4FF', '#1E2A3A') }
+    foreach ($item in $items) {
+        $badge = if ($badges.ContainsKey([string]$item.kind)) { $badges[[string]$item.kind] } else { $badges['fallo'] }
+        $card = New-Object Windows.Controls.Border
+        $card.Background = '#111116'; $card.BorderBrush = '#2B2B30'; $card.BorderThickness = '1'; $card.CornerRadius = '10'; $card.Padding = '14,10'; $card.Margin = '0,0,0,8'
+        $stack = New-Object Windows.Controls.StackPanel
+        $head = New-Object Windows.Controls.DockPanel
+        $pill = New-Object Windows.Controls.Border
+        $pill.Background = $badge[2]; $pill.CornerRadius = '6'; $pill.Padding = '8,2'; $pill.VerticalAlignment = 'Center'; $pill.Margin = '8,0,0,0'
+        [Windows.Controls.DockPanel]::SetDock($pill, 'Right')
+        $pill.Child = New-ReportText $badge[0] $badge[1] 11.5 'SemiBold'
+        $pill.Child.Margin = '0'
+        [void]$head.Children.Add($pill)
+        $title = New-ReportText ([string]$item.name + $(if ($item.codeText) { '  ·  código ' + $item.codeText })) '#F5F5F7' 14 'SemiBold'
+        $title.Margin = '0'
+        [void]$head.Children.Add($title)
+        [void]$stack.Children.Add($head)
+        [void]$stack.Children.Add((New-ReportText ("Motivo: " + $item.reason) '#E4E4E7'))
+        [void]$stack.Children.Add((New-ReportText ("Qué hacer: " + $item.hint) '#ADADB5'))
+        $details = @($item.details)
+        if ($details.Count) {
+            $box = New-ReportText ($details -join "`n") '#8B8B95' 11 'Normal' 'Cascadia Mono, Consolas'
+            $box.Margin = '0,6,0,0'
+            [void]$stack.Children.Add($box)
+        }
+        $card.Child = $stack
+        [void]$ui.ReportRows.Children.Add($card)
+    }
+    if (@($report.reboot).Count) {
+        [void]$ui.ReportRows.Children.Add((New-ReportText ('Requieren reiniciar Windows: ' + (@($report.reboot) -join ', ')) '#EBC186' 12.5 'SemiBold'))
+    }
+    if (-not $items.Count) { [void]$ui.ReportRows.Children.Add((New-ReportText 'Todo se instaló correctamente.' '#78DC96' 13 'SemiBold')) }
+    $retryable = @($items | Where-Object { $_.kind -ne 'manual' })
+    $ui.ReportRetry.Visibility = if ($retryable.Count -and -not $script:Busy) { 'Visible' } else { 'Collapsed' }
+    $ui.ReportCopy.IsEnabled = $true
+    $ui.ReportPanel.Visibility = 'Visible'
+}
+$ui.MReport.Add_Click({ Show-InstallReport $null })
+$ui.ReportClose.Add_Click({ $ui.ReportPanel.Visibility = 'Collapsed' })
+$ui.ReportCopy.Add_Click({
+    if (-not $script:ShownReport) { return }
+    try { [Windows.Clipboard]::SetText((Format-IwinReportText $script:ShownReport)); Set-Status 'Informe copiado: pégalo donde quieras compartirlo.' }
+    catch { Set-Status "No se pudo copiar el informe: $($_.Exception.Message)" }
+})
+$ui.ReportExport.Add_Click({
+    try { $path = Export-Diagnostic; Set-Status "Diagnóstico guardado en Descargas: $([IO.Path]::GetFileName($path))"; Start-Process explorer.exe -ArgumentList ('/select,"' + $path + '"') }
+    catch { Set-Status "No se pudo guardar el diagnóstico: $($_.Exception.Message)" }
+})
+$ui.ReportRetry.Add_Click({
+    if ($script:Busy -or -not $script:ShownReport) { return }
+    $ids = @(@($script:ShownReport.items) | Where-Object { $_.kind -ne 'manual' } | ForEach-Object id)
+    $selection = @($Apps | Where-Object { $ids -contains $_.id })
+    if (-not $selection.Count) { return }
+    $ui.ReportPanel.Visibility = 'Collapsed'
+    Start-IwinUiInstall $selection
 })
 $ui.MSecurity.Add_Click({ Show-SecurityPanel })
 $ui.BtnSecurity.Add_Click({ Show-SecurityPanel })
@@ -3445,6 +3579,7 @@ $win.Add_PreviewKeyDown({
     elseif ($ctrl -and $e.Key -in @('OemMinus', 'Subtract')) { Set-Zoom ($ui.Zoom.ScaleX - 0.1); $e.Handled = $true }
     elseif ($ctrl -and $e.Key -in @('D0', 'NumPad0')) { Set-Zoom 1; $e.Handled = $true }
     elseif ($ctrl -and $e.Key -eq 'F') { [void]$ui.Search.Focus(); $ui.Search.SelectAll(); $e.Handled = $true }
+    elseif ($e.Key -eq 'Escape' -and $ui.ReportPanel.Visibility -eq 'Visible') { $ui.ReportPanel.Visibility = 'Collapsed'; $e.Handled = $true }
     elseif ($e.Key -eq 'Escape' -and $ui.AfterPanel.Visibility -eq 'Visible' -and -not $script:Busy) { $ui.AfterBack.RaiseEvent((New-Object Windows.RoutedEventArgs ([Windows.Controls.Button]::ClickEvent)));$e.Handled=$true }
     elseif ($e.Key -eq 'Escape' -and $ui.Search.IsKeyboardFocusWithin -and $ui.Search.Text) { $ui.Search.Text = ''; $e.Handled = $true }
     elseif ($ui.List.IsKeyboardFocusWithin -and $ui.List.SelectedItem) {
@@ -3534,13 +3669,19 @@ function Start-IwinUiInstall($selection, $pending = $null) {
             $ui.Bar.Value++
             Set-Status "$($a.name) · $($it.Status) · $($ui.Bar.Value)/$($ui.Bar.Maximum)"
         }
+        $script:LastReport = $null
         $fail=if($pending){@(Resume-IwinBatch $pending $progress)}else{@(Invoke-Install $selection $progress)}
-        $msg=if(Test-IwinStop){'Lote pausado. Reanuda cuando quieras; no se interrumpió la aplicación en curso.'}elseif($fail.Count){"Quedan $($fail.Count) elementos pendientes. Puedes reanudar y volver a comprobar."}else{'Instalación terminada. Abre «Después de instalar» para completar y comprobar la configuración.'}
+        $failedCount=@($fail | Where-Object { $_ -and $_.id } | ForEach-Object id | Select-Object -Unique).Count
+        $msg=if(Test-IwinStop){'Lote pausado. Reanuda cuando quieras; no se interrumpió la aplicación en curso.'}elseif($failedCount){"Quedan $failedCount elementos pendientes: el informe explica cada uno."}else{'Instalación terminada. Abre «Después de instalar» para completar y comprobar la configuración.'}
         if (@(Get-IwinRebootPending).Count) { $msg += ' Hay cambios que requieren reiniciar Windows.' }
         Set-Status $msg
         Update-Nav; Update-Filter
     } catch { Write-Log "No se pudo completar: $($_.Exception.Message)"; Set-Status $_.Exception.Message }
     finally { Set-Busy $false }
+    # Al terminar con algo pendiente se abre el informe con el motivo de cada fallo.
+    if ($script:LastReport -and @($script:LastReport.items).Count) {
+        try { Show-InstallReport $script:LastReport } catch { Write-Log "No se pudo mostrar el informe: $($_.Exception.Message)" }
+    }
 }
 $ui.BtnInstall.Add_Click({
     $selection=@($Apps | Where-Object { $byId[$_.id].Checked -and -not $byId[$_.id].Installed })
@@ -3803,6 +3944,16 @@ if ($env:IWIN_PRUEBA_GUI) {
     Set-Zoom 0.1; if ($ui.Zoom.ScaleX -ne $ZoomMin) { throw 'El zoom debe tener un mínimo.' }
     Set-Zoom 9; if ($ui.Zoom.ScaleX -ne $ZoomMax) { throw 'El zoom debe tener un máximo.' }
     Set-Zoom 1
+
+    # Informe al terminar: se pinta con fallos reales de ejemplo y se cierra con Escape
+    $sample = [pscustomobject]@{ format='iWinInstaller-informe'; version=1; app=$Version; operation='install'; created='prueba'; total=3; ok=1; failed=1; manual=1; pending=0; reboot=@('WSL'); log=''
+        items=@([pscustomobject]@{ id='pwsh'; name='PowerShell 7'; kind='fallo'; code=-2147024891; codeText='0x80070005'; reason='Acceso denegado al instalar.'; hint='Cierra la app y reintenta.'; details=@('Installer failed with exit code: 0x80070005') },
+                [pscustomobject]@{ id='nortonvpn'; name='Norton VPN'; kind='manual'; code=0; codeText=''; reason='Se instala desde la web.'; hint='Completa su instalador.'; details=@() }) }
+    Show-InstallReport $sample
+    for ($pass=0; $pass -lt 3; $pass++) { Invoke-UiPump; Start-Sleep -Milliseconds 60 }
+    if ($ui.ReportPanel.Visibility -ne 'Visible' -or $ui.ReportRows.Children.Count -lt 3 -or $ui.ReportRetry.Visibility -ne 'Visible') { throw 'El informe final debe mostrar una tarjeta por fallo y el reinicio pendiente.' }
+    if ((Format-IwinReportText $sample) -notmatch 'PowerShell 7 \[pwsh\] · código 0x80070005') { throw 'El texto copiable del informe no es correcto.' }
+    $ui.ReportPanel.Visibility = 'Collapsed'
 
     # Pantalla pequeña (máquina virtual 800x600 o menos): la lista sigue teniendo sitio
     foreach ($size in @(@(1180, 780), @(800, 600), @(600, 440))) {

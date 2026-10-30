@@ -180,3 +180,77 @@ Write-Host 'OK: prepara dependencias, omite lo instalado, confirma el resultado 
 
 # Los errores nativos anteriores son deliberados; todas las aserciones han pasado.
 $global:LASTEXITCODE = 0
+
+# Informe final: motivo de cada fallo a partir del registro real (caso del 30/10: PowerShell 7, Bing y Norton).
+& {
+    $Version = 'prueba'; $WorkerMode = ''
+    $LogDir = Join-Path $env:TEMP ('iwin-informe-' + [guid]::NewGuid().ToString('N'))
+    New-Item $LogDir -ItemType Directory -Force | Out-Null
+    $LogFile = Join-Path $LogDir 'prueba.log'
+    try {
+        Set-Content $LogFile 'previo: no debe aparecer' -Encoding UTF8
+        $offset = Get-IwinLogLength
+        @(
+            '06:40:30  Instalando PowerShell 7...',
+            '06:40:32    pwsh · Instalando…',
+            '06:40:43      This application is licensed to you by its owner.',
+            '06:40:43      Installer failed with exit code: 0x80070005 : Acceso denegado.',
+            '06:40:43    pwsh · codigo -2147024891 · 13.1 s',
+            '06:40:43    FALLÓ: PowerShell 7',
+            '06:41:02  Instalando gsudo...',
+            '06:41:06    OK: gsudo',
+            '06:47:05  Instalando Inicio sin resultados de Bing...',
+            "06:47:05    Se denegó el acceso a la clave de Registro 'HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Explorer'.",
+            '06:47:05    FALLÓ: Inicio sin resultados de Bing',
+            '06:55:50  Instalando Norton VPN...',
+            '06:55:50    Se instala desde la web o la cuenta del proveedor: completa su asistente y vuelve a verificar.',
+            '06:55:50    FALLÓ: Norton VPN'
+        ) | Add-Content $LogFile -Encoding UTF8
+        $plan = @(
+            [pscustomobject]@{ id = 'pwsh'; name = 'PowerShell 7'; type = 'winget' },
+            [pscustomobject]@{ id = 'gsudo'; name = 'gsudo'; type = 'winget' },
+            [pscustomobject]@{ id = 'nobing'; name = 'Inicio sin resultados de Bing'; type = 'tweak'; restart = $true },
+            [pscustomobject]@{ id = 'nortonvpn'; name = 'Norton VPN'; type = 'manual' },
+            [pscustomobject]@{ id = 'wsl'; name = 'WSL'; type = 'tweak'; restart = $true }
+        )
+        $script:RunResults = @{
+            pwsh = [pscustomobject]@{ ok = $false; code = -2147024891; stopped = $false }
+            gsudo = [pscustomobject]@{ ok = $true; code = 0; stopped = $false }
+            nobing = [pscustomobject]@{ ok = $false; code = 0; stopped = $false }
+            nortonvpn = [pscustomobject]@{ ok = $false; code = 0; stopped = $false }
+            wsl = [pscustomobject]@{ ok = $true; code = 0; stopped = $false }
+        }
+        $report = New-IwinInstallReport $plan @($plan[0], $plan[2], $plan[3]) $offset
+        if ($report.ok -ne 2 -or $report.failed -ne 2 -or $report.manual -ne 1) { throw "Recuento del informe incorrecto: $($report.ok)/$($report.failed)/$($report.manual)" }
+        $pwsh = $report.items | Where-Object id -eq 'pwsh'
+        if ($pwsh.codeText -ne '0x80070005' -or $pwsh.reason -notmatch 'Acceso denegado' -or ($pwsh.details -join ' ') -notmatch 'Installer failed') { throw 'PowerShell 7 debe explicar el acceso denegado con su detalle' }
+        if (($pwsh.details -join ' ') -match 'licensed') { throw 'El detalle no debe incluir el texto de licencia' }
+        $bing = $report.items | Where-Object id -eq 'nobing'
+        if ($bing.kind -ne 'fallo' -or $bing.hint -notmatch 'administrador') { throw 'Bing debe indicar que hace falta administrador' }
+        if (($report.items | Where-Object id -eq 'nortonvpn').kind -ne 'manual') { throw 'Norton VPN es una instalación manual, no un fallo' }
+        if ($report.items | Where-Object id -eq 'gsudo') { throw 'gsudo terminó bien y no puede aparecer como fallo' }
+        if (@($report.reboot) -notcontains 'WSL') { throw 'WSL debe aparecer como pendiente de reinicio' }
+        $text = Format-IwinReportText $report
+        foreach ($expected in 'FALLARON', 'REQUIEREN ACCIÓN MANUAL', 'PowerShell 7 [pwsh] · código 0x80070005', 'REQUIEREN REINICIAR WINDOWS') {
+            if ($text -notlike "*$expected*") { throw "Falta en el texto del informe: $expected" }
+        }
+        if ($text -match 'previo: no debe aparecer') { throw 'El informe solo debe leer el registro de esta pasada' }
+        Save-IwinInstallReport $report
+        $again = Get-IwinLastReport
+        if (-not $again -or @($again.items).Count -ne 3 -or (Format-IwinReportText $again) -notmatch '0x80070005') { throw 'El informe guardado debe poder abrirse de nuevo' }
+        if ((Get-IwinCodeText 3010) -ne '3010' -or (Get-IwinCodeText -1978335224) -ne '0x8A150008') { throw 'Formato de códigos incorrecto' }
+        Write-Host 'OK: informe final con motivo, código, detalle, acción manual y reinicio.'
+    } finally { Remove-Item $LogDir -Recurse -Force -ErrorAction SilentlyContinue }
+}
+# Kits portátiles sin entrada en Programas: se detectan por su carpeta.
+& {
+    . (Get-FunctionBody 'Test-LocalApp')
+    . (Get-FunctionBody 'Get-NormName')
+    $RegistryApps = @(); $AppxApps = @()
+    $folder = Join-Path $env:TEMP ('iwin-kit-' + [guid]::NewGuid().ToString('N'))
+    $app = [pscustomobject]@{ name = 'Kit portátil'; detectPaths = @($folder) }
+    if (Test-LocalApp $app) { throw 'No puede detectar un kit ausente' }
+    New-Item $folder -ItemType Directory | Out-Null
+    try { if (-not (Test-LocalApp $app)) { throw 'Debe detectar el kit por su carpeta' } } finally { Remove-Item $folder -Force }
+    Write-Host 'OK: detección por carpeta.'
+}

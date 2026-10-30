@@ -1,5 +1,38 @@
 # Historial de versiones
 
+## v3.9 — 2026-10-30
+
+> Primera release desde v3.6: incluye también **v3.7** (panel Seguridad, arreglos del instalador, directivas de usuario, PowerShell 7 y gsudo) y **v3.8** (Vincular equipos). Sus tags se crearon, pero sus releases no llegaron a publicarse, por lo que la actualización automática seguía ofreciendo v3.6.
+
+### Añadido
+- **Informe al terminar la instalación**: si algo falla o necesita tu intervención se abre una sección con una tarjeta por aplicación: **motivo** en lenguaje claro, **código** del instalador (decimal o `0x…`), **qué hacer** y las líneas relevantes del registro (sin el texto de licencias). Separa **Falló**, **Acción manual** (Norton VPN, AMD Software, Samsung Magician, asistentes) y **Pendiente** (lote pausado), y lista lo que requiere reiniciar.
+  - Botones **Reintentar fallidas** (no reintenta las manuales), **Copiar informe** (texto listo para pegar en un chat o correo) y **Guardar diagnóstico**. `Esc` lo cierra.
+  - **⋯ › Informe de la última instalación** lo vuelve a abrir. Se guardan el último y los diez anteriores en `%LOCALAPPDATA%\iWinInstaller\informes`.
+  - El **TXT de diagnóstico empieza por ese resumen** (`=== INFORME DE INSTALACIÓN ===`) antes del registro completo, y el registro termina con una línea por fallo.
+  - Explicación de los códigos documentados de WinGet (`0x8A150008` descarga, `0x8A150011` huella, `0x8A150101`/`0x8A150103` app o archivo en uso, `0x8A150105` disco lleno…), `0x80070005` (acceso denegado) y MSI (1602, 1603, 1618, 1625).
+- Campo `interactive` del catálogo: los instaladores que solo tienen asistente se abren con aviso («complétalo para continuar») y esperan hasta 1 h en lugar de agotar los 15 min.
+- Campo `detectPaths` del catálogo: detección por carpeta de kits portátiles sin entrada en Programas.
+
+### Corregido
+- **Antivirus**:
+  - **Bitdefender Free** usaba su descargador sin modo silencioso: se quedaba esperando con el asistente abierto y acababa como fallo. Ahora avisa de que hay que completar el asistente y espera. Se quita `--scope machine`, que su instalador no declara.
+  - **Emsisoft Emergency Kit** estaba como app de usuario, pero se extrae en `C:\EEK` y necesita administrador; además no aparece en Programas, por lo que nunca se confirmaba. Pasa al lote de administrador y se detecta por su carpeta.
+  - **Panel Seguridad**: un análisis o una actualización de firmas que terminaba rápido podía mostrarse como «no se completó (código )», porque PowerShell 5.1 pierde el código de salida si no se guarda el handle del proceso al lanzarlo.
+- **Códigos de salida perdidos** en otros tres puntos por la misma causa: comandos elevados cuando la app ya es administrador (WSL, punto de restauración) y el actualizador sin ventana (`-Update`/`-Silent`), que podía anunciar «Actualización incompleta» tras actualizar bien.
+- **PowerShell 7**: tras el reintento con el paquete MSIX se relee también el inventario de paquetes de la Store, para confirmar la instalación aunque el comando `pwsh` aún no esté en el PATH.
+- **Catálogo revisado contra el repositorio oficial de WinGet** (382 paquetes):
+  - **Zed** pedía instalación para todo el equipo y su instalador solo es por usuario: WinGet no encontraba instalador. Pasa a usuario.
+  - **Zen Browser**: se quita `--scope machine`, que su instalador no declara.
+  - **13 apps** marcadas como «de usuario» cuyo instalador solo es para el equipo (TickTick, MongoDB Compass, Podman Desktop, ScreenToGif, Quick Share, Monitorian, komorebi, Keyviz, Patch My PC, Viber, Lunacy, Upscayl, Seelen UI) pasan al lote de administrador: antes podían pedir permiso una por una o fallar con una cuenta estándar.
+  - **Battle.net** y **Razer Synapse 4** solo tienen asistente: se marcan como interactivos.
+- El resumen «Terminado con fallos en…» ya no repite nombres.
+- README: el catálogo tiene 424 entradas (decía 421).
+
+### Archivos y pruebas
+- `iWinInstaller.ps1` (panel `ReportPanel`, menú `MReport`, `Install-WingetPackage`, `Test-LocalApp`, `Export-Diagnostic`, handles de proceso), `lifecycle.ps1` (`New-IwinInstallReport`, `Format-IwinReportText`, `Get-IwinCodeHint`, resultados en `Complete-IwinItem`), `apps.json`, versiones en `install.ps1`, `native/Launcher.cs` y `tests/check-acceptance.ps1`, README.
+- Nuevas regresiones en `tests/check-reliability.ps1`: informe construido con el registro real del 30/10 (PowerShell 7 `0x80070005`, Inicio sin Bing denegado, Norton VPN manual, gsudo correcto, WSL con reinicio), lectura solo desde el inicio de la pasada, guardar y reabrir, formato de códigos y detección por carpeta. El autotest de la ventana pinta el informe con datos de ejemplo.
+- Solo Windows 10/11 (x86, x64, ARM64); sin variantes macOS/iOS. Validado en el Mac: JSON y XAML bien formados y catálogo contrastado con `microsoft/winget-pkgs`. CI de Windows en GitHub antes de publicar. Pendiente de prueba física: Bitdefender y Emsisoft en un PC real y el informe tras una instalación con fallos.
+
 ## v3.8 — 2026-10-30
 
 ### Añadido

@@ -10,13 +10,13 @@ Instalador de aplicaciones para Windows 10 y 11: selecciona programas, instálal
 2. Elige un perfil o marca las aplicaciones que necesites.
 3. Pulsa **Instalar** y autoriza Windows cuando una aplicación requiera administrador.
    Para quitar algo, pulsa **Desinstalar** en su fila.
-4. Al terminar, revisa los resultados. Los accesos de aplicaciones del escritorio se agrupan en **Aplicaciones**.
+4. Al terminar, si algo no se instaló se abre el **informe de la instalación** con el motivo de cada fallo y qué hacer. Los accesos de aplicaciones del escritorio se agrupan en **Aplicaciones**.
 
 El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. Las aplicaciones se descargan de sus fuentes oficiales y necesitan conexión. No requiere cuenta de GitHub ni contraseña propia. Windows puede mostrar SmartScreen porque el ejecutable no tiene certificado comercial: comprueba que procede de esta release antes de abrirlo.
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v3.8** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v3.9** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
@@ -32,7 +32,7 @@ Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/re
 - **Reinicios visibles**: las aplicaciones que lo solicitan quedan identificadas hasta un nuevo arranque y se pueden comprobar otra vez. iWinInstaller no reinicia por su cuenta.
 - **Actualización opcional de iWinInstaller**: en **⋯ › Actualizar iWinInstaller automáticamente**. Desactivada inicialmente; al activarla comprueba GitHub al abrir, al iniciar sesión y una vez al día con tu usuario. Descarga solo la nueva versión estable, verifica SHA256 y sustituye la app cuando se cierra. Si está abierta, la comprobación programada pospone el cambio. No actualiza otras aplicaciones ni ejecuta lotes pendientes. Se puede desactivar en el mismo menú; **Buscar nueva versión** permite hacerlo manualmente.
 
-- **421 entradas en tres secciones**, cada una con sus categorías:
+- **424 entradas en tres secciones**, cada una con sus categorías:
   - **Sistema**: ajustes de Windows (tema oscuro, extensiones visibles, menú contextual clásico, rutas largas, Inicio sin Bing, punto de restauración, alto rendimiento, modo desarrollador, WSL…), optimización y privacidad (O&O ShutUp10++, WinToys, Winhance, privacy.sexy, BleachBit…) y drivers y componentes (Visual C++, .NET, DirectX, NVIDIA, Intel).
   - **Terminal**: consola y shells (Windows Terminal, PowerShell 7, WezTerm, Starship, Oh My Posh, gsudo…), lenguajes y entornos (Git, Python, Node.js, Deno, Go, Rust, Java, .NET SDK, Ruby, Zig, C/C++ con LLVM, CMake y Build Tools, PostgreSQL, MongoDB…) y herramientas de línea de comandos (Claude Code, Codex CLI, lazygit, ripgrep, fzf, FFmpeg, yt-dlp, Azure y AWS CLI…).
   - **Aplicaciones**: todo lo que tiene ventana propia (juegos, navegadores, IA, utilidades, multimedia…).
@@ -43,10 +43,11 @@ Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/re
 - **Desinstalar desde la app**: botón en cada fila instalada (o marca varias y pulsa **Desinstalar**). Pide confirmación, usa winget, Microsoft Store o el desinstalador oficial y comprueba que la app ya no está. Los ajustes reversibles recuperan el estado anterior guardado desde v3.2. Visual C++, .NET, DirectX, Edge y Store no se ofrecen.
 - **Perfiles propios para llevar a otro PC**: **Guardar…** guarda lo marcado (y, si quieres, lo ya instalado); **⋯ › Exportar** crea un `.iwin.json`; en el otro PC, **Importar…** lo marca todo de una vez, o sin ventana: `iWinInstaller.ps1 -Silent -Perfil archivo.iwin.json`. Solo contiene ids del catálogo.
 - **Vincular equipos**: icono de enlace en la barra superior. Prepara este PC como servidor SSH (solo claves, por Tailscale y opcionalmente red local), te da el comando para la Terminal del Mac o PowerShell de otro Windows (crea clave y alias y la copia al portapapeles) y autoriza ese equipo pegando su clave en la app. Después: `ssh <nombre-del-pc>`, `scp`, Claude o VS Code por SSH.
-- **Seguridad con Microsoft Defender**: escudo en la barra superior (o **⋯ › Seguridad**). Muestra tiempo real, protección contra alteraciones, firmas y último análisis; lanza análisis rápido, completo o de una carpeta, actualiza firmas y lista las amenazas recientes. No instala otro antivirus; el catálogo incluye la sección **Antivirus y antimalware** si quieres uno.
+- **Seguridad con Microsoft Defender**: escudo en la barra superior (o **⋯ › Seguridad**). Muestra tiempo real, protección contra alteraciones, firmas y último análisis; lanza análisis rápido, completo o de una carpeta, actualiza firmas y lista las amenazas recientes. No instala otro antivirus; el catálogo incluye la sección **Antivirus y antimalware** si quieres uno: Bitdefender Free (abre su asistente oficial, que hay que completar), Malwarebytes, Emsisoft Emergency Kit (se extrae en `C:\EEK` con permiso de administrador) y AdwCleaner.
 - **Pantallas pequeñas y máquinas virtuales**: la ventana se ajusta a la pantalla, oculta las secciones tras ☰ y agrupa acciones en ⋯ cuando falta sitio. **A− / A+**, `Ctrl + rueda` o `Ctrl + + / − / 0` cambian el tamaño de todo del 70 % al 200 % y se recuerda.
 - **Detección de aplicaciones existentes** para evitar reinstalarlas. Una operación no se confirma únicamente por su código de salida.
 - **Selección segura**: la ventana abre con el perfil Manual vacío; elige un perfil o marca elementos antes de instalar. La cabecera muestra la arquitectura del Windows, incluida ARM64.
+- **Informe al terminar**: si algo falla o necesita tu intervención, se abre una sección con una tarjeta por aplicación: motivo en lenguaje claro, código del instalador (p. ej. `0x80070005`), qué hacer y las líneas relevantes del registro. Separa los fallos de las instalaciones manuales (Norton VPN, asistentes) y de lo que requiere reiniciar. **Reintentar fallidas**, **Copiar informe** (texto listo para pegar en un chat) y **Guardar diagnóstico**. Se reabre desde **⋯ › Informe de la última instalación**, y el TXT de diagnóstico empieza por ese mismo resumen.
 - **Actividad visible**: aplicación actual, fases que comunica WinGet, resultado y duración. El TXT conserva la salida técnica completa de la sesión.
 - **Escritorio organizado**: mueve accesos `.lnk` a ejecutables y accesos de juegos Steam/Epic a una carpeta Aplicaciones del escritorio del usuario. Incluye los accesos públicos cuando el lote tiene permisos. No mueve documentos, carpetas ni enlaces web generales; conserva ambos archivos cuando coincide el nombre.
 - **Interfaz oscura** con búsqueda (`Ctrl + F`), filtros, navegación por teclado (`Espacio` marca, `Supr` desinstala), apertura de aplicaciones y notas y seguimiento de postinstalación con comprobaciones técnicas y pasos manuales.
@@ -102,8 +103,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v3.8
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.8
+git checkout v3.9
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.9
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -122,8 +123,9 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v3.8](https://github.com/iShun05/iWinInstaller/releases/tag/v3.8) **(actual)** | 2026-10-30 | Vincular equipos: controlar el PC desde un Mac u otro Windows por SSH con guía y comandos | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.8.zip) |
-| v3.7 (sin release: incluida en v3.8) | 2026-10-30 | Panel Seguridad (Defender), sección antivirus y arreglos del instalador, directivas de usuario y PowerShell 7 | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.7) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.7.zip) |
+| [v3.9](https://github.com/iShun05/iWinInstaller/releases/tag/v3.9) **(actual)** | 2026-10-30 | Informe de fallos al terminar la instalación y auditoría: antivirus, códigos de salida, catálogo revisado contra WinGet | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.9.zip) |
+| v3.8 (sin release: incluida en v3.9) | 2026-10-30 | Vincular equipos: controlar el PC desde un Mac u otro Windows por SSH con guía y comandos | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.8.zip) |
+| v3.7 (sin release: incluida en v3.9) | 2026-10-30 | Panel Seguridad (Defender), sección antivirus y arreglos del instalador, directivas de usuario y PowerShell 7 | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.7) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.7.zip) |
 | [v3.6](https://github.com/iShun05/iWinInstaller/releases/tag/v3.6) | 2026-10-29 | Subsecciones con comparativa («Cuál elegir»), resolución/frecuencia del monitor y ajustes de energía desde la app | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.6) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.6.zip) |
 | [v3.5](https://github.com/iShun05/iWinInstaller/releases/tag/v3.5) | 2026-10-27 | Brave normal y Brave limpio reversible, sin datos personales | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.5) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.5.zip) |
 | [v3.4](https://github.com/iShun05/iWinInstaller/releases/tag/v3.4) | 2026-10-26 | Apagar luces RGB funciona con OpenRGB 1.1 y su servicio | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.4) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.4.zip) |

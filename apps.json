@@ -1137,6 +1137,7 @@
     "type": "winget",
     "winget": "RazerInc.RazerInstaller.Synapse4",
     "context": "machine",
+    "interactive": true,
     "detect": "Razer Synapse",
     "hardware": "VID_1532",
     "rgb": true,
@@ -2852,6 +2853,7 @@
     "configure": true,
     "scope": "machine",
     "context": "machine",
+    "interactive": true,
     "postInstall": {
       "steps": [
         "Inicia sesión y revisa la carpeta donde guardarás los juegos.",
@@ -3243,7 +3245,6 @@
     "winget": "Zen-Team.Zen-Browser",
     "extra": true,
     "configure": true,
-    "scope": "machine",
     "context": "machine",
     "postInstall": {
       "steps": [
@@ -3724,7 +3725,7 @@
     "icon": "ticktick.com",
     "type": "winget",
     "winget": "Appest.TickTick",
-    "context": "user",
+    "context": "machine",
     "extra": true,
     "subgroup": "Tareas",
     "compare": "Tareas con calendario, hábitos y pomodoro."
@@ -3826,8 +3827,7 @@
     "type": "winget",
     "winget": "ZedIndustries.Zed",
     "extra": true,
-    "scope": "machine",
-    "context": "machine",
+    "context": "user",
     "subgroup": "Editores de código",
     "compare": "Muy rápido (Rust), colaboración e IA integradas. Menos extensiones."
   },
@@ -4054,7 +4054,7 @@
     "icon": "mongodb.com",
     "type": "winget",
     "winget": "MongoDB.Compass.Full",
-    "context": "user",
+    "context": "machine",
     "extra": true,
     "subgroup": "Clientes de bases de datos",
     "compare": "Oficial de MongoDB."
@@ -4147,7 +4147,7 @@
     "icon": "podman-desktop.io",
     "type": "winget",
     "winget": "RedHat.Podman-Desktop",
-    "context": "user",
+    "context": "machine",
     "extra": true,
     "subgroup": "Contenedores",
     "compare": "Sin demonio ni licencia, compatible con la mayoría de órdenes docker."
@@ -4650,7 +4650,7 @@
     "icon": "screentogif.com",
     "type": "winget",
     "winget": "NickeManarin.ScreenToGif",
-    "context": "user",
+    "context": "machine",
     "extra": true,
     "subgroup": "Capturas de pantalla",
     "compare": "Graba la pantalla y edita GIF."
@@ -4808,7 +4808,7 @@
     "icon": "android.com",
     "type": "winget",
     "winget": "Google.QuickShare",
-    "context": "user",
+    "context": "machine",
     "extra": true,
     "subgroup": "Pasar archivos al móvil",
     "compare": "Oficial de Google, como AirDrop con Android."
@@ -4840,7 +4840,7 @@
     "icon": "glyph:E706",
     "type": "winget",
     "winget": "emoacht.Monitorian",
-    "context": "user",
+    "context": "machine",
     "extra": true,
     "subgroup": "Brillo y luz nocturna",
     "compare": "Lo mismo, más minimalista."
@@ -4884,7 +4884,7 @@
     "icon": "glyph:E8A9",
     "type": "winget",
     "winget": "LGUG2Z.komorebi",
-    "context": "user",
+    "context": "machine",
     "extra": true,
     "subgroup": "Ventanas en mosaico",
     "compare": "Mosaico muy configurable, se maneja por terminal."
@@ -5040,7 +5040,7 @@
     "icon": "glyph:E765",
     "type": "winget",
     "winget": "mulaRahul.Keyviz",
-    "context": "user",
+    "context": "machine",
     "extra": true
   },
   {
@@ -5351,7 +5351,7 @@
     "icon": "patchmypc.com",
     "type": "winget",
     "winget": "PatchMyPC.PatchMyPC",
-    "context": "user",
+    "context": "machine",
     "extra": true
   },
   {
@@ -5512,7 +5512,7 @@
     "icon": "viber.com",
     "type": "winget",
     "winget": "Rakuten.Viber",
-    "context": "user",
+    "context": "machine",
     "extra": true,
     "subgroup": "Mensajería privada",
     "compare": "Llamadas y contactos en algunos países."
@@ -6169,7 +6169,7 @@
     "icon": "icons8.com",
     "type": "winget",
     "winget": "Icons8.Lunacy",
-    "context": "user",
+    "context": "machine",
     "extra": true,
     "subgroup": "Diseño de interfaces",
     "compare": "Gratis y sin conexión, abre .fig."
@@ -6232,7 +6232,7 @@
     "icon": "upscayl.org",
     "type": "winget",
     "winget": "Upscayl.Upscayl",
-    "context": "user",
+    "context": "machine",
     "extra": true
   },
   {
@@ -6987,11 +6987,11 @@
     "extra": true,
     "id": "bitdefender",
     "name": "Bitdefender Antivirus Free",
-    "desc": "Antivirus residente gratuito que sustituye a Defender",
+    "desc": "Antivirus residente gratuito que sustituye a Defender. Abre su asistente oficial: complétalo para terminar.",
     "icon": "bitdefender.com",
     "winget": "Bitdefender.Bitdefender",
-    "scope": "machine",
     "context": "machine",
+    "interactive": true,
     "subgroup": "Protección en tiempo real",
     "compare": "Motor de los mejor valorados en AV-Test, ligero y sin anuncios. Desactiva Defender al instalarse.",
     "subgroupNote": "Cuál elegir: Windows Defender ya protege en tiempo real y basta para la mayoría. Bitdefender Free lo sustituye si quieres otro motor residente (nunca dos residentes a la vez). Malwarebytes, Emsisoft Emergency Kit y AdwCleaner son de segunda opinión: conviven con cualquiera y solo se usan para escanear cuando sospechas algo."
@@ -7021,7 +7021,10 @@
     "desc": "Escáner portátil de doble motor, sin instalación residente",
     "icon": "emsisoft.com",
     "winget": "Emsisoft.EmergencyKit",
-    "context": "user",
+    "context": "machine",
+    "detectPaths": [
+      "%SystemDrive%\\EEK"
+    ],
     "subgroup": "Segunda opinión",
     "compare": "Portátil y con dos motores; ideal para limpiar un PC ya infectado."
   },
@@ -7225,7 +7228,7 @@
     "icon": "glyph:E771",
     "type": "winget",
     "winget": "Seelen.SeelenUI",
-    "context": "user",
+    "context": "machine",
     "extra": true,
     "subgroup": "Menú Inicio y barra de tareas",
     "compare": "Sustituye el escritorio entero (barra, mosaico, lanzador)."
