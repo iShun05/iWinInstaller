@@ -38,7 +38,11 @@ function Remove-InstallerDirectory([string]$path) {
 }
 function Move-InstallerDirectory($source, $destination) {
     # Directory.Move renombra la carpeta completa; Move-Item puede mover archivos a medias si uno esta abierto.
-    [IO.Directory]::Move($source, $destination)
+    # El antivirus, el Explorador o la app que se acaba de cerrar pueden retener la carpeta unos segundos.
+    for ($attempt = 1; ; $attempt++) {
+        try { [IO.Directory]::Move($source, $destination); return }
+        catch { if ($attempt -ge 20) { throw }; Start-Sleep -Milliseconds 750 }
+    }
 }
 function Install-ReleaseFiles($sourceDir, $installDir, $tagName) {
     # Prepara la copia completa antes de sustituir la instalacion anterior.
@@ -56,7 +60,16 @@ function Install-ReleaseFiles($sourceDir, $installDir, $tagName) {
         }
         Get-ChildItem $stage -File | Unblock-File
         Set-Content (Join-Path $stage 'instalado.txt') $tagName -Encoding ASCII
-        if ($hadPrevious) { Move-InstallerDirectory $installDir $backup }
+        if ($hadPrevious) {
+            try { Move-InstallerDirectory $installDir $backup }
+            catch {
+                # La carpeta sigue bloqueada (no los archivos): se sobrescriben en su sitio
+                & robocopy $stage $installDir /E /R:5 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
+                if ($LASTEXITCODE -ge 8) { throw "No se pudo reemplazar la instalacion (robocopy: $LASTEXITCODE). Cierra iWinInstaller y el Explorador en esa carpeta y vuelve a intentarlo." }
+                $global:LASTEXITCODE = 0
+                return
+            }
+        }
         try { Move-InstallerDirectory $stage $installDir } catch {
             if ($hadPrevious) { Move-InstallerDirectory $backup $installDir }
             throw
@@ -71,7 +84,7 @@ function Install-ReleaseFiles($sourceDir, $installDir, $tagName) {
 
 }
 function Show-InstallProgress([int]$step, [string]$status) {
-    Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.6' -Status "Etapa $($step + 1) de 7: $status" -PercentComplete ([int](100 * $step / 7))
+    Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.7' -Status "Etapa $($step + 1) de 7: $status" -PercentComplete ([int](100 * $step / 7))
     Write-Host "[$($step + 1)/7] $status"
 }
 function Read-EmbeddedArchive([string]$file, [string]$destination) {
@@ -93,7 +106,7 @@ $ownsInstall=$false
 try{
     try{$ownsInstall=$installMutex.WaitOne(0)}catch [Threading.AbandonedMutexException]{$ownsInstall=$true}
     if(-not $ownsInstall){throw 'Ya hay otra instalacion de iWinInstaller en curso.'}
-$tag = 'v3.6'
+$tag = 'v3.7'
 $tmp = Join-Path $env:TEMP ('iWinInstaller-' + [Guid]::NewGuid().ToString())
 New-Item -ItemType Directory $tmp -Force | Out-Null
 $archive = Join-Path $tmp 'iWinInstaller.zip'
@@ -169,7 +182,7 @@ if((Test-Path $prefsPath) -and (Test-Path (Join-Path $Dir 'lifecycle.ps1'))){
         if($preferences.autoUpdate -eq $true){. (Join-Path $Dir 'lifecycle.ps1');Set-IwinAutoUpdate $true}
     }catch{Write-Host 'La app esta instalada. No se pudo renovar la tarea de actualizacion; revisala desde la app.'}
 }
-Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.6' -Completed
+Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.7' -Completed
 Write-Host '[7/7] Instalacion completada.'
 Write-Host "iWinInstaller $tag instalado en $Dir"
 Write-Host 'Accesos directos creados en el menu Inicio y en el Escritorio.'

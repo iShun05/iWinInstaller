@@ -1321,6 +1321,7 @@
     "icon": "glyph:E756",
     "type": "winget",
     "winget": "Microsoft.PowerShell",
+    "storeId": "9MZ1SNWT0N5D",
     "scope": "machine",
     "context": "machine",
     "families": [
