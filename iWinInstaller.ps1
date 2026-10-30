@@ -25,7 +25,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v3.6'
+$Version = 'v3.7'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -230,7 +230,7 @@ function Test-LocalApp($app) {
     $names = @($app.name) + @($app.detectNames) + @($app.detect)
     foreach ($entry in $RegistryApps) {
         foreach ($name in $names) {
-            if ($name -and ($entry.DisplayName -eq $name -or $entry.DisplayName -match ('^' + [regex]::Escape($name) + '(?:\s+\d|\s*\()'))) { return $true }
+            if ($name -and ($entry.DisplayName -eq $name -or $entry.DisplayName -match ('^' + [regex]::Escape($name) + '(?:\s+v?\d|\s*\()'))) { return $true }
         }
     }
     foreach ($pkg in $AppxApps) {
@@ -490,9 +490,26 @@ $MouseKey = 'HKCU:\Control Panel\Mouse'
 $FileSystemKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem'
 $DevSettings = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings'
 function Get-RegValue($path, $name) { (Get-ItemProperty $path -Name $name -ErrorAction SilentlyContinue).$name }
+# HKCU\Software\Policies solo admite escritura de administradores: se pide permiso una vez por clave
+# y se da control a este usuario (por su SID, aunque el administrador sea otra cuenta)
+function Grant-UserPolicyKey([string]$path) {
+    $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    $sub = $path -replace '^HKCU:\\', ''
+    $script = "`$k='Registry::HKEY_USERS\$sid\$sub'; if(-not(Test-Path `$k)){New-Item `$k -Force|Out-Null}; `$a=Get-Acl `$k; `$a.AddAccessRule((New-Object Security.AccessControl.RegistryAccessRule((New-Object Security.Principal.SecurityIdentifier '$sid'),'FullControl','ContainerInherit','None','Allow'))); Set-Acl `$k `$a"
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script))
+    Write-Log '  Windows reserva esta clave a administradores: se pide permiso una vez.'
+    $p = Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" -Verb RunAs -WindowStyle Hidden -Wait -PassThru
+    if ($p.ExitCode -ne 0) { throw "No se pudo preparar $path (código $($p.ExitCode))." }
+}
 function Set-RegDword($path, $name, $value) {
-    if (-not (Test-Path $path)) { New-Item $path -Force | Out-Null }
-    Set-ItemProperty $path -Name $name -Value $value -Type DWord -Force
+    try {
+        if (-not (Test-Path $path)) { New-Item $path -Force -ErrorAction Stop | Out-Null }
+        Set-ItemProperty $path -Name $name -Value $value -Type DWord -Force -ErrorAction Stop
+    } catch [System.Security.SecurityException], [System.UnauthorizedAccessException] {
+        if ($path -notlike 'HKCU:\Software\Policies\*' -or (Test-Administrator)) { throw }
+        Grant-UserPolicyKey $path
+        Set-ItemProperty $path -Name $name -Value $value -Type DWord -Force -ErrorAction Stop
+    }
 }
 function Set-RegString($path, $name, $value) {
     if (-not (Test-Path $path)) { New-Item $path -Force | Out-Null }
@@ -1149,7 +1166,18 @@ function Install-App($app) {
             }
             return $ok
         }
-        'winget' { return (Install-WingetPackage $app $app.winget) }
+        'winget' {
+            $ok = Install-WingetPackage $app $app.winget
+            # Alternativa de Microsoft Store cuando el instalador clásico falla (p. ej. MSI con acceso denegado)
+            if (-not $ok -and $app.storeId) {
+                Write-Log "  Probando la versión de Microsoft Store ($($app.storeId))..."
+                $alt = $app.PSObject.Copy()
+                $alt | Add-Member -NotePropertyName source -NotePropertyValue 'msstore' -Force
+                $alt | Add-Member -NotePropertyName scope -NotePropertyValue $null -Force
+                $ok = Install-WingetPackage $alt $app.storeId
+            }
+            return $ok
+        }
         'manual' { Write-Log '  Se instala desde la web o la cuenta del proveedor: completa su asistente y vuelve a verificar.'; if (-not $Silent) { Start-Process $app.page }; return $false }
     }
     # type = download: instalador oficial con asistente (HoYoPlay y Riot no ofrecen instalación silenciosa)

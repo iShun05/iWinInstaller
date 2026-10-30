@@ -1,5 +1,18 @@
 # Historial de versiones
 
+## v3.7 — 2026-10-30
+
+### Corregido
+- **Actualizar fallaba con «Acceso denegado» en `%LOCALAPPDATA%\Programs\iWinInstaller`**: al renombrar la carpeta, el antivirus o el Explorador aún la retenían. Ahora reintenta durante unos 15 s y, si sigue bloqueada, sobrescribe los archivos en su sitio.
+- **«La aplicación terminó con el código 1073807364»**: ese código (0x40010004) indica que Windows cerró la app desde fuera (reinicio tras WSL, cierre de sesión). El lanzador lo registra y ya no lo muestra como error; igual con el cierre de consola (0xC000013A).
+- **Inicio sin resultados de Bing y Brave limpio fallaban sin administrador**: `HKCU\Software\Policies` solo admite escritura de administradores. Se pide permiso una vez por clave y se da control a tu usuario sobre esa clave; los valores siguen en tu perfil.
+- **PowerShell 7 fallaba con 0x80070005 (acceso denegado del MSI)**: si el instalador clásico falla, se instala la versión de Microsoft Store (`9MZ1SNWT0N5D`).
+- **gsudo se marcaba como fallido tras instalarse**: su nombre en Windows es «gsudo v2.x»; la detección ya admite la «v» delante de la versión.
+
+### Archivos y pruebas
+- `install.ps1`, `native/Launcher.cs`, `iWinInstaller.ps1`, `apps.json` (`storeId` en PowerShell 7), versiones, README.
+- Diagnóstico del usuario del 2026-10-30 (Windows 11 Pro 26300, x64, sin administrador). Pendiente CI Windows.
+
 ## v3.6 — 2026-10-29
 
 ### Añadido
@@ -14,7 +27,7 @@
 
 ### Archivos y pruebas
 - `apps.json`, `iWinInstaller.ps1` (clase `IwinDisplay` sobre `EnumDisplaySettings`/`ChangeDisplaySettingsEx`, panel Pantalla, cabeceras de grupo), versiones de `install.ps1`, `native/Launcher.cs` y `tests/check-acceptance.ps1`, README.
-- Validado en la nube: JSON y referencias de ids de las subsecciones. Pendiente CI Windows (x64/ARM64) y prueba manual del cambio de modo en un PC con monitor real.
+- CI Windows x64/ARM64 en verde antes de publicar (incluida la corrección de compilación de `IwinDisplay`, #22).
 
 ## v3.5 — 2026-10-27
 
