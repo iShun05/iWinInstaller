@@ -6,6 +6,8 @@ $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRo
 if ($errors) { throw ($errors | Out-String) }
 $fn = $ast.Find({ param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Remove-InstallerDirectory' }, $true)
 . ([scriptblock]::Create($fn.Extent.Text))
+$waitFn = $ast.Find({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Wait-InstallerProcesses'},$true)
+. ([scriptblock]::Create($waitFn.Extent.Text))
 $moveFn = $ast.Find({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Move-InstallerDirectory'},$true)
 . ([scriptblock]::Create($moveFn.Extent.Text))
 # Comprueba la restauracion con carpetas temporales, incluida una ruta con espacios.
