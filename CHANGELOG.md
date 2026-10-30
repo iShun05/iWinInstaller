@@ -1,5 +1,19 @@
 # Historial de versiones
 
+## v3.8 — 2026-10-30
+
+### Añadido
+- **Vincular equipos** (icono de enlace en la barra superior o **⋯ › Vincular equipos**): controla este PC desde un Mac u otro portátil Windows por SSH, sin contraseñas.
+  1. **Este PC**: estado del servidor SSH, IP de Tailscale (desde cualquier red), IP local y equipos autorizados. **Preparar este PC** aplica «Control remoto por SSH» (OpenSSH Server, solo claves, PowerShell como shell) con una sola solicitud de administrador.
+  2. **Comando para el otro equipo**, listo para copiar (Terminal del Mac o PowerShell de Windows): crea la clave `ed25519` si falta, añade un alias `Host <nombre-del-pc>` en `~/.ssh/config` con `ServerAliveInterval` y copia la clave pública al portapapeles.
+  3. **Autorizar equipo**: pegas la clave en la app, que la valida (rechaza claves privadas) y la añade al archivo correcto (`administrators_authorized_keys` con permisos protegidos, o `~\.ssh\authorized_keys` si no eres administrador).
+  4. **Guía para conectar**: `ssh <alias>`, `scp`, Claude (conexión SSH con el alias), VS Code Remote - SSH, KDE Connect y Sunshine/Moonlight.
+- Casilla **Permitir también desde la red local**: abre el puerto 22 solo a la subred local en redes privadas. Por defecto solo se admite Tailscale (`100.64.0.0/10`).
+
+### Archivos y pruebas
+- `iWinInstaller.ps1` (panel `LinkPanel`), nota de `remotessh` en `apps.json`, versiones en `install.ps1`, `native/Launcher.cs` y `tests/check-acceptance.ps1`, README.
+- Windows 10/11 como servidor; Mac (macOS) o Windows como cliente. Validado en el Mac: XAML bien formado. Pendiente: CI Windows y prueba manual Mac → PC por Tailscale y por red local.
+
 ## v3.7 — 2026-10-30
 
 ### Añadido

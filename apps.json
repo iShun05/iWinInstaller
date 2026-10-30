@@ -307,7 +307,7 @@
         "Pega tu clave pública (~/.ssh/id_ed25519.pub) en el archivo que abre la app (administrators_authorized_keys) y guarda. Nunca compartas la clave privada.",
         "Prueba ssh <usuario>@<IP 100.x del PC>; opcionalmente añade un alias en ~/.ssh/config con Host, HostName y User."
       ],
-      "note": "La app comprueba servicio, firewall y que las contraseñas están desactivadas; la clave autorizada la añades tú."
+      "note": "Más fácil: botón de enlace de la barra superior › Vincular equipos. Prepara el PC, da el comando para el Mac o el otro Windows y autoriza su clave pegándola en la app."
     }
   },
   {

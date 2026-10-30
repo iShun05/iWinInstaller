@@ -25,7 +25,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v3.7'
+$Version = 'v3.8'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -2198,6 +2198,9 @@ $ButtonStyles = @'
           <TextBlock Text="iWinInstaller" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
           <TextBlock x:Name="VersionText" Foreground="{StaticResource Muted}" FontSize="12" Margin="8,1,0,0" VerticalAlignment="Center"/>
         </StackPanel>
+        <Button x:Name="BtnLink" DockPanel.Dock="Right" Style="{StaticResource Ghost}" Padding="9,6" Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="Vincular equipos: controla este PC desde un Mac u otro Windows">
+          <TextBlock Text="&#xE71B;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="15"/>
+        </Button>
         <Button x:Name="BtnSecurity" DockPanel.Dock="Right" Style="{StaticResource Ghost}" Padding="9,6" Margin="6,0,0,0" VerticalAlignment="Center" ToolTip="Seguridad: estado y análisis con Microsoft Defender">
           <TextBlock Text="&#xE83D;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="15"/>
         </Button>
@@ -2488,6 +2491,48 @@ $ButtonStyles = @'
       </Border>
     </Border>
 
+    <!-- Vincular equipos: otro Mac o Windows controla este PC por SSH con clave -->
+    <Border x:Name="LinkPanel" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="11" Background="#B0000000" Visibility="Collapsed">
+      <Border Background="#18181B" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="14" Padding="22,18" Width="560" HorizontalAlignment="Center" VerticalAlignment="Center">
+       <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="680">
+        <StackPanel>
+          <TextBlock Text="Vincular equipos" FontSize="20" FontWeight="SemiBold" Foreground="#F5F5F7"/>
+          <TextBlock Foreground="#ADADB5" TextWrapping="Wrap" Margin="0,4,0,14" Text="Controla este PC desde un Mac u otro Windows (terminal, archivos con scp y Claude por SSH). Sin contraseñas: solo equipos cuya clave autorices aquí."/>
+          <TextBlock Text="1 · ESTE PC" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <TextBlock x:Name="LinkStatus" Foreground="#E4E4E7" TextWrapping="Wrap" FontSize="12.5" LineHeight="20" Margin="0,0,0,8"/>
+          <CheckBox x:Name="LinkLan" Foreground="#E4E4E7" Margin="0,0,0,8" Content="Permitir también desde la red local (casa), además de Tailscale"/>
+          <WrapPanel Margin="0,0,0,14">
+            <Button x:Name="LinkPrepare" Style="{StaticResource Primary}" Content="Preparar este PC" Margin="0,0,8,0" MinWidth="120"/>
+            <Button x:Name="LinkTailscale" Style="{StaticResource Btn}" Content="Abrir Tailscale" MinWidth="110"/>
+          </WrapPanel>
+          <TextBlock Text="2 · EN EL OTRO EQUIPO" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+          <TextBlock Foreground="#ADADB5" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,6" Text="Pega este comando en la Terminal del Mac. Crea la clave si falta, añade el alias y copia la clave pública al portapapeles."/>
+          <Border Background="#0F0F14" BorderBrush="#33333D" BorderThickness="1" CornerRadius="8" Margin="0,0,0,8">
+            <TextBox x:Name="LinkMacCmd" Background="Transparent" BorderThickness="0" Foreground="#EDEDF2" CaretBrush="#8CC4FF" FontFamily="Cascadia Mono, Consolas" FontSize="11.5" Padding="8,6" TextWrapping="Wrap" IsReadOnly="True" MaxHeight="90" VerticalScrollBarVisibility="Auto"/>
+          </Border>
+          <WrapPanel Margin="0,0,0,8">
+            <Button x:Name="LinkCopyMac" Style="{StaticResource Btn}" Content="Copiar comando para Mac" Margin="0,0,8,0"/>
+            <Button x:Name="LinkCopyWin" Style="{StaticResource Btn}" Content="Copiar comando para Windows (PowerShell)"/>
+          </WrapPanel>
+          <TextBlock Text="3 · AUTORIZAR SU CLAVE" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,6,0,6"/>
+          <TextBlock Foreground="#ADADB5" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,6" Text="Pega aquí lo que copió el comando (empieza por ssh-ed25519). Es la clave pública: nunca pegues la privada."/>
+          <Border Background="#0F0F14" BorderBrush="#33333D" BorderThickness="1" CornerRadius="8" Margin="0,0,0,8">
+            <TextBox x:Name="LinkKey" Background="Transparent" BorderThickness="0" Foreground="#EDEDF2" CaretBrush="#8CC4FF" FontFamily="Cascadia Mono, Consolas" FontSize="11.5" Padding="8,6" TextWrapping="Wrap" AcceptsReturn="False" MinHeight="34"/>
+          </Border>
+          <WrapPanel Margin="0,0,0,8">
+            <Button x:Name="LinkAuthorize" Style="{StaticResource Primary}" Content="Autorizar equipo" Margin="0,0,8,0" MinWidth="120"/>
+            <Button x:Name="LinkKeysFile" Style="{StaticResource Btn}" Content="Ver claves autorizadas"/>
+          </WrapPanel>
+          <TextBlock Text="4 · CONECTAR" Foreground="{StaticResource Muted}" FontSize="11" FontWeight="SemiBold" Margin="0,6,0,6"/>
+          <TextBlock x:Name="LinkGuide" Foreground="#E4E4E7" TextWrapping="Wrap" FontSize="12.5" LineHeight="20"/>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button x:Name="LinkClose" Style="{StaticResource Btn}" Content="Cerrar" MinWidth="96"/>
+          </StackPanel>
+        </StackPanel>
+       </ScrollViewer>
+      </Border>
+    </Border>
+
     <!-- Seguridad: Microsoft Defender integrado, sin instalar otro antivirus -->
     <Border x:Name="SecurityPanel" Grid.Row="1" Grid.RowSpan="2" Panel.ZIndex="11" Background="#B0000000" Visibility="Collapsed">
       <Border Background="#18181B" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="14" Padding="22,18" Width="480" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -2544,6 +2589,7 @@ $ButtonStyles = @'
                 <MenuItem x:Name="MAutoUpdate" Header="Actualizar iWinInstaller automáticamente" IsCheckable="True" ToolTip="Comprueba GitHub al abrir, al iniciar sesión y cada día; no actualiza otras aplicaciones"/>
                 <MenuItem x:Name="MAfter" Header="Después de instalar…"/>
                 <MenuItem x:Name="MDisplay" Header="Pantalla y energía (resolución, Hz, suspensión)…"/>
+                <MenuItem x:Name="MLink" Header="Vincular equipos (Mac u otro Windows)…"/>
                 <MenuItem x:Name="MSecurity" Header="Seguridad (antivirus de Windows)…"/>
                 <MenuItem x:Name="MResume" Header="Reanudar lote pendiente…"/>
               </ContextMenu>
@@ -2924,6 +2970,111 @@ function Show-SecurityPanel {
     try { Update-SecurityPanel } catch { Write-Log "Seguridad: no se pudo leer el estado ($($_.Exception.Message))" }
     $ui.SecurityPanel.Visibility = 'Visible'
 }
+# ---- Vincular equipos: SSH con clave desde un Mac u otro Windows ----
+$SshLanGroup = 'iWinInstaller SSH red local'
+function Get-LinkAddresses {
+    $tail = $null
+    $exe = Join-Path $env:ProgramFiles 'Tailscale\tailscale.exe'
+    if (Test-Path $exe) { try { $tail = @(& $exe ip -4 2>$null | Where-Object { $_ -match '^100\.' })[0] } catch {} }
+    if (-not $tail) { $tail = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -like '100.*' -and $_.InterfaceAlias -like '*Tailscale*' } | ForEach-Object IPAddress)[0] }
+    $lan = @(Get-NetIPConfiguration -ErrorAction SilentlyContinue | Where-Object { $_.IPv4DefaultGateway -and $_.NetAdapter.Status -eq 'Up' } | ForEach-Object { $_.IPv4Address.IPAddress } | Where-Object { $_ -notlike '100.*' -and $_ -notlike '169.254.*' })[0]
+    [pscustomobject]@{ Tailscale = $tail; Lan = $lan }
+}
+function Get-LinkAlias { $a = ($env:COMPUTERNAME.ToLowerInvariant() -replace '[^a-z0-9-]', ''); if ($a) { $a } else { 'pc-windows' } }
+function Test-UserIsAdminGroup { [bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups | Where-Object { $_.Value -eq 'S-1-5-32-544' }) }
+function Get-LinkKeysPath { if (Test-UserIsAdminGroup) { $SshAdminKeys } else { Join-Path $env:USERPROFILE '.ssh\authorized_keys' } }
+function Get-LinkCommands {
+    $addr = Get-LinkAddresses
+    $ip = if ($addr.Tailscale) { $addr.Tailscale } elseif ($addr.Lan) { $addr.Lan } else { '<IP del PC>' }
+    $alias = Get-LinkAlias; $user = $env:USERNAME
+    $mac = "H='$alias'; IP='$ip'; U='$user'; mkdir -p ~/.ssh && chmod 700 ~/.ssh; [ -f ~/.ssh/id_ed25519 ] || ssh-keygen -q -t ed25519 -N '' -f ~/.ssh/id_ed25519 -C `"`$(whoami)@`$(hostname -s)`"; grep -q `"^Host `$H`$`" ~/.ssh/config 2>/dev/null || printf '\nHost %s\n  HostName %s\n  User %s\n  IdentityFile ~/.ssh/id_ed25519\n  ServerAliveInterval 30\n' `"`$H`" `"`$IP`" `"`$U`" >> ~/.ssh/config; pbcopy < ~/.ssh/id_ed25519.pub; echo 'Clave copiada: pegala en iWinInstaller > Vincular equipos'; cat ~/.ssh/id_ed25519.pub"
+    $win = "`$H='$alias'; `$IP='$ip'; `$U='$user'; `$d=Join-Path `$HOME '.ssh'; New-Item -ItemType Directory -Force `$d | Out-Null; if (-not (Test-Path `"`$d\id_ed25519`")) { Start-Process ssh-keygen -Wait -NoNewWindow -ArgumentList (`"-q -t ed25519 -N ```"```" -f ```"`$d\id_ed25519```" -C `$env:USERNAME@`$env:COMPUTERNAME`") }; `$c=`"`$d\config`"; if (-not (Select-String -Path `$c -Pattern `"^Host `$H`$`" -Quiet -ErrorAction SilentlyContinue)) { Add-Content `$c `"``nHost `$H``n  HostName `$IP``n  User `$U``n  IdentityFile ~/.ssh/id_ed25519``n  ServerAliveInterval 30`" }; Get-Content `"`$d\id_ed25519.pub`" | Set-Clipboard; 'Clave copiada: pegala en iWinInstaller > Vincular equipos'; Get-Content `"`$d\id_ed25519.pub`""
+    [pscustomobject]@{ Mac = $mac; Windows = $win; Alias = $alias; Ip = $ip; User = $user; Addresses = $addr }
+}
+function Update-LinkPanel {
+    $info = Get-LinkCommands; $script:LinkInfo = $info
+    $ready = $false; try { $ready = Test-RemoteSsh } catch {}
+    $keys = @(Get-Content (Get-LinkKeysPath) -ErrorAction SilentlyContinue | Where-Object { $_ -match '^(ssh-|ecdsa-|sk-)' })
+    $lan = [bool](Get-NetFirewallRule -Group $SshLanGroup -ErrorAction SilentlyContinue)
+    $ui.LinkLan.IsChecked = $lan
+    $ui.LinkStatus.Text = (@(
+        "Servidor SSH: $(if ($ready) { 'listo (solo claves)' } else { 'sin preparar — pulsa «Preparar este PC»' })",
+        "Tailscale: $(if ($info.Addresses.Tailscale) { $info.Addresses.Tailscale + ' (funciona desde cualquier red)' } else { 'sin conexión — instálalo e inicia sesión para conectar fuera de casa' })",
+        "Red local: $(if ($info.Addresses.Lan) { $info.Addresses.Lan } else { '—' })$(if ($lan) { ' · permitida' })",
+        "Usuario: $($info.User)  ·  Equipos autorizados: $($keys.Count)"
+    ) -join "`n")
+    $ui.LinkMacCmd.Text = $info.Mac
+    $ui.LinkPrepare.Content = if ($ready) { 'Volver a aplicar' } else { 'Preparar este PC' }
+    $ui.LinkGuide.Text = (@(
+        "Terminal: ssh $($info.Alias)   (abre PowerShell de este PC)",
+        "Copiar archivos: scp archivo.txt $($info.Alias):Desktop/",
+        "Claude (app de escritorio o Claude Code): añade una conexión SSH con el host $($info.Alias); usa el alias que creó el comando.",
+        "VS Code: extensión Remote - SSH › $($info.Alias).",
+        "Portapapeles y archivos al vuelo: KDE Connect en ambos equipos (catálogo › Acceso remoto).",
+        "Escritorio completo: Sunshine + Moonlight (perfil «Escritorio remoto»)."
+    ) -join "`n")
+}
+function Invoke-LinkElevated([string]$script, [string]$label) {
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes("`$ErrorActionPreference='Stop'`n" + $script))
+    try { $p = Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" -Verb RunAs -WindowStyle Hidden -Wait -PassThru }
+    catch { Set-Status "$label`: hace falta aceptar el permiso de administrador."; return $false }
+    if ($p.ExitCode) { Set-Status "$label no se completó (código $($p.ExitCode))."; return $false }
+    return $true
+}
+function Show-LinkPanel {
+    try { Update-LinkPanel } catch { Write-Log "Vincular: no se pudo leer el estado ($($_.Exception.Message))" }
+    $ui.LinkPanel.Visibility = 'Visible'
+}
+$ui.BtnLink.Add_Click({ Show-LinkPanel })
+$ui.MLink.Add_Click({ Show-LinkPanel })
+$ui.LinkClose.Add_Click({ $ui.LinkPanel.Visibility = 'Collapsed' })
+$ui.LinkCopyMac.Add_Click({ [Windows.Clipboard]::SetText($script:LinkInfo.Mac); Set-Status 'Comando para Mac copiado: pégalo en la Terminal del Mac.' })
+$ui.LinkCopyWin.Add_Click({ [Windows.Clipboard]::SetText($script:LinkInfo.Windows); Set-Status 'Comando para Windows copiado: pégalo en PowerShell del otro PC.' })
+$ui.LinkTailscale.Add_Click({
+    $exe = Join-Path $env:ProgramFiles 'Tailscale\tailscale-ipn.exe'
+    if (Test-Path $exe) { Start-Process $exe } else { Set-Status 'Tailscale no está instalado: búscalo en el catálogo (Acceso remoto) e instálalo.' }
+})
+$ui.LinkPrepare.Add_Click({
+    $app = $Apps | Where-Object id -eq 'remotessh' | Select-Object -First 1
+    if (-not $app) { return }
+    Set-Status 'Preparando el servidor SSH (pide permiso de administrador)…'
+    $failed = @(Invoke-InstallWorker @($app) $null)
+    Set-Status $(if ($failed) { 'No se pudo preparar el servidor SSH: revisa la actividad.' } else { 'Servidor SSH listo: ahora ejecuta el comando en el otro equipo.' })
+    try { Update-LinkPanel } catch {}
+})
+$ui.LinkLan.Add_Click({
+    $on = [bool]$ui.LinkLan.IsChecked
+    $script = if ($on) { "Remove-NetFirewallRule -Group '$SshLanGroup' -ErrorAction SilentlyContinue; New-NetFirewallRule -DisplayName 'SSH en red local' -Group '$SshLanGroup' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22 -RemoteAddress LocalSubnet -Profile Private,Domain | Out-Null" } else { "Remove-NetFirewallRule -Group '$SshLanGroup' -ErrorAction SilentlyContinue" }
+    if (Invoke-LinkElevated $script 'Red local') { Write-Log "Vincular: SSH en red local $(if ($on) { 'permitido (solo redes privadas)' } else { 'cerrado' })."; Set-Status $(if ($on) { 'SSH permitido en la red local privada.' } else { 'SSH en red local cerrado; sigue disponible por Tailscale.' }) }
+    try { Update-LinkPanel } catch {}
+})
+$ui.LinkAuthorize.Add_Click({
+    $key = ($ui.LinkKey.Text -replace '\s+', ' ').Trim()
+    if ($key -match 'PRIVATE KEY') { Set-Status 'Eso es una clave privada: no la compartas. Pega la línea que empieza por ssh-ed25519.'; return }
+    if ($key -notmatch '^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(256|384|521)|sk-ssh-ed25519@openssh\.com) [A-Za-z0-9+/=]{40,}( [^\r\n]{0,200})?$') { Set-Status 'La clave no tiene el formato esperado (ssh-ed25519 AAAA… usuario@equipo).'; return }
+    $path = Get-LinkKeysPath
+    if (@(Get-Content $path -ErrorAction SilentlyContinue) -contains $key) { Set-Status 'Ese equipo ya estaba autorizado.'; return }
+    if ($path -eq $SshAdminKeys) {
+        # El archivo de administradores solo lo pueden escribir administradores y SYSTEM.
+        $b64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($key))
+        $script = "`$k=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('$b64')); `$f='$SshAdminKeys'; if(-not (Test-Path `$f)){New-Item `$f -ItemType File -Force | Out-Null}; `$t=[IO.File]::ReadAllText(`$f); if(`$t -and -not `$t.EndsWith(`"``n`")){`$t+=`"``r``n`"}; [IO.File]::WriteAllText(`$f, `$t + `$k + `"``r``n`", (New-Object Text.UTF8Encoding `$false)); icacls.exe `$f /inheritance:r /grant:r '*S-1-5-32-544:F' '*S-1-5-18:F' | Out-Null; if(`$LASTEXITCODE){exit 3}"
+        if (-not (Invoke-LinkElevated $script 'Autorizar equipo')) { return }
+    } else {
+        New-Item (Split-Path $path) -ItemType Directory -Force | Out-Null
+        Add-Content $path $key -Encoding ASCII
+    }
+    $comment = ($key -split ' ', 3)[2]
+    Write-Log "Vincular: equipo autorizado $(if ($comment) { "($comment)" })."
+    $ui.LinkKey.Text = ''
+    Set-Status "Equipo autorizado. Desde él: ssh $($script:LinkInfo.Alias)"
+    try { Update-LinkPanel } catch {}
+})
+$ui.LinkKeysFile.Add_Click({
+    $path = Get-LinkKeysPath
+    if (-not (Test-Path $path)) { Set-Status 'Todavía no hay equipos autorizados.'; return }
+    $keys = @(Get-Content $path -ErrorAction SilentlyContinue | Where-Object { $_ -match '^(ssh-|ecdsa-|sk-)' } | ForEach-Object { $p = $_ -split ' ', 3; if ($p.Count -ge 3) { $p[2] } else { $p[0] + ' …' + $p[1].Substring([math]::Max(0, $p[1].Length - 8)) } })
+    [void](Show-IwinDialog -Title 'Equipos autorizados' -Text $(if ($keys) { ($keys -join "`n") + "`n`nPara quitar uno, borra su línea en:`n$path (necesita administrador)." } else { 'Ninguno.' }) -Ok 'Cerrar')
+})
 $ui.MSecurity.Add_Click({ Show-SecurityPanel })
 $ui.BtnSecurity.Add_Click({ Show-SecurityPanel })
 $ui.SecurityClose.Add_Click({ $ui.SecurityPanel.Visibility = 'Collapsed' })

@@ -99,7 +99,7 @@ function Install-ReleaseFiles($sourceDir, $installDir, $tagName) {
 
 }
 function Show-InstallProgress([int]$step, [string]$status) {
-    Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.7' -Status "Etapa $($step + 1) de 7: $status" -PercentComplete ([int](100 * $step / 7))
+    Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.8' -Status "Etapa $($step + 1) de 7: $status" -PercentComplete ([int](100 * $step / 7))
     Write-Host "[$($step + 1)/7] $status"
 }
 function Read-EmbeddedArchive([string]$file, [string]$destination) {
@@ -121,7 +121,7 @@ $ownsInstall=$false
 try{
     try{$ownsInstall=$installMutex.WaitOne(0)}catch [Threading.AbandonedMutexException]{$ownsInstall=$true}
     if(-not $ownsInstall){throw 'Ya hay otra instalacion de iWinInstaller en curso.'}
-$tag = 'v3.7'
+$tag = 'v3.8'
 $tmp = Join-Path $env:TEMP ('iWinInstaller-' + [Guid]::NewGuid().ToString())
 New-Item -ItemType Directory $tmp -Force | Out-Null
 $archive = Join-Path $tmp 'iWinInstaller.zip'
@@ -197,7 +197,7 @@ if((Test-Path $prefsPath) -and (Test-Path (Join-Path $Dir 'lifecycle.ps1'))){
         if($preferences.autoUpdate -eq $true){. (Join-Path $Dir 'lifecycle.ps1');Set-IwinAutoUpdate $true}
     }catch{Write-Host 'La app esta instalada. No se pudo renovar la tarea de actualizacion; revisala desde la app.'}
 }
-Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.7' -Completed
+Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v3.8' -Completed
 Write-Host '[7/7] Instalacion completada.'
 Write-Host "iWinInstaller $tag instalado en $Dir"
 Write-Host 'Accesos directos creados en el menu Inicio y en el Escritorio.'
