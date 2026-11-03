@@ -16,10 +16,18 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v3.9** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v4.0** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
+
+## Puesta a punto de un portátil nuevo
+
+En el catálogo general se incluyen **MyASUS** (soporte, diagnóstico y guía desde Windows vacío), **G-Helper** (alternativa opcional a Armoury Crate) y **OCCT Personal** (pruebas de estabilidad opcionales). No se añade ningún perfil exclusivo de portátil. Las herramientas x64 se ofrecen según la compatibilidad del proveedor; el resto de la aplicación sigue disponible para Windows 10/11 x86, x64 y ARM64.
+
+Para un ASUS sin sistema, prepara primero Windows 11 y los controladores de red/almacenamiento del modelo exacto en otro equipo. Después de instalar Windows y conectar la red, abre iWinInstaller. **MyASUS → Pasos y notas** explica el orden: Windows Update, drivers específicos, ASUS System Control Interface, firmware manual, batería y comprobaciones físicas. [Descargar Windows 11](https://www.microsoft.com/software-download/windows11) · [Soporte ASUS](https://www.asus.com/support/Download-Center/).
+
+Usa **Armoury Crate o G-Helper** como gestor de rendimiento, conservando ASUS System Control Interface. G-Helper no se marca automáticamente por detectar una placa ASUS y no sustituye drivers o BIOS. Sus dependencias se resuelven con WinGet; consulta sus [requisitos](https://github.com/seerge/g-helper/wiki/Requirements). OCCT no inicia pruebas por su cuenta. La instalación de una herramienta no acredita que el hardware o sus controladores funcionen: los pasos físicos se confirman manualmente.
 
 ## Funciones principales
 
@@ -32,7 +40,7 @@ Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/re
 - **Reinicios visibles**: las aplicaciones que lo solicitan quedan identificadas hasta un nuevo arranque y se pueden comprobar otra vez. iWinInstaller no reinicia por su cuenta.
 - **Actualización opcional de iWinInstaller**: en **⋯ › Actualizar iWinInstaller automáticamente**. Desactivada inicialmente; al activarla comprueba GitHub al abrir, al iniciar sesión y una vez al día con tu usuario. Descarga solo la nueva versión estable, verifica SHA256 y sustituye la app cuando se cierra. Si está abierta, la comprobación programada pospone el cambio. No actualiza otras aplicaciones ni ejecuta lotes pendientes. Se puede desactivar en el mismo menú; **Buscar nueva versión** permite hacerlo manualmente.
 
-- **424 entradas en tres secciones**, cada una con sus categorías:
+- **427 entradas en tres secciones**, cada una con sus categorías:
   - **Sistema**: ajustes de Windows (tema oscuro, extensiones visibles, menú contextual clásico, rutas largas, Inicio sin Bing, punto de restauración, alto rendimiento, modo desarrollador, WSL…), optimización y privacidad (O&O ShutUp10++, WinToys, Winhance, privacy.sexy, BleachBit…) y drivers y componentes (Visual C++, .NET, DirectX, NVIDIA, Intel).
   - **Terminal**: consola y shells (Windows Terminal, PowerShell 7, WezTerm, Starship, Oh My Posh, gsudo…), lenguajes y entornos (Git, Python, Node.js, Deno, Go, Rust, Java, .NET SDK, Ruby, Zig, C/C++ con LLVM, CMake y Build Tools, PostgreSQL, MongoDB…) y herramientas de línea de comandos (Claude Code, Codex CLI, lazygit, ripgrep, fzf, FFmpeg, yt-dlp, Azure y AWS CLI…).
   - **Aplicaciones**: todo lo que tiene ventana propia (juegos, navegadores, IA, utilidades, multimedia…).
@@ -103,8 +111,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v3.9
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v3.9
+git checkout v4.0
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v4.0
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -123,7 +131,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v3.9](https://github.com/iShun05/iWinInstaller/releases/tag/v3.9) **(actual)** | 2026-10-30 | Informe de fallos al terminar la instalación y auditoría: antivirus, códigos de salida, catálogo revisado contra WinGet | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.9.zip) |
+| [v4.0](https://github.com/iShun05/iWinInstaller/releases/tag/v4.0) **(actual)** | 2026-11-03 | MyASUS, G-Helper y OCCT en el catálogo general; puesta a punto de portátiles y guías de GPU | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.0.zip) |
+| [v3.9](https://github.com/iShun05/iWinInstaller/releases/tag/v3.9) | 2026-10-30 | Informe de fallos al terminar la instalación y auditoría: antivirus, códigos de salida, catálogo revisado contra WinGet | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.9.zip) |
 | v3.8 (sin release: incluida en v3.9) | 2026-10-30 | Vincular equipos: controlar el PC desde un Mac u otro Windows por SSH con guía y comandos | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.8.zip) |
 | v3.7 (sin release: incluida en v3.9) | 2026-10-30 | Panel Seguridad (Defender), sección antivirus y arreglos del instalador, directivas de usuario y PowerShell 7 | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.7) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.7.zip) |
 | [v3.6](https://github.com/iShun05/iWinInstaller/releases/tag/v3.6) | 2026-10-29 | Subsecciones con comparativa («Cuál elegir»), resolución/frecuencia del monitor y ajustes de energía desde la app | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.6) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.6.zip) |

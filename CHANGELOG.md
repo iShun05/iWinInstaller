@@ -1,5 +1,21 @@
 # Historial de versiones
 
+## v4.0 — 2026-11-03
+
+### Añadido
+- **MyASUS**, **G-Helper** y **OCCT Personal** en el catálogo general (427 entradas). Sin perfiles exclusivos de portátil.
+- **Guía de puesta a punto en MyASUS → Pasos y notas**: preparar Windows 11 y drivers offline en otro equipo, instalación de Windows previa a iWinInstaller, Windows Update, soporte por modelo/serie, ASUS System Control Interface, firmware manual, batería, seguridad y pruebas físicas.
+
+### Mejorado
+- **Guías de Armoury Crate y NVIDIA App**: un solo gestor ASUS, Game Ready o Studio, gráfica integrada en equipos híbridos y comprobaciones reales. G-Helper queda opcional, sin selección automática por fabricante.
+- **Afecta a Windows x86/x64/ARM64**: catálogo común y perfiles anteriores intactos. G-Helper y OCCT se declaran x64 conforme a sus manifiestos; no se promete soporte de esas herramientas para otras arquitecturas.
+
+### Archivos y pruebas
+- `apps.json`, versiones de `iWinInstaller.ps1`, `install.ps1`, `native/Launcher.cs`, fixture de aceptación y README/CHANGELOG.
+- JSON, ids únicos, referencias y conservación de perfiles comprobados en macOS. Manifiestos de G-Helper y OCCT consultados directamente en microsoft/winget-pkgs; MyASUS verificado en Microsoft Store.
+- Pruebas reales de instalador y WPF en CI Windows x64/ARM64 y proceso x86; el resultado se registra en Obsidian. Hardware ASUS físico, drivers y firmware pendientes del portátil real.
+- Incluye los cambios v3.7–v3.9 que todavía no estaban disponibles en la última release pública v3.6.
+
 ## v3.9 — 2026-10-30
 
 > Primera release desde v3.6: incluye también **v3.7** (panel Seguridad, arreglos del instalador, directivas de usuario, PowerShell 7 y gsudo) y **v3.8** (Vincular equipos). Sus tags se crearon, pero sus releases no llegaron a publicarse, por lo que la actualización automática seguía ofreciendo v3.6.

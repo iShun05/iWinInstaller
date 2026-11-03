@@ -565,10 +565,12 @@
     "hardware": "GPU: .*NVIDIA",
     "postInstall": {
       "steps": [
-        "Abre la aplicación y comprueba que reconoce tu componente.",
-        "Revisa los ajustes que necesitas y prueba su función principal."
+        "Abre NVIDIA App y comprueba que reconoce la GPU exacta; en un portátil RTX debe aparecer su variante Laptop GPU.",
+        "Elige Game Ready para juegos o Studio para creación y actualiza el controlador. Instala una sola rama; no necesitas DDU en una instalación nueva.",
+        "En un portátil híbrido, conserva también el controlador de la gráfica integrada del fabricante y comprueba pantalla interna, salidas externas y suspensión.",
+        "Prueba un juego o aplicación y revisa resolución y frecuencia admitidas por tu pantalla desde Pantalla y energía."
       ],
-      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+      "note": "Instalar NVIDIA App no verifica la instalación del driver ni la conmutación de GPU. No cambia BIOS, MUX ni perfiles térmicos automáticamente."
     },
     "subgroup": "Drivers de NVIDIA",
     "compare": "Oficial: drivers, ajustes de juego, grabación y filtros. Incluye telemetría y servicios en segundo plano.",
@@ -911,6 +913,64 @@
     }
   },
   {
+    "id": "myasus",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "MyASUS",
+    "desc": "Diagnóstico, soporte y actualizaciones específicas para portátiles ASUS. No sustituye la instalación de Windows ni comprueba todos los drivers automáticamente.",
+    "icon": "asus.com",
+    "type": "winget",
+    "winget": "9N7R5S6B0ZZH",
+    "source": "msstore",
+    "context": "user",
+    "extra": true,
+    "hardware": "Placa: (ASUS|ASUSTeK)",
+    "postInstall": {
+      "steps": [
+        "Si el equipo viene vacío, prepara antes un USB de Windows 11 x64 desde https://www.microsoft.com/software-download/windows11 en otro PC Windows. Crear el medio borra ese USB; necesitas una licencia válida. iWinInstaller se ejecuta después de instalar Windows.",
+        "Antes de instalar Windows guarda en otro USB los controladores de red y almacenamiento del modelo exacto desde https://www.asus.com/support/Download-Center/ . Confirma modelo y número de serie de la etiqueta.",
+        "Si el instalador de Windows no muestra el SSD, carga el controlador Intel RST/VMD de ASUS si tu modelo lo requiere. No cambies VMD/RAID a ciegas. Si falta red, instala su controlador ASUS desde el USB.",
+        "Ejecuta Windows Update y reinicia hasta no tener actualizaciones pendientes. Después abre MyASUS, confirma el modelo y revisa las actualizaciones específicas del fabricante.",
+        "Revisa chipset, Intel ME/Serial IO si corresponde, ASUS System Control Interface, gráfica integrada y dedicada, red, Bluetooth, audio, touchpad y cámara. En Administrador de dispositivos comprueba que no quedan dispositivos desconocidos.",
+        "Comprueba BIOS/firmware solo para el modelo y serie exactos. Si decides actualizar, conecta el cargador, guarda la clave de recuperación de BitLocker y sigue las instrucciones ASUS. iWinInstaller no flashea BIOS ni cambia Secure Boot/TPM.",
+        "Elige un solo gestor de rendimiento: Armoury Crate oficial o G-Helper. Conserva ASUS System Control Interface; no ejecutes ambos gestionando ventiladores, GPU y batería.",
+        "Configura el límite de carga y los perfiles con corriente y batería que realmente admita el equipo. Prueba suspensión, reanudación, teclado, cámara, micrófono, altavoces, Wi-Fi, Bluetooth y puertos.",
+        "Configura Windows Hello si está disponible, activación, Microsoft Defender y copia de seguridad. Guarda fuera del portátil la clave de recuperación si activas cifrado."
+      ],
+      "note": "Guía manual para portátiles ASUS. Instalar MyASUS no confirma que Windows, los controladores, el firmware o las pruebas físicas estén completados."
+    },
+    "subgroup": "Portátiles ASUS",
+    "compare": "Oficial: diagnóstico y actualizaciones específicas. Complementa a un único gestor de rendimiento.",
+    "subgroupNote": "MyASUS para soporte. Armoury Crate o G-Helper para perfiles, ventiladores y GPU: elige uno, conserva ASUS System Control Interface. Los drivers y firmware se comprueban manualmente."
+  },
+  {
+    "id": "ghelper",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "G-Helper (portátiles ASUS)",
+    "desc": "Alternativa ligera a Armoury Crate: perfiles, GPU, ventiladores y límite de carga según el modelo. No es un controlador.",
+    "icon": "github.com",
+    "type": "winget",
+    "winget": "seerge.g-helper",
+    "context": "user",
+    "architecture": "x64",
+    "extra": true,
+    "commands": [
+      "ghelper"
+    ],
+    "postInstall": {
+      "steps": [
+        "Consulta https://github.com/seerge/g-helper/wiki/Requirements y confirma compatibilidad del modelo. El paquete actual requiere .NET Desktop Runtime 10; WinGet resuelve esa dependencia.",
+        "Retira Armoury Crate con su herramienta oficial antes de usar G-Helper. No los uses simultáneamente ni mantengas ASUS Smart Display Control compitiendo por la frecuencia.",
+        "Instala ASUS System Control Interface desde soporte ASUS para el modelo exacto; G-Helper no sustituye los drivers ni la BIOS.",
+        "Abre G-Helper y prueba perfiles, teclas, límite de carga y modos de GPU disponibles, con corriente y con batería. No fuerces curvas ni límites sin comprobar temperaturas."
+      ],
+      "note": "Alternativa opcional: no incluida en el perfil Base para evitar competir con Armoury Crate. No todas las funciones están disponibles en todos los modelos."
+    },
+    "subgroup": "Portátiles ASUS",
+    "compare": "Ligero y de código abierto. Alternativa a Armoury Crate, sin instalar ambos gestores a la vez."
+  },
+  {
     "id": "armourycrate",
     "section": "Sistema",
     "group": "Software de los fabricantes",
@@ -926,10 +986,12 @@
     "extra": true,
     "postInstall": {
       "steps": [
-        "Abre la aplicación y comprueba que reconoce tu componente.",
-        "Revisa los ajustes que necesitas y prueba su función principal."
+        "En un portátil ASUS, instala primero ASUS System Control Interface y los controladores del modelo exacto desde MyASUS o soporte ASUS.",
+        "Abre Armoury Crate y comprueba los perfiles de rendimiento, ventiladores, teclado y modos de GPU disponibles en ese modelo. Prueba con corriente y con batería.",
+        "Elige Armoury Crate o G-Helper como gestor. Si cambias a G-Helper, utiliza la herramienta oficial de desinstalación de Armoury Crate; no los uses simultáneamente.",
+        "Si quieres las luces apagadas, configúralo aquí antes de recurrir a otras herramientas RGB."
       ],
-      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+      "note": "No aplica automáticamente overclock, curvas de ventilador ni firmware. Las funciones y límites de carga dependen del modelo."
     },
     "subgroup": "Placa base y gráfica",
     "compare": "ASUS: placa, RGB Aura y perfiles. Pesado y con muchos servicios.",
@@ -5267,6 +5329,33 @@
     "context": "machine",
     "subgroup": "Discos",
     "compare": "Velocidad de lectura y escritura."
+  },
+  {
+    "id": "occt",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "OCCT Personal",
+    "desc": "Pruebas de estabilidad de CPU, GPU, VRAM y memoria. Opcional para comprobar un portátil nuevo; uso personal según licencia.",
+    "icon": "ocbase.com",
+    "type": "winget",
+    "winget": "OCBase.OCCT.Personal",
+    "context": "user",
+    "architecture": "x64",
+    "extra": true,
+    "commands": [
+      "OCCT"
+    ],
+    "postInstall": {
+      "steps": [
+        "Conecta el cargador y usa los perfiles de fábrica, sin overclock ni undervolt.",
+        "Empieza con pruebas cortas de CPU, memoria y GPU por separado; vigila temperaturas y detén la prueba ante errores o comportamiento anormal.",
+        "Guarda los resultados para comparar o comunicar una incidencia al soporte. Una prueba superada no garantiza ausencia de defectos."
+      ],
+      "note": "La app instala la herramienta; no inicia pruebas de estrés automáticamente."
+    },
+    "subgroup": "Pruebas de estabilidad",
+    "compare": "Pruebas de carga y detección de errores; HWiNFO complementa con sensores.",
+    "subgroupNote": "Opcional al estrenar equipo. Pruebas cortas con supervisión; no hace falta ejecutar estrés para instalar programas."
   },
   {
     "id": "rufus",
