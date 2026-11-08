@@ -15,6 +15,13 @@ Tercera versión del camino a v5.0. La app pasa a una carpeta que solo pueden mo
 - **Migración automática**: al instalar v4.3 se retiran la carpeta, el registro y el acceso del menú Inicio de la instalación por usuario anterior. Si tenías activada la actualización automática, se vuelve a crear como tarea del sistema. **Notas, perfiles, lotes, informes y preferencias se conservan**, porque viven en `%LOCALAPPDATA%\iWinInstaller`, que no se toca.
 - Pruebas en CI: instalación real en Program Files, retirada de la copia anterior, que ningún grupo de usuarios normales tenga permisos de escritura en la carpeta y tarea de actualización como SYSTEM.
 
+### Corregido
+Hallado en un diagnóstico real de v4.0 (Windows 11 Pro 10.0.26300, lote de 78 apps):
+- **PowerShell 7 fallaba con 0x8A150113** («la configuración del sistema no admite la instalación de este paquete») y no se probaba la alternativa. Ahora se reintenta con el paquete **MSIX oficial**, igual que ya se hacía con 0x80070005, y el informe explica el código.
+- **EarTrumpet fallaba con 0x80072EFD** (no pudo conectar con el servidor de descarga). Ahora los fallos de red puntuales (0x80072EFD, 0x80072EE2, 0x80072EE7, 0x80072EFE) **se reintentan una vez** a los 15 s, respetando la pausa, y el informe dice qué revisar (conexión, VPN, proxy, cortafuegos, fecha y hora).
+- **Motivo del informe más útil**: muestra el mensaje del instalador (p. ej. «InternetOpenUrl() failed», «does not support…») en lugar de la línea interna `app · codigo N`.
+- Process Explorer (0x8A150011, huella distinta) es un cambio del fabricante en WinGet: el informe ya lo explicaba y no cambia.
+
 ### Pendiente
 - **Firma con SignPath**: el paso de firma se añadirá cuando SignPath apruebe la solicitud. Hasta entonces se publica sin firma, con procedencia de GitHub (`gh attestation verify`).
 

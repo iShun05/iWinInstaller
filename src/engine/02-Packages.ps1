@@ -157,10 +157,17 @@ function Install-WingetPackage($app, [string]$id) {
     if ($app.scope) { $arguments += @('--scope', $app.scope) }
     if ($app.architecture) { $arguments += @('--architecture', $app.architecture) }
     $code = Invoke-Winget $arguments $app.id $timeout
+    # Errores de red puntuales (0x80072EFD, 0x80072EE2, 0x80072EFE…): un reintento tras una pausa breve
+    if ($code -in @(-2147012867, -2147012894, -2147012866, -2147012889)) {
+        Write-Log '  Fallo de conexión al descargar: se reintenta una vez en 15 s.'
+        for ($wait = 0; $wait -lt 75 -and -not (Test-IwinStop); $wait++) { Invoke-UiPump; Start-Sleep -Milliseconds 200 }
+        if (-not (Test-IwinStop)) { $code = Invoke-Winget $arguments ($app.id + '-reintento') $timeout }
+    }
     $usedMsix = $false
-    if ($code -eq -2147024891 -and $app.families -and $operation -eq 'install') {
-        # 0x80070005: el MSI no pudo escribir (antivirus, carpeta protegida o proceso abierto). El paquete MSIX no lo necesita.
-        Write-Log '  Acceso denegado al instalador clasico: se prueba el paquete MSIX oficial.'
+    # 0x80070005: el MSI no pudo escribir (antivirus, carpeta protegida o proceso abierto).
+    # 0x8A150113: «la configuración del sistema no admite» ese instalador. En ambos casos el paquete MSIX oficial suele funcionar.
+    if ($code -in @(-2147024891, -1978334957) -and $app.families -and $operation -eq 'install') {
+        Write-Log '  El instalador clasico no se pudo usar: se prueba el paquete MSIX oficial.'
         $retry = @($arguments | Where-Object { $_ -ne '--scope' -and $_ -ne $app.scope }) + @('--installer-type', 'msix')
         $code = Invoke-Winget $retry ($app.id + '-msix')
         $usedMsix = $true
