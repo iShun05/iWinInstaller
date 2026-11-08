@@ -25,14 +25,35 @@ try{
 }finally{$archive.Dispose()}
 Write-Host 'OK: dependencias oficiales disponibles para x86, x64 y ARM64.'
 
+# Instalación por usuario de v4.2 o anterior: debe retirarse al instalar en Program Files
+$legacy=Join-Path $env:LOCALAPPDATA 'Programs\iWinInstaller'
+New-Item $legacy -ItemType Directory -Force | Out-Null
+Set-Content (Join-Path $legacy 'instalado.txt') 'v4.2'
+$legacyKey='HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\iWinInstaller'
+New-Item $legacyKey -Force | Out-Null
 $process=Start-Process $setup -ArgumentList '--silent' -PassThru -Wait
 if ($process.ExitCode -ne 0) { throw "El EXE no se instalo: $($process.ExitCode)" }
-$installed=Join-Path $env:LOCALAPPDATA 'Programs\iWinInstaller'
+$programFiles=if($env:ProgramW6432){$env:ProgramW6432}else{$env:ProgramFiles}
+$installed=Join-Path $programFiles 'iWinInstaller'
+if (Test-Path $legacy) { throw 'La instalación anterior por usuario debe retirarse' }
+if (Test-Path $legacyKey) { throw 'El registro anterior por usuario debe retirarse' }
+# Solo los administradores pueden modificar la app instalada
+$broad=@('S-1-5-32-545','S-1-5-11','S-1-1-0','S-1-5-4')
+foreach ($rule in (Get-Acl $installed).Access) {
+    try { $sid=$rule.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value } catch { continue }
+    # Bits de escritura, borrado, permisos y propiedad (incluidos GENERIC_WRITE y GENERIC_ALL); lectura y ejecución no cuentan
+    $writeMask=[int64](0x2 -bor 0x4 -bor 0x10 -bor 0x40 -bor 0x100 -bor 0x10000 -bor 0x40000 -bor 0x80000 -bor 0x40000000 -bor 0x10000000)
+    $rights=[int64][BitConverter]::ToUInt32([BitConverter]::GetBytes([int]$rule.FileSystemRights),0)
+    if ($rule.AccessControlType -eq 'Allow' -and $broad -contains $sid -and ($rights -band $writeMask)) {
+        throw "Un usuario normal puede modificar la app instalada: $($rule.IdentityReference) $($rule.FileSystemRights)"
+    }
+}
+Write-Host 'OK: instalada en Program Files, protegida y migrada desde la copia por usuario.'
 foreach ($name in @('iWinInstaller.exe','launch.ps1','lifecycle.ps1','install.ps1','iWinInstaller.ps1','apps.json','profiles.json','prerequisites\DesktopAppInstaller_Dependencies.zip')) {
     if (-not (Test-Path (Join-Path $installed $name))) { throw "Falta el archivo instalado $name" }
 }
 $ws=New-Object -ComObject WScript.Shell
-$link=$ws.CreateShortcut((Join-Path ([Environment]::GetFolderPath('Programs')) 'iWinInstaller.lnk'))
+$link=$ws.CreateShortcut((Join-Path ([Environment]::GetFolderPath('CommonPrograms')) 'iWinInstaller.lnk'))
 if ($link.TargetPath -ne (Join-Path $installed 'iWinInstaller.exe')) { throw 'El acceso directo debe abrir el EXE nativo' }
 # Sin un archivo esencial, el lanzador debe devolver error y conservar el diagnostico.
 $fixture=Join-Path $env:RUNNER_TEMP 'iwin-fallo'
@@ -48,7 +69,7 @@ Set-Content (Join-Path $fixture 'apps.json') '[]'
 $p=Start-Process (Join-Path $fixture 'iWinInstaller.exe') -ArgumentList '--silent' -Wait -PassThru
 if ($p.ExitCode -ne 1) { throw 'Un archivo esencial modificado debe rechazarse' }
 Write-Host 'OK: EXE real instalado, dependencias incluidas, acceso directo nativo y fallo diagnosticado.'
-$registration='HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\iWinInstaller'
+$registration='HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\iWinInstaller'
 $entry=Get-ItemProperty $registration -ErrorAction Stop
 if($entry.DisplayVersion -ne $expectedVersion.Substring(1) -or $entry.UninstallString -notmatch '--uninstall' -or $entry.InstallLocation -ne $installed){throw 'La app debe registrarse en Aplicaciones instaladas de Windows'}
 . (Join-Path $installed 'lifecycle.ps1')
@@ -56,8 +77,9 @@ try{
     Set-IwinAutoUpdate $true
     $task=Get-ScheduledTask -TaskName 'iWinInstaller actualizaciones' -ErrorAction Stop
     if($task.Actions.Execute -ne (Join-Path $installed 'iWinInstaller.exe') -or $task.Actions.Arguments -ne '--update-only'){throw 'El actualizador solo debe ejecutar la actualización de iWinInstaller'}
+    if($task.Principal.UserId -notin @('SYSTEM','S-1-5-18','NT AUTHORITY\SYSTEM')){throw "La tarea debe correr como SYSTEM para sustituir la app en Program Files: $($task.Principal.UserId)"}
 }finally{Set-IwinAutoUpdate $false}
-Write-Host 'OK: registro en Windows y tarea opcional de actualización con identidad del usuario.'
+Write-Host 'OK: registro del equipo en Windows y tarea opcional de actualización como SYSTEM.'
 
 
 # Instala realmente el paquete Microsoft incluido; no se consulta ningun origen remoto.

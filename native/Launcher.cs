@@ -7,8 +7,8 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-[assembly: AssemblyVersion("4.2.0.0")]
-[assembly: AssemblyFileVersion("4.2.0.0")]
+[assembly: AssemblyVersion("4.3.0.0")]
+[assembly: AssemblyFileVersion("4.3.0.0")]
 
 static class Launcher {
     static readonly object LogLock = new object();
@@ -21,12 +21,12 @@ static class Launcher {
         try {
             Directory.CreateDirectory(logs);
             Environment.CurrentDirectory = logs;
-            Log("iWinInstaller v4.2; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
+            Log("iWinInstaller v4.3; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
 #if SETUP
             bool quiet = Array.IndexOf(args, "--silent") >= 0;
             if (quiet) { Install(); return 0; }
             using (Form form = new Form()) {
-                form.Text = "iWinInstaller v4.2"; form.Width = 560; form.Height = 230;
+                form.Text = "iWinInstaller v4.3"; form.Width = 560; form.Height = 230;
                 form.StartPosition = FormStartPosition.CenterScreen;
                 form.FormBorderStyle = FormBorderStyle.FixedDialog; form.ControlBox = false;
                 form.BackColor = System.Drawing.Color.Black; form.ForeColor = System.Drawing.Color.White;
@@ -50,7 +50,7 @@ static class Launcher {
                 Application.Run(form);
                 if (failure != null) throw failure;
             }
-            Process.Start(Path.Combine(InstallDirectory(), "iWinInstaller.exe"));
+            OpenUnelevated(Path.Combine(InstallDirectory(), "iWinInstaller.exe"));
 #else
             string root = AppDomain.CurrentDomain.BaseDirectory;
             try {
@@ -88,15 +88,14 @@ static class Launcher {
                             throw new Exception("Cierra la ventana de iWinInstaller antes de desinstalar y vuelve a intentarlo.");
                     }
                 }
-                string ps = PowerShellPath();
-                ProcessStartInfo remove = new ProcessStartInfo(ps, "-NoProfile -ExecutionPolicy Bypass -File \"" + Path.Combine(root, "install.ps1") + "\" -Uninstall -WaitForPid " + Process.GetCurrentProcess().Id);
-                remove.UseShellExecute=false; remove.CreateNoWindow=true;
-                remove.EnvironmentVariables["PSModulePath"]=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"WindowsPowerShell","Modules")+";"+Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows),"System32","WindowsPowerShell","v1.0","Modules");
-                Process.Start(remove); return 0;
+                // Program Files solo lo modifica un administrador: la desinstalación pide permiso
+                RunElevated(Path.Combine(root, "install.ps1"), "-Uninstall -WaitForPid " + Process.GetCurrentProcess().Id, false);
+                return 0;
             }
             if (Array.IndexOf(args, "--update-only") >= 0) return RunPowerShell(Path.Combine(root, "iWinInstaller.ps1"), "-AutoUpdate", logs, null);
             if (!Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar).Equals(InstallDirectory(), StringComparison.OrdinalIgnoreCase)) {
-                int installed = RunPowerShell(Path.Combine(root, "install.ps1"), "-Silent", logs, null, root.TrimEnd(Path.DirectorySeparatorChar));
+                // Primera apertura desde el ZIP: instala en Program Files con permiso de administrador
+                int installed = RunElevated(Path.Combine(root, "install.ps1"), "-Silent -SourceDirectory \"" + root.TrimEnd(Path.DirectorySeparatorChar) + "\"", true);
                 if (installed != 0) throw new Exception("No se pudo instalar la aplicación: " + installed);
                 Process.Start(Path.Combine(InstallDirectory(), "iWinInstaller.exe")); return 0;
             }
@@ -136,7 +135,34 @@ static class Launcher {
             } catch { }
         }
     }
-    static string InstallDirectory() { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "iWinInstaller"); }
+    // Desde v4.3 la app vive en Program Files (nativo también desde un proceso x86).
+    static string InstallDirectory() {
+        string programFiles = Environment.GetEnvironmentVariable("ProgramW6432");
+        if (String.IsNullOrEmpty(programFiles)) programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+        return Path.Combine(programFiles, "iWinInstaller");
+    }
+    // Ejecuta un script con permiso de administrador (UAC). Devuelve su código de salida o 1223 si se cancela.
+    static int RunElevated(string script, string arguments, bool wait) {
+        ProcessStartInfo start = new ProcessStartInfo(PowerShellPath(), "-NoProfile -ExecutionPolicy Bypass -File \"" + script + "\" " + arguments);
+        start.UseShellExecute = true; start.Verb = "runas"; start.WindowStyle = ProcessWindowStyle.Hidden;
+        try {
+            using (Process process = Process.Start(start)) {
+                if (!wait) return 0;
+                process.WaitForExit(); return process.ExitCode;
+            }
+        } catch (System.ComponentModel.Win32Exception e) {
+            if (e.NativeErrorCode == 1223) throw new Exception("Se necesita permiso de administrador para instalar o desinstalar iWinInstaller.");
+            throw;
+        }
+    }
+    // Abre la app con el usuario normal aunque este proceso sea administrador
+    // (con UAC activo, el Explorador abre la app con el token normal; sin UAC no hay token dividido)
+    static void OpenUnelevated(string exe) {
+        object lua = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "EnableLUA", 1);
+        if (lua is int && (int)lua == 0) { Process.Start(exe); return; }
+        try { Process.Start(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe"), "\"" + exe + "\""); }
+        catch { Process.Start(exe); }
+    }
     static string PowerShellPath() {
         // En Windows de 64 bits, un EXE x86 usa el host nativo para evitar redirección de registro y Program Files.
         if(Environment.Is64BitOperatingSystem && !Environment.Is64BitProcess)

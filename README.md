@@ -12,11 +12,11 @@ Instalador de aplicaciones para Windows 10 y 11: selecciona programas, instálal
    Para quitar algo, pulsa **Desinstalar** en su fila.
 4. Al terminar, si algo no se instaló se abre el **informe de la instalación** con el motivo de cada fallo y qué hacer. Los accesos de aplicaciones del escritorio se agrupan en **Aplicaciones**.
 
-El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. Las aplicaciones se descargan de sus fuentes oficiales y necesitan conexión. No requiere cuenta de GitHub ni contraseña propia. Windows puede mostrar SmartScreen porque el ejecutable no tiene certificado comercial: comprueba que procede de esta release antes de abrirlo.
+El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. Las aplicaciones se descargan de sus fuentes oficiales y necesitan conexión. No requiere cuenta de GitHub ni contraseña propia. Windows pedirá **permiso de administrador una vez** para instalar: desde v4.3 la app vive en `Archivos de programa`, donde ningún programa de tu usuario puede modificarla, y se abre después sin permisos especiales. Windows puede mostrar SmartScreen porque el ejecutable aún no tiene firma (está solicitada): comprueba que procede de esta release antes de abrirlo.
 
-Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
+Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura pide permiso de administrador, instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Si tenías una versión anterior instalada por usuario, se retira sola al instalar la nueva. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v4.2** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v4.3** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
@@ -38,7 +38,7 @@ Usa **Armoury Crate o G-Helper** como gestor de rendimiento, conservando ASUS Sy
 - **Resumen antes de instalar**: incluye dependencias, permisos, ajustes y reinicios previstos; comprueba espacio de preparación y conexión HTTPS al origen de WinGet. Los requisitos finales de cada proveedor pueden ser mayores.
 - **Deshacer con estado anterior**: los ajustes reversibles aplicados desde v3.2 guardan valores y tipos originales. El ajuste de acceso remoto conserva energía, red, servicios y accesos. Si el cambio viene de una versión antigua sin estado guardado, se explica y se evita imponer valores genéricos. WSL y puntos de restauración no se deshacen desde aquí; RGB retira su tarea, sin recuperar colores físicos anteriores.
 - **Reinicios visibles**: las aplicaciones que lo solicitan quedan identificadas hasta un nuevo arranque y se pueden comprobar otra vez. iWinInstaller no reinicia por su cuenta.
-- **Actualización opcional de iWinInstaller**: en **⋯ › Actualizar iWinInstaller automáticamente**. Desactivada inicialmente; al activarla comprueba GitHub al abrir, al iniciar sesión y una vez al día con tu usuario. Descarga solo la nueva versión estable, verifica SHA256 y sustituye la app cuando se cierra. Si está abierta, la comprobación programada pospone el cambio. No actualiza otras aplicaciones ni ejecuta lotes pendientes. Se puede desactivar en el mismo menú; **Buscar nueva versión** permite hacerlo manualmente.
+- **Actualización opcional de iWinInstaller**: en **⋯ › Actualizar iWinInstaller automáticamente**. Desactivada inicialmente; al activarla (pide permiso de administrador una vez) comprueba GitHub al abrir la app, al iniciar sesión y una vez al día mediante una tarea del sistema que solo ejecuta el actualizador instalado. Descarga solo la nueva versión estable, verifica SHA256 y sustituye la app cuando se cierra. Si está abierta, la comprobación programada pospone el cambio. No actualiza otras aplicaciones ni ejecuta lotes pendientes. Se puede desactivar en el mismo menú; **Buscar nueva versión** permite hacerlo manualmente.
 
 - **427 entradas en tres secciones**, cada una con sus categorías:
   - **Sistema**: ajustes de Windows (tema oscuro, extensiones visibles, menú contextual clásico, rutas largas, Inicio sin Bing, punto de restauración, alto rendimiento, modo desarrollador, WSL…), optimización y privacidad (O&O ShutUp10++, WinToys, Winhance, privacy.sexy, BleachBit…) y drivers y componentes (Visual C++, .NET, DirectX, NVIDIA, Intel).
@@ -117,8 +117,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v4.2
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v4.2
+git checkout v4.3
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v4.3
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -137,7 +137,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v4.2](https://github.com/iShun05/iWinInstaller/releases/tag/v4.2) **(actual)** | 2026-11-08 | Motor dividido por áreas, `-Check -Json`, contrato del motor e integridad de todos los archivos | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.2) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.2.zip) |
+| [v4.3](https://github.com/iShun05/iWinInstaller/releases/tag/v4.3) **(actual)** | 2026-11-08 | Instalación protegida en Archivos de programa con migración automática; actualización programada como SYSTEM | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.3) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.3.zip) |
+| [v4.2](https://github.com/iShun05/iWinInstaller/releases/tag/v4.2) | 2026-11-08 | Motor dividido por áreas, `-Check -Json`, contrato del motor e integridad de todos los archivos | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.2) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.2.zip) |
 | [v4.1](https://github.com/iShun05/iWinInstaller/releases/tag/v4.1) | 2026-11-08 | Base de calidad: licencia MIT, esquema del catálogo, pruebas Pester y verificación automática de cada release | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.1.zip) |
 | [v4.0](https://github.com/iShun05/iWinInstaller/releases/tag/v4.0) | 2026-11-03 | MyASUS, G-Helper y OCCT en el catálogo general; puesta a punto de portátiles y guías de GPU | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.0.zip) |
 | [v3.9](https://github.com/iShun05/iWinInstaller/releases/tag/v3.9) | 2026-10-30 | Informe de fallos al terminar la instalación y auditoría: antivirus, códigos de salida, catálogo revisado contra WinGet | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.9.zip) |

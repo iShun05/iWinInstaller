@@ -1,5 +1,27 @@
 # Historial de versiones
 
+## v4.3 — 2026-11-08
+
+Tercera versión del camino a v5.0. La app pasa a una carpeta que solo pueden modificar los administradores.
+
+### Cambiado
+- **Instalación en `Archivos de programa\iWinInstaller`**: antes estaba en `%LOCALAPPDATA%\Programs\iWinInstaller`.
+  - Antes: cualquier programa que se ejecutara con tu usuario podía modificar la app sin avisar.
+  - Ahora: hace falta permiso de administrador. El instalador lo pide **una vez** (Setup.exe, primera apertura del ZIP o BAT) y la app se abre después **sin** permisos especiales.
+- **Registro del equipo** en Aplicaciones instaladas y acceso del menú Inicio para todos los usuarios. Desinstalar pide permiso de administrador.
+- **Actualización automática opcional como SYSTEM**: activarla o desactivarla pide permiso una vez. La tarea solo ejecuta el actualizador instalado, que descarga de la release oficial y comprueba SHA256. Al ser SYSTEM, ya no depende de que haya una sesión de usuario con la preferencia guardada.
+
+### Añadido
+- **Migración automática**: al instalar v4.3 se retiran la carpeta, el registro y el acceso del menú Inicio de la instalación por usuario anterior. Si tenías activada la actualización automática, se vuelve a crear como tarea del sistema. **Notas, perfiles, lotes, informes y preferencias se conservan**, porque viven en `%LOCALAPPDATA%\iWinInstaller`, que no se toca.
+- Pruebas en CI: instalación real en Program Files, retirada de la copia anterior, que ningún grupo de usuarios normales tenga permisos de escritura en la carpeta y tarea de actualización como SYSTEM.
+
+### Pendiente
+- **Firma con SignPath**: el paso de firma se añadirá cuando SignPath apruebe la solicitud. Hasta entonces se publica sin firma, con procedencia de GitHub (`gh attestation verify`).
+
+### Archivos y pruebas
+- `install.ps1`, `installer-header.bat`, `native/Launcher.cs`, `native/setup.manifest` (Setup.exe pide administrador), `scripts/build_exe.ps1`, `lifecycle.ps1` (`Get-IwinInstallDir`, `Set-IwinAutoUpdate`, `Test-IwinAppOpen`), `iWinInstaller.ps1` (modo `-AutoUpdate` como SYSTEM), `tests/check-native.ps1`, `tests/check-embedded-install.ps1`, README y SECURITY.
+- **Afecta a Windows x86/x64/ARM64 por igual**: la ruta usa la carpeta de programas nativa también desde el lanzador de 32 bits. Pruebas reales en CI Windows x64/ARM64 y proceso x86.
+
 ## v4.2 — 2026-11-08
 
 Segunda versión del camino a v5.0. Por dentro, el programa queda dividido por áreas. Por fuera, la app hace lo mismo, con dos novedades para scripts: `-Check -Json` y el contrato del motor.

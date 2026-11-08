@@ -21,4 +21,5 @@ gh attestation verify iWinInstaller-Setup.exe --repo iShun05/iWinInstaller
 
 ## Límites conocidos
 - Los ejecutables aún no llevan firma Authenticode, así que SmartScreen puede avisar. Está pedida la firma gratuita de SignPath Foundation para código abierto: ver la [política de firma](docs/code-signing-policy.md).
-- La app se instala por usuario en `%LOCALAPPDATA%\Programs\iWinInstaller`. Un programa malicioso que ya se ejecute con tu usuario podría modificarla antes de que aceptes un aviso de administrador. Es el mismo modelo que otros instaladores por usuario.
+- Desde v4.3 la app se instala en `%ProgramFiles%\iWinInstaller`: solo un administrador puede modificarla, así que un programa que se ejecute con tu usuario ya no puede alterarla antes de que aceptes un aviso de administrador. El lanzador comprueba además la huella SHA256 de cada archivo del programa antes de abrirlo.
+- La actualización automática (opcional) corre como SYSTEM y solo ejecuta el actualizador instalado, que descarga de la release oficial y comprueba su SHA256 antes de sustituir la app.

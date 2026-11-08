@@ -1,18 +1,34 @@
 # iWinInstaller - instalador
-# Descarga la ultima version publica y la instala en
-# %LOCALAPPDATA%\Programs\iWinInstaller, crea accesos directos en el menu Inicio y el Escritorio y la abre.
+# Descarga la ultima version publica y la instala en %ProgramFiles%\iWinInstaller (desde v4.3),
+# crea accesos directos en el menu Inicio y el Escritorio y la abre.
+# Necesita permiso de administrador: solo los administradores pueden modificar la app instalada.
 # No necesita una cuenta de GitHub ni una clave de acceso.
-# Opciones: -Silent (no abre la app al terminar), -Uninstall (desinstala)
+# Opciones: -Silent (no abre la app al terminar), -Uninstall (desinstala),
+#           -SourceDirectory (instala desde una copia ya verificada, p. ej. el ZIP descomprimido)
 # (Solo ASCII a proposito: tambien va incrustado en iWinInstaller-Setup.bat.)
-param([switch]$Silent, [switch]$Uninstall, [int]$WaitForPid = 0)
+param([switch]$Silent, [switch]$Uninstall, [int]$WaitForPid = 0, [string]$SourceDirectory)
 $ErrorActionPreference = 'Stop'
 
 $Repo = 'iShun05/iWinInstaller'
-$Dir = Join-Path $env:LOCALAPPDATA 'Programs\iWinInstaller'
-$Links = @(
-    (Join-Path ([Environment]::GetFolderPath('Programs')) 'iWinInstaller.lnk'),
-    (Join-Path ([Environment]::GetFolderPath('Desktop')) 'iWinInstaller.lnk')
-)
+$ProgramRoot = if ($env:ProgramW6432) { $env:ProgramW6432 } else { $env:ProgramFiles }
+# IWIN_INSTALL_DIR solo lo usan las pruebas aisladas
+$Dir = if ($env:IWIN_INSTALL_DIR) { $env:IWIN_INSTALL_DIR } else { Join-Path $ProgramRoot 'iWinInstaller' }
+# Instalacion por usuario de v4.2 y anteriores: se migra y se retira
+$LegacyDir = Join-Path $env:LOCALAPPDATA 'Programs\iWinInstaller'
+$RunningAsSystem = [Security.Principal.WindowsIdentity]::GetCurrent().IsSystem
+$StartLink = Join-Path ([Environment]::GetFolderPath('CommonPrograms')) 'iWinInstaller.lnk'
+$LegacyStartLink = Join-Path ([Environment]::GetFolderPath('Programs')) 'iWinInstaller.lnk'
+$DesktopLink = Join-Path ([Environment]::GetFolderPath('Desktop')) 'iWinInstaller.lnk'
+$Links = @($StartLink)
+# La actualizacion programada corre como SYSTEM: no crea iconos en su propio escritorio
+if (-not $RunningAsSystem) { $Links += $DesktopLink }
+$Registration = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\iWinInstaller'
+$LegacyRegistration = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\iWinInstaller'
+if ($env:IWIN_REGISTRATION_KEY) { $Registration = $env:IWIN_REGISTRATION_KEY }
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if (-not $isAdmin -and -not $env:IWIN_INSTALL_DIR) {
+    throw 'Se necesita permiso de administrador para instalar o desinstalar iWinInstaller en Program Files.'
+}
 
 if ($Uninstall) {
     if($WaitForPid -gt 0){$running=Get-Process -Id $WaitForPid -ErrorAction SilentlyContinue;if($running -and -not $running.WaitForExit(30000)){throw 'Cierra iWinInstaller antes de desinstalar.'}}
@@ -22,9 +38,10 @@ if ($Uninstall) {
     }
     Unregister-ScheduledTask -TaskName 'iWinInstaller actualizaciones' -Confirm:$false -ErrorAction SilentlyContinue
     Unregister-ScheduledTask -TaskName 'iWinInstaller semanal' -Confirm:$false -ErrorAction SilentlyContinue
-    $Links | ForEach-Object { Remove-Item $_ -ErrorAction SilentlyContinue }
+    @($StartLink, $LegacyStartLink, $DesktopLink) | ForEach-Object { Remove-Item $_ -ErrorAction SilentlyContinue }
     Remove-Item $Dir -Recurse -Force -ErrorAction Stop
-    Remove-Item 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\iWinInstaller' -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item $Registration -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item $LegacyRegistration -Recurse -Force -ErrorAction SilentlyContinue
     Write-Host 'iWinInstaller desinstalado. Se conservan tus notas, perfiles, lotes y las aplicaciones instaladas.'
     return
 }
@@ -99,7 +116,7 @@ function Install-ReleaseFiles($sourceDir, $installDir, $tagName) {
 
 }
 function Show-InstallProgress([int]$step, [string]$status) {
-    Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v4.2' -Status "Etapa $($step + 1) de 7: $status" -PercentComplete ([int](100 * $step / 7))
+    Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v4.3' -Status "Etapa $($step + 1) de 7: $status" -PercentComplete ([int](100 * $step / 7))
     Write-Host "[$($step + 1)/7] $status"
 }
 function Read-EmbeddedArchive([string]$file, [string]$destination) {
@@ -121,12 +138,13 @@ $ownsInstall=$false
 try{
     try{$ownsInstall=$installMutex.WaitOne(0)}catch [Threading.AbandonedMutexException]{$ownsInstall=$true}
     if(-not $ownsInstall){throw 'Ya hay otra instalacion de iWinInstaller en curso.'}
-$tag = 'v4.2'
+$tag = 'v4.3'
 $tmp = Join-Path $env:TEMP ('iWinInstaller-' + [Guid]::NewGuid().ToString())
 New-Item -ItemType Directory $tmp -Force | Out-Null
 $archive = Join-Path $tmp 'iWinInstaller.zip'
-if($env:IWIN_SOURCE_DIRECTORY){
-    $src=Get-Item (Join-Path $env:IWIN_SOURCE_DIRECTORY 'iWinInstaller.ps1') -ErrorAction Stop
+if(-not $SourceDirectory){$SourceDirectory=$env:IWIN_SOURCE_DIRECTORY}
+if($SourceDirectory){
+    $src=Get-Item (Join-Path $SourceDirectory 'iWinInstaller.ps1') -ErrorAction Stop
     Show-InstallProgress 4 'Preparando la primera instalacion desde la copia verificada'
 }else{
 Show-InstallProgress 0 'Comprobando el paquete incluido'
@@ -181,8 +199,8 @@ foreach ($l in $Links) {
     $s.Description = 'Instala aplicaciones para Windows'
     $s.Save()
 }
-# Registro por usuario en Aplicaciones instaladas: sin permisos globales ni instalaciones duplicadas.
-$registration='HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\iWinInstaller'
+# Registro del equipo en Aplicaciones instaladas (desde v4.3).
+$registration=$Registration
 if(-not (Test-Path $registration)){New-Item $registration -Force | Out-Null}
 $native=Join-Path $Dir 'iWinInstaller.exe'
 $uninstallCommand=if(Test-Path $native){'"'+$native+'" --uninstall'}else{'"'+$ps+'" -NoProfile -ExecutionPolicy Bypass -File "'+(Join-Path $Dir 'install.ps1')+'" -Uninstall'}
@@ -190,6 +208,14 @@ $properties=@{DisplayName='iWinInstaller';DisplayVersion=$tag.TrimStart('v');Pub
 foreach($name in $properties.Keys){Set-ItemProperty $registration -Name $name -Value $properties[$name] -Type String -ErrorAction Stop}
 Set-ItemProperty $registration -Name NoModify -Value 1 -Type DWord
 Set-ItemProperty $registration -Name NoRepair -Value 1 -Type DWord
+# Migracion desde la instalacion por usuario: se retira solo despues de instalar y registrar la nueva.
+if ((Test-Path $LegacyDir) -and ([IO.Path]::GetFullPath($LegacyDir).TrimEnd('\') -ne [IO.Path]::GetFullPath($Dir).TrimEnd('\'))) {
+    Show-InstallProgress 6 'Retirando la instalacion anterior por usuario (se conservan notas, perfiles y lotes)'
+    try { Wait-InstallerProcesses $LegacyDir; Remove-InstallerDirectory $LegacyDir }
+    catch { Write-Host 'La copia anterior sigue en uso; se retirara al reinstalar. La nueva version ya esta instalada.' }
+}
+Remove-Item $LegacyRegistration -Recurse -Force -ErrorAction SilentlyContinue
+if ($LegacyStartLink -ne $StartLink) { Remove-Item $LegacyStartLink -ErrorAction SilentlyContinue }
 $prefsPath=Join-Path (Join-Path $env:LOCALAPPDATA 'iWinInstaller') 'preferencias.json'
 if((Test-Path $prefsPath) -and (Test-Path (Join-Path $Dir 'lifecycle.ps1'))){
     try{
@@ -197,10 +223,14 @@ if((Test-Path $prefsPath) -and (Test-Path (Join-Path $Dir 'lifecycle.ps1'))){
         if($preferences.autoUpdate -eq $true){. (Join-Path $Dir 'lifecycle.ps1');Set-IwinAutoUpdate $true}
     }catch{Write-Host 'La app esta instalada. No se pudo renovar la tarea de actualizacion; revisala desde la app.'}
 }
-Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v4.2' -Completed
+Write-Progress -Id 1 -Activity 'Instalando iWinInstaller v4.3' -Completed
 Write-Host '[7/7] Instalacion completada.'
 Write-Host "iWinInstaller $tag instalado en $Dir"
 Write-Host 'Accesos directos creados en el menu Inicio y en el Escritorio.'
-if (-not $Silent) { if (Test-Path (Join-Path $Dir 'iWinInstaller.exe')) { Start-Process (Join-Path $Dir 'iWinInstaller.exe') } else { Start-Process $ps -ArgumentList $args0 } }
+if (-not $Silent) {
+    # El instalador corre como administrador; la app se abre sin elevacion a traves del Explorador
+    if (Test-Path (Join-Path $Dir 'iWinInstaller.exe')) { Start-Process explorer.exe -ArgumentList ('"' + (Join-Path $Dir 'iWinInstaller.exe') + '"') }
+    else { Start-Process $ps -ArgumentList $args0 }
+}
 
 }finally{if($ownsInstall){$installMutex.ReleaseMutex()};$installMutex.Dispose()}

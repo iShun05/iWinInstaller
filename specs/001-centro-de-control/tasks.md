@@ -90,16 +90,20 @@ a `src/ui/`. `lifecycle.ps1` se mantiene hasta v5.0 (T089).
 
 **Independent Test**: instalar sobre una v4.2 por usuario con perfiles y notas (ver quickstart).
 
-- [ ] T026 [US1] Prueba de migración en `tests/check-migration.ps1` (datos intactos, carpeta antigua eliminada solo tras verificar la nueva, permisos de escritura denegados sin elevación)
-- [ ] T027 [US1] Instalación en `%ProgramFiles%\iWinInstaller` con una UAC y migración desde `%LOCALAPPDATA%\Programs\iWinInstaller` en `native/Launcher.cs` e `install.ps1`
-- [ ] T028 [US1] Registro en Aplicaciones instaladas por equipo y accesos del menú Inicio para todos los usuarios en `native/Launcher.cs`
-- [ ] T029 [US1] Actualizador: tarea como SYSTEM solo con firma verificada; sin firma, pide UAC (R4) en `lifecycle.ps1` → `src/engine/Iwin.Batch.psm1` (función de actualización)
-- [ ] T030 [US1] Paso de firma con SignPath en `.github/workflows/release.yml` para `iWinInstaller.exe`, `iWinInstaller-Setup.exe` y lanzador; omitido con aviso si la solicitud no está aprobada
-- [ ] T031 [US1] Comprobación de firma de los artefactos en `tests/check-release.ps1`
-- [ ] T032 [US1] Actualizar `SECURITY.md` (nuevo modelo de instalación y firma) y la sección Descargar e instalar de `README.md`
-- [ ] T033 [US1] Publicar **v4.3** (CHANGELOG, README, tag, release, Obsidian)
+- [x] T026 [US1] Prueba de migración en `tests/check-migration.ps1` (datos intactos, carpeta antigua eliminada solo tras verificar la nueva, permisos de escritura denegados sin elevación)
+- [x] T027 [US1] Instalación en `%ProgramFiles%\iWinInstaller` con una UAC y migración desde `%LOCALAPPDATA%\Programs\iWinInstaller` en `native/Launcher.cs` e `install.ps1`
+- [x] T028 [US1] Registro en Aplicaciones instaladas por equipo y accesos del menú Inicio para todos los usuarios en `native/Launcher.cs`
+- [x] T029 [US1] Actualizador: tarea como SYSTEM solo con firma verificada; sin firma, pide UAC (R4) en `lifecycle.ps1` → `src/engine/Iwin.Batch.psm1` (función de actualización)
+- [ ] T030 [US1] (PENDIENTE: espera la aprobación de SignPath) Paso de firma con SignPath en `.github/workflows/release.yml` para `iWinInstaller.exe`, `iWinInstaller-Setup.exe` y lanzador; omitido con aviso si la solicitud no está aprobada
+- [x] T031 [US1] Comprobación de firma de los artefactos en `tests/check-release.ps1`
+- [x] T032 [US1] Actualizar `SECURITY.md` (nuevo modelo de instalación y firma) y la sección Descargar e instalar de `README.md`
+- [x] T033 [US1] Publicar **v4.3** (CHANGELOG, README, tag, release, Obsidian)
 
-**Checkpoint**: US1 completa.
+**Checkpoint**: US1 completa salvo la firma (T030), que depende de SignPath.
+
+**Hecho en v4.3**: la prueba de migración está en `tests/check-native.ps1` (no en un
+`check-migration.ps1` aparte). La tarea de actualización corre como SYSTEM con SHA256 de la release;
+la comprobación de editor se añadirá con la firma.
 
 ---
 

@@ -8,6 +8,15 @@ BeforeDiscovery {
         ForEach-Object { @{ Path = $_.FullName; Name = $_.FullName.Substring($root.Path.Length + 1) } }
 }
 
+Describe 'Finales de línea de los BAT' {
+    It '<Name> usa CRLF (cmd.exe ejecuta mal un BAT con LF)' -ForEach @(
+        Get-ChildItem (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')) -Filter *.bat -File | ForEach-Object { @{ Path = $_.FullName; Name = $_.Name } }
+    ) {
+        $text = [IO.File]::ReadAllText($Path)
+        ($text -replace "`r`n", '') -match "`n" | Should -BeFalse
+    }
+}
+
 Describe 'Sintaxis de PowerShell 5.1' {
     It 'se ejecuta en Windows PowerShell 5.1' {
         $PSVersionTable.PSVersion.Major | Should -Be 5

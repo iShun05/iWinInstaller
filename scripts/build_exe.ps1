@@ -45,6 +45,6 @@ try {
 $hash=Join-Path $OutputDirectory 'payload.sha256'
 (Get-FileHash $zip).Hash.ToLowerInvariant() | Set-Content $hash -Encoding ASCII
 $setup=Join-Path $OutputDirectory 'iWinInstaller-Setup.exe'
-& $compiler /nologo /target:winexe /platform:anycpu /optimize+ /codepage:65001 "/win32manifest:$root\native\app.manifest" /define:SETUP @references "/win32icon:$root\assets\icon.ico" "/resource:$zip,payload.zip" "/resource:$hash,payload.sha256" "/out:$setup" $source
+& $compiler /nologo /target:winexe /platform:anycpu /optimize+ /codepage:65001 "/win32manifest:$root\native\setup.manifest" /define:SETUP @references "/win32icon:$root\assets\icon.ico" "/resource:$zip,payload.zip" "/resource:$hash,payload.sha256" "/out:$setup" $source
 if ($LASTEXITCODE) { throw 'No se pudo compilar el instalador.' }
 Write-Host "EXE y ZIP listos en $OutputDirectory"

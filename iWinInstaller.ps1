@@ -31,7 +31,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v4.2'
+$Version = 'v4.3'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -99,10 +99,14 @@ if ($Resume) {
 
 if ($AutoUpdate) {
     try {
-        $prefsPath=Join-Path $LogDir 'preferencias.json'
-        if(-not (Test-Path $prefsPath)){exit 0}
-        $automatic=(Get-Content $prefsPath -Raw -Encoding UTF8 | ConvertFrom-Json).autoUpdate
-        if($automatic -isnot [bool] -or -not $automatic){exit 0}
+        # Como SYSTEM (tarea de v4.3+) la existencia de la tarea ya es el consentimiento del usuario;
+        # con el usuario se sigue respetando su preferencia guardada.
+        if(-not (Test-IwinSystemAccount)){
+            $prefsPath=Join-Path $LogDir 'preferencias.json'
+            if(-not (Test-Path $prefsPath)){exit 0}
+            $automatic=(Get-Content $prefsPath -Raw -Encoding UTF8 | ConvertFrom-Json).autoUpdate
+            if($automatic -isnot [bool] -or -not $automatic){exit 0}
+        }
         Clear-IwinUpdateDownloads
         if(Test-IwinAppOpen){Write-Log 'Actualización pospuesta: iWinInstaller está abierto.';exit 0}
         if(Update-Self){exit 0}else{exit 1}

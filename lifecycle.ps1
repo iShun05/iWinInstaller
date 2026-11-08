@@ -597,21 +597,41 @@ function Complete-IwinItem($app, [bool]$ok, [scriptblock]$onProgress) {
     }
     if ($onProgress) { & $onProgress $app $ok }
 }
+# Desde v4.3 la app vive en Program Files (solo administradores pueden modificarla).
+# IWIN_INSTALL_DIR solo lo usan las pruebas aisladas.
+function Get-IwinInstallDir {
+    if ($env:IWIN_INSTALL_DIR) { return $env:IWIN_INSTALL_DIR }
+    $programFiles = if ($env:ProgramW6432) { $env:ProgramW6432 } else { $env:ProgramFiles }
+    Join-Path $programFiles 'iWinInstaller'
+}
+function Get-IwinLegacyInstallDir { Join-Path $env:LOCALAPPDATA 'Programs\iWinInstaller' }
+function Test-IwinSystemAccount { [Security.Principal.WindowsIdentity]::GetCurrent().IsSystem }
 function Set-IwinAutoUpdate([bool]$enabled) {
     $name='iWinInstaller actualizaciones'
+    $admin=([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if(-not $admin){
+        # La tarea corre como SYSTEM para poder sustituir la app en Program Files: crearla o quitarla pide permiso una vez
+        $script=Join-Path $PSScriptRoot 'lifecycle.ps1'
+        $command=". '$($script -replace "'","''")'; Set-IwinAutoUpdate `$$enabled"
+        $encoded=[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes('$ErrorActionPreference=''Stop''; '+$command))
+        try{$process=Start-Process powershell -Verb RunAs -WindowStyle Hidden -PassThru -Wait -ArgumentList @('-NoProfile','-ExecutionPolicy','Bypass','-EncodedCommand',$encoded)}
+        catch{throw 'Se necesita permiso de administrador para cambiar las actualizaciones automáticas.'}
+        if($process.ExitCode -ne 0){throw 'No se pudo cambiar la tarea de actualización automática.'}
+        return
+    }
     if(-not $enabled){Unregister-ScheduledTask -TaskName $name -Confirm:$false -ErrorAction SilentlyContinue;return}
-    $exe=Join-Path $env:LOCALAPPDATA 'Programs\iWinInstaller\iWinInstaller.exe'
+    $exe=Join-Path (Get-IwinInstallDir) 'iWinInstaller.exe'
     if(-not (Test-Path $exe)){throw 'Instala iWinInstaller antes de activar sus actualizaciones automáticas.'}
-    $sid=[Security.Principal.WindowsIdentity]::GetCurrent().User.Value
     $action=New-ScheduledTaskAction -Execute $exe -Argument '--update-only'
     $daily=New-ScheduledTaskTrigger -Daily -At ([datetime]::Today.AddHours(16))
-    $logon=New-ScheduledTaskTrigger -AtLogOn -User $sid
-    $principal=New-ScheduledTaskPrincipal -UserId $sid -LogonType Interactive -RunLevel Limited
+    $logon=New-ScheduledTaskTrigger -AtLogOn
+    # SYSTEM sin sesión interactiva: solo ejecuta el actualizador instalado, que verifica SHA256 de la release oficial
+    $principal=New-ScheduledTaskPrincipal -UserId 'S-1-5-18' -LogonType ServiceAccount -RunLevel Highest
     $settings=New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 25)
     Register-ScheduledTask -TaskName $name -Action $action -Trigger $daily,$logon -Principal $principal -Settings $settings -Description 'Actualiza solo iWinInstaller desde su release pública verificada; no instala ni actualiza otras aplicaciones.' -Force -ErrorAction Stop | Out-Null
 }
 function Test-IwinAppOpen {
-    $installed=Join-Path $env:LOCALAPPDATA 'Programs\iWinInstaller\iWinInstaller.exe'
+    $installed=Join-Path (Get-IwinInstallDir) 'iWinInstaller.exe'
     foreach($process in @(Get-Process -Name iWinInstaller -ErrorAction SilentlyContinue)){
         if($env:IWIN_HOST_PID -and $process.Id -eq [int]$env:IWIN_HOST_PID){continue}
         try{if($process.Path -eq $installed){return $true}}catch{}

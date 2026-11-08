@@ -9,8 +9,12 @@ if ($LASTEXITCODE) { throw 'No se pudo empaquetar la app' }
 & python (Join-Path $root 'scripts/build_installer.py') $zip $bat
 if ($LASTEXITCODE) { throw 'No se pudo construir el BAT' }
 $previous=$env:LOCALAPPDATA; $previousSetup=$env:IWIN_SETUP_FILE
+$testKey='HKCU:\Software\iWinInstaller-prueba-'+[guid]::NewGuid().ToString('N')
 try {
     $env:LOCALAPPDATA=Join-Path $fixture 'local'
+    # Instalación aislada: carpeta y registro de prueba en lugar de Program Files y HKLM
+    $env:IWIN_INSTALL_DIR=Join-Path $fixture 'programa'
+    $env:IWIN_REGISTRATION_KEY=$testKey
     $env:IWIN_SETUP_FILE=$bat
     # Cualquier intento de acceso remoto en esta ruta debe fallar la prueba.
     function Invoke-WebRequest { throw 'El paquete incluido no debe descargar nada' }
@@ -19,12 +23,14 @@ try {
     $text=[IO.File]::ReadAllText($bat)
     $start=$text.IndexOf('#INSTALL'+'_PS1#'); $end=$text.IndexOf('#PAYLOAD'+'_ZIP#')
     & ([scriptblock]::Create($text.Substring($start,$end-$start))) -Silent
-    $installed=Join-Path $env:LOCALAPPDATA 'Programs/iWinInstaller'
+    $installed=$env:IWIN_INSTALL_DIR
     if (-not (Test-Path (Join-Path $installed 'iWinInstaller.ps1'))) { throw 'No se instalo la app incluida' }
     $expectedVersion = [regex]::Match((Get-Content (Join-Path $root 'iWinInstaller.ps1') -Raw -Encoding UTF8), '(?m)^\$Version = ''(v\d+\.\d+)''').Groups[1].Value
     if (-not $expectedVersion -or (Get-Content (Join-Path $installed 'instalado.txt') -Raw).Trim() -ne $expectedVersion) { throw 'Version instalada incorrecta' }
     Write-Host 'OK: instalacion completa desde BAT incluido, sin descarga ni inicio de sesion.'
 } finally {
     $env:LOCALAPPDATA=$previous; $env:IWIN_SETUP_FILE=$previousSetup
+    Remove-Item Env:IWIN_INSTALL_DIR, Env:IWIN_REGISTRATION_KEY -ErrorAction SilentlyContinue
+    Remove-Item $testKey -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item $fixture -Recurse -Force -ErrorAction SilentlyContinue
 }
