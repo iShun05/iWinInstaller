@@ -24,7 +24,7 @@ namespace IWinInstaller.App.Shell
                 case "maintenance.clean": return OpenUri("ms-settings:storagesense");
                 case "maintenance.battery": return OpenUri("ms-settings:batterysaver");
                 case "maintenance.health": return OpenUri("ms-settings:disksandvolumes");
-                case "updates.open":
+                case "updates.open": _navigate("updates"); return true;
                 case "install.open":
                 case "install.resume":
                 case "security.open":

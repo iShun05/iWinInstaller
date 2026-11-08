@@ -4,7 +4,10 @@
 #   Iniciar.bat                                   ventana
 #   iWinInstaller.ps1 -Check [-Json]              informe ✓/✗ en consola (o JSON, ver docs/cli.md)
 #   iWinInstaller.ps1 -Silent [-Perfil Gaming]    instala un perfil sin ventana
-#   iWinInstaller.ps1 -Update                     actualiza las aplicaciones instaladas
+#   iWinInstaller.ps1 -Update [-Scheduled]        actualiza las aplicaciones instaladas (respeta exclusiones)
+#   iWinInstaller.ps1 -Updates -List [-Json]      lista las actualizaciones disponibles
+#   iWinInstaller.ps1 -Updates -Exclude <id>      mantiene una app en su versión (-Include la vuelve a actualizar)
+#   iWinInstaller.ps1 -Status [-Json]             estado del PC (tarjetas del motor)
 #   iWinInstaller.ps1 -Silent -Perfil mi.iwin.json instala un perfil exportado desde la ventana
 param(
     [switch]$Check,
@@ -20,6 +23,13 @@ param(
     [switch]$Resume,
     [switch]$AutoUpdate,
     [switch]$Json,
+    # Actualizaciones (v4.5): -Updates -List | -Exclude <id> | -Include <id>; -Update -Scheduled; -Status
+    [switch]$Updates,
+    [switch]$List,
+    [string]$Exclude,
+    [string]$Include,
+    [switch]$Scheduled,
+    [switch]$Status,
     # Contrato interfaz ↔ motor (specs/001-centro-de-control/contracts/engine.md)
     [string]$EngineCommand,
     [string]$EngineRequest,
@@ -31,14 +41,14 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v4.4'
+$Version = 'v4.5'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
 $Apps = @(Get-Content (Join-Path $Root 'apps.json') -Raw -Encoding UTF8 | ConvertFrom-Json | ForEach-Object { $_ })
 $Profiles = Get-Content (Join-Path $Root 'profiles.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $ReleaseApi = 'https://api.github.com/repos/iShun05/iWinInstaller/releases/latest'
-$UI = -not ($Check -or $Silent -or $Update -or $WorkerMode -or $Resume -or $AutoUpdate -or $EngineCommand)
+$UI = -not ($Check -or $Silent -or $Update -or $WorkerMode -or $Resume -or $AutoUpdate -or $EngineCommand -or $Updates -or $Status)
 
 # Registro en archivo: %LOCALAPPDATA%\iWinInstaller\iWinInstaller_AAAA-MM-DD.log
 $LogDir = Join-Path $env:LOCALAPPDATA 'iWinInstaller'
@@ -147,8 +157,38 @@ if ($Check) {
     exit $missing.Count
 }
 
+if ($Update -and $Scheduled) {
+    # Tarea programada: todo lo que ofrece WinGet salvo excluidas y asistentes; no reinicia ni se actualiza a sí misma
+    Write-Log "Actualización programada (iWinInstaller $Version)"
+    if (-not (Ensure-Winget)) { exit 1 }
+    $updateList = Get-IwinUpdateList
+    if ($null -eq $updateList) { Write-Log 'No se pudieron comprobar las actualizaciones.'; exit 1 }
+    $results = Invoke-IwinUpgradeIds @($updateList | Where-Object { -not $_.excluded } | ForEach-Object { $_.id }) -Scheduled
+    $failed = @($results.Keys | Where-Object { $results[$_] -eq 'failed' })
+    Write-Log "Actualización programada terminada: $(@($results.Keys).Count - $failed.Count) correctas u omitidas, $($failed.Count) con fallo."
+    exit $failed.Count
+}
+
 if ($Update) {
     if (Invoke-Update) { exit 0 } else { exit 1 }
+}
+
+if ($Updates) {
+    if ($Exclude) { Set-IwinExclusion $Exclude $true; Write-Host "$Exclude se mantiene en su versión."; exit 0 }
+    if ($Include) { Set-IwinExclusion $Include $false; Write-Host "$Include vuelve a actualizarse."; exit 0 }
+    $updateList = Get-IwinUpdateList
+    if ($null -eq $updateList) { if (-not $Json) { Write-Host 'No se pudieron comprobar las actualizaciones (WinGet no respondió).' }; exit 1 }
+    if ($Json) { [Console]::Out.Write((ConvertTo-Json -Depth 5 -InputObject ([ordered]@{ contract = 1; version = $Version; items = @($updateList); schedule = (Get-IwinAppUpdateSchedule) }))); exit 0 }
+    if (-not @($updateList).Count) { Write-Host 'Todo al día.'; exit 0 }
+    foreach ($item in $updateList) { Write-Host ("{0} {1}  {2} → {3}{4}" -f $(if ($item.excluded) { '–' } else { '↑' }), $item.name, $item.installedVersion, $item.availableVersion, $(if ($item.excluded) { '  (excluida)' } else { '' })) }
+    exit 0
+}
+
+if ($Status) {
+    $response = & $IwinEngineCommands['status.collect'] ([pscustomobject]@{ contract = 1 })
+    if ($Json) { [Console]::Out.Write((ConvertTo-Json -Depth 5 -InputObject ([ordered]@{ contract = 1; version = $Version; cards = @($response.cards) }))); exit 0 }
+    foreach ($card in $response.cards) { Write-Host ("{0} {1}{2}" -f $(switch ($card.state) { 'ok' { '✓' } 'attention' { '!' } default { '?' } }), $card.summary, $(if ($card.reason) { " · $($card.reason)" } else { '' })) }
+    exit @($response.cards | Where-Object { $_.state -ne 'ok' }).Count
 }
 
 if ($Silent) {

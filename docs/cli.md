@@ -18,6 +18,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File $iwin -Check
 | `-Silent [-Perfil <nombre o archivo.iwin.json>]` | anterior a v4.2 | Instala un perfil sin ventana |
 | `-Update` | anterior a v4.2 | Actualiza las apps instaladas |
 | `-Resume` | anterior a v4.2 | Continúa el lote pendiente más reciente |
+| `-Updates -List [-Json]` | v4.5 | Lista las apps con versión nueva y si están excluidas |
+| `-Updates -Exclude <id>` / `-Include <id>` | v4.5 | Mantiene una app (id de WinGet) en su versión o la vuelve a actualizar |
+| `-Update -Scheduled` | v4.5 | Lo que ejecuta la actualización programada: todo salvo excluidas y asistentes |
+| `-Status [-Json]` | v4.5 | Tarjetas del Inicio que comprueba el motor (actualizaciones, Windows Update, antivirus, lotes) |
 | `-EngineCommand <comando> -EngineRequest <json> -EngineResponse <json> -EngineEvents <jsonl>` | v4.2 | Contrato con la interfaz (uso interno; ver `specs/001-centro-de-control/contracts/engine.md`) |
 
 `-AutoUpdate`, `-WorkerMode`, `-PlanFile`, `-ResultFile`, `-SharedLog`, `-UpgradePackages` y
@@ -31,6 +35,9 @@ lotes con o sin administrador.
 | `-Check` | Número de apps no opcionales que faltan (0 = todo instalado) |
 | `-Silent`, `-Resume` | Número de apps que fallaron (0 = todo correcto) |
 | `-Update` | 0 correcto, 1 con fallos |
+| `-Update -Scheduled` | Número de apps que fallaron |
+| `-Updates` | 0 correcto, 1 si WinGet no respondió |
+| `-Status` | Número de tarjetas que no están correctas |
 | `-EngineCommand` | 0 correcto, 2 petición no válida, 3 cancelado, 4 elevación rechazada, 10 error interno |
 
 Estos códigos son estables desde v4.2.

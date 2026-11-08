@@ -146,6 +146,11 @@ function Invoke-Update {
     if (-not (Ensure-Winget)) { return $false }
     Update-WingetCache
     $installed = @($Apps | Where-Object { $_.type -in @('winget','wingetall') -and (Test-AppInstalled $_) })
+    # Las apps excluidas en Actualizaciones (v4.5) se mantienen en su versión
+    $excluded = @(Get-IwinExclusions)
+    $kept = @($installed | Where-Object { @($_.winget | Where-Object { $excluded -contains $_ }).Count })
+    if ($kept) { Write-Log "  Se mantienen en su versión (excluidas): $(($kept | ForEach-Object name) -join ', ')" }
+    $installed = @($installed | Where-Object { $kept -notcontains $_ })
     $previousUpgrade = $UpgradePackages
     $script:UpgradePackages = $true
     try { $fail = @(Invoke-Install $installed $null); $ok = $fail.Count -eq 0 }

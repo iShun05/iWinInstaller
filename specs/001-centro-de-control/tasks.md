@@ -132,7 +132,7 @@ la comprobación de editor se añadirá con la firma.
 - [x] T043 [P] [US2] Sondas en C# para espacio, reinicio pendiente, salud básica de discos y batería en `src/app/Probes/`
 - [x] T044 [US2] Modelo `StatusCard` y `HomeViewModel` en `src/app/Modules/Home/` (carga progresiva: inicio utilizable < 2 s)
 - [x] T045 [US2] Vista del inicio con tarjetas y acción asociada en `src/app/Modules/Home/HomeView.xaml`
-- [ ] T046 (v4.5) [US2] `-Status [-Json]` en la CLI sobre `status.collect` en `src/engine/iwin-engine.ps1`
+- [x] T046 (v4.5) [US2] `-Status [-Json]` en la CLI sobre `status.collect` en `src/engine/iwin-engine.ps1`
 - [x] T047 [US2] Medir el tiempo hasta inicio utilizable en `tests/check-native.ps1` (SC-002)
 - [x] T048 [US2] Publicar **v4.4** (CHANGELOG, README Funciones/Tecnología/Estructura, tag, release, Obsidian)
 
@@ -150,15 +150,15 @@ tiempo de arranque (T047) queda en el registro `interfaz.log` de la prueba de CI
 
 **Independent Test**: excluir una de dos apps desactualizadas y actualizar; solo cambia la otra.
 
-- [ ] T049 [P] [US3] Pruebas Pester de exclusiones y filtrado de interactivas en `tests/unit/engine/Updates.Tests.ps1`
-- [ ] T050 [P] [US3] Pruebas del ViewModel en `tests/unit/app/UpdatesViewModelTests.cs`
-- [ ] T051 [US3] `updates.list` y `updates.schedule`, archivo `exclusiones.json` en `src/engine/Iwin.Updates.psm1`
-- [ ] T052 [US3] Respetar exclusiones en `batch.start` con `operation: upgrade` y en `-Update` en `src/engine/Iwin.Batch.psm1`
-- [ ] T053 [US3] Tarea programada opcional (usuario, sin reiniciar, omite interactivas, deja informe) en `src/engine/Iwin.Updates.psm1`
-- [ ] T054 [US3] Módulo Actualizaciones (lista con versiones, marcar, excluir, programar) en `src/app/Modules/Updates/`
-- [ ] T055 [US3] `-Updates -List/-Exclude/-Include` en `src/engine/iwin-engine.ps1` y `docs/cli.md`
-- [ ] T056 [US3] Prueba de aceptación excluir → actualizar en `tests/check-acceptance.ps1`
-- [ ] T057 [US3] Publicar **v4.5**
+- [x] T049 [P] [US3] Pruebas Pester de exclusiones y filtrado de interactivas en `tests/unit/engine/Updates.Tests.ps1`
+- [x] T050 [P] [US3] Pruebas del ViewModel en `tests/unit/app/UpdatesViewModelTests.cs`
+- [x] T051 [US3] `updates.list` y `updates.schedule`, archivo `exclusiones.json` en `src/engine/Iwin.Updates.psm1`
+- [x] T052 [US3] Respetar exclusiones en `batch.start` con `operation: upgrade` y en `-Update` en `src/engine/Iwin.Batch.psm1`
+- [x] T053 [US3] Tarea programada opcional (usuario, sin reiniciar, omite interactivas, deja informe) en `src/engine/Iwin.Updates.psm1`
+- [x] T054 [US3] Módulo Actualizaciones (lista con versiones, marcar, excluir, programar) en `src/app/Modules/Updates/`
+- [x] T055 [US3] `-Updates -List/-Exclude/-Include` en `src/engine/iwin-engine.ps1` y `docs/cli.md`
+- [ ] T056 [US3] (pendiente: cubierto de momento por `Exclusions.Tests.ps1`) Prueba de aceptación excluir → actualizar en `tests/check-acceptance.ps1`
+- [x] T057 [US3] Publicar **v4.5**
 
 **Checkpoint**: US3 completa.
 

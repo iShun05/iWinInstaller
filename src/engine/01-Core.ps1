@@ -10,7 +10,7 @@ function Write-Log($msg) {
     if ($WorkerMode -and $ResultFile -and -not $detail) { Write-WorkerEvent @{message=[string]$msg} }
     if ($detail) { return }
     if ($log) { $log.AppendText("$line`r`n"); $log.ScrollToEnd(); Invoke-UiPump }
-    elseif ($Check) { if (-not $Json) { Write-Host $msg } }  # con -Json la salida estándar es solo el documento
+    elseif ($Check -or $Updates -or $Status) { if (-not $Json) { Write-Host $msg } }  # con -Json la salida estándar es solo el documento
     else { Write-Host $line }
 }
 

@@ -1,5 +1,21 @@
 # Historial de versiones
 
+## v4.5 — 2026-11-08
+
+Quinta versión del camino a v5.0: **Actualizaciones** pasa a la interfaz nueva, y ahora ves y decides qué se actualiza.
+
+### Añadido
+- **Actualizaciones**: lista de las apps con versión nueva (instalada → disponible), con casillas para elegir cuáles y **Actualizar seleccionadas**. Las que necesitan su asistente lo avisan. El progreso y el resultado aparecen en cada fila, y se puede cancelar.
+- **«Mantener esta versión»**: excluye una app de forma persistente (`%LOCALAPPDATA%\iWinInstaller\exclusiones.json`). Se respeta en la lista, en **Actualizar todo** de la ventana clásica, en `-Update` y en la actualización programada.
+- **Actualización programada (opcional, desactivada)**: cada día o cada domingo a la hora que elijas. Corre con tu usuario, omite las excluidas y las que necesitan asistente, no reinicia Windows y deja el informe.
+- **Línea de comandos**: `-Updates -List [-Json]`, `-Updates -Exclude <id>` / `-Include <id>`, `-Update -Scheduled` y `-Status [-Json]` (las tarjetas del Inicio). Documentado en `docs/cli.md`.
+- La tarjeta **Actualizaciones de apps** del Inicio abre ya esta sección.
+
+### Archivos y pruebas
+- `src/engine/10-Updates.ps1` (exclusiones, lista, aplicar, programar y comandos `updates.*`), `06-Tweaks.ps1` (`-Update` respeta exclusiones), `iWinInstaller.ps1` (parámetros nuevos), `src/app/Modules/Updates/**`, `Core/Converters.cs`, navegación.
+- Pester: exclusiones (guardar, quitar, archivo dañado, ids no válidos), lista vacía frente a «no se pudo comprobar» y omisión de excluidas e interactivas en modo programado. MSTest: lectura de la lista y de la programación, y resultados por app.
+- **Afecta a Windows x86/x64/ARM64 por igual**. CI en x64 y ARM64 y proceso x86.
+
 ## v4.4 — 2026-11-08
 
 Cuarta versión del camino a v5.0: primera pantalla de la **interfaz nueva**, con el estado del PC.

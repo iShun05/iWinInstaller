@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using IWinInstaller.App.Core;
 using IWinInstaller.App.Engine;
 using IWinInstaller.App.Modules.Home;
+using IWinInstaller.App.Modules.Updates;
 
 namespace IWinInstaller.App.Shell
 {
@@ -38,12 +39,13 @@ namespace IWinInstaller.App.Shell
             Engine = new EngineClient(root);
             Legacy = new LegacyBridge(root);
             Home = new HomeViewModel(Engine, dispatcher);
+            Updates = new UpdatesViewModel(Engine, dispatcher);
             Router = new ActionRouter(Legacy, Navigate);
             Items = new ObservableCollection<NavItem>
             {
                 new NavItem("home", "Inicio", "Estado del PC de un vistazo.", false),
                 new NavItem("install", "Instalar", "Catálogo, perfiles, guías después de instalar e informe.", true),
-                new NavItem("updates", "Actualizaciones", "Actualizar las apps instaladas.", true),
+                new NavItem("updates", "Actualizaciones", "Versiones nuevas, exclusiones y actualización programada.", false),
                 new NavItem("system", "Sistema", "Ajustes de Windows, pantalla y energía.", true),
                 new NavItem("remote", "Acceso remoto", "Escritorio remoto, SSH y vincular equipos.", true),
                 new NavItem("security", "Seguridad", "Microsoft Defender y antivirus.", true)
@@ -64,6 +66,7 @@ namespace IWinInstaller.App.Shell
         public EngineClient Engine { get; private set; }
         public LegacyBridge Legacy { get; private set; }
         public HomeViewModel Home { get; private set; }
+        public UpdatesViewModel Updates { get; private set; }
         public ActionRouter Router { get; private set; }
         public ObservableCollection<NavItem> Items { get; private set; }
         public RelayCommand OpenActionCommand { get; private set; }
@@ -76,9 +79,16 @@ namespace IWinInstaller.App.Shell
         public NavItem Selected
         {
             get { return _selected; }
-            set { if (value != null && Set(ref _selected, value)) { OnPropertyChanged("IsHome"); OnPropertyChanged("IsClassicPage"); } }
+            set
+            {
+                if (value == null || !Set(ref _selected, value)) return;
+                OnPropertyChanged("IsHome"); OnPropertyChanged("IsClassicPage"); OnPropertyChanged("PageId");
+                if (value.Id == "updates") Updates.EnsureLoaded();
+            }
         }
         public bool IsHome { get { return Selected != null && Selected.Id == "home"; } }
+        /// <summary>Id de la página activa (para mostrar su vista).</summary>
+        public string PageId { get { return Selected == null ? "" : Selected.Id; } }
         public bool IsClassicPage { get { return Selected != null && Selected.IsClassic; } }
 
         public double Zoom
