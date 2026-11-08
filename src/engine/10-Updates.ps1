@@ -44,8 +44,9 @@ function Get-IwinAvailableUpdates([int]$timeoutSec = 180) {
         if (-not $p.WaitForExit($timeoutSec * 1000)) { try { $p.Kill() } catch { }; return $null }
         if (-not (Test-Path $out)) { return $null }
         $lines = [IO.File]::ReadAllLines($out, [Text.Encoding]::UTF8)
-        # Sin actualizaciones winget no imprime tabla: es un resultado válido (lista vacía)
-        @(ConvertFrom-WingetTable $lines)
+        # Sin actualizaciones winget no imprime tabla: es un resultado válido (lista vacía).
+        # La coma conserva la lista vacía: sin ella PowerShell devolvería $null («no se pudo comprobar»)
+        return ,@(ConvertFrom-WingetTable $lines)
     } catch { $null }
     finally { Remove-Item $out -Force -ErrorAction SilentlyContinue }
 }

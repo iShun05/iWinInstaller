@@ -39,6 +39,13 @@ Describe 'ConvertFrom-WingetTable' {
         $rows[0].Version | Should -Be '14.38.0'
     }
 
+    It 'una lista vacía llega como lista vacía, no como $null' {
+        function Get-Vacia { return ,@(ConvertFrom-WingetTable @('No hay nada')) }
+        $result = Get-Vacia
+        $null -eq $result | Should -BeFalse
+        @($result).Count | Should -Be 0
+    }
+
     It 'sin tabla devuelve una lista vacía' {
         @(ConvertFrom-WingetTable @('No installed package found matching input criteria.')).Count | Should -Be 0
     }
@@ -61,7 +68,7 @@ Describe 'Tarjeta de actualizaciones' {
     }
 
     It 'sin actualizaciones queda al día' {
-        function Get-IwinAvailableUpdates { @() }
+        function Get-IwinAvailableUpdates { ,@() }
         (Get-IwinUpdatesCard).state | Should -Be 'ok'
     }
 }
