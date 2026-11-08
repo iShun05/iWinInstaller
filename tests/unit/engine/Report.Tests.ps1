@@ -25,7 +25,7 @@ Describe 'Motivo del informe' {
             'The current system configuration does not support the installation of this package.',
             'pwsh · codigo -1978334957 · 2.5 s'
         )
-        (Select-IwinKeyLines $segment)[0] | Should -Be 'The current system configuration does not support the installation of this package.'
+        @(Select-IwinKeyLines $segment)[0] | Should -Be 'The current system configuration does not support the installation of this package.'
     }
 
     It 'salta la frase genérica de WinGet y deja el detalle' {
