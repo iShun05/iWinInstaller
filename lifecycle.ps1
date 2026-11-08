@@ -698,6 +698,13 @@ function Get-IwinCodeHint($code) {
         -1978334969 { return @('No hay conexión a internet.', 'Conéctate y reintenta.') }
         -1978334964 { return @('Se canceló el instalador.', 'Reintenta y completa el asistente si aparece.') }
         -1978334963 { return @('Ya hay otra versión instalada.', 'Pulsa Verificar; si no aparece, desinstala la versión anterior y reintenta.') }
+        -1978334957 { return @('Este Windows no admite el instalador que ofrece WinGet para este paquete.', 'iWinInstaller ya prueba el paquete MSIX oficial cuando existe. Si sigue fallando, instálalo desde Microsoft Store.') }
+        # Errores de red de Windows (WinINet) al descargar el instalador
+        -2147012867 { return @('No se pudo conectar con el servidor de descarga del fabricante.', 'Comprueba la conexión, la VPN, el proxy o el cortafuegos y reintenta. iWinInstaller ya lo reintenta una vez.') }
+        -2147012889 { return @('No se pudo resolver la dirección del servidor de descarga.', 'Comprueba la conexión o el DNS y reintenta.') }
+        -2147012894 { return @('La descarga tardó demasiado en responder.', 'Reintenta; si la red es lenta o filtrada, prueba con otra conexión.') }
+        -2147012866 { return @('Se cortó la conexión durante la descarga.', 'Reintenta; si se repite, prueba con otra red.') }
+        -2147012721 { return @('Falló la conexión segura con el servidor de descarga.', 'Comprueba que la fecha y la hora de Windows son correctas y reintenta.') }
         -1 { return @('El instalador no respondió a tiempo.', 'Puede haberse quedado esperando en una ventana. Reintenta y revisa si aparece un asistente.') }
         1602 { return @('Se canceló el instalador.', 'Reintenta y complétalo.') }
         1603 { return @('El instalador (MSI) terminó con un error grave.', 'Reinicia Windows y reintenta.') }
@@ -738,8 +745,10 @@ function Get-IwinAppLogSegment([string[]]$lines, [string]$name) {
 function Select-IwinKeyLines([string[]]$segment) {
     $noise = '(?i)^(This application is licensed|Microsoft is not responsible|This package (requires|is provided)|Downloading https?://|Successfully (verified|extracted|installed)|Extracting archive|Starting package install|Found .+\[.+\]|Name\s+Id|Version\b|-{3,}|License|Privacy Url|Agreements|Category|Pricing|Free Trial|Terms of Transaction|Seizure Warning|Store License|Publisher|MSI \(s\)|Property\(S\)|Command line alias added|Path environment variable|\S+ · (Descargando|Instalando|Verificando|Desinstalando)…$|[-\\|/\s█▒\d.,%KMGBkmgb]+$)'
     $clean = @($segment | Where-Object { $_ -and $_ -notmatch $noise -and $_ -notmatch ' · codigo 0 · ' })
-    $key = @($clean | Where-Object { $_ -match '(?i)fail|error|denied|denegad|no se |cannot|could not|unable|hash|blocked|bloque|timeout|sin respuesta|requiere|reinicia|necesita|asistente|permiso|0x[0-9a-f]{8}|codigo -?[1-9]|código -?[1-9]' })
-    $pick = if ($key.Count) { $key } else { $clean }
+    $key = @($clean | Where-Object { $_ -match '(?i)not support|no admite|fail|error|denied|denegad|no se |cannot|could not|unable|hash|blocked|bloque|timeout|sin respuesta|requiere|reinicia|necesita|asistente|permiso|0x[0-9a-f]{8}|codigo -?[1-9]|código -?[1-9]' })
+    # El mensaje del instalador explica más que nuestra línea de resumen «app · codigo N · s»
+    $specific = @($key | Where-Object { $_ -notmatch ' · codigo -?\d+ · ' -and $_ -notmatch '(?i)^An unexpected error occurred while executing the command:?$' })
+    $pick = if ($specific.Count) { $specific } elseif ($key.Count) { $key } else { $clean }
     return @($pick | Select-Object -Last 6 | ForEach-Object { if ($_.Length -gt 240) { $_.Substring(0, 240) + '…' } else { $_ } })
 }
 function Get-IwinFailureInfo($app, $result, [string[]]$lines) {
