@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/iShun05/iWinInstaller/src/catalog/schema/profiles.schema.json",
+  "title": "Perfiles de iWinInstaller",
+  "description": "Cada perfil es una lista de ids de app, nombres de grupo, «@Sección», «*» (todo) o «@hardware» (detectado).",
+  "type": "object",
+  "minProperties": 1,
+  "required": ["Manual"],
+  "additionalProperties": {
+    "type": "array",
+    "uniqueItems": true,
+    "items": { "type": "string", "minLength": 1 }
+  }
+}

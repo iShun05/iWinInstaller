@@ -1,5 +1,26 @@
 # Historial de versiones
 
+## v4.1 — 2026-11-08
+
+Primera versión del camino a v5.0 (plan en `specs/001-centro-de-control/`). No cambia nada de lo que ves en la app: refuerza cómo se comprueba y se publica cada versión.
+
+### Añadido
+- **Licencia MIT** (`LICENSE`). Es requisito para pedir la firma gratuita de SignPath Foundation, que quitará el aviso «Editor desconocido» de SmartScreen.
+- **Política de firma de código** en `docs/code-signing-policy.md`, enlazada desde README y SECURITY.
+- **Esquemas del catálogo** (`src/catalog/schema/apps.schema.json` y `profiles.schema.json`): cada entrada se valida antes de publicar. Se rechazan los campos desconocidos (erratas), las apps de WinGet sin id, las descargas directas sin firma esperada y las subsecciones sin comparativa.
+- **Pruebas unitarias con Pester 5** (`tests/unit/`): sintaxis de todos los scripts con el analizador de PowerShell 5.1, esquema del catálogo, ids únicos, dependencias y perfiles que apuntan a entradas existentes.
+- **Comprobación de la release publicada** (`tests/check-release.ps1`): la release es la última, tiene notas y sus tres descargas, cada huella SHA256 coincide con la que publica GitHub y los enlaces fijos del README responden.
+
+### Mejorado
+- **Publicación**: la prueba `unit` pasa a ser la octava puerta obligatoria, y un job `verify` comprueba la release justo después de publicarla.
+- **Aviso de releases que faltan**: el workflow programado `release-check.yml` revisa cada 6 horas que el tag más alto tenga su release. Si falla, GitHub avisa por correo. Esto evita que se repita lo de v3.7–v3.8, cuando los tags no tuvieron release y la actualización siguió ofreciendo v3.6.
+- `windows.yml` y `arm.yml` quedan documentados como diagnósticos que no deciden la publicación. Las 8 puertas no tienen `continue-on-error`.
+- **Afecta a Windows x86/x64/ARM64 por igual**: no cambia el programa, solo la versión visible.
+
+### Archivos y pruebas
+- `LICENSE`, `docs/code-signing-policy.md`, `src/catalog/schema/*.json`, `tests/unit/**`, `tests/check-release.ps1`, `.github/workflows/unit.yml`, `release-check.yml`, `release.yml`, versión en `iWinInstaller.ps1`, `install.ps1`, `native/Launcher.cs` y `tests/check-acceptance.ps1`.
+- Catálogo (427 entradas) y perfiles comprobados contra las reglas del esquema en macOS. Pester y la comprobación de la release se ejecutan en GitHub Actions (Windows y Ubuntu).
+
 ## v4.0 — 2026-11-03
 
 ### Añadido

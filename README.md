@@ -16,7 +16,7 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v4.0** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v4.1** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
@@ -89,7 +89,7 @@ Deshacer quita la tarea; las luces vuelven a su efecto de serie al quitar la cor
 
 ## Tecnología
 
-PowerShell 5.1 y WPF para la interfaz; C# y .NET Framework incluido en Windows para los ejecutables; WinGet y Microsoft Store para los paquetes; Python estándar para construir la alternativa BAT. Sin servicio propio ni telemetría propia. La actualización opcional utiliza una tarea de Windows de tu usuario; permanece desactivada hasta que la habilites.
+PowerShell 5.1 y WPF para la interfaz; C# y .NET Framework incluido en Windows para los ejecutables; WinGet y Microsoft Store para los paquetes; Python estándar para construir la alternativa BAT. Pester 5 y JSON Schema para las pruebas. Sin servicio propio ni telemetría propia. La actualización opcional utiliza una tarea de Windows de tu usuario; permanece desactivada hasta que la habilites.
 
 ## Estructura
 
@@ -101,7 +101,10 @@ PowerShell 5.1 y WPF para la interfaz; C# y .NET Framework incluido en Windows p
 | `install.ps1`, `launch.ps1`, `Iniciar.bat` | Instalación, desinstalación y apertura |
 | `native/` | Lanzador C#, manifiesto y dependencias Microsoft verificadas |
 | `scripts/` | Construcción del EXE y BAT |
-| `tests/` | Pruebas aisladas y aceptación en un Windows desechable |
+| `src/catalog/schema/` | Esquemas que validan el catálogo y los perfiles |
+| `tests/` | Pruebas unitarias (Pester), pruebas aisladas, aceptación en un Windows desechable y comprobación de la release |
+| `docs/` | Política de firma de código |
+| `specs/`, `.specify/` | Especificación y plan del camino a v5.0 (Spec Kit) |
 | `assets/` | Iconos |
 
 ## Compilar e instalar
@@ -111,8 +114,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v4.0
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v4.0
+git checkout v4.1
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v4.1
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -131,7 +134,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v4.0](https://github.com/iShun05/iWinInstaller/releases/tag/v4.0) **(actual)** | 2026-11-03 | MyASUS, G-Helper y OCCT en el catálogo general; puesta a punto de portátiles y guías de GPU | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.0.zip) |
+| [v4.1](https://github.com/iShun05/iWinInstaller/releases/tag/v4.1) **(actual)** | 2026-11-08 | Base de calidad: licencia MIT, esquema del catálogo, pruebas Pester y verificación automática de cada release | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.1.zip) |
+| [v4.0](https://github.com/iShun05/iWinInstaller/releases/tag/v4.0) | 2026-11-03 | MyASUS, G-Helper y OCCT en el catálogo general; puesta a punto de portátiles y guías de GPU | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.0.zip) |
 | [v3.9](https://github.com/iShun05/iWinInstaller/releases/tag/v3.9) | 2026-10-30 | Informe de fallos al terminar la instalación y auditoría: antivirus, códigos de salida, catálogo revisado contra WinGet | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.9.zip) |
 | v3.8 (sin release: incluida en v3.9) | 2026-10-30 | Vincular equipos: controlar el PC desde un Mac u otro Windows por SSH con guía y comandos | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.8.zip) |
 | v3.7 (sin release: incluida en v3.9) | 2026-10-30 | Panel Seguridad (Defender), sección antivirus y arreglos del instalador, directivas de usuario y PowerShell 7 | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.7) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.7.zip) |
@@ -152,6 +156,10 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 | [v2.2](https://github.com/iShun05/iWinInstaller/releases/tag/v2.2) | 2026-10-15 | Auditoría de seguridad: firma del fabricante obligatoria, SHA256 de VirtualBox y procedencia firmada de las descargas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.2) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.2.zip) |
 | [v2.1](https://github.com/iShun05/iWinInstaller/releases/tag/v2.1) | 2026-10-14 | Catálogo en tres secciones (Sistema, Terminal y Aplicaciones), ajustes de Windows y pruebas en ARM64 | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.1.zip) |
 | [v2.0](https://github.com/iShun05/iWinInstaller/releases/tag/v2.0) | 2026-10-14 | Instalador público, escritorio organizado y actividad legible | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v2.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v2.0.zip) |
+
+## Licencia
+
+[MIT](LICENSE). Firma de código: ver la [política de firma](docs/code-signing-policy.md).
 
 ## Contacto
 

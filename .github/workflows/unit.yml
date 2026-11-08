@@ -1,0 +1,29 @@
+name: Pruebas unitarias
+# Puerta de publicación: sintaxis 5.1 de todos los scripts, esquema del catálogo y referencias.
+on:
+  push:
+    branches: [main, 'codex/**']
+    paths: ['*.ps1', 'apps.json', 'profiles.json', 'src/**', 'native/**', 'scripts/**', 'tests/**', '.github/workflows/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit:
+    name: unit
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sintaxis con Windows PowerShell 5.1
+        shell: powershell
+        run: ./tests/unit/run.ps1 -Shell powershell
+      - name: Esquema y referencias del catálogo
+        shell: pwsh
+        run: ./tests/unit/run.ps1 -Shell pwsh
+      - name: Conservar resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pruebas-unitarias
+          path: tests/unit/resultados-*.xml

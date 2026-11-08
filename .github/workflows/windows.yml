@@ -1,4 +1,7 @@
 name: Prueba en Windows
+# Diagnóstico, no decide la publicación: instala de verdad desde internet y sus códigos de salida
+# son informativos (p. ej. -Check sale con el número de apps que faltan). Las puertas de publicación
+# son bootstrap, acceptance, native, x86 y unit, sin continue-on-error.
 on:
   # Solo se prueba cuando cambia el código de la app.
   push:

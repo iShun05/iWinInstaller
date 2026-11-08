@@ -20,5 +20,5 @@ gh attestation verify iWinInstaller-Setup.exe --repo iShun05/iWinInstaller
 ```
 
 ## Límites conocidos
-- Los ejecutables no llevan firma Authenticode propia (requiere un certificado de pago), así que SmartScreen puede avisar.
+- Los ejecutables aún no llevan firma Authenticode, así que SmartScreen puede avisar. Está pedida la firma gratuita de SignPath Foundation para código abierto: ver la [política de firma](docs/code-signing-policy.md).
 - La app se instala por usuario en `%LOCALAPPDATA%\Programs\iWinInstaller`. Un programa malicioso que ya se ejecute con tu usuario podría modificarla antes de que aceptes un aviso de administrador. Es el mismo modelo que otros instaladores por usuario.

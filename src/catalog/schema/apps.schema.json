@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/iShun05/iWinInstaller/src/catalog/schema/apps.schema.json",
+  "title": "Catálogo de iWinInstaller",
+  "type": "array",
+  "minItems": 1,
+  "items": { "$ref": "#/$defs/app" },
+  "$defs": {
+    "nonEmpty": { "type": "string", "minLength": 1 },
+    "stringList": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "app": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "section", "group", "name", "desc", "icon", "type"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "section": { "enum": ["Sistema", "Terminal", "Aplicaciones"] },
+        "group": { "$ref": "#/$defs/nonEmpty" },
+        "subgroup": { "$ref": "#/$defs/nonEmpty" },
+        "subgroupNote": { "$ref": "#/$defs/nonEmpty" },
+        "compare": { "$ref": "#/$defs/nonEmpty" },
+        "name": { "$ref": "#/$defs/nonEmpty" },
+        "desc": { "$ref": "#/$defs/nonEmpty" },
+        "icon": { "$ref": "#/$defs/nonEmpty" },
+        "type": { "enum": ["winget", "wingetall", "tweak", "manual", "download", "vboxga"] },
+        "context": { "enum": ["user", "machine"] },
+        "scope": { "enum": ["user", "machine"] },
+        "source": { "enum": ["winget", "msstore"] },
+        "architecture": { "enum": ["x86", "x64", "arm64"] },
+        "winget": {
+          "oneOf": [
+            { "type": "string", "pattern": "^[^\\s]+$" },
+            { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[^\\s]+$" } }
+          ]
+        },
+        "url": { "type": "string", "pattern": "^https://" },
+        "page": { "type": "string", "pattern": "^https://" },
+        "signer": { "$ref": "#/$defs/nonEmpty" },
+        "detect": { "$ref": "#/$defs/nonEmpty" },
+        "detectNames": { "$ref": "#/$defs/stringList" },
+        "detectPaths": { "$ref": "#/$defs/stringList" },
+        "families": { "$ref": "#/$defs/stringList" },
+        "requires": { "$ref": "#/$defs/stringList" },
+        "commands": { "$ref": "#/$defs/stringList" },
+        "hardware": { "$ref": "#/$defs/nonEmpty" },
+        "extra": { "type": "boolean" },
+        "configure": { "type": "boolean" },
+        "restart": { "type": "boolean" },
+        "keep": { "type": "boolean" },
+        "rgb": { "type": "boolean" },
+        "optin": { "type": "boolean" },
+        "gui": { "type": "boolean" },
+        "noopen": { "type": "boolean" },
+        "interactive": { "type": "boolean" },
+        "postInstall": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["steps", "note"],
+          "properties": {
+            "steps": { "$ref": "#/$defs/stringList" },
+            "note": { "type": "string" },
+            "link": { "type": "string", "pattern": "^https://" },
+            "linkLabel": { "$ref": "#/$defs/nonEmpty" }
+          }
+        }
+      },
+      "allOf": [
+        { "if": { "properties": { "type": { "enum": ["winget", "wingetall"] } } }, "then": { "required": ["winget"] } },
+        { "if": { "properties": { "type": { "const": "download" } } }, "then": { "required": ["url", "signer", "detect"] } },
+        { "if": { "properties": { "type": { "const": "manual" } } }, "then": { "required": ["page"] } },
+        { "if": { "required": ["subgroup"] }, "then": { "required": ["compare"] } }
+      ]
+    }
+  }
+}

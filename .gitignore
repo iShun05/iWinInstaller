@@ -9,3 +9,4 @@ mac/
 *.pem
 .DS_Store
 __pycache__/
+tests/unit/resultados-*.xml

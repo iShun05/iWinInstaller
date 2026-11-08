@@ -1,5 +1,6 @@
 name: Diagnóstico ARM64
-# A mano: repite en Windows 11 ARM las pruebas de ventana y EXE y guarda la salida en la rama ci-resultados.
+# Diagnóstico a mano, no decide la publicación (la puerta ARM64 está en bootstrap/acceptance/native).
+# Repite en Windows 11 ARM las pruebas de ventana y EXE y guarda la salida en la rama ci-resultados.
 on:
   workflow_dispatch:
 permissions:

@@ -43,7 +43,7 @@ jobs:
           $env:GH_TOKEN=$env:GITHUB_TOKEN
           $checks=(gh api "repos/$env:GITHUB_REPOSITORY/commits/$commit/check-runs?per_page=100" | ConvertFrom-Json).check_runs
           if($LASTEXITCODE){throw 'No se pudieron comprobar las pruebas previas a publicación'}
-          foreach($required in @('bootstrap (windows-2025)','bootstrap (windows-11-arm)','acceptance (windows-2025)','acceptance (windows-11-arm)','native (windows-2025)','native (windows-11-arm)','x86')){
+          foreach($required in @('bootstrap (windows-2025)','bootstrap (windows-11-arm)','acceptance (windows-2025)','acceptance (windows-11-arm)','native (windows-2025)','native (windows-11-arm)','x86','unit')){
             $check=$checks | Where-Object name -eq $required | Sort-Object started_at -Descending | Select-Object -First 1
             if(-not $check -or $check.conclusion -ne 'success'){throw "Publicación detenida: falta la prueba correcta $required para $commit"}
           }
@@ -76,3 +76,17 @@ jobs:
           if ($LASTEXITCODE) { throw 'No se pudo publicar' }
           gh release edit $tag --title "iWinInstaller $tag" --notes-file (Join-Path $env:OUTPUT 'notas.md') --latest
           if ($LASTEXITCODE) { throw 'No se pudieron actualizar las notas' }
+
+  verify:
+    # Tras publicar: la release es la última, tiene sus descargas y coinciden sus huellas
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Comprobar la release publicada
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: ./tests/check-release.ps1 -Repo $env:GITHUB_REPOSITORY -Tag $env:RELEASE_TAG

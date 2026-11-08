@@ -1,0 +1,20 @@
+name: Comprobar la última release
+# Detecta tags sin release o descargas rotas aunque la publicación haya fallado antes de empezar.
+# Un fallo de un workflow programado avisa por correo al propietario del repositorio.
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  release-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Última release y descargas
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./tests/check-release.ps1 -Repo $env:GITHUB_REPOSITORY -GraceMinutes 90

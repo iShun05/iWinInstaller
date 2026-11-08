@@ -28,14 +28,14 @@ de cada historia llevan su etiqueta `[USn]`.
 
 **Purpose**: puertas de CI estrictas, pruebas unitarias y catálogo validado.
 
-- [ ] T001 Añadir licencia MIT en `LICENSE` y mencionarla en `README.md` (requisito de SignPath, R1)
-- [ ] T002 [P] Crear `tests/unit/engine/` con configuración de Pester 5 en `tests/unit/engine/PesterConfiguration.psd1`
-- [ ] T003 [P] Escribir el esquema del catálogo en `src/catalog/schema/apps.schema.json` a partir de los campos usados en `apps.json` (`id`, `interactive`, `detectPaths`, `signer`, arquitecturas…)
-- [ ] T004 [P] Escribir el esquema de perfiles en `src/catalog/schema/profiles.schema.json`
-- [ ] T005 Prueba Pester que valida `apps.json` y `profiles.json` contra los esquemas en `tests/unit/engine/Catalog.Schema.Tests.ps1`
-- [ ] T006 Quitar `continue-on-error` de las etapas que deciden la publicación en `.github/workflows/windows.yml` y `.github/workflows/arm.yml`; dejar solo las informativas marcadas como tales con comentario
-- [ ] T007 Añadir un job de Pester a `.github/workflows/windows.yml` y exigirlo en la puerta de `.github/workflows/release.yml`
-- [ ] T008 Publicar la página de política de firma en `docs/code-signing-policy.md` y enlazarla desde `README.md` y `SECURITY.md`
+- [x] T001 Añadir licencia MIT en `LICENSE` y mencionarla en `README.md` (requisito de SignPath, R1)
+- [x] T002 [P] Crear `tests/unit/engine/` y el ejecutor de Pester 5 `tests/unit/run.ps1`
+- [x] T003 [P] Escribir el esquema del catálogo en `src/catalog/schema/apps.schema.json` a partir de los campos usados en `apps.json` (`id`, `interactive`, `detectPaths`, `signer`, arquitecturas…)
+- [x] T004 [P] Escribir el esquema de perfiles en `src/catalog/schema/profiles.schema.json`
+- [x] T005 Prueba Pester que valida `apps.json` y `profiles.json` contra los esquemas en `tests/unit/engine/Catalog.Schema.Tests.ps1`
+- [x] T006 Revisar `continue-on-error`: las 7 puertas de publicación ya no lo tenían; `windows.yml` y `arm.yml` son diagnósticos y quedan documentados como tales en su cabecera. Se añade `release-check.yml` programado para detectar tags sin release
+- [x] T007 Añadir el job de Pester en `.github/workflows/unit.yml` (no en `windows.yml`) y exigirlo en la puerta de `.github/workflows/release.yml`
+- [x] T008 Publicar la página de política de firma en `docs/code-signing-policy.md` y enlazarla desde `README.md` y `SECURITY.md`
 
 ---
 
@@ -45,9 +45,9 @@ de cada historia llevan su etiqueta `[USn]`.
 
 **Independent Test**: en un repositorio de pruebas, un tag sin release hace fallar la verificación.
 
-- [ ] T009 [US1] Prueba de la verificación posterior en `tests/check-release.ps1` (release Latest = tag, dos descargas, SHA256 coinciden)
-- [ ] T010 [US1] Job `verify-release` en `.github/workflows/release.yml` que ejecuta `tests/check-release.ps1` tras publicar y falla con aviso si algo no cuadra
-- [ ] T011 [US1] Publicar **v4.1**: versión en `iWinInstaller.ps1`, `install.ps1`, `native/Launcher.cs`; `CHANGELOG.md`, `README.md`, tag, release y registro en Obsidian
+- [x] T009 [US1] Prueba de la verificación posterior en `tests/check-release.ps1` (release Latest = tag, dos descargas, SHA256 coinciden)
+- [x] T010 [US1] Job `verify-release` en `.github/workflows/release.yml` que ejecuta `tests/check-release.ps1` tras publicar y falla con aviso si algo no cuadra
+- [x] T011 [US1] Publicar **v4.1**: versión en `iWinInstaller.ps1`, `install.ps1`, `native/Launcher.cs`; `CHANGELOG.md`, `README.md`, tag, release y registro en Obsidian
 
 **Checkpoint**: la CI bloquea entradas de catálogo inválidas y releases incompletas. El usuario
 envía la solicitud a SignPath (acción manual, R1).
