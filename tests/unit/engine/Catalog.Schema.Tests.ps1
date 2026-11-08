@@ -1,4 +1,4 @@
-# Valida apps.json y profiles.json contra sus esquemas y comprueba las referencias cruzadas.
+﻿# Valida apps.json y profiles.json contra sus esquemas y comprueba las referencias cruzadas.
 # Requiere PowerShell 7.4 o posterior (Test-Json con JSON Schema 2020-12).
 
 BeforeAll {
@@ -9,12 +9,15 @@ BeforeAll {
     $apps = @($appsText | ConvertFrom-Json)
     $profiles = $profilesText | ConvertFrom-Json
 
-    # Devuelve los mensajes de error de Test-Json en lugar de solo $false
+    # Devuelve los mensajes de error de Test-Json; vacío solo si el documento es válido
     function Get-SchemaErrors([string]$json, [string]$schemaFile) {
-        $errors = @()
-        $ok = Test-Json -Json $json -SchemaFile $schemaFile -ErrorVariable errors -ErrorAction SilentlyContinue
+        $schemaErrors = @()
+        $ok = Test-Json -Json $json -SchemaFile $schemaFile -ErrorVariable schemaErrors -ErrorAction SilentlyContinue
+        Write-Host "Test-Json $(Split-Path $schemaFile -Leaf): $ok · $(@($schemaErrors).Count) error(es)"
         if ($ok) { return @() }
-        @($errors | ForEach-Object { $_.ToString() })
+        $messages = @($schemaErrors | ForEach-Object { $_.ToString() } | Select-Object -First 20)
+        if (-not $messages) { $messages = @('Test-Json devolvió falso sin detalle') }
+        $messages
     }
 }
 

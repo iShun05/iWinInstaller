@@ -1,4 +1,4 @@
-# Verifica que la versión publicada es la última y que sus descargas están completas e íntegras.
+﻿# Verifica que la versión publicada es la última y que sus descargas están completas e íntegras.
 # Requiere PowerShell 7 y la CLI de GitHub (gh) con GH_TOKEN. Sale con el número de fallos.
 #   -Tag          tag a comprobar (vacío = el tag de versión más alto del repositorio)
 #   -GraceMinutes margen para un tag recién creado cuya publicación sigue en curso
