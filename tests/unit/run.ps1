@@ -1,4 +1,4 @@
-# Ejecuta las pruebas unitarias con Pester 5 y sale con el número de fallos.
+﻿# Ejecuta las pruebas unitarias con Pester 5 y sale con el número de fallos.
 # -Shell powershell → pruebas de sintaxis 5.1; -Shell pwsh → pruebas de esquema (Test-Json 2020-12).
 param([ValidateSet('powershell', 'pwsh')][string]$Shell = 'pwsh')
 
@@ -9,7 +9,7 @@ if (-not (Get-Module -ListAvailable Pester | Where-Object { $_.Version -ge [vers
 }
 Import-Module Pester -MinimumVersion 5.5.0
 
-$files = if ($Shell -eq 'powershell') { 'Syntax.Tests.ps1' } else { 'Catalog.Schema.Tests.ps1' }
+$files = if ($Shell -eq 'powershell') { 'Syntax.Tests.ps1', 'EngineContract.Tests.ps1' } else { 'Catalog.Schema.Tests.ps1' }
 $config = New-PesterConfiguration
 $config.Run.Path = @($files | ForEach-Object { Join-Path $PSScriptRoot "engine\$_" })
 $config.Run.PassThru = $true

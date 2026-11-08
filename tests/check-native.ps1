@@ -1,5 +1,6 @@
 ﻿# Solo runner desechable: compila y ejecuta el EXE real con su paquete incluido.
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot 'lib/IwinSource.ps1')
 . (Join-Path $PSScriptRoot '../lifecycle.ps1')
 if ($env:GITHUB_ACTIONS -ne 'true') { throw 'Esta prueba solo se ejecuta en un runner desechable de GitHub.' }
 # Simula la politica restrictiva de rutas sin modificar ningun equipo del usuario.
@@ -61,7 +62,7 @@ Write-Host 'OK: registro en Windows y tarea opcional de actualización con ident
 
 # Instala realmente el paquete Microsoft incluido; no se consulta ningun origen remoto.
 $errors=$null
-$ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $installed 'iWinInstaller.ps1'),[ref]$null,[ref]$errors)
+$ast=[Management.Automation.Language.Parser]::ParseInput((Get-IwinSource $installed),[ref]$null,[ref]$errors)
 foreach ($name in @('Install-BundledWinget','Update-EnvPath','Test-Cmd','Test-WingetReady')) {
     $node=$ast.Find({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name},$true)
     . ([scriptblock]::Create($node.Extent.Text))

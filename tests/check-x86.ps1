@@ -1,9 +1,10 @@
 ﻿# Se ejecuta con PowerShell x86 de Windows; no basta con analizar sintaxis desde un host x64.
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot 'lib/IwinSource.ps1')
 if([Environment]::Is64BitProcess){throw 'Esta prueba debe correr realmente en un proceso de 32 bits'}
 Write-Host "Host x86 real: PowerShell $($PSVersionTable.PSVersion), proceso $PID"
 $root=Split-Path $PSScriptRoot
-foreach($name in 'iWinInstaller.ps1','lifecycle.ps1','install.ps1'){
+foreach($name in @('iWinInstaller.ps1','lifecycle.ps1','install.ps1') + @(Get-IwinEngineFiles $root | ForEach-Object { 'src\engine\' + $_.Name })){
     $errors=$null
     [void][Management.Automation.Language.Parser]::ParseFile((Join-Path $root $name),[ref]$null,[ref]$errors)
     if($errors){throw ($errors | Out-String)}
@@ -12,7 +13,7 @@ foreach($name in 'iWinInstaller.ps1','lifecycle.ps1','install.ps1'){
 if($LASTEXITCODE){throw 'Fallaron las regresiones de ciclo de vida en x86'}
 . (Join-Path $root 'lifecycle.ps1')
 $errors=$null
-$ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'iWinInstaller.ps1'),[ref]$null,[ref]$errors)
+$ast=[Management.Automation.Language.Parser]::ParseInput((Get-IwinSource $root),[ref]$null,[ref]$errors)
 $node=$ast.Find({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Install-BundledWinget'},$true)
 . ([scriptblock]::Create($node.Extent.Text))
 $fixture=Join-Path $env:TEMP ('iwin-x86-'+[guid]::NewGuid().ToString('N'))

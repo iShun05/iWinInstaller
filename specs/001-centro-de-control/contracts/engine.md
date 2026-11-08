@@ -6,9 +6,13 @@ resultado. Generaliza el modo actual `-WorkerMode/-PlanFile/-ResultFile/-SharedL
 ## Invocación
 
 ```text
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File src\engine\iwin-engine.ps1 \
-  -Command <comando> -Request <ruta.json> -Response <ruta.json> -Events <ruta.jsonl>
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File iWinInstaller.ps1 \
+  -EngineCommand <comando> -EngineRequest <ruta.json> -EngineResponse <ruta.json> -EngineEvents <ruta.jsonl>
 ```
+
+El punto de entrada es el propio `iWinInstaller.ps1` (carga `src/engine/*.ps1` en orden); la
+implementación está en `src/engine/09-Contract.ps1`. Disponibles desde v4.2: `catalog.inventory`,
+`batch.pending` y `report.last`; el resto se añade en la versión que indica el plan.
 
 - Rutas en `%LOCALAPPDATA%\iWinInstaller\engine\<id-de-operación>\`, creadas por la interfaz.
 - En x86 sobre x64 se usa el PowerShell nativo (Sysnative), como hace hoy el lanzador.

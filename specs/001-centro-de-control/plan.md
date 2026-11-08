@@ -95,17 +95,12 @@ src/
 │   │   └── Security/            # Defender
 │   ├── Engine/                  # Cliente del contrato engine.md (procesos, JSONL)
 │   └── Probes/                  # Lecturas rápidas en C# (disco, batería, reinicio)
-├── engine/                      # Motor PowerShell
-│   ├── iwin-engine.ps1          # Punto de entrada único del contrato
-│   ├── Iwin.Catalog.psm1
-│   ├── Iwin.Batch.psm1          # Lotes, reanudación (hoy en lifecycle.ps1)
-│   ├── Iwin.Packages.psm1       # WinGet/Store/directos, detección
-│   ├── Iwin.Tweaks.psm1         # Ajustes reversibles y snapshots
-│   ├── Iwin.Remote.psm1
-│   ├── Iwin.Security.psm1
-│   ├── Iwin.Maintenance.psm1    # US5
-│   ├── Iwin.Updates.psm1        # US3 exclusiones y programación
-│   └── Iwin.Report.psm1
+├── engine/                      # Motor PowerShell: archivos NN-*.ps1 cargados en orden con «.»
+│   ├── 01-Core.ps1 … 08-Batch.ps1   # Código movido sin cambios de iWinInstaller.ps1 (v4.2)
+│   ├── 09-Contract.ps1          # Contrato interfaz ↔ motor (-EngineCommand)
+│   ├── 10-Updates.ps1           # US3 exclusiones y programación (v4.5)
+│   └── 11-Maintenance.ps1       # US5 (v4.9)
+├── ui/                          # XAML de la ventana PowerShell (hasta v4.7)
 ├── launcher/                    # Lanzador/instalador nativo (hoy native/)
 └── catalog/                     # Catálogo por categorías + schema/*.json
 tests/
@@ -113,6 +108,11 @@ tests/
 ├── unit/app/                    # MSTest (iWinInstaller.App.Tests.csproj)
 └── check-*.ps1                  # Integración/aceptación existentes
 ```
+
+**Nota de v4.2**: el motor usa archivos `.ps1` cargados con «.» en lugar de módulos `.psm1`,
+porque sus funciones comparten variables del script (`$Apps`, `$LogFile`, `$script:*`); un módulo
+tendría su propio ámbito y cambiaría el comportamiento. El orden de ejecución es idéntico al
+original.
 
 **Structure Decision**: un único repositorio con interfaz (`src/app`), motor (`src/engine`),
 lanzador (`src/launcher`) y datos (`src/catalog`). Los archivos raíz actuales (`iWinInstaller.ps1`,

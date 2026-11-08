@@ -1,17 +1,20 @@
 ﻿# Regresiones de lotes y postinstalación. Solo las claves de prueba se escriben en el registro.
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot 'lib/IwinSource.ps1')
 . (Join-Path $PSScriptRoot '../lifecycle.ps1')
 $root=Split-Path $PSScriptRoot
 $errors=$null
-$ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'iWinInstaller.ps1'),[ref]$null,[ref]$errors)
+$ast=[Management.Automation.Language.Parser]::ParseInput((Get-IwinSource $root),[ref]$null,[ref]$errors)
 if($errors){throw ($errors | Out-String)}
 foreach($name in 'Invoke-Install','Resume-IwinBatch','Test-StillInstalled','Test-RemoteHost','Invoke-Uninstall'){
     $node=$ast.Find({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name},$true)
     . ([scriptblock]::Create($node.Extent.Text))
 }
 # Barrera contra variables que reutilizan un parámetro tipado en el ámbito del script.
+# iWinInstaller.ps1 se analiza junto con src/engine: comparten el ámbito del script.
 foreach($fileName in 'iWinInstaller.ps1','install.ps1'){
-    $tree=[Management.Automation.Language.Parser]::ParseFile((Join-Path $root $fileName),[ref]$null,[ref]$errors)
+    $text=if($fileName -eq 'iWinInstaller.ps1'){Get-IwinSource $root}else{Get-Content (Join-Path $root $fileName) -Raw -Encoding UTF8}
+    $tree=[Management.Automation.Language.Parser]::ParseInput($text,[ref]$null,[ref]$errors)
     $switches=@($tree.ParamBlock.Parameters | Where-Object {$_.StaticType -eq [System.Management.Automation.SwitchParameter]} | ForEach-Object {$_.Name.VariablePath.UserPath})
     foreach($assignment in $tree.FindAll({param($n)$n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left -is [Management.Automation.Language.VariableExpressionAst]},$true)){
         $name=$assignment.Left.VariablePath.UserPath

@@ -58,22 +58,29 @@ envía la solicitud a SignPath (acción manual, R1).
 
 **Purpose**: separar la lógica de la interfaz sin cambiar el comportamiento. Bloquea US2–US5.
 
-- [ ] T012 Pruebas Pester de caracterización del comportamiento actual (plan de instalación, códigos, informe, detección) en `tests/unit/engine/Characterization.Tests.ps1`
-- [ ] T013 [P] Extraer catálogo y perfiles a `src/engine/Iwin.Catalog.psm1`
-- [ ] T014 [P] Extraer lotes y reanudación de `lifecycle.ps1` a `src/engine/Iwin.Batch.psm1`
-- [ ] T015 [P] Extraer instalación/desinstalación WinGet, Store y directos a `src/engine/Iwin.Packages.psm1`
-- [ ] T016 [P] Extraer ajustes reversibles y snapshots a `src/engine/Iwin.Tweaks.psm1`
-- [ ] T017 [P] Extraer acceso remoto, SSH y vincular equipos a `src/engine/Iwin.Remote.psm1`
-- [ ] T018 [P] Extraer Defender a `src/engine/Iwin.Security.psm1`
-- [ ] T019 [P] Extraer informes y diagnóstico a `src/engine/Iwin.Report.psm1`
-- [ ] T020 Crear `src/engine/iwin-engine.ps1` con el contrato de `contracts/engine.md` (Request/Response/Events, códigos de salida) para `catalog.inventory`, `batch.*`, `tweak.*` y `report.last`
-- [ ] T021 Pruebas del contrato (Request inválido → 2, `done` siempre último, versión de contrato mayor rechazada) en `tests/unit/engine/EngineContract.Tests.ps1`
-- [ ] T022 Hacer que `iWinInstaller.ps1` y `lifecycle.ps1` importen los módulos en lugar de definir las funciones; añadir `-Json` según `contracts/cli.md`
-- [ ] T023 Documentar la línea de comandos en `docs/cli.md` a partir de `contracts/cli.md`
-- [ ] T024 Incluir `src/engine/` en el paquete en `scripts/build_exe.ps1` y `scripts/build_installer.py`
-- [ ] T025 Publicar **v4.2** (CHANGELOG, README sección Estructura, tag, release, Obsidian)
+- [x] T012 Pruebas Pester de caracterización del comportamiento actual (plan de instalación, códigos, informe, detección) en `tests/unit/engine/Characterization.Tests.ps1`
+- [x] T013 [P] Extraer catálogo y perfiles a `src/engine/Iwin.Catalog.psm1`
+- [x] T014 [P] Extraer lotes y reanudación de `lifecycle.ps1` a `src/engine/Iwin.Batch.psm1`
+- [x] T015 [P] Extraer instalación/desinstalación WinGet, Store y directos a `src/engine/Iwin.Packages.psm1`
+- [x] T016 [P] Extraer ajustes reversibles y snapshots a `src/engine/Iwin.Tweaks.psm1`
+- [x] T017 [P] Extraer acceso remoto, SSH y vincular equipos a `src/engine/Iwin.Remote.psm1`
+- [x] T018 [P] Extraer Defender a `src/engine/Iwin.Security.psm1`
+- [x] T019 [P] Extraer informes y diagnóstico a `src/engine/Iwin.Report.psm1`
+- [x] T020 Crear `src/engine/iwin-engine.ps1` con el contrato de `contracts/engine.md` (Request/Response/Events, códigos de salida) para `catalog.inventory`, `batch.*`, `tweak.*` y `report.last`
+- [x] T021 Pruebas del contrato (Request inválido → 2, `done` siempre último, versión de contrato mayor rechazada) en `tests/unit/engine/EngineContract.Tests.ps1`
+- [x] T022 Hacer que `iWinInstaller.ps1` y `lifecycle.ps1` importen los módulos en lugar de definir las funciones; añadir `-Json` según `contracts/cli.md`
+- [x] T023 Documentar la línea de comandos en `docs/cli.md` a partir de `contracts/cli.md`
+- [x] T024 Incluir `src/engine/` en el paquete en `scripts/build_exe.ps1` y `scripts/build_installer.py`
+- [x] T025 Publicar **v4.2** (CHANGELOG, README sección Estructura, tag, release, Obsidian)
 
 **Checkpoint**: `-Check -Json` y todas las suites `check-*` dan el mismo resultado que en v4.1.
+
+**Hecho en v4.2 (desviaciones del plan)**: el motor se dividió en `src/engine/01-Core.ps1` …
+`08-Batch.ps1` (archivos `.ps1` cargados con «.» en vez de módulos `.psm1`, para conservar el
+ámbito compartido) y el contrato está en `09-Contract.ps1`, invocado con
+`iWinInstaller.ps1 -EngineCommand`. T012 se cubre con las suites `check-*` existentes, que ahora
+leen las funciones de `iWinInstaller.ps1` + `src/engine` (`tests/lib/IwinSource.ps1`). La XAML pasó
+a `src/ui/`. `lifecycle.ps1` se mantiene hasta v5.0 (T089).
 
 ---
 

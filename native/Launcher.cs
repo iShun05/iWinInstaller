@@ -7,8 +7,8 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-[assembly: AssemblyVersion("4.1.0.0")]
-[assembly: AssemblyFileVersion("4.1.0.0")]
+[assembly: AssemblyVersion("4.2.0.0")]
+[assembly: AssemblyFileVersion("4.2.0.0")]
 
 static class Launcher {
     static readonly object LogLock = new object();
@@ -21,12 +21,12 @@ static class Launcher {
         try {
             Directory.CreateDirectory(logs);
             Environment.CurrentDirectory = logs;
-            Log("iWinInstaller v4.1; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
+            Log("iWinInstaller v4.2; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
 #if SETUP
             bool quiet = Array.IndexOf(args, "--silent") >= 0;
             if (quiet) { Install(); return 0; }
             using (Form form = new Form()) {
-                form.Text = "iWinInstaller v4.1"; form.Width = 560; form.Height = 230;
+                form.Text = "iWinInstaller v4.2"; form.Width = 560; form.Height = 230;
                 form.StartPosition = FormStartPosition.CenterScreen;
                 form.FormBorderStyle = FormBorderStyle.FixedDialog; form.ControlBox = false;
                 form.BackColor = System.Drawing.Color.Black; form.ForeColor = System.Drawing.Color.White;
@@ -63,14 +63,22 @@ static class Launcher {
             foreach (string name in new[] { "iWinInstaller.ps1", "apps.json", "profiles.json", "lifecycle.ps1", "install.ps1", "launch.ps1" })
                 if (!File.Exists(Path.Combine(root, name))) throw new FileNotFoundException("Falta un archivo esencial. Ejecuta de nuevo iWinInstaller-Setup.exe.", name);
             string manifest = File.ReadAllText(Path.Combine(root, "integrity.sha256"));
-            foreach (string name in new[] { "iWinInstaller.ps1", "apps.json", "profiles.json", "lifecycle.ps1", "install.ps1", "launch.ps1", "iWinInstaller.exe" }) {
-                string expected = null;
-                foreach (string line in manifest.Split('\n')) if (line.Trim().EndsWith("  " + name)) expected = line.Substring(0, 64);
-                using (SHA256 sha = SHA256.Create()) using (FileStream file = File.OpenRead(Path.Combine(root, name))) {
+            var verified = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string rawLine in manifest.Split('\n')) {
+                string line = rawLine.Trim();
+                if (line.Length < 67 || line.Substring(64, 2) != "  ") continue;
+                string expected = line.Substring(0, 64), name = line.Substring(66);
+                if (name.Contains("..") || Path.IsPathRooted(name)) throw new Exception("Manifiesto de integridad no válido.");
+                string path = Path.Combine(root, name.Replace('/', Path.DirectorySeparatorChar));
+                if (!File.Exists(path)) throw new FileNotFoundException("Falta un archivo esencial. Ejecuta de nuevo iWinInstaller-Setup.exe.", name);
+                using (SHA256 sha = SHA256.Create()) using (FileStream file = File.OpenRead(path)) {
                     string actual = BitConverter.ToString(sha.ComputeHash(file)).Replace("-", "").ToLowerInvariant();
                     if (expected != actual) throw new Exception("Archivo esencial dañado: " + name + ". Ejecuta de nuevo iWinInstaller-Setup.exe.");
                 }
+                verified.Add(name);
             }
+            foreach (string name in new[] { "iWinInstaller.ps1", "apps.json", "profiles.json", "lifecycle.ps1", "install.ps1", "launch.ps1", "iWinInstaller.exe" })
+                if (!verified.Contains(name)) throw new Exception("Archivo esencial sin comprobar: " + name + ". Ejecuta de nuevo iWinInstaller-Setup.exe.");
             if (Array.IndexOf(args, "--uninstall") >= 0) {
                 foreach(Process running in Process.GetProcessesByName("iWinInstaller")) {
                     using(running) {

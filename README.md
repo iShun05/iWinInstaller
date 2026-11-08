@@ -16,7 +16,7 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v4.1** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v4.2** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
@@ -49,6 +49,7 @@ Usa **Armoury Crate o G-Helper** como gestor de rendimiento, conservando ASUS Sy
 - **Luces RGB apagadas** (Sistema › Iluminación RGB): **Apagar todas las luces RGB** instala OpenRGB y su driver PawnIO, anota placa, RAM, gráfica, controladoras USB y software RGB del fabricante en el registro, apaga cada dispositivo (modo Off o negro) y crea una tarea de SYSTEM que lo repite en cada arranque, también sin sesión. Incluido en el perfil «Escritorio remoto». Ver [Luces RGB](#luces-rgb).
 - **Apps de tus componentes** (Sistema › Software de los fabricantes o perfil «Apps de mis componentes (detectadas)»): el perfil lee placa base, procesador, gráfica (y su fabricante), RAM, discos y dispositivos USB, y marca solo las apps de esas marcas: NVIDIA App, AMD Adrenalin, Intel DSA, Armoury Crate, GPU Tweak III, MSI Center, RGB Fusion, iCUE, NZXT CAM, L-Connect 3, G HUB, Synapse, SteelSeries GG, Samsung Magician, Kingston SSD Manager y Crucial Storage Executive. Cada una se puede instalar por separado. Con **Apagar todas las luces RGB** aplicado, el perfil omite las que gestionan iluminación, porque vuelven a encender los LED.
 - **Desinstalar desde la app**: botón en cada fila instalada (o marca varias y pulsa **Desinstalar**). Pide confirmación, usa winget, Microsoft Store o el desinstalador oficial y comprueba que la app ya no está. Los ajustes reversibles recuperan el estado anterior guardado desde v3.2. Visual C++, .NET, DirectX, Edge y Store no se ofrecen.
+- **Línea de comandos documentada**: `-Check -Json` da el estado del equipo en JSON para scripts; modos y códigos de salida en [docs/cli.md](docs/cli.md).
 - **Perfiles propios para llevar a otro PC**: **Guardar…** guarda lo marcado (y, si quieres, lo ya instalado); **⋯ › Exportar** crea un `.iwin.json`; en el otro PC, **Importar…** lo marca todo de una vez, o sin ventana: `iWinInstaller.ps1 -Silent -Perfil archivo.iwin.json`. Solo contiene ids del catálogo.
 - **Vincular equipos**: icono de enlace en la barra superior. Prepara este PC como servidor SSH (solo claves, por Tailscale y opcionalmente red local), te da el comando para la Terminal del Mac o PowerShell de otro Windows (crea clave y alias y la copia al portapapeles) y autoriza ese equipo pegando su clave en la app. Después: `ssh <nombre-del-pc>`, `scp`, Claude o VS Code por SSH.
 - **Seguridad con Microsoft Defender**: escudo en la barra superior (o **⋯ › Seguridad**). Muestra tiempo real, protección contra alteraciones, firmas y último análisis; lanza análisis rápido, completo o de una carpeta, actualiza firmas y lista las amenazas recientes. No instala otro antivirus; el catálogo incluye la sección **Antivirus y antimalware** si quieres uno: Bitdefender Free (abre su asistente oficial, que hay que completar), Malwarebytes, Emsisoft Emergency Kit (se extrae en `C:\EEK` con permiso de administrador) y AdwCleaner.
@@ -95,7 +96,9 @@ PowerShell 5.1 y WPF para la interfaz; C# y .NET Framework incluido en Windows p
 
 | Archivo | Función |
 | --- | --- |
-| `iWinInstaller.ps1` | Interfaz, inventario, lotes, organización del escritorio y diagnóstico |
+| `iWinInstaller.ps1` | Arranque, modos de consola e interfaz |
+| `src/engine/` | Motor por áreas: WinGet, paquetes, sistema, remoto, RGB, ajustes, perfiles, lotes y contrato con la interfaz |
+| `src/ui/` | Ventana y diálogos (XAML) |
 | `apps.json`, `profiles.json` | Catálogo, guías de postinstalación y perfiles |
 | `lifecycle.ps1` | Lotes, comprobaciones, restauración y actualizaciones opcionales |
 | `install.ps1`, `launch.ps1`, `Iniciar.bat` | Instalación, desinstalación y apertura |
@@ -103,7 +106,7 @@ PowerShell 5.1 y WPF para la interfaz; C# y .NET Framework incluido en Windows p
 | `scripts/` | Construcción del EXE y BAT |
 | `src/catalog/schema/` | Esquemas que validan el catálogo y los perfiles |
 | `tests/` | Pruebas unitarias (Pester), pruebas aisladas, aceptación en un Windows desechable y comprobación de la release |
-| `docs/` | Política de firma de código |
+| `docs/` | Línea de comandos (`cli.md`) y política de firma de código |
 | `specs/`, `.specify/` | Especificación y plan del camino a v5.0 (Spec Kit) |
 | `assets/` | Iconos |
 
@@ -114,8 +117,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v4.1
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v4.1
+git checkout v4.2
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v4.2
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -134,7 +137,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v4.1](https://github.com/iShun05/iWinInstaller/releases/tag/v4.1) **(actual)** | 2026-11-08 | Base de calidad: licencia MIT, esquema del catálogo, pruebas Pester y verificación automática de cada release | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.1.zip) |
+| [v4.2](https://github.com/iShun05/iWinInstaller/releases/tag/v4.2) **(actual)** | 2026-11-08 | Motor dividido por áreas, `-Check -Json`, contrato del motor e integridad de todos los archivos | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.2) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.2.zip) |
+| [v4.1](https://github.com/iShun05/iWinInstaller/releases/tag/v4.1) | 2026-11-08 | Base de calidad: licencia MIT, esquema del catálogo, pruebas Pester y verificación automática de cada release | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.1.zip) |
 | [v4.0](https://github.com/iShun05/iWinInstaller/releases/tag/v4.0) | 2026-11-03 | MyASUS, G-Helper y OCCT en el catálogo general; puesta a punto de portátiles y guías de GPU | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.0.zip) |
 | [v3.9](https://github.com/iShun05/iWinInstaller/releases/tag/v3.9) | 2026-10-30 | Informe de fallos al terminar la instalación y auditoría: antivirus, códigos de salida, catálogo revisado contra WinGet | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.9.zip) |
 | v3.8 (sin release: incluida en v3.9) | 2026-10-30 | Vincular equipos: controlar el PC desde un Mac u otro Windows por SSH con guía y comandos | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v3.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v3.8.zip) |

@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$OutputDirectory, [string]$Ref='HEAD')
+﻿param([Parameter(Mandatory=$true)][string]$OutputDirectory, [string]$Ref='HEAD')
 $ErrorActionPreference='Stop'
 $ProgressPreference='SilentlyContinue'
 $root=Split-Path $PSScriptRoot
@@ -20,7 +20,10 @@ $archive=[IO.Compression.ZipFile]::Open($zip,[IO.Compression.ZipArchiveMode]::Up
 try {
     [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$launcher,'iWinInstaller/iWinInstaller.exe')
     $lines=@()
-    foreach ($name in @('iWinInstaller.ps1','apps.json','profiles.json','lifecycle.ps1','install.ps1','launch.ps1','iWinInstaller.exe')) {
+    # Archivos esenciales y todo src/ (motor e interfaz): el lanzador verifica cada línea del manifiesto
+    $names=@('iWinInstaller.ps1','apps.json','profiles.json','lifecycle.ps1','install.ps1','launch.ps1','iWinInstaller.exe')
+    $names+=@($archive.Entries | Where-Object { $_.FullName -like 'iWinInstaller/src/*' -and $_.Name } | ForEach-Object { $_.FullName.Substring('iWinInstaller/'.Length) } | Sort-Object)
+    foreach ($name in $names) {
         $entry=$archive.GetEntry('iWinInstaller/'+$name)
         $stream=$entry.Open(); $sha=[Security.Cryptography.SHA256]::Create()
         try { $hash=([BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-','').ToLowerInvariant(); $lines+="$hash  $name" }

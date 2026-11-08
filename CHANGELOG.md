@@ -1,5 +1,25 @@
 # Historial de versiones
 
+## v4.2 — 2026-11-08
+
+Segunda versión del camino a v5.0. Por dentro, el programa queda dividido por áreas. Por fuera, la app hace lo mismo, con dos novedades para scripts: `-Check -Json` y el contrato del motor.
+
+### Añadido
+- **`-Check -Json`**: el informe del equipo en JSON estable (versión, WinGet, total, cuántas faltan y el estado de cada app), sin líneas de registro mezcladas. Documentado en `docs/cli.md`, con los códigos de salida de cada modo.
+- **Contrato interfaz ↔ motor** (`-EngineCommand` con `-EngineRequest`, `-EngineResponse` y `-EngineEvents`): petición y respuesta en JSON y eventos de progreso en JSONL, con `done` siempre al final y códigos 0/2/3/4/10. Comandos iniciales: `catalog.inventory`, `batch.pending` y `report.last`. Es la base de la nueva interfaz de v4.4.
+- **Pruebas unitarias nuevas**: contrato del motor (peticiones inválidas, versión de contrato, JSON roto, inventario con apps no comprobables) y una barrera que exige BOM en los scripts con texto no ASCII, porque PowerShell 5.1 los leería mal.
+
+### Cambiado
+- **Motor dividido en `src/engine/01-Core.ps1` … `09-Contract.ps1`**: el código se ha movido sin cambios, se carga en el mismo orden y comparte el mismo ámbito que antes. `iWinInstaller.ps1` pasa de 4.074 a unas 1.700 líneas.
+- **Ventana y diálogos en `src/ui/*.xaml`**: antes estaban incrustados en el script.
+- **Integridad**: el manifiesto `integrity.sha256` incluye ahora todo `src/`, y el lanzador comprueba **cada línea** del manifiesto, no solo una lista fija. Un archivo del motor o de la interfaz alterado o ausente impide abrir la app, con el aviso de reinstalar.
+- `.gitattributes` excluye del paquete de la app las carpetas de desarrollo (`specs/`, Spec Kit, `docs/`, esquemas).
+- **Afecta a Windows x86/x64/ARM64 por igual**: mismo código para las tres arquitecturas.
+
+### Archivos y pruebas
+- `iWinInstaller.ps1`, `src/engine/*.ps1`, `src/ui/*.xaml`, `native/Launcher.cs`, `scripts/build_exe.ps1`, `docs/cli.md`, `tests/lib/IwinSource.ps1` y las pruebas `check-*` que leían funciones del script principal.
+- División comprobada en macOS: uniendo los trozos se reproduce el original byte a byte. Pruebas reales en CI Windows x64/ARM64 y proceso x86: instalador, aceptación, EXE nativo y unitarias.
+
 ## v4.1 — 2026-11-08
 
 Primera versión del camino a v5.0 (plan en `specs/001-centro-de-control/`). No cambia nada de lo que ves en la app: refuerza cómo se comprueba y se publica cada versión.

@@ -1,9 +1,10 @@
 ﻿# Regresiones aisladas: no instala aplicaciones ni modifica hardware o ajustes de Windows.
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'lib/IwinSource.ps1')
 . (Join-Path $PSScriptRoot '../lifecycle.ps1')
 $root = Split-Path $PSScriptRoot
 $errors = $null
-$source = Get-Content (Join-Path $root 'iWinInstaller.ps1') -Raw -Encoding UTF8
+$source = Get-IwinSource $root
 $ast = [Management.Automation.Language.Parser]::ParseInput($source, [ref]$null, [ref]$errors)
 if ($errors) { throw ($errors | Out-String) }
 $functions = @($ast.FindAll({ param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] }, $false))

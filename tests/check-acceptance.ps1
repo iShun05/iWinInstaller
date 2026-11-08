@@ -1,9 +1,10 @@
 ﻿# Pruebas reales en un runner Windows desechable. No ejecutar en el PC del usuario.
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'lib/IwinSource.ps1')
 . (Join-Path $PSScriptRoot '../lifecycle.ps1')
 $root = Split-Path $PSScriptRoot
 $errors=$null
-$ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'iWinInstaller.ps1'),[ref]$null,[ref]$errors)
+$ast=[Management.Automation.Language.Parser]::ParseInput((Get-IwinSource $root),[ref]$null,[ref]$errors)
 if ($errors) { throw ($errors | Out-String) }
 # Carga las funciones sin abrir la ventana ni instalar un perfil entero.
 foreach ($node in $ast.FindAll({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst]},$false)) { . ([scriptblock]::Create($node.Extent.Text)) }
@@ -11,7 +12,7 @@ $Apps=@(Get-Content (Join-Path $root 'apps.json') -Raw -Encoding UTF8 | ConvertF
 $Profiles=Get-Content (Join-Path $root 'profiles.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 if (@($Profiles.Manual).Count) { throw 'El perfil Manual debe empezar sin seleccionar aplicaciones.' }
 $Root=$root; $WorkerMode='machine'; $UI=$false; $Check=$false; $Silent=$true
-$Version='v4.1'; $LogDir=Join-Path $env:TEMP 'iwin-aceptacion'; New-Item $LogDir -ItemType Directory -Force | Out-Null
+$Version='v4.2'; $LogDir=Join-Path $env:TEMP 'iwin-aceptacion'; New-Item $LogDir -ItemType Directory -Force | Out-Null
 $LogFile=Join-Path $LogDir 'prueba.log'; $log=$null; $wingetOk=@(0,3010,-1978335135,-1978335189)
 if (-not (Ensure-Winget)) { throw 'winget no disponible' }
 Update-WingetCache

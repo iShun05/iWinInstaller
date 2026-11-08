@@ -1,9 +1,10 @@
 ﻿# Pruebas de regresión en carpetas temporales: nunca ordenan el escritorio del runner.
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot 'lib/IwinSource.ps1')
 . (Join-Path $PSScriptRoot '../lifecycle.ps1')
 $root=Split-Path $PSScriptRoot
 $errors=$null
-$ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'iWinInstaller.ps1'),[ref]$null,[ref]$errors)
+$ast=[Management.Automation.Language.Parser]::ParseInput((Get-IwinSource $root),[ref]$null,[ref]$errors)
 if ($errors) { throw ($errors | Out-String) }
 foreach ($name in @('Organize-Desktop','Write-Log')) {
     $node=$ast.Find({param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name},$true)
@@ -46,7 +47,7 @@ if (($apps | Where-Object { $_.type -in @('projects','claudesetup','gitconfig','
 foreach ($name in @('acceso.json','claude-setup','extras','mac')) {
     if (Test-Path (Join-Path $root $name)) { throw "Contenido privado distribuido: $name" }
 }
-$source=Get-Content (Join-Path $root 'iWinInstaller.ps1') -Raw
+$source=Get-IwinSource $root
 if ($source -match 'Request-Clave|Test-Clave|IWIN_CLAVE|Get-ProjectList|Install-ClaudeSetup') { throw 'Queda una función privada' }
 $installer=Get-Content (Join-Path $root 'install.ps1') -Raw
 if ($installer -match 'gh auth|Ensure-GitHubCli') { throw 'La instalación pública no debe pedir una cuenta' }

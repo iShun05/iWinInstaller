@@ -1,8 +1,9 @@
 ﻿# Pruebas aisladas: no instalan programas ni cambian ajustes reales.
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'lib/IwinSource.ps1')
 . (Join-Path $PSScriptRoot '../lifecycle.ps1')
 $errors = $null
-$ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot '..\iWinInstaller.ps1'), [ref]$null, [ref]$errors)
+$ast = [Management.Automation.Language.Parser]::ParseInput((Get-IwinSource (Split-Path $PSScriptRoot)), [ref]$null, [ref]$errors)
 if ($errors) { throw ($errors | Out-String) }
 function Get-FunctionBody($name) {
     $node = $ast.Find({ param($n) $n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq $name }, $true)
