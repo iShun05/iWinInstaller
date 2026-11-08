@@ -21,6 +21,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Management" />
+    <!-- JSON con JavaScriptSerializer (System.Web.Extensions depende de System.Web; ambos vienen con Windows) -->
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
