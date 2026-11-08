@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Interfaz de iWinInstaller (v4.4+): WPF sobre .NET Framework 4.8, incluido en Windows 10/11. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>iWinInstaller.App</AssemblyName>
+    <RootNamespace>IWinInstaller.App</RootNamespace>
+    <LangVersion>7.3</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <ApplicationIcon>..\..\assets\icon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>4.4.0</Version>
+    <Product>iWinInstaller</Product>
+    <Company>iShun05</Company>
+    <Copyright>MIT</Copyright>
+    <Deterministic>true</Deterministic>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Management" />
+    <Reference Include="System.Web.Extensions" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="iWinInstaller.App.Tests" />
+  </ItemGroup>
+</Project>

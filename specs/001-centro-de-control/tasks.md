@@ -111,13 +111,13 @@ la comprobación de editor se añadirá con la firma.
 
 **Purpose**: ventana nueva, tema y navegación. Bloquea US2–US5.
 
-- [ ] T034 Crear `src/app/iWinInstaller.App.csproj` (SDK, `UseWPF`, `net48`, AnyCPU) y `tests/unit/app/iWinInstaller.App.Tests.csproj` (MSTest)
-- [ ] T035 [P] Tema negro, tipografía, iconos monoline y estilos en `src/app/Theme/` según la nota Diseño Apple y Pixel
-- [ ] T036 [P] Cliente del motor (lanzar proceso, elevación, lectura incremental de JSONL, cancelación) en `src/app/Engine/EngineClient.cs` con pruebas en `tests/unit/app/EngineClientTests.cs`
-- [ ] T037 Ventana principal con navegación lateral por módulos, zoom 70–200 %, teclado y Acerca de (versión + Instagram) en `src/app/Shell/`
-- [ ] T038 Botones de módulos aún no portados que abren la ventana clásica con aviso en `src/app/Shell/LegacyBridge.cs`
-- [ ] T039 Compilar la interfaz con el SDK de .NET en `.github/workflows/native.yml` y empaquetarla en `scripts/build_exe.ps1`
-- [ ] T040 Prueba de apertura de la ventana nueva en x64, ARM64 y x86 en `tests/check-native.ps1`
+- [x] T034 Crear `src/app/iWinInstaller.App.csproj` (SDK, `UseWPF`, `net48`, AnyCPU) y `tests/unit/app/iWinInstaller.App.Tests.csproj` (MSTest)
+- [x] T035 [P] Tema negro, tipografía, iconos monoline y estilos en `src/app/Theme/` según la nota Diseño Apple y Pixel
+- [x] T036 [P] Cliente del motor (lanzar proceso, elevación, lectura incremental de JSONL, cancelación) en `src/app/Engine/EngineClient.cs` con pruebas en `tests/unit/app/EngineClientTests.cs`
+- [x] T037 Ventana principal con navegación lateral por módulos, zoom 70–200 %, teclado y Acerca de (versión + Instagram) en `src/app/Shell/`
+- [x] T038 Botones de módulos aún no portados que abren la ventana clásica con aviso en `src/app/Shell/LegacyBridge.cs`
+- [x] T039 Compilar la interfaz con el SDK de .NET en `.github/workflows/native.yml` y empaquetarla en `scripts/build_exe.ps1`
+- [x] T040 Prueba de apertura de la ventana nueva en x64, ARM64 y x86 en `tests/check-native.ps1`
 
 ---
 
@@ -127,16 +127,20 @@ la comprobación de editor se añadirá con la firma.
 
 **Independent Test**: equipo con actualización pendiente y poco espacio muestra ambos avisos.
 
-- [ ] T041 [P] [US2] Pruebas del ViewModel de tarjetas (estados `ok/attention/unknown/notApplicable`, motivo obligatorio en `unknown`) en `tests/unit/app/HomeViewModelTests.cs`
-- [ ] T042 [P] [US2] Comando `status.collect` (Windows Update, antivirus, actualizaciones de apps, lotes) en `src/engine/Iwin.Status.psm1` con pruebas en `tests/unit/engine/Status.Tests.ps1`
-- [ ] T043 [P] [US2] Sondas en C# para espacio, reinicio pendiente, salud básica de discos y batería en `src/app/Probes/`
-- [ ] T044 [US2] Modelo `StatusCard` y `HomeViewModel` en `src/app/Modules/Home/` (carga progresiva: inicio utilizable < 2 s)
-- [ ] T045 [US2] Vista del inicio con tarjetas y acción asociada en `src/app/Modules/Home/HomeView.xaml`
-- [ ] T046 [US2] `-Status [-Json]` en la CLI sobre `status.collect` en `src/engine/iwin-engine.ps1`
-- [ ] T047 [US2] Medir el tiempo hasta inicio utilizable en `tests/check-native.ps1` (SC-002)
-- [ ] T048 [US2] Publicar **v4.4** (CHANGELOG, README Funciones/Tecnología/Estructura, tag, release, Obsidian)
+- [x] T041 [P] [US2] Pruebas del ViewModel de tarjetas (estados `ok/attention/unknown/notApplicable`, motivo obligatorio en `unknown`) en `tests/unit/app/HomeViewModelTests.cs`
+- [x] T042 [P] [US2] Comando `status.collect` (Windows Update, antivirus, actualizaciones de apps, lotes) en `src/engine/Iwin.Status.psm1` con pruebas en `tests/unit/engine/Status.Tests.ps1`
+- [x] T043 [P] [US2] Sondas en C# para espacio, reinicio pendiente, salud básica de discos y batería en `src/app/Probes/`
+- [x] T044 [US2] Modelo `StatusCard` y `HomeViewModel` en `src/app/Modules/Home/` (carga progresiva: inicio utilizable < 2 s)
+- [x] T045 [US2] Vista del inicio con tarjetas y acción asociada en `src/app/Modules/Home/HomeView.xaml`
+- [ ] T046 (v4.5) [US2] `-Status [-Json]` en la CLI sobre `status.collect` en `src/engine/iwin-engine.ps1`
+- [x] T047 [US2] Medir el tiempo hasta inicio utilizable en `tests/check-native.ps1` (SC-002)
+- [x] T048 [US2] Publicar **v4.4** (CHANGELOG, README Funciones/Tecnología/Estructura, tag, release, Obsidian)
 
 **Checkpoint**: US2 completa; el resto de módulos se abre en la ventana clásica.
+
+**Hecho en v4.4**: `status.collect` está en `src/engine/11-Status.ps1` (con la lectura de WinGet en
+`10-Updates.ps1`). `-Status` en la CLI (T046) se pospone a v4.5 junto con `-Updates`. La medida de
+tiempo de arranque (T047) queda en el registro `interfaz.log` de la prueba de CI.
 
 ---
 

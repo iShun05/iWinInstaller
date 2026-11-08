@@ -1,5 +1,32 @@
 # Historial de versiones
 
+## v4.4 — 2026-11-08
+
+Cuarta versión del camino a v5.0: primera pantalla de la **interfaz nueva**, con el estado del PC.
+
+### Añadido
+- **Interfaz nueva en C#** (WPF sobre .NET Framework 4.8, que ya viene con Windows): ventana negra con navegación lateral, tamaño de 70 a 200 % (A− / A+, `Ctrl + rueda`, `Ctrl + + / − / 0`, se recuerda), versión e Instagram siempre visibles.
+- **Inicio · Estado del PC**: tarjetas que se rellenan en segundo plano, sin bloquear la ventana:
+  - **Actualizaciones de apps**: cuántas ofrece WinGet y cuáles.
+  - **Windows Update**: cuándo buscó por última vez.
+  - **Protección antivirus**: Defender u otro antivirus, tiempo real y antigüedad de las firmas.
+  - **Espacio en disco**: aviso por debajo del 10 % o de 15 GB libres.
+  - **Salud de los discos**: estado que informa Windows de cada disco físico.
+  - **Batería**: desgaste frente a la capacidad original. No aparece en equipos sin batería.
+  - **Reinicio pendiente** y **lotes sin terminar**.
+  - Cada tarjeta distingue *Correcto*, *Requiere atención* y *No se pudo comprobar* (con el motivo real); nunca da por bueno lo que no pudo comprobar. **Abrir** lleva a la solución, y **Comprobar de nuevo** (o `F5`) repite todo.
+- **Instalar, Actualizaciones, Sistema, Acceso remoto y Seguridad** se abren todavía en la **ventana clásica**, con todas sus funciones. Pasarán a la interfaz nueva en v4.5–v4.7.
+- Motor: comando `status.collect` y lectura de `winget upgrade` en cualquier idioma de Windows (`src/engine/10-Updates.ps1`, `11-Status.ps1`).
+- Pruebas: 17 pruebas de la interfaz (MSTest: reglas de las tarjetas, eventos del motor, lector incremental, zoom y preferencias), Pester de la lectura de WinGet en inglés y español, y una prueba de CI que abre la ventana nueva, rellena el Inicio con el motor real y completa la prueba de la ventana clásica.
+
+### Cambiado
+- El lanzador abre la interfaz nueva. Si falta (un paquete construido sin el SDK de .NET), abre la ventana clásica como antes.
+- **Puerta de publicación nueva `app`**: compila la interfaz y pasa sus pruebas en Windows.
+
+### Archivos y pruebas
+- `src/app/**` (proyecto `iWinInstaller.App.csproj`), `tests/unit/app/**`, `.github/workflows/app.yml`, `src/engine/10-Updates.ps1`, `src/engine/11-Status.ps1`, `native/Launcher.cs`, `scripts/build_exe.ps1` y `release.yml` (la publicación exige la interfaz compilada).
+- **Afecta a Windows x86/x64/ARM64**: la interfaz es AnyCPU. En ARM64 corre nativa con .NET Framework 4.8.1 y emulada con 4.8. CI en x64 y ARM64; el lanzador x86 abre la misma interfaz.
+
 ## v4.3 — 2026-11-08
 
 Tercera versión del camino a v5.0. La app pasa a una carpeta que solo pueden modificar los administradores.

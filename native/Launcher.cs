@@ -7,8 +7,8 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-[assembly: AssemblyVersion("4.3.0.0")]
-[assembly: AssemblyFileVersion("4.3.0.0")]
+[assembly: AssemblyVersion("4.4.0.0")]
+[assembly: AssemblyFileVersion("4.4.0.0")]
 
 static class Launcher {
     static readonly object LogLock = new object();
@@ -21,12 +21,12 @@ static class Launcher {
         try {
             Directory.CreateDirectory(logs);
             Environment.CurrentDirectory = logs;
-            Log("iWinInstaller v4.3; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
+            Log("iWinInstaller v4.4; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
 #if SETUP
             bool quiet = Array.IndexOf(args, "--silent") >= 0;
             if (quiet) { Install(); return 0; }
             using (Form form = new Form()) {
-                form.Text = "iWinInstaller v4.3"; form.Width = 560; form.Height = 230;
+                form.Text = "iWinInstaller v4.4"; form.Width = 560; form.Height = 230;
                 form.StartPosition = FormStartPosition.CenterScreen;
                 form.FormBorderStyle = FormBorderStyle.FixedDialog; form.ControlBox = false;
                 form.BackColor = System.Drawing.Color.Black; form.ForeColor = System.Drawing.Color.White;
@@ -99,7 +99,9 @@ static class Launcher {
                 if (installed != 0) throw new Exception("No se pudo instalar la aplicación: " + installed);
                 Process.Start(Path.Combine(InstallDirectory(), "iWinInstaller.exe")); return 0;
             }
-            int code = RunPowerShell(Path.Combine(root, "launch.ps1"), "", logs, null);
+            // Desde v4.4 se abre la interfaz nueva; sin ella (paquete sin compilar), la ventana clásica
+            string appExe = Path.Combine(root, "iWinInstaller.App.exe");
+            int code = File.Exists(appExe) ? RunApp(appExe, root) : RunPowerShell(Path.Combine(root, "launch.ps1"), "", logs, null);
             // 0x40010004 y 0xC000013A: Windows cerro la app (apagado, reinicio, cierre de sesion o Ctrl+C). No es un fallo.
             if (code == 0x40010004 || code == unchecked((int)0xC000013A)) { Log("La aplicación se cerró porque Windows terminó la sesión (código " + code + ")."); return 0; }
             if (code != 0) throw new Exception("La aplicación terminó con el código " + code + ". El diagnóstico contiene los detalles disponibles.");
@@ -140,6 +142,12 @@ static class Launcher {
         string programFiles = Environment.GetEnvironmentVariable("ProgramW6432");
         if (String.IsNullOrEmpty(programFiles)) programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
         return Path.Combine(programFiles, "iWinInstaller");
+    }
+    static int RunApp(string exe, string root) {
+        ProcessStartInfo start = new ProcessStartInfo(exe);
+        start.UseShellExecute = false; start.WorkingDirectory = root;
+        start.EnvironmentVariables["IWIN_HOST_PID"] = Process.GetCurrentProcess().Id.ToString();
+        using (Process process = Process.Start(start)) { process.WaitForExit(); return process.ExitCode; }
     }
     // Ejecuta un script con permiso de administrador (UAC). Devuelve su código de salida o 1223 si se cancela.
     static int RunElevated(string script, string arguments, bool wait) {

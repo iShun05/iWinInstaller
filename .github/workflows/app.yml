@@ -1,0 +1,24 @@
+name: Interfaz
+# Puerta de publicación: compila la interfaz WPF (.NET Framework 4.8) y ejecuta sus pruebas.
+on:
+  # Sin filtro de rutas en main: la publicación exige esta prueba en el commit de cada versión
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+    paths: ['src/app/**', 'tests/unit/app/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  app:
+    name: app
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compilar la interfaz
+        shell: pwsh
+        run: dotnet build src/app/iWinInstaller.App.csproj -c Release
+      - name: Pruebas de la interfaz
+        shell: pwsh
+        run: dotnet test tests/unit/app/iWinInstaller.App.Tests.csproj -c Release --logger "console;verbosity=normal"
