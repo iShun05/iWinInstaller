@@ -1,0 +1,7 @@
+# Carpetas de desarrollo que no forman parte de la app instalada (git archive las omite)
+specs/ export-ignore
+.specify/ export-ignore
+.claude/ export-ignore
+docs/ export-ignore
+src/catalog/ export-ignore
+.gitattributes export-ignore
