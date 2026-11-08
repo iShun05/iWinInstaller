@@ -1,4 +1,4 @@
-# Pruebas del contrato interfaz ↔ motor (src/engine/09-Contract.ps1) sin instalar nada.
+﻿# Pruebas del contrato interfaz ↔ motor (src/engine/09-Contract.ps1) sin instalar nada.
 
 BeforeAll {
     $root = Resolve-Path (Join-Path $PSScriptRoot '..\..\..')
