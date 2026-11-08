@@ -167,7 +167,9 @@ static class Launcher {
     // (con UAC activo, el Explorador abre la app con el token normal; sin UAC no hay token dividido)
     static void OpenUnelevated(string exe) {
         object lua = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System", "EnableLUA", 1);
-        if (lua is int && (int)lua == 0) { Process.Start(exe); return; }
+        // La prueba de CI necesita que la app herede IWIN_PRUEBA_GUI; el Explorador no transmite el entorno
+        bool test = !String.IsNullOrEmpty(Environment.GetEnvironmentVariable("IWIN_PRUEBA_GUI"));
+        if (test || (lua is int && (int)lua == 0)) { Process.Start(exe); return; }
         try { Process.Start(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe"), "\"" + exe + "\""); }
         catch { Process.Start(exe); }
     }
