@@ -15,7 +15,7 @@
 
 ### Cambiado
 - Al abrir, si la actualización automática está activada, la app busca versión nueva en segundo plano (como hacía la ventana clásica). Si hay una, se aplica al cerrarla.
-- **Nilesoft Shell** (Instalar › Aplicaciones › Personalización): la descripción explica que también sustituye el menú de clic derecho de la **barra de tareas** (Terminal, Ir a, Apps, Windows, Escritorio, Configuración, Administrador de tareas), para encontrarlo buscando «barra de tareas» o «menú contextual». Además tiene «Pasos y notas»: aviso de que «Task Manager» y «Taskbar settings» salen en inglés porque Nilesoft Shell no los traduce, y enlace a su documentación.
+- **Nilesoft Shell** (Instalar › Aplicaciones › Personalización): la descripción explica que también sustituye el menú de clic derecho del **escritorio** (Terminal, Abrir en Terminal, File manage, Ir a, Nuevo) y de la **barra de tareas** (Terminal, Ir a, Apps, Windows, Escritorio, Configuración, Administrador de tareas), para encontrarlo buscando «barra de tareas» o «menú contextual». Además tiene «Pasos y notas»: aviso de que «Task Manager», «Taskbar settings» y «File manage» salen en inglés porque Nilesoft Shell no los traduce, y enlace a su documentación.
 - El lanzador exige la interfaz: un paquete sin `iWinInstaller.App.exe` avisa de reinstalar en vez de abrir la ventana clásica.
 - CI: la aceptación prueba la consola (`-Check -Json`) y el contrato del motor en lugar de construir la ventana clásica. Nueva barrera: ningún archivo de código supera 1.500 líneas.
 

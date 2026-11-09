@@ -7376,7 +7376,7 @@
     "section": "Aplicaciones",
     "group": "Personalización",
     "name": "Nilesoft Shell",
-    "desc": "Sustituye los menús de clic derecho del Explorador, el escritorio y la barra de tareas (Terminal, Ir a, Apps, Windows, Escritorio, Configuración, Administrador de tareas). Gratuito y de código abierto",
+    "desc": "Sustituye los menús de clic derecho del Explorador, el escritorio (Terminal, Abrir en Terminal, File manage, Ir a, Nuevo) y la barra de tareas (Terminal, Ir a, Apps, Windows, Escritorio, Configuración, Administrador de tareas). Gratuito y de código abierto",
     "icon": "nilesoft.org",
     "type": "winget",
     "winget": "Nilesoft.Shell",
@@ -7386,7 +7386,8 @@
       "steps": [
         "Cierra sesión o reinicia Windows si el menú nuevo no aparece al momento.",
         "Haz clic derecho en la barra de tareas: verás Terminal, Ir a, Apps, Windows, Escritorio y Configuración. «Task Manager» y «Taskbar settings» aparecen en inglés porque Nilesoft Shell no los traduce.",
-        "Haz clic derecho en el escritorio y en una carpeta para comprobar el resto de menús."
+        "Haz clic derecho en el escritorio: verás Ver, Ordenar por, Actualizar, Pegar, Abrir en Terminal, Terminal, File manage, Ir a, Nuevo y Personalizar. «File manage» aparece en inglés porque Nilesoft Shell no lo traduce.",
+        "Haz clic derecho en una carpeta o un archivo para comprobar el menú del Explorador."
       ],
       "note": "Para volver a los menús de Windows, desinstálalo desde Instalar. La configuración de los menús está en los archivos .nss de su carpeta de instalación.",
       "link": "https://nilesoft.org/docs",
