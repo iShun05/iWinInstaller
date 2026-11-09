@@ -49,7 +49,11 @@ try {
     foreach ($asset in $metadata.assets) {
         $file=Join-Path $OutputDirectory $asset.name
         if (-not (Test-Path $file) -or (Get-FileHash $file).Hash.ToLowerInvariant() -ne $asset.digest.Substring(7)) {
-            Invoke-WebRequest $asset.browser_download_url -OutFile $file -UseBasicParsing
+            # Las descargas de GitHub fallan a veces con 502/504: hasta cinco intentos
+            for ($attempt = 1; ; $attempt++) {
+                try { Invoke-WebRequest $asset.browser_download_url -OutFile $file -UseBasicParsing; break }
+                catch { if ($attempt -ge 5) { throw }; Write-Warning "Descarga de $($asset.name) fallida ($($_.Exception.Message)); reintento $attempt"; Start-Sleep -Seconds (10 * $attempt) }
+            }
         }
         if ((Get-FileHash $file).Hash.ToLowerInvariant() -ne $asset.digest.Substring(7)) { throw "Hash incorrecto: $($asset.name)" }
         [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive,$file,('iWinInstaller/prerequisites/'+$asset.name),[IO.Compression.CompressionLevel]::NoCompression)

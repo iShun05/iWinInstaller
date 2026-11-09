@@ -75,6 +75,7 @@ Quinta versión del camino a v5.0: **Actualizaciones** pasa a la interfaz nueva,
 - **Afecta a Windows x86/x64/ARM64 por igual**. CI en x64 y ARM64 y proceso x86.
 
 ### Corregido
+- **Descargas más resistentes**: GitHub devuelve a veces 502/504 al descargar releases. El instalador (`install.ps1`, hasta 5 intentos), la actualización de la app (3 intentos) y la construcción del EXE (5 intentos) reintentan antes de fallar.
 - La verificación posterior a la publicación reintenta durante 5 minutos los enlaces fijos de descarga: justo al publicar la v4.4, github.com devolvió 504 aunque las descargas estaban completas y con su huella correcta.
 
 ## v4.4 — 2026-11-08
