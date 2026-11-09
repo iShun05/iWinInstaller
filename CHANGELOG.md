@@ -20,6 +20,8 @@ Apariencia renovada de la interfaz, a partir de una captura del usuario en Windo
 - **Sistema**: los desplegables de monitor, resolución, frecuencia y energía tenían el texto invisible (texto claro sobre la plantilla gris de Windows). Ahora usan el tema oscuro.
 - «Plan activo» mostraba el identificador interno del plan (`8c5e7fda-…`); ahora muestra solo su nombre (p. ej. «Alto rendimiento»).
 
+- **CI**: los cambios solo en `src/` (motor e interfaz) no lanzaban las pruebas de instalador, EXE y aceptación, porque sus filtros de rutas eran anteriores a v4.2. Ahora sí. Todas las versiones publicadas incluían otros archivos y pasaron la batería completa.
+
 ### Archivos y pruebas
 - `src/app/Theme/Theme.xaml`, `Shell/MainWindow.xaml(.cs)`, `ShellViewModel.cs`, `Modules/Home/**`, `Core/StatusCard.cs`, `Core/Converters.cs`, vistas de Instalar, Sistema, Seguridad, Acceso remoto, Ajustes y Actualizaciones, y `src/engine/11-Status.ps1`.
 - MSTest: columnas según el ancho y etiquetas de estado. Pendiente de revisar en pantalla real: contraste, ventana pequeña y zoom al 200 %.

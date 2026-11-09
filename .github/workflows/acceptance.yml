@@ -2,7 +2,7 @@ name: Aceptación real de instalación
 on:
   push:
     branches: [main, 'codex/**']
-    paths: ['*.ps1', 'apps.json', 'profiles.json', 'native/**', 'scripts/**', 'tests/**', 'installer-header.bat', '.github/workflows/**']
+    paths: ['*.ps1', 'apps.json', 'profiles.json', 'src/**', 'native/**', 'scripts/**', 'tests/**', 'installer-header.bat', '.github/workflows/**']
   workflow_dispatch:
 permissions:
   contents: read
