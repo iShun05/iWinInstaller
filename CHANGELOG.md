@@ -74,6 +74,9 @@ Quinta versión del camino a v5.0: **Actualizaciones** pasa a la interfaz nueva,
 - Pester: exclusiones (guardar, quitar, archivo dañado, ids no válidos), lista vacía frente a «no se pudo comprobar» y omisión de excluidas e interactivas en modo programado. MSTest: lectura de la lista y de la programación, y resultados por app.
 - **Afecta a Windows x86/x64/ARM64 por igual**. CI en x64 y ARM64 y proceso x86.
 
+### Corregido
+- La verificación posterior a la publicación reintenta durante 5 minutos los enlaces fijos de descarga: justo al publicar la v4.4, github.com devolvió 504 aunque las descargas estaban completas y con su huella correcta.
+
 ## v4.4 — 2026-11-08
 
 Cuarta versión del camino a v5.0: primera pantalla de la **interfaz nueva**, con el estado del PC.
