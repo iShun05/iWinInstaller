@@ -165,7 +165,11 @@ if ($embedded) {
     if (-not $tag -or -not $asset -or $asset.digest -notmatch '^sha256:([a-fA-F0-9]{64})$') { throw 'No se encontro la descarga con su hash SHA256.' }
     $expectedHash = $Matches[1]
     Show-InstallProgress 3 "Descargando iWinInstaller $tag"
-    Invoke-WebRequest $asset.browser_download_url -OutFile $archive -UseBasicParsing
+    # GitHub responde a veces 502/504 en las descargas: hasta cinco intentos antes de rendirse
+    for ($attempt = 1; ; $attempt++) {
+        try { Invoke-WebRequest $asset.browser_download_url -OutFile $archive -UseBasicParsing; break }
+        catch { if ($attempt -ge 5) { throw }; Write-Host "La descarga fallo ($($_.Exception.Message)); reintento $attempt de 4."; Start-Sleep -Seconds (10 * $attempt) }
+    }
     if ((Get-FileHash $archive).Hash -ne $expectedHash) { throw 'La descarga no supera la comprobacion SHA256.' }
 }
 Show-InstallProgress 4 'Descomprimiendo y comprobando los archivos'
