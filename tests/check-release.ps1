@@ -70,10 +70,18 @@ try {
     # El enlace fijo del README debe llevar a la última versión
     foreach ($name in 'iWinInstaller-Setup.exe', 'iWinInstaller.zip') {
         $url = "https://github.com/$Repo/releases/latest/download/$name"
-        try {
-            $response = Invoke-WebRequest $url -Method Head -MaximumRedirection 10 -UseBasicParsing
-            if ($response.StatusCode -ne 200) { Fail "$url responde $($response.StatusCode)." }
-        } catch { Fail "$url no responde: $($_.Exception.Message)" }
+        # Justo al publicar, github.com puede tardar unos minutos en servir la descarga (502/504): se reintenta
+        $lastError = $null
+        for ($attempt = 1; $attempt -le 10; $attempt++) {
+            try {
+                $response = Invoke-WebRequest $url -Method Head -MaximumRedirection 10 -UseBasicParsing
+                if ($response.StatusCode -eq 200) { $lastError = $null; break }
+                $lastError = "responde $($response.StatusCode)"
+            } catch { $lastError = "no responde: $($_.Exception.Message)" }
+            Write-Host "Intento $attempt · $url $lastError"
+            Start-Sleep -Seconds 30
+        }
+        if ($lastError) { Fail "$url $lastError" } else { Write-Host "OK  $url" }
     }
 } finally {
     Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
