@@ -11,6 +11,10 @@ using System.Windows.Forms;
 [assembly: AssemblyFileVersion("5.1.0.0")]
 
 static class Launcher {
+#if SETUP
+    // Se mantiene viva durante todo el proceso; Windows la libera al salir.
+    static System.Threading.Mutex setupMutex;
+#endif
     static readonly object LogLock = new object();
     static string LogPath;
     static Action<int, string> Progress;
@@ -23,6 +27,11 @@ static class Launcher {
             Environment.CurrentDirectory = logs;
             Log("iWinInstaller v5.1; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
 #if SETUP
+            // Un solo Setup a la vez: si ya hay otro abierto (doble clic), se avisa sin tratarlo como error.
+            setupMutex = new System.Threading.Mutex(false, "Local\\iWinInstaller-setup");
+            bool ownsSetup;
+            try { ownsSetup = setupMutex.WaitOne(0); } catch (System.Threading.AbandonedMutexException) { ownsSetup = true; }
+            if (!ownsSetup) throw new AlreadyInstallingException();
             bool quiet = Array.IndexOf(args, "--silent") >= 0;
             if (quiet) { Install(); return 0; }
             using (Form form = new Form()) {
@@ -107,6 +116,11 @@ static class Launcher {
             if (code == 0x40010004 || code == unchecked((int)0xC000013A)) { Log("La aplicación se cerró porque Windows terminó la sesión (código " + code + ")."); return 0; }
             if (code != 0) throw new Exception("La aplicación terminó con el código " + code + ". El diagnóstico contiene los detalles disponibles.");
 #endif
+            return 0;
+        } catch (AlreadyInstallingException e) {
+            Log(e.Message);
+            if (Array.IndexOf(args, "--silent") < 0 && Array.IndexOf(args, "--update-only") < 0)
+                MessageBox.Show(e.Message, "iWinInstaller", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return 0;
         } catch (Exception e) {
             Log(e.ToString());
@@ -251,9 +265,16 @@ static class Launcher {
                 entry.ExtractToFile(script);
             }
             int code = RunPowerShell(script, "-Silent", temp, zip);
+            // 1618 (ERROR_INSTALL_ALREADY_RUNNING): otra instalación está en marcha; no es un fallo.
+            if (code == 1618) throw new AlreadyInstallingException();
             if (code != 0) throw new Exception("La instalación terminó con el código " + code);
             if (!File.Exists(Path.Combine(InstallDirectory(), "iWinInstaller.exe"))) throw new Exception("No se encontró el ejecutable instalado.");
         } finally { try { Directory.Delete(temp, true); } catch { } }
     }
 #endif
+}
+
+// Otra instalación de iWinInstaller está en curso: aviso informativo, no un fallo.
+class AlreadyInstallingException : Exception {
+    public AlreadyInstallingException() : base("Ya se está instalando iWinInstaller en otra ventana. Espera a que termine; se abrirá sola.") { }
 }

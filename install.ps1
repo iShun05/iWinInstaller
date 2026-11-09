@@ -137,7 +137,7 @@ $installMutex=New-Object Threading.Mutex($false,('Local\iWinInstaller-install-'+
 $ownsInstall=$false
 try{
     try{$ownsInstall=$installMutex.WaitOne(0)}catch [Threading.AbandonedMutexException]{$ownsInstall=$true}
-    if(-not $ownsInstall){throw 'Ya hay otra instalacion de iWinInstaller en curso.'}
+    if(-not $ownsInstall){Write-Warning 'Ya hay otra instalacion de iWinInstaller en curso.';exit 1618}
 $tag = 'v5.1'
 $tmp = Join-Path $env:TEMP ('iWinInstaller-' + [Guid]::NewGuid().ToString())
 New-Item -ItemType Directory $tmp -Force | Out-Null

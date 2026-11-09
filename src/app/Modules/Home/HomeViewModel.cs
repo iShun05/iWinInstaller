@@ -27,7 +27,7 @@ namespace IWinInstaller.App.Modules.Home
             _dispatcher = dispatcher;
             Cards = new ObservableCollection<StatusCard>
             {
-                new StatusCard("appUpdates", "Actualizaciones de apps"),
+                new StatusCard("appUpdates", "Actualizar apps"),
                 new StatusCard("windowsUpdate", "Windows Update"),
                 new StatusCard("antivirus", "Protección antivirus"),
                 new StatusCard("diskSpace", "Espacio en disco"),

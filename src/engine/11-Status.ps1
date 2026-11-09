@@ -50,7 +50,7 @@ function Get-IwinPendingBatchCard {
     $pending = @(Get-IwinPendingBatches)
     if (-not $pending) { return New-IwinStatusCard 'pendingBatch' 'ok' 'Sin lotes pendientes' '' 'install.open' }
     $items = @($pending[0].Data.items | Where-Object state -ne 'done').Count
-    New-IwinStatusCard 'pendingBatch' 'attention' "Lote sin terminar: $items aplicación(es)" 'Puedes reanudarlo desde Instalar.' 'install.resume'
+    New-IwinStatusCard 'pendingBatch' 'attention' $(if ($items -eq 1) { 'Lote sin terminar: 1 aplicación' } else { "Lote sin terminar: $items aplicaciones" }) 'Puedes reanudarlo desde Instalar.' 'install.resume'
 }
 
 Register-IwinEngineCommand 'status.collect' {

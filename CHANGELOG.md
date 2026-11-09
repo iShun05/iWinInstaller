@@ -19,12 +19,17 @@ Apariencia renovada de la interfaz, a partir de una captura del usuario en Windo
 - Windows Update decía «Última búsqueda hace 0 día(s)». Ahora dice «hoy», «ayer» o «hace N días».
 - **Sistema**: los desplegables de monitor, resolución, frecuencia y energía tenían el texto invisible (texto claro sobre la plantilla gris de Windows). Ahora usan el tema oscuro.
 - «Plan activo» mostraba el identificador interno del plan (`8c5e7fda-…`); ahora muestra solo su nombre (p. ej. «Alto rendimiento»).
+- Revisión en una VM Windows 11 ARM (Parallels):
+  - El título «Actualizaciones de apps» se cortaba en la tarjeta; ahora es «Actualizar apps».
+  - «Lote sin terminar: 1 aplicación(es)» ahora dice «1 aplicación» o «N aplicaciones».
+  - Los botones principales desactivados («Aplicar») parecían activos (azul lavado). Ahora se ven grises.
+  - Abrir el Setup dos veces mostraba un error con diagnóstico. Ahora la segunda ventana avisa de que ya hay una instalación en curso y se cierra sin error (código 1618 del instalador).
 
 - **CI**: los cambios solo en `src/` (motor e interfaz) no lanzaban las pruebas de instalador, EXE y aceptación, porque sus filtros de rutas eran anteriores a v4.2. Ahora sí. Todas las versiones publicadas incluían otros archivos y pasaron la batería completa.
 
 ### Archivos y pruebas
-- `src/app/Theme/Theme.xaml`, `Shell/MainWindow.xaml(.cs)`, `ShellViewModel.cs`, `Modules/Home/**`, `Core/StatusCard.cs`, `Core/Converters.cs`, vistas de Instalar, Sistema, Seguridad, Acceso remoto, Ajustes y Actualizaciones, y `src/engine/11-Status.ps1`.
-- MSTest: columnas según el ancho y etiquetas de estado. Pendiente de revisar en pantalla real: contraste, ventana pequeña y zoom al 200 %.
+- `src/app/Theme/Theme.xaml`, `Shell/MainWindow.xaml(.cs)`, `ShellViewModel.cs`, `Modules/Home/**`, `Core/StatusCard.cs`, `Core/Converters.cs`, vistas de Instalar, Sistema, Seguridad, Acceso remoto, Ajustes y Actualizaciones, `src/engine/11-Status.ps1`, `native/Launcher.cs` e `install.ps1`.
+- MSTest: columnas según el ancho y etiquetas de estado. Revisado en pantalla real (VM Windows 11 ARM): Inicio y Sistema. Pendiente: ventana pequeña y zoom al 200 %.
 - **Afecta a Windows x86/x64/ARM64 por igual**.
 
 ## v5.0 — 2026-11-09
