@@ -11,7 +11,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <ApplicationIcon>..\..\assets\icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>4.8.0</Version>
+    <Version>4.9.0</Version>
     <Product>iWinInstaller</Product>
     <Company>iShun05</Company>
     <Copyright>MIT</Copyright>

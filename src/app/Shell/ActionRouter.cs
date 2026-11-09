@@ -21,9 +21,9 @@ namespace IWinInstaller.App.Shell
             switch (actionId)
             {
                 case "windowsupdate.open": return OpenUri("ms-settings:windowsupdate");
-                case "maintenance.clean": return OpenUri("ms-settings:storagesense");
-                case "maintenance.battery": return OpenUri("ms-settings:batterysaver");
-                case "maintenance.health": return OpenUri("ms-settings:disksandvolumes");
+                case "maintenance.clean":
+                case "maintenance.battery":
+                case "maintenance.health": _navigate("maintenance"); return true;
                 case "updates.open": _navigate("updates"); return true;
                 case "install.open":
                 case "install.resume": _navigate("install"); return true;

@@ -1,5 +1,24 @@
 # Historial de versiones
 
+## v4.9 — 2026-11-09
+
+Novena versión del camino a v5.0: **Mantenimiento y salud**.
+
+### Añadido
+- **Liberar espacio**: calcula antes cuánto ocupa cada categoría y pide confirmación antes de borrar. Categorías: temporales de tu usuario y de Windows, descargas de Windows Update ya instaladas, caché de Optimización de distribución, miniaturas, volcados de errores, papelera y descargas antiguas de iWinInstaller.
+  - Solo archivos de **más de un día** en una lista cerrada de ubicaciones; **nunca documentos** ni carpetas personales. Lo que está en uso se omite y se cuenta.
+  - Las del sistema se limpian con **una sola** solicitud de administrador.
+- **Reparar Windows**: DISM (imagen) y SFC (archivos del sistema), con el resultado explicado.
+- **Salud del equipo**: espacio, estado de cada disco, desgaste de la batería y reinicio pendiente, más el **informe de batería** de Windows.
+- **Informe del equipo** en JSON: sistema, procesador, gráfica, RAM, placa, BIOS y discos. **Sin números de serie, nombre del equipo ni usuario** salvo que marques incluirlos.
+- Las tarjetas de espacio, discos y batería del Inicio abren ya Mantenimiento, y la paleta encuentra «liberar espacio», «reparar», «sfc»…
+- Línea de comandos: `-Clean [-Categories a,b]` (solo estima) y `-Clean -Yes` (libera), y `-MachineReport <ruta> [-IncludeSensitive]`.
+
+### Archivos y pruebas
+- `src/engine/14-Maintenance.ps1`, `src/app/Modules/Maintenance/**`, navegación, paleta, `iWinInstaller.ps1` (CLI) y `docs/cli.md`.
+- Pester en carpetas de prueba: solo se borra lo de más de un día, las categorías desconocidas se rechazan y el informe no incluye datos sensibles sin marcarlo.
+- **Afecta a Windows x86/x64/ARM64 por igual**. Pendientes físicos: SMART real, batería y reparación en un equipo con problemas.
+
 ## v4.8 — 2026-11-09
 
 Octava versión del camino a v5.0: **paleta de búsqueda** para llegar a cualquier cosa con el teclado.

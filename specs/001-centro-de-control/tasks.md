@@ -215,15 +215,15 @@ tiempo de arranque (T047) queda en el registro `interfaz.log` de la prueba de CI
 
 **Independent Test**: limpieza con temporales de prueba muestra estimación y resultado.
 
-- [ ] T080 [P] [US5] Pruebas Pester de limpieza con lista blanca y carpeta simulada (nada fuera de la lista se toca) en `tests/unit/engine/Maintenance.Tests.ps1`
-- [ ] T081 [P] [US5] Pruebas del informe del equipo (sin datos sensibles por defecto) en `tests/unit/engine/MachineReport.Tests.ps1`
-- [ ] T082 [US5] `maintenance.estimate`, `maintenance.clean` y `maintenance.repair` en `src/engine/Iwin.Maintenance.psm1`
-- [ ] T083 [US5] `health.collect` (discos, batería, temperaturas con «no disponible») en `src/engine/Iwin.Maintenance.psm1`
-- [ ] T084 [US5] `report.machine` en `src/engine/Iwin.Report.psm1`
-- [ ] T085 [US5] Módulo Mantenimiento (limpieza con confirmación, reparación con progreso, salud, informe) en `src/app/Modules/Maintenance/`
-- [ ] T086 [US5] Enlazar las tarjetas del inicio a Mantenimiento en `src/app/Modules/Home/`
-- [ ] T087 [US5] `-Clean` y `-MachineReport` en `src/engine/iwin-engine.ps1` y `docs/cli.md`
-- [ ] T088 [US5] Publicar **v4.9**
+- [x] T080 [P] [US5] Pruebas Pester de limpieza con lista blanca y carpeta simulada (nada fuera de la lista se toca) en `tests/unit/engine/Maintenance.Tests.ps1`
+- [x] T081 [P] [US5] Pruebas del informe del equipo (sin datos sensibles por defecto) en `tests/unit/engine/MachineReport.Tests.ps1`
+- [x] T082 [US5] `maintenance.estimate`, `maintenance.clean` y `maintenance.repair` en `src/engine/Iwin.Maintenance.psm1`
+- [x] T083 [US5] `health.collect` (discos, batería, temperaturas con «no disponible») en `src/engine/Iwin.Maintenance.psm1`
+- [x] T084 [US5] `report.machine` en `src/engine/Iwin.Report.psm1`
+- [x] T085 [US5] Módulo Mantenimiento (limpieza con confirmación, reparación con progreso, salud, informe) en `src/app/Modules/Maintenance/`
+- [x] T086 [US5] Enlazar las tarjetas del inicio a Mantenimiento en `src/app/Modules/Home/`
+- [x] T087 [US5] `-Clean` y `-MachineReport` en `src/engine/iwin-engine.ps1` y `docs/cli.md`
+- [x] T088 [US5] Publicar **v4.9**
 
 **Checkpoint**: US5 completa.
 

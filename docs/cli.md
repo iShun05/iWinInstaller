@@ -21,6 +21,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File $iwin -Check
 | `-Updates -List [-Json]` | v4.5 | Lista las apps con versión nueva y si están excluidas |
 | `-Updates -Exclude <id>` / `-Include <id>` | v4.5 | Mantiene una app (id de WinGet) en su versión o la vuelve a actualizar |
 | `-Update -Scheduled` | v4.5 | Lo que ejecuta la actualización programada: todo salvo excluidas y asistentes |
+| `-Clean [-Categories a,b] [-Yes]` | v4.9 | Sin `-Yes` estima cuánto se liberaría; con `-Yes` lo libera (temporales y cachés de más de un día) |
+| `-MachineReport <ruta> [-IncludeSensitive]` | v4.9 | Informe del equipo en JSON; sin `-IncludeSensitive` no incluye números de serie, equipo ni usuario |
 | `-Status [-Json]` | v4.5 | Tarjetas del Inicio que comprueba el motor (actualizaciones, Windows Update, antivirus, lotes) |
 | `-EngineCommand <comando> -EngineRequest <json> -EngineResponse <json> -EngineEvents <jsonl>` | v4.2 | Contrato con la interfaz (uso interno; ver `specs/001-centro-de-control/contracts/engine.md`) |
 

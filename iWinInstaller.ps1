@@ -8,6 +8,8 @@
 #   iWinInstaller.ps1 -Updates -List [-Json]      lista las actualizaciones disponibles
 #   iWinInstaller.ps1 -Updates -Exclude <id>      mantiene una app en su versión (-Include la vuelve a actualizar)
 #   iWinInstaller.ps1 -Status [-Json]             estado del PC (tarjetas del motor)
+#   iWinInstaller.ps1 -Clean [-Categories a,b] [-Yes]  estima (o con -Yes, libera) espacio
+#   iWinInstaller.ps1 -MachineReport <ruta>       informe del equipo en JSON (sin datos sensibles)
 #   iWinInstaller.ps1 -Silent -Perfil mi.iwin.json instala un perfil exportado desde la ventana
 param(
     [switch]$Check,
@@ -30,6 +32,12 @@ param(
     [string]$Include,
     [switch]$Scheduled,
     [switch]$Status,
+    # Mantenimiento (v4.9): -Clean [-Categories a,b] [-Yes]; -MachineReport <ruta> [-IncludeSensitive]
+    [switch]$Clean,
+    [string[]]$Categories,
+    [switch]$Yes,
+    [string]$MachineReport,
+    [switch]$IncludeSensitive,
     # Contrato interfaz ↔ motor (specs/001-centro-de-control/contracts/engine.md)
     [string]$EngineCommand,
     [string]$EngineRequest,
@@ -41,14 +49,14 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v4.8'
+$Version = 'v4.9'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
 $Apps = @(Get-Content (Join-Path $Root 'apps.json') -Raw -Encoding UTF8 | ConvertFrom-Json | ForEach-Object { $_ })
 $Profiles = Get-Content (Join-Path $Root 'profiles.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $ReleaseApi = 'https://api.github.com/repos/iShun05/iWinInstaller/releases/latest'
-$UI = -not ($Check -or $Silent -or $Update -or $WorkerMode -or $Resume -or $AutoUpdate -or $EngineCommand -or $Updates -or $Status)
+$UI = -not ($Check -or $Silent -or $Update -or $WorkerMode -or $Resume -or $AutoUpdate -or $EngineCommand -or $Updates -or $Status -or $Clean -or $MachineReport)
 
 # Registro en archivo: %LOCALAPPDATA%\iWinInstaller\iWinInstaller_AAAA-MM-DD.log
 $LogDir = Join-Path $env:LOCALAPPDATA 'iWinInstaller'
@@ -59,7 +67,7 @@ if ($WorkerMode -and $SharedLog) { $LogFile = $SharedLog }
 . (Join-Path $Root 'lifecycle.ps1')
 
 # Motor: los archivos de src/engine se cargan en orden y comparten el ámbito del script.
-$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1', '13-Tools.ps1')
+$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1', '13-Tools.ps1', '14-Maintenance.ps1')
 foreach ($engineFile in $EngineFiles) {
     $enginePath = Join-Path $Root "src\engine\$engineFile"
     if (-not (Test-Path -LiteralPath $enginePath)) { throw "Falta un archivo del motor: $engineFile. Ejecuta de nuevo iWinInstaller-Setup.exe." }
@@ -176,6 +184,26 @@ if ($Status) {
     if ($Json) { [Console]::Out.Write((ConvertTo-Json -Depth 5 -InputObject ([ordered]@{ contract = 1; version = $Version; cards = @($response.cards) }))); exit 0 }
     foreach ($card in $response.cards) { Write-Host ("{0} {1}{2}" -f $(switch ($card.state) { 'ok' { '✓' } 'attention' { '!' } default { '?' } }), $card.summary, $(if ($card.reason) { " · $($card.reason)" } else { '' })) }
     exit @($response.cards | Where-Object { $_.state -ne 'ok' }).Count
+}
+
+if ($Clean) {
+    # Sin -Yes solo estima: nunca borra sin una confirmación explícita
+    $estimate = & $IwinEngineCommands['maintenance.estimate'] ([pscustomobject]@{ contract = 1 })
+    $chosen = @($estimate.categories | Where-Object { -not $Categories -or $Categories -contains $_.id })
+    if (-not $Yes) {
+        foreach ($row in $chosen) { Write-Host ("{0,-24} {1,10:N1} MB{2}" -f $row.id, ($row.estimatedBytes / 1MB), $(if ($row.admin) { '  (administrador)' } else { '' })) }
+        Write-Host 'Añade -Yes para liberarlo.'
+        exit 0
+    }
+    $done = & $IwinEngineCommands['maintenance.clean'] ([pscustomobject]@{ contract = 1; categories = @($chosen | ForEach-Object id) })
+    foreach ($row in $done.categories) { Write-Host ("{0,-24} {1,10:N1} MB liberados{2}" -f $row.id, ($row.freedBytes / 1MB), $(if ($row.denied) { '  (permiso denegado)' } else { '' })) }
+    exit @($done.categories | Where-Object { $_.denied }).Count
+}
+
+if ($MachineReport) {
+    $saved = & $IwinEngineCommands['report.machine'] ([pscustomobject]@{ contract = 1; path = [IO.Path]::GetFullPath($MachineReport); includeSensitive = [bool]$IncludeSensitive })
+    Write-Host "Informe del equipo: $($saved.path)"
+    exit 0
 }
 
 if ($Silent) {

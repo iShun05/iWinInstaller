@@ -10,6 +10,7 @@ using IWinInstaller.App.Engine;
 using IWinInstaller.App.Modules.Home;
 using IWinInstaller.App.Modules.Install;
 using IWinInstaller.App.Modules.Tools;
+using IWinInstaller.App.Modules.Maintenance;
 using IWinInstaller.App.Shell.Palette;
 using IWinInstaller.App.Modules.Updates;
 
@@ -49,6 +50,7 @@ namespace IWinInstaller.App.Shell
             Security = new SecurityViewModel(Engine);
             Link = new LinkViewModel(Engine, dialogs);
             Settings = new SettingsViewModel(Engine);
+            Maintenance = new MaintenanceViewModel(Engine, dialogs);
             Updates = new UpdatesViewModel(Engine, dispatcher);
             Router = new ActionRouter(Legacy, Navigate);
             Items = new ObservableCollection<NavItem>
@@ -57,6 +59,7 @@ namespace IWinInstaller.App.Shell
                 new NavItem("install", "Instalar", "Catálogo, perfiles, guías después de instalar e informe.", false),
                 new NavItem("updates", "Actualizaciones", "Versiones nuevas, exclusiones y actualización programada.", false),
                 new NavItem("system", "Sistema", "Pantalla y energía.", false),
+                new NavItem("maintenance", "Mantenimiento", "Liberar espacio, reparar Windows y salud del equipo.", false),
                 new NavItem("remote", "Acceso remoto", "Vincular equipos por SSH.", false),
                 new NavItem("security", "Seguridad", "Microsoft Defender y antivirus.", false),
                 new NavItem("settings", "Ajustes", "Actualización de la app, diagnóstico y actividad.", false)
@@ -83,6 +86,7 @@ namespace IWinInstaller.App.Shell
         public SecurityViewModel Security { get; private set; }
         public LinkViewModel Link { get; private set; }
         public SettingsViewModel Settings { get; private set; }
+        public MaintenanceViewModel Maintenance { get; private set; }
         public UpdatesViewModel Updates { get; private set; }
         public ActionRouter Router { get; private set; }
         public ObservableCollection<NavItem> Items { get; private set; }
@@ -132,6 +136,7 @@ namespace IWinInstaller.App.Shell
                 if (value.Id == "security") Security.EnsureLoaded();
                 if (value.Id == "remote") Link.EnsureLoaded();
                 if (value.Id == "settings") Settings.EnsureLoaded();
+                if (value.Id == "maintenance") Maintenance.EnsureLoaded();
             }
         }
         public bool IsHome { get { return Selected != null && Selected.Id == "home"; } }
