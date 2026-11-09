@@ -9,6 +9,8 @@ namespace IWinInstaller.App.Shell
         {
             InitializeComponent();
             DataContext = model;
+            // Paleta de búsqueda (Ctrl + K o botón «Buscar…»)
+            model.PaletteRequested += (sender, e) => new Palette.PaletteWindow(this, model.PaletteActions(), model.RunPaletteAction).Show();
             // Ctrl + rueda cambia el tamaño de todo, como en la ventana clásica
             PreviewMouseWheel += (sender, e) =>
             {

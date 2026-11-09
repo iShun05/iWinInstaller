@@ -17,6 +17,7 @@
     <KeyBinding Modifiers="Ctrl" Key="D0" Command="{Binding ZoomResetCommand}"/>
     <KeyBinding Modifiers="Ctrl" Key="NumPad0" Command="{Binding ZoomResetCommand}"/>
     <KeyBinding Key="F5" Command="{Binding Home.RefreshCommand}"/>
+    <KeyBinding Modifiers="Ctrl" Key="K" Command="{Binding OpenPaletteCommand}"/>
   </Window.InputBindings>
   <Window.Resources>
     <BooleanToVisibilityConverter x:Key="Visible"/>
@@ -33,7 +34,10 @@
     <!-- Navegación lateral -->
     <Border Background="#0B0B0F" BorderBrush="{StaticResource Border}" BorderThickness="0,0,1,0">
       <DockPanel Margin="14,22,14,16">
-        <TextBlock DockPanel.Dock="Top" Text="iWinInstaller" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" Margin="10,0,0,18"/>
+        <TextBlock DockPanel.Dock="Top" Text="iWinInstaller" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" Margin="10,0,0,14"/>
+        <Button DockPanel.Dock="Top" Style="{StaticResource Btn}" HorizontalContentAlignment="Left" Margin="0,0,0,14" Command="{Binding OpenPaletteCommand}" ToolTip="Busca cualquier acción o app (Ctrl + K)" AutomationProperties.Name="Buscar (Ctrl + K)">
+          <DockPanel><TextBlock DockPanel.Dock="Right" Text="Ctrl K" Foreground="#77777F" FontSize="11" Margin="12,0,0,0" VerticalAlignment="Center"/><TextBlock Text="Buscar…" Foreground="{StaticResource TextMuted}"/></DockPanel>
+        </Button>
         <StackPanel DockPanel.Dock="Bottom" Margin="6,12,0,0">
           <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
             <Button Style="{StaticResource Ghost}" Content="A−" Command="{Binding ZoomOutCommand}" ToolTip="Reducir (Ctrl −)" AutomationProperties.Name="Reducir tamaño"/>

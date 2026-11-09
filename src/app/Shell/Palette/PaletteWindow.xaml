@@ -1,0 +1,40 @@
+<Window x:Class="IWinInstaller.App.Shell.Palette.PaletteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False"
+        Width="620" SizeToContent="Height" WindowStartupLocation="CenterOwner" Topmost="False"
+        FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="14" Title="Buscar en iWinInstaller">
+  <Border Background="#16161A" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="14" Padding="10" Margin="0,60,0,0">
+    <StackPanel>
+      <TextBox x:Name="Query" Background="#22222B" Foreground="{StaticResource Text}" BorderBrush="{StaticResource Border}" Padding="12,10" FontSize="16"
+               AutomationProperties.Name="Buscar una acción o una app" TextChanged="OnQueryChanged" PreviewKeyDown="OnKey"/>
+      <TextBlock Text="Escribe lo que quieres hacer: «resolución», «ssh», «defender», «git»…  ·  Enter abre · Esc cierra" Foreground="#77777F" FontSize="11.5" Margin="4,8,4,6"/>
+      <ListBox x:Name="Results" Background="Transparent" BorderThickness="0" MaxHeight="420" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+               MouseDoubleClick="OnRun" PreviewKeyDown="OnKey" AutomationProperties.Name="Resultados">
+        <ListBox.ItemContainerStyle>
+          <Style TargetType="ListBoxItem">
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                  <Border x:Name="b" CornerRadius="8" Padding="12,8" Background="Transparent"><ContentPresenter/></Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsSelected" Value="True"><Setter TargetName="b" Property="Background" Value="#1F2C3B"/></Trigger>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#1C1C22"/></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+        </ListBox.ItemContainerStyle>
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <DockPanel>
+              <TextBlock DockPanel.Dock="Right" Text="{Binding Module}" Foreground="#77777F" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0"/>
+              <TextBlock Text="{Binding Title}" Foreground="{StaticResource Text}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+            </DockPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </StackPanel>
+  </Border>
+</Window>

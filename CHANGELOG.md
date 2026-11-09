@@ -1,5 +1,20 @@
 # Historial de versiones
 
+## v4.8 — 2026-11-09
+
+Octava versión del camino a v5.0: **paleta de búsqueda** para llegar a cualquier cosa con el teclado.
+
+### Añadido
+- **`Ctrl + K`** (o el botón **Buscar…** de la barra lateral) abre una paleta: escribe «resolución», «hibernar», «ssh», «defender», «diagnóstico» o el nombre de cualquier app del catálogo y pulsa Enter.
+  - Busca sin tildes ni mayúsculas, con sinónimos en español y todas las palabras; prioriza el título y las acciones de la app frente a apps con nombres parecidos.
+  - Las apps del catálogo llevan a Instalar con la búsqueda ya hecha; «Informe de la última instalación», «Reanudar lote pendiente», «Abrir Windows Update» y el resto de secciones se abren directamente.
+  - Flechas para moverse, Enter para abrir, Esc para cerrar. Nunca ejecuta nada que necesite confirmación: solo abre el sitio donde hacerlo.
+
+### Archivos y pruebas
+- `src/app/Shell/Palette/**` (búsqueda, acciones y ventana), `ShellViewModel.cs`, `MainWindow.xaml(.cs)`.
+- MSTest con las búsquedas de referencia del plan (SC-003): «frecuencia», «resolución», «defender», «ssh» y «git» dan el destino correcto en el primer resultado.
+- **Afecta a Windows x86/x64/ARM64 por igual**.
+
 ## v4.7 — 2026-11-09
 
 Séptima versión del camino a v5.0: todo lo de la ventana clásica está ya en la interfaz nueva.

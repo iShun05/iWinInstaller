@@ -197,13 +197,13 @@ tiempo de arranque (T047) queda en el registro `interfaz.log` de la prueba de CI
 
 **Independent Test**: «frecuencia» abre el panel de resolución y Hz.
 
-- [ ] T073 [P] [US4] Pruebas de búsqueda (sin tildes, sinónimos, orden por relevancia, no ejecuta acciones con confirmación) en `tests/unit/app/PaletteTests.cs`
-- [ ] T074 [US4] Registro de acciones `PaletteAction` por módulo y catálogo en `src/app/Shell/Palette/ActionRegistry.cs`
-- [ ] T075 [US4] Sinónimos en español en `src/app/Shell/Palette/synonyms.es.json`
-- [ ] T076 [US4] Ventana de paleta con atajo global en la app y navegación por teclado en `src/app/Shell/Palette/`
-- [ ] T077 [US4] Repaso de accesibilidad (nombres automáticos, foco visible, contraste) en `src/app/Theme/` y vistas
-- [ ] T078 [US4] Prueba de las búsquedas de referencia (SC-003) en `tests/check-native.ps1`
-- [ ] T079 [US4] Publicar **v4.8**
+- [x] T073 [P] [US4] Pruebas de búsqueda (sin tildes, sinónimos, orden por relevancia, no ejecuta acciones con confirmación) en `tests/unit/app/PaletteTests.cs`
+- [x] T074 [US4] Registro de acciones `PaletteAction` por módulo y catálogo en `src/app/Shell/Palette/ActionRegistry.cs`
+- [x] T075 (sinónimos en `ActionRegistry`, no en un JSON aparte) [US4] Sinónimos en español en `src/app/Shell/Palette/synonyms.es.json`
+- [x] T076 [US4] Ventana de paleta con atajo global en la app y navegación por teclado en `src/app/Shell/Palette/`
+- [ ] T077 (parcial: nombres automáticos y foco visible en la interfaz nueva; repaso completo en v5.0) [US4] Repaso de accesibilidad (nombres automáticos, foco visible, contraste) en `src/app/Theme/` y vistas
+- [x] T078 [US4] Prueba de las búsquedas de referencia (SC-003) en `tests/check-native.ps1`
+- [x] T079 [US4] Publicar **v4.8**
 
 **Checkpoint**: US4 completa.
 

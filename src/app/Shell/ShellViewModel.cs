@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -9,6 +10,7 @@ using IWinInstaller.App.Engine;
 using IWinInstaller.App.Modules.Home;
 using IWinInstaller.App.Modules.Install;
 using IWinInstaller.App.Modules.Tools;
+using IWinInstaller.App.Shell.Palette;
 using IWinInstaller.App.Modules.Updates;
 
 namespace IWinInstaller.App.Shell
@@ -70,6 +72,7 @@ namespace IWinInstaller.App.Shell
             ZoomInCommand = new RelayCommand(_ => Zoom += 0.1);
             ZoomOutCommand = new RelayCommand(_ => Zoom -= 0.1);
             ZoomResetCommand = new RelayCommand(_ => Zoom = 1.0);
+            OpenPaletteCommand = new RelayCommand(_ => { var handler = PaletteRequested; if (handler != null) handler(this, EventArgs.Empty); });
         }
 
         public EngineClient Engine { get; private set; }
@@ -89,6 +92,32 @@ namespace IWinInstaller.App.Shell
         public RelayCommand ZoomInCommand { get; private set; }
         public RelayCommand ZoomOutCommand { get; private set; }
         public RelayCommand ZoomResetCommand { get; private set; }
+        public RelayCommand OpenPaletteCommand { get; private set; }
+        /// <summary>La ventana abre la paleta (Ctrl + K) cuando se pide.</summary>
+        public event EventHandler PaletteRequested;
+
+        /// <summary>Acciones de la app más una por cada entrada del catálogo.</summary>
+        public List<PaletteAction> PaletteActions()
+        {
+            var actions = ActionRegistry.BuiltIn();
+            foreach (var item in Install.Items)
+                actions.Add(new PaletteAction("install.search:" + item.Id, item.Name, "Instalar · " + item.Entry.Group, item.Desc + " " + item.Compare + " " + item.Entry.Subgroup));
+            return actions;
+        }
+
+        /// <summary>Ejecuta una acción de la paleta.</summary>
+        public void RunPaletteAction(PaletteAction action)
+        {
+            if (action == null) return;
+            if (action.Id.StartsWith("install.search:", StringComparison.Ordinal))
+            {
+                Navigate("install");
+                Install.Search = action.Title;
+                return;
+            }
+            if (action.Id == "install.report") { Navigate("install"); Install.ShowLastReportCommand.Execute(null); return; }
+            Router.Run(action.Id);
+        }
 
         public NavItem Selected
         {
