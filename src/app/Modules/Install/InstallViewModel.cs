@@ -452,7 +452,7 @@ namespace IWinInstaller.App.Modules.Install
 
         private void Run(Task task)
         {
-            task.ContinueWith(t => _dispatcher.BeginInvoke(new Action(() => { IsBusy = false; Message = "Error inesperado: " + t.Exception.GetBaseException().Message; App.Log("Instalar: " + t.Exception)); })),
+            task.ContinueWith(t => _dispatcher.BeginInvoke(new Action(() => { IsBusy = false; Message = "Error inesperado: " + t.Exception.GetBaseException().Message; App.Log("Instalar: " + t.Exception); })),
                 CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
         }
 
