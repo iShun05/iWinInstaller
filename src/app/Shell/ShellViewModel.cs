@@ -8,6 +8,7 @@ using IWinInstaller.App.Core;
 using IWinInstaller.App.Engine;
 using IWinInstaller.App.Modules.Home;
 using IWinInstaller.App.Modules.Install;
+using IWinInstaller.App.Modules.Tools;
 using IWinInstaller.App.Modules.Updates;
 
 namespace IWinInstaller.App.Shell
@@ -40,7 +41,12 @@ namespace IWinInstaller.App.Shell
             Engine = new EngineClient(root);
             Legacy = new LegacyBridge(root);
             Home = new HomeViewModel(Engine, dispatcher);
-            Install = new InstallViewModel(root, Engine, dispatcher, new DialogService());
+            var dialogs = new DialogService();
+            Install = new InstallViewModel(root, Engine, dispatcher, dialogs);
+            SystemPage = new SystemViewModel(Engine, dispatcher);
+            Security = new SecurityViewModel(Engine);
+            Link = new LinkViewModel(Engine, dialogs);
+            Settings = new SettingsViewModel(Engine);
             Updates = new UpdatesViewModel(Engine, dispatcher);
             Router = new ActionRouter(Legacy, Navigate);
             Items = new ObservableCollection<NavItem>
@@ -48,9 +54,10 @@ namespace IWinInstaller.App.Shell
                 new NavItem("home", "Inicio", "Estado del PC de un vistazo.", false),
                 new NavItem("install", "Instalar", "Catálogo, perfiles, guías después de instalar e informe.", false),
                 new NavItem("updates", "Actualizaciones", "Versiones nuevas, exclusiones y actualización programada.", false),
-                new NavItem("system", "Sistema", "Ajustes de Windows, pantalla y energía.", true),
-                new NavItem("remote", "Acceso remoto", "Escritorio remoto, SSH y vincular equipos.", true),
-                new NavItem("security", "Seguridad", "Microsoft Defender y antivirus.", true)
+                new NavItem("system", "Sistema", "Pantalla y energía.", false),
+                new NavItem("remote", "Acceso remoto", "Vincular equipos por SSH.", false),
+                new NavItem("security", "Seguridad", "Microsoft Defender y antivirus.", false),
+                new NavItem("settings", "Ajustes", "Actualización de la app, diagnóstico y actividad.", false)
             };
             _selected = Items[0];
             OpenActionCommand = new RelayCommand(p =>
@@ -69,6 +76,10 @@ namespace IWinInstaller.App.Shell
         public LegacyBridge Legacy { get; private set; }
         public HomeViewModel Home { get; private set; }
         public InstallViewModel Install { get; private set; }
+        public SystemViewModel SystemPage { get; private set; }
+        public SecurityViewModel Security { get; private set; }
+        public LinkViewModel Link { get; private set; }
+        public SettingsViewModel Settings { get; private set; }
         public UpdatesViewModel Updates { get; private set; }
         public ActionRouter Router { get; private set; }
         public ObservableCollection<NavItem> Items { get; private set; }
@@ -88,6 +99,10 @@ namespace IWinInstaller.App.Shell
                 OnPropertyChanged("IsHome"); OnPropertyChanged("IsClassicPage"); OnPropertyChanged("PageId");
                 if (value.Id == "updates") Updates.EnsureLoaded();
                 if (value.Id == "install") Install.EnsureLoaded();
+                if (value.Id == "system") SystemPage.EnsureLoaded();
+                if (value.Id == "security") Security.EnsureLoaded();
+                if (value.Id == "remote") Link.EnsureLoaded();
+                if (value.Id == "settings") Settings.EnsureLoaded();
             }
         }
         public bool IsHome { get { return Selected != null && Selected.Id == "home"; } }

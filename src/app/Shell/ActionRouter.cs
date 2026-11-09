@@ -27,7 +27,8 @@ namespace IWinInstaller.App.Shell
                 case "updates.open": _navigate("updates"); return true;
                 case "install.open":
                 case "install.resume": _navigate("install"); return true;
-                case "security.open":
+                case "security.open": _navigate("security"); return true;
+                case "classic.open":
                     _legacy.Open();
                     return true;
                 default:

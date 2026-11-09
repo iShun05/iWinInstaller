@@ -41,7 +41,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v4.6'
+$Version = 'v4.7'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -59,7 +59,7 @@ if ($WorkerMode -and $SharedLog) { $LogFile = $SharedLog }
 . (Join-Path $Root 'lifecycle.ps1')
 
 # Motor: los archivos de src/engine se cargan en orden y comparten el ámbito del script.
-$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1')
+$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1', '13-Tools.ps1')
 foreach ($engineFile in $EngineFiles) {
     $enginePath = Join-Path $Root "src\engine\$engineFile"
     if (-not (Test-Path -LiteralPath $enginePath)) { throw "Falta un archivo del motor: $engineFile. Ejecuta de nuevo iWinInstaller-Setup.exe." }
@@ -713,57 +713,6 @@ function Start-SecurityTask([string]$command, [string]$label) {
 function Show-SecurityPanel {
     try { Update-SecurityPanel } catch { Write-Log "Seguridad: no se pudo leer el estado ($($_.Exception.Message))" }
     $ui.SecurityPanel.Visibility = 'Visible'
-}
-# ---- Vincular equipos: SSH con clave desde un Mac u otro Windows ----
-$SshLanGroup = 'iWinInstaller SSH red local'
-function Get-LinkAddresses {
-    $tail = $null
-    $exe = Join-Path $env:ProgramFiles 'Tailscale\tailscale.exe'
-    if (Test-Path $exe) { try { $tail = @(& $exe ip -4 2>$null | Where-Object { $_ -match '^100\.' })[0] } catch {} }
-    if (-not $tail) { $tail = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -like '100.*' -and $_.InterfaceAlias -like '*Tailscale*' } | ForEach-Object IPAddress)[0] }
-    $lan = @(Get-NetIPConfiguration -ErrorAction SilentlyContinue | Where-Object { $_.IPv4DefaultGateway -and $_.NetAdapter.Status -eq 'Up' } | ForEach-Object { $_.IPv4Address.IPAddress } | Where-Object { $_ -notlike '100.*' -and $_ -notlike '169.254.*' })[0]
-    [pscustomobject]@{ Tailscale = $tail; Lan = $lan }
-}
-function Get-LinkAlias { $a = ($env:COMPUTERNAME.ToLowerInvariant() -replace '[^a-z0-9-]', ''); if ($a) { $a } else { 'pc-windows' } }
-function Test-UserIsAdminGroup { [bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups | Where-Object { $_.Value -eq 'S-1-5-32-544' }) }
-function Get-LinkKeysPath { if (Test-UserIsAdminGroup) { $SshAdminKeys } else { Join-Path $env:USERPROFILE '.ssh\authorized_keys' } }
-function Get-LinkCommands {
-    $addr = Get-LinkAddresses
-    $ip = if ($addr.Tailscale) { $addr.Tailscale } elseif ($addr.Lan) { $addr.Lan } else { '<IP del PC>' }
-    $alias = Get-LinkAlias; $user = $env:USERNAME
-    $mac = "H='$alias'; IP='$ip'; U='$user'; mkdir -p ~/.ssh && chmod 700 ~/.ssh; [ -f ~/.ssh/id_ed25519 ] || ssh-keygen -q -t ed25519 -N '' -f ~/.ssh/id_ed25519 -C `"`$(whoami)@`$(hostname -s)`"; grep -q `"^Host `$H`$`" ~/.ssh/config 2>/dev/null || printf '\nHost %s\n  HostName %s\n  User %s\n  IdentityFile ~/.ssh/id_ed25519\n  ServerAliveInterval 30\n' `"`$H`" `"`$IP`" `"`$U`" >> ~/.ssh/config; pbcopy < ~/.ssh/id_ed25519.pub; echo 'Clave copiada: pegala en iWinInstaller > Vincular equipos'; cat ~/.ssh/id_ed25519.pub"
-    $win = "`$H='$alias'; `$IP='$ip'; `$U='$user'; `$d=Join-Path `$HOME '.ssh'; New-Item -ItemType Directory -Force `$d | Out-Null; if (-not (Test-Path `"`$d\id_ed25519`")) { Start-Process ssh-keygen -Wait -NoNewWindow -ArgumentList (`"-q -t ed25519 -N ```"```" -f ```"`$d\id_ed25519```" -C `$env:USERNAME@`$env:COMPUTERNAME`") }; `$c=`"`$d\config`"; if (-not (Select-String -Path `$c -Pattern `"^Host `$H`$`" -Quiet -ErrorAction SilentlyContinue)) { Add-Content `$c `"``nHost `$H``n  HostName `$IP``n  User `$U``n  IdentityFile ~/.ssh/id_ed25519``n  ServerAliveInterval 30`" }; Get-Content `"`$d\id_ed25519.pub`" | Set-Clipboard; 'Clave copiada: pegala en iWinInstaller > Vincular equipos'; Get-Content `"`$d\id_ed25519.pub`""
-    [pscustomobject]@{ Mac = $mac; Windows = $win; Alias = $alias; Ip = $ip; User = $user; Addresses = $addr }
-}
-function Update-LinkPanel {
-    $info = Get-LinkCommands; $script:LinkInfo = $info
-    $ready = $false; try { $ready = Test-RemoteSsh } catch {}
-    $keys = @(Get-Content (Get-LinkKeysPath) -ErrorAction SilentlyContinue | Where-Object { $_ -match '^(ssh-|ecdsa-|sk-)' })
-    $lan = [bool](Get-NetFirewallRule -Group $SshLanGroup -ErrorAction SilentlyContinue)
-    $ui.LinkLan.IsChecked = $lan
-    $ui.LinkStatus.Text = (@(
-        "Servidor SSH: $(if ($ready) { 'listo (solo claves)' } else { 'sin preparar — pulsa «Preparar este PC»' })",
-        "Tailscale: $(if ($info.Addresses.Tailscale) { $info.Addresses.Tailscale + ' (funciona desde cualquier red)' } else { 'sin conexión — instálalo e inicia sesión para conectar fuera de casa' })",
-        "Red local: $(if ($info.Addresses.Lan) { $info.Addresses.Lan } else { '—' })$(if ($lan) { ' · permitida' })",
-        "Usuario: $($info.User)  ·  Equipos autorizados: $($keys.Count)"
-    ) -join "`n")
-    $ui.LinkMacCmd.Text = $info.Mac
-    $ui.LinkPrepare.Content = if ($ready) { 'Volver a aplicar' } else { 'Preparar este PC' }
-    $ui.LinkGuide.Text = (@(
-        "Terminal: ssh $($info.Alias)   (abre PowerShell de este PC)",
-        "Copiar archivos: scp archivo.txt $($info.Alias):Desktop/",
-        "Claude (app de escritorio o Claude Code): añade una conexión SSH con el host $($info.Alias); usa el alias que creó el comando.",
-        "VS Code: extensión Remote - SSH › $($info.Alias).",
-        "Portapapeles y archivos al vuelo: KDE Connect en ambos equipos (catálogo › Acceso remoto).",
-        "Escritorio completo: Sunshine + Moonlight (perfil «Escritorio remoto»)."
-    ) -join "`n")
-}
-function Invoke-LinkElevated([string]$script, [string]$label) {
-    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes("`$ErrorActionPreference='Stop'`n" + $script))
-    try { $p = Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" -Verb RunAs -WindowStyle Hidden -Wait -PassThru }
-    catch { Set-Status "$label`: hace falta aceptar el permiso de administrador."; return $false }
-    if ($p.ExitCode) { Set-Status "$label no se completó (código $($p.ExitCode))."; return $false }
-    return $true
 }
 function Show-LinkPanel {
     try { Update-LinkPanel } catch { Write-Log "Vincular: no se pudo leer el estado ($($_.Exception.Message))" }

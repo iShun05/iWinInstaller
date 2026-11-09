@@ -181,13 +181,13 @@ tiempo de arranque (T047) queda en el registro `interfaz.log` de la prueba de CI
 
 ## Phase 9: Paridad — Sistema, Remoto y Seguridad (v4.7)
 
-- [ ] T066 [P] Ajustes del sistema con Deshacer en `src/app/Modules/System/`
-- [ ] T067 [P] Resolución, frecuencia y energía en `src/app/Modules/System/Display/`
-- [ ] T068 [P] Acceso remoto y Vincular equipos en `src/app/Modules/Remote/`
-- [ ] T069 [P] Panel de Defender en `src/app/Modules/Security/`
+- [x] T066 [P] Ajustes del sistema con Deshacer en `src/app/Modules/System/`
+- [x] T067 [P] Resolución, frecuencia y energía en `src/app/Modules/System/Display/`
+- [x] T068 [P] Acceso remoto y Vincular equipos en `src/app/Modules/Remote/`
+- [x] T069 [P] Panel de Defender en `src/app/Modules/Security/`
 - [ ] T070 Prueba aplicar → deshacer → estado idéntico de cada ajuste reversible en `tests/check-acceptance.ps1` (SC-005)
-- [ ] T071 Retirar la ventana WPF de `iWinInstaller.ps1` (queda solo la CLI) y `src/app/Shell/LegacyBridge.cs`
-- [ ] T072 Publicar **v4.7**
+- [ ] T071 (se retira en v5.0, junto con las pruebas que la usan) Retirar la ventana WPF de `iWinInstaller.ps1` (queda solo la CLI) y `src/app/Shell/LegacyBridge.cs`
+- [x] T072 Publicar **v4.7**
 
 ---
 

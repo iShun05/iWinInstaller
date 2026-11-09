@@ -1,5 +1,25 @@
 # Historial de versiones
 
+## v4.7 — 2026-11-09
+
+Séptima versión del camino a v5.0: todo lo de la ventana clásica está ya en la interfaz nueva.
+
+### Añadido
+- **Sistema**: resolución y frecuencia de cada monitor (con **Mantener / Volver** y vuelta automática al modo anterior a los 15 s, como Windows) y energía del plan activo (apagar pantalla, suspender, hibernar tras y activar o desactivar la hibernación).
+- **Seguridad**: estado de Microsoft Defender u otro antivirus, firmas y últimos análisis, amenazas recientes, análisis rápido, completo o de una carpeta y actualizar firmas. Los análisis corren en el motor y no bloquean la ventana.
+- **Acceso remoto · Vincular equipos**: preparar el servidor SSH (solo claves), comandos para Mac o Windows, permitir la red local privada, autorizar una clave pública (rechaza claves privadas) y ver los equipos autorizados.
+- **Ajustes**: actualización automática de iWinInstaller, buscar versión nueva, exportar diagnóstico y abrir la carpeta de registros.
+- Motor: `power.*`, `security.*`, `link.*` y `app.*` (`src/engine/13-Tools.ps1`).
+
+### Cambiado
+- Las funciones de Vincular equipos pasan del script principal al motor, sin cambios en su lógica (mismos scripts de cortafuegos y permisos de clave).
+- La **ventana clásica** ya no es necesaria para nada. Se puede abrir desde Ajustes durante la transición; se retira en v5.0.
+
+### Archivos y pruebas
+- `src/app/Modules/Tools/**` (incluye `DisplaySettings.cs`, la misma API de user32 que la ventana clásica), `src/engine/13-Tools.ps1`, navegación y `Ajustes`.
+- Pester: límites de energía, claves privadas o mal formadas rechazadas, autorizar una clave una sola vez y acciones de seguridad no válidas.
+- **Afecta a Windows x86/x64/ARM64 por igual**. CI en x64 y ARM64 y proceso x86. Pendientes físicos: monitores reales, hibernación y SSH desde otro equipo.
+
 ## v4.6 — 2026-11-09
 
 Sexta versión del camino a v5.0: **Instalar** pasa a la interfaz nueva con todo lo que hacía la ventana clásica.

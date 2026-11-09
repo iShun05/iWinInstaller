@@ -16,7 +16,7 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura pide permiso de administrador, instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Si tenías una versión anterior instalada por usuario, se retira sola al instalar la nueva. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v4.6** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v4.7** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
@@ -31,7 +31,7 @@ Usa **Armoury Crate o G-Helper** como gestor de rendimiento, conservando ASUS Sy
 
 ## Funciones principales
 
-- **Inicio · Estado del PC** (interfaz nueva, v4.4): al abrir, tarjetas con las actualizaciones de apps, Windows Update, antivirus, espacio y salud de los discos, batería, reinicio pendiente y lotes sin terminar. Cada una dice si está correcta, si requiere atención o si no se pudo comprobar (y por qué), con un botón para resolverla. Instalar está en la interfaz nueva desde v4.6; Sistema, Acceso remoto y Seguridad se abren todavía en la ventana clásica.
+- **Inicio · Estado del PC** (interfaz nueva, v4.4): al abrir, tarjetas con las actualizaciones de apps, Windows Update, antivirus, espacio y salud de los discos, batería, reinicio pendiente y lotes sin terminar. Cada una dice si está correcta, si requiere atención o si no se pudo comprobar (y por qué), con un botón para resolverla. Desde v4.7 todas las secciones (Instalar, Actualizaciones, Sistema, Acceso remoto, Seguridad y Ajustes) están en la interfaz nueva; la ventana clásica sigue disponible desde Ajustes durante la transición.
 - **Actualizaciones** (v4.5): qué apps tienen versión nueva, cuáles actualizar, **Mantener esta versión** para las que quieras fijar y actualización programada opcional (con tu usuario, sin reiniciar ni abrir asistentes).
 - **Subsecciones con comparativa**: dentro de cada categoría, las apps que hacen lo mismo se agrupan en subsecciones (p. ej. Optimización y privacidad › Quitar telemetría y bloatware, Consola y shells › Terminales, Navegadores › Basados en Firefox). Cada subsección abre con un recuadro **«Cuál elegir»** que dice cuándo compensa una, otra o las dos juntas, y cada app añade una línea con lo que ofrece y lo que no. 84 subsecciones en 24 categorías; la búsqueda también encuentra por esas comparativas.
 - **Resolución y tasa de refresco** sin abrir Configuración: botón de monitor en la barra superior (o **⋯ › Resolución y frecuencia de la pantalla…**). Elige monitor, resolución y Hz entre los modos que admite; si no confirmas en 15 s vuelve solo al modo anterior, como hace Windows. En el mismo panel, **Energía** ajusta apagado de pantalla, suspensión e hibernación del plan activo (por ejemplo, alto rendimiento sin hibernar y con la pantalla apagándose a los 10 min).
@@ -120,8 +120,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v4.6
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v4.6
+git checkout v4.7
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v4.7
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows; la interfaz nueva necesita además el SDK de .NET (solo para compilar, no para usar la app). Sin él, el paquete abre la ventana clásica. La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -140,7 +140,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v4.6](https://github.com/iShun05/iWinInstaller/releases/tag/v4.6) **(actual)** | 2026-11-09 | Instalar en la interfaz nueva: catálogo, perfiles, lotes con pausa, pasos y notas e informe | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.6) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.6.zip) |
+| [v4.7](https://github.com/iShun05/iWinInstaller/releases/tag/v4.7) **(actual)** | 2026-11-09 | Sistema, Seguridad, Acceso remoto y Ajustes en la interfaz nueva | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.7) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.7.zip) |
+| [v4.6](https://github.com/iShun05/iWinInstaller/releases/tag/v4.6) | 2026-11-09 | Instalar en la interfaz nueva: catálogo, perfiles, lotes con pausa, pasos y notas e informe | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.6) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.6.zip) |
 | [v4.5](https://github.com/iShun05/iWinInstaller/releases/tag/v4.5) | 2026-11-08 | Actualizaciones en la interfaz nueva: lista con versiones, «Mantener esta versión» y actualización programada | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.5) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.5.zip) |
 | [v4.4](https://github.com/iShun05/iWinInstaller/releases/tag/v4.4) | 2026-11-08 | Interfaz nueva con Inicio: estado del PC (actualizaciones, Windows Update, antivirus, discos, batería, reinicio) | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.4) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.4.zip) |
 | [v4.3](https://github.com/iShun05/iWinInstaller/releases/tag/v4.3) | 2026-11-08 | Instalación protegida en Archivos de programa con migración automática; actualización programada como SYSTEM | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.3) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.3.zip) |

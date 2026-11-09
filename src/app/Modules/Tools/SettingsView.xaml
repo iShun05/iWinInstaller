@@ -1,0 +1,48 @@
+<UserControl x:Class="IWinInstaller.App.Modules.Tools.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="Visible"/>
+    <Style x:Key="Card" TargetType="Border">
+      <Setter Property="Background" Value="{StaticResource Surface}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+      <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="14"/><Setter Property="Padding" Value="18,16"/><Setter Property="Margin" Value="0,0,0,16"/>
+    </Style>
+    <Style x:Key="Field" TargetType="Control">
+      <Setter Property="Background" Value="#22222B"/><Setter Property="Foreground" Value="{StaticResource Text}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+      <Setter Property="Padding" Value="8,6"/><Setter Property="Margin" Value="0,0,10,8"/><Setter Property="MinWidth" Value="170"/>
+    </Style>
+  </UserControl.Resources>
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+    <StackPanel Margin="32,28,32,24" MaxWidth="860" HorizontalAlignment="Left">
+      <TextBlock Text="Ajustes" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+      <TextBlock Text="{Binding Version}" Foreground="{StaticResource TextMuted}" Margin="0,6,0,12"/>
+      <TextBlock Text="{Binding Message}" Foreground="{StaticResource Accent}" Margin="0,0,0,12" AutomationProperties.LiveSetting="Polite"/>
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <CheckBox Content="Actualizar iWinInstaller automáticamente" IsChecked="{Binding AutoUpdate}" Foreground="{StaticResource TextStrong}" FontWeight="SemiBold"/>
+          <TextBlock Text="Desactivada al principio. Al activarla (pide permiso una vez) comprueba GitHub al iniciar sesión y una vez al día, descarga solo la versión estable, verifica SHA256 y sustituye la app cuando la cierras. No actualiza otras aplicaciones."
+                     Foreground="{StaticResource TextMuted}" Margin="0,6,0,10"/>
+          <Button Style="{StaticResource Btn}" Content="Buscar nueva versión ahora" HorizontalAlignment="Left" Command="{Binding SelfUpdateCommand}"/>
+        </StackPanel>
+      </Border>
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Text="Ventana clásica" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+          <TextBlock Text="Todo está ya en esta ventana. La anterior sigue disponible por si la necesitas mientras dura la transición." Foreground="{StaticResource TextMuted}" Margin="0,6,0,10"/>
+          <Button Style="{StaticResource Ghost}" Content="Abrir la ventana clásica" HorizontalAlignment="Left" Command="{Binding DataContext.OpenClassicCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+        </StackPanel>
+      </Border>
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Text="Diagnóstico y actividad" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+          <TextBlock Text="El diagnóstico se guarda en Descargas, empieza por el informe de la última instalación y oculta la ruta del perfil, correos y claves. Revísalo antes de compartirlo."
+                     Foreground="{StaticResource TextMuted}" Margin="0,6,0,10"/>
+          <WrapPanel>
+            <Button Style="{StaticResource Btn}" Content="Exportar diagnóstico" Command="{Binding DiagnosticCommand}" Margin="0,0,8,0"/>
+            <Button Style="{StaticResource Ghost}" Content="Abrir la carpeta de registros" Command="{Binding ActivityCommand}"/>
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

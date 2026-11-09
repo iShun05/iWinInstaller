@@ -4,6 +4,7 @@
         xmlns:home="clr-namespace:IWinInstaller.App.Modules.Home"
         xmlns:updates="clr-namespace:IWinInstaller.App.Modules.Updates"
         xmlns:install="clr-namespace:IWinInstaller.App.Modules.Install"
+        xmlns:tools="clr-namespace:IWinInstaller.App.Modules.Tools"
         xmlns:core="clr-namespace:IWinInstaller.App.Core"
         Title="iWinInstaller" Width="1180" Height="780" MinWidth="560" MinHeight="420"
         WindowStartupLocation="CenterScreen" Background="{StaticResource Background}" Foreground="{StaticResource Text}"
@@ -63,6 +64,10 @@
     <Grid Grid.Column="1">
       <home:HomeView Visibility="{Binding IsHome, Converter={StaticResource Visible}}"/>
       <install:InstallView DataContext="{Binding Install}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=install}"/>
+      <tools:SystemView DataContext="{Binding SystemPage}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=system}"/>
+      <tools:SecurityView DataContext="{Binding Security}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=security}"/>
+      <tools:LinkView DataContext="{Binding Link}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=remote}"/>
+      <tools:SettingsView DataContext="{Binding Settings}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=settings}"/>
       <updates:UpdatesView Visibility="{Binding PageId, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=updates}"/>
       <StackPanel Visibility="{Binding IsClassicPage, Converter={StaticResource Visible}}" Margin="32,28,32,24" MaxWidth="640" HorizontalAlignment="Left">
         <TextBlock Text="{Binding Selected.Title}" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
