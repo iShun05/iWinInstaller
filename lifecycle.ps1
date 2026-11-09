@@ -93,6 +93,7 @@ function Get-IwinRebootPending {
     @($ids | Select-Object -Unique)
 }
 function Test-IwinStop {
+    if ($script:EngineCancelFile -and -not $script:StopRequested -and (Test-Path -LiteralPath $script:EngineCancelFile)) { Request-IwinStop }
     [bool]($script:StopRequested -or ($WorkerMode -and $PlanFile -and (Test-Path ($PlanFile + '.cancel'))))
 }
 function Request-IwinStop {

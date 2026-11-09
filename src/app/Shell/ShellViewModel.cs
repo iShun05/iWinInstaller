@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using IWinInstaller.App.Core;
 using IWinInstaller.App.Engine;
 using IWinInstaller.App.Modules.Home;
+using IWinInstaller.App.Modules.Install;
 using IWinInstaller.App.Modules.Updates;
 
 namespace IWinInstaller.App.Shell
@@ -39,12 +40,13 @@ namespace IWinInstaller.App.Shell
             Engine = new EngineClient(root);
             Legacy = new LegacyBridge(root);
             Home = new HomeViewModel(Engine, dispatcher);
+            Install = new InstallViewModel(root, Engine, dispatcher, new DialogService());
             Updates = new UpdatesViewModel(Engine, dispatcher);
             Router = new ActionRouter(Legacy, Navigate);
             Items = new ObservableCollection<NavItem>
             {
                 new NavItem("home", "Inicio", "Estado del PC de un vistazo.", false),
-                new NavItem("install", "Instalar", "Catálogo, perfiles, guías después de instalar e informe.", true),
+                new NavItem("install", "Instalar", "Catálogo, perfiles, guías después de instalar e informe.", false),
                 new NavItem("updates", "Actualizaciones", "Versiones nuevas, exclusiones y actualización programada.", false),
                 new NavItem("system", "Sistema", "Ajustes de Windows, pantalla y energía.", true),
                 new NavItem("remote", "Acceso remoto", "Escritorio remoto, SSH y vincular equipos.", true),
@@ -66,6 +68,7 @@ namespace IWinInstaller.App.Shell
         public EngineClient Engine { get; private set; }
         public LegacyBridge Legacy { get; private set; }
         public HomeViewModel Home { get; private set; }
+        public InstallViewModel Install { get; private set; }
         public UpdatesViewModel Updates { get; private set; }
         public ActionRouter Router { get; private set; }
         public ObservableCollection<NavItem> Items { get; private set; }
@@ -84,6 +87,7 @@ namespace IWinInstaller.App.Shell
                 if (value == null || !Set(ref _selected, value)) return;
                 OnPropertyChanged("IsHome"); OnPropertyChanged("IsClassicPage"); OnPropertyChanged("PageId");
                 if (value.Id == "updates") Updates.EnsureLoaded();
+                if (value.Id == "install") Install.EnsureLoaded();
             }
         }
         public bool IsHome { get { return Selected != null && Selected.Id == "home"; } }

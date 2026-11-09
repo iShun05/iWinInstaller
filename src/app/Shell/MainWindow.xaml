@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:home="clr-namespace:IWinInstaller.App.Modules.Home"
         xmlns:updates="clr-namespace:IWinInstaller.App.Modules.Updates"
+        xmlns:install="clr-namespace:IWinInstaller.App.Modules.Install"
         xmlns:core="clr-namespace:IWinInstaller.App.Core"
         Title="iWinInstaller" Width="1180" Height="780" MinWidth="560" MinHeight="420"
         WindowStartupLocation="CenterScreen" Background="{StaticResource Background}" Foreground="{StaticResource Text}"
@@ -61,6 +62,7 @@
     <!-- Contenido -->
     <Grid Grid.Column="1">
       <home:HomeView Visibility="{Binding IsHome, Converter={StaticResource Visible}}"/>
+      <install:InstallView DataContext="{Binding Install}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=install}"/>
       <updates:UpdatesView Visibility="{Binding PageId, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=updates}"/>
       <StackPanel Visibility="{Binding IsClassicPage, Converter={StaticResource Visible}}" Margin="32,28,32,24" MaxWidth="640" HorizontalAlignment="Left">
         <TextBlock Text="{Binding Selected.Title}" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>

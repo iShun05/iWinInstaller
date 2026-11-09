@@ -43,18 +43,19 @@ namespace IWinInstaller.App.Engine
             return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "powershell.exe");
         }
 
-        public Task<EngineResult> RunAsync(string command, IDictionary<string, object> request, Action<EngineEvent> onEvent, TimeSpan timeout, CancellationToken cancellation)
+        public Task<EngineResult> RunAsync(string command, IDictionary<string, object> request, Action<EngineEvent> onEvent, TimeSpan timeout, CancellationToken cancellation, EngineOperation operation = null)
         {
-            return Task.Run(() => Run(command, request, onEvent, timeout, cancellation));
+            return Task.Run(() => Run(command, request, onEvent, timeout, cancellation, operation));
         }
 
-        private EngineResult Run(string command, IDictionary<string, object> request, Action<EngineEvent> onEvent, TimeSpan timeout, CancellationToken cancellation)
+        private EngineResult Run(string command, IDictionary<string, object> request, Action<EngineEvent> onEvent, TimeSpan timeout, CancellationToken cancellation, EngineOperation operation)
         {
             var result = new EngineResult { Events = new List<EngineEvent>(), ExitCode = EngineResult.InternalError };
             string work = Path.Combine(_workRoot, Guid.NewGuid().ToString("N"));
             try
             {
                 Directory.CreateDirectory(work);
+                if (operation != null) operation.Attach(work);
                 string requestPath = Path.Combine(work, "request.json");
                 string responsePath = Path.Combine(work, "response.json");
                 string eventsPath = Path.Combine(work, "events.jsonl");

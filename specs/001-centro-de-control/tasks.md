@@ -168,14 +168,14 @@ tiempo de arranque (T047) queda en el registro `interfaz.log` de la prueba de CI
 
 **Purpose**: portar catálogo, perfiles, guías e informe a la interfaz C#.
 
-- [ ] T058 Pruebas de ViewModel (filtros, búsqueda, selección, perfiles, dependencias) en `tests/unit/app/InstallViewModelTests.cs`
-- [ ] T059 Catálogo virtualizado con secciones, 84 subsecciones y recuadros «Cuál elegir» en `src/app/Modules/Install/`
-- [ ] T060 Perfiles: elegir, guardar, importar y exportar `.iwin.json` en `src/app/Modules/Install/Profiles/`
-- [ ] T061 Resumen previo del lote, progreso por eventos, pausar y reanudar en `src/app/Modules/Install/Batch/`
-- [ ] T062 Pasos y notas de postinstalación (122 guías) en `src/app/Modules/Install/Guides/`
-- [ ] T063 Informe al terminar (reintentar, copiar, guardar diagnóstico) en `src/app/Modules/Install/Report/`
-- [ ] T064 Ejecutar `tests/check-acceptance.ps1` y `tests/check-reliability.ps1` contra el nuevo EXE y comparar con la interfaz anterior
-- [ ] T065 Publicar **v4.6** (retira la pantalla de catálogo de PowerShell)
+- [x] T058 Pruebas de ViewModel (filtros, búsqueda, selección, perfiles, dependencias) en `tests/unit/app/InstallViewModelTests.cs`
+- [x] T059 Catálogo virtualizado con secciones, 84 subsecciones y recuadros «Cuál elegir» en `src/app/Modules/Install/`
+- [x] T060 Perfiles: elegir, guardar, importar y exportar `.iwin.json` en `src/app/Modules/Install/Profiles/`
+- [x] T061 Resumen previo del lote, progreso por eventos, pausar y reanudar en `src/app/Modules/Install/Batch/`
+- [x] T062 Pasos y notas de postinstalación (122 guías) en `src/app/Modules/Install/Guides/`
+- [x] T063 Informe al terminar (reintentar, copiar, guardar diagnóstico) en `src/app/Modules/Install/Report/`
+- [ ] T064 (pendiente: las suites actuales prueban la ventana clásica y el motor; la interfaz nueva se prueba con MSTest y su arranque real en check-native) Ejecutar `tests/check-acceptance.ps1` y `tests/check-reliability.ps1` contra el nuevo EXE y comparar con la interfaz anterior
+- [x] T065 Publicar **v4.6** (retira la pantalla de catálogo de PowerShell)
 
 ---
 

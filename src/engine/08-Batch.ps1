@@ -223,3 +223,17 @@ function Invoke-Uninstall($sel, [scriptblock]$onProgress) {
     if ($fail) { Write-Log "Desinstalación terminada con fallos en: $(($fail | ForEach-Object name) -join ', ')" } else { Write-Log 'Desinstalación terminada.' }
     $fail
 }
+
+function Resume-IwinBatch($pending, [scriptblock]$onProgress) {
+    if (-not $pending) { throw 'No hay lotes pendientes.' }
+    $script:Batch=$pending.Data; $script:BatchPath=$pending.Path
+    $script:ResumingBatch=$true; $script:StopRequested=$false
+    $priorUpgrade=$UpgradePackages
+    $script:UpgradePackages=$script:Batch.operation -eq 'upgrade'
+    try {
+        $ids=@($script:Batch.items | Where-Object state -ne 'done' | ForEach-Object id)
+        $selection=@($Apps | Where-Object { $ids -contains $_.id })
+        if ($script:Batch.operation -eq 'uninstall') { Invoke-Uninstall $selection $onProgress }
+        else { Invoke-Install $selection $onProgress }
+    } finally { $script:ResumingBatch=$false; $script:UpgradePackages=$priorUpgrade }
+}

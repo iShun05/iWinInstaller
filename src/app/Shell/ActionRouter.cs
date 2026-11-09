@@ -26,7 +26,7 @@ namespace IWinInstaller.App.Shell
                 case "maintenance.health": return OpenUri("ms-settings:disksandvolumes");
                 case "updates.open": _navigate("updates"); return true;
                 case "install.open":
-                case "install.resume":
+                case "install.resume": _navigate("install"); return true;
                 case "security.open":
                     _legacy.Open();
                     return true;

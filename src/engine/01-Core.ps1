@@ -16,6 +16,8 @@ function Write-Log($msg) {
 
 # Procesa los eventos de la ventana (WPF) para que no se congele durante las instalaciones
 function Invoke-UiPump {
+    # Interfaz nueva: su pausa es un archivo junto al Request (contrato del motor)
+    if ($script:EngineCancelFile -and -not $script:StopRequested -and (Test-Path -LiteralPath $script:EngineCancelFile)) { Request-IwinStop }
     if (-not $UI -or -not ('Windows.Threading.Dispatcher' -as [type])) { return }
     $f = New-Object Windows.Threading.DispatcherFrame
     [void][Windows.Threading.Dispatcher]::CurrentDispatcher.BeginInvoke([Windows.Threading.DispatcherPriority]::Background, [Action]{ $f.Continue = $false })

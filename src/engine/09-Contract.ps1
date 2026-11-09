@@ -96,5 +96,5 @@ Register-IwinEngineCommand 'report.last' {
     param($request)
     $report = Get-IwinLastReport
     if (-not $report) { return @{ report = $null; summary = $null } }
-    @{ report = $report; summary = (Get-IwinReportSummary $report) }
+    @{ report = $report; summary = (Get-IwinReportSummary $report); text = (Format-IwinReportText $report) }
 }

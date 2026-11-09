@@ -14,6 +14,8 @@ namespace IWinInstaller.App.Engine
         public string Level { get; set; }
         public string Text { get; set; }
         public int? ExitCode { get; set; }
+        public bool? Installed { get; set; }
+        public bool? PreviousState { get; set; }
 
         /// <summary>Convierte una línea JSONL. Devuelve null si está vacía o mal formada (se ignora).</summary>
         public static EngineEvent Parse(string line)
@@ -33,6 +35,9 @@ namespace IWinInstaller.App.Engine
                 Level = Read(data, "level"),
                 Text = Read(data, "text")
             };
+            object flag;
+            if (data.TryGetValue("installed", out flag) && flag is bool) result.Installed = (bool)flag;
+            if (data.TryGetValue("previousState", out flag) && flag is bool) result.PreviousState = (bool)flag;
             int code;
             if (Int32.TryParse(Read(data, "exitCode"), out code)) result.ExitCode = code;
             return String.IsNullOrEmpty(result.Type) ? null : result;

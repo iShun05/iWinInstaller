@@ -41,7 +41,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v4.5'
+$Version = 'v4.6'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -59,7 +59,7 @@ if ($WorkerMode -and $SharedLog) { $LogFile = $SharedLog }
 . (Join-Path $Root 'lifecycle.ps1')
 
 # Motor: los archivos de src/engine se cargan en orden y comparten el ámbito del script.
-$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1')
+$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1')
 foreach ($engineFile in $EngineFiles) {
     $enginePath = Join-Path $Root "src\engine\$engineFile"
     if (-not (Test-Path -LiteralPath $enginePath)) { throw "Falta un archivo del motor: $engineFile. Ejecuta de nuevo iWinInstaller-Setup.exe." }
@@ -87,19 +87,6 @@ if ($WorkerMode) {
     exit $exitCode
 }
 
-function Resume-IwinBatch($pending, [scriptblock]$onProgress) {
-    if (-not $pending) { throw 'No hay lotes pendientes.' }
-    $script:Batch=$pending.Data; $script:BatchPath=$pending.Path
-    $script:ResumingBatch=$true; $script:StopRequested=$false
-    $priorUpgrade=$UpgradePackages
-    $script:UpgradePackages=$script:Batch.operation -eq 'upgrade'
-    try {
-        $ids=@($script:Batch.items | Where-Object state -ne 'done' | ForEach-Object id)
-        $selection=@($Apps | Where-Object { $ids -contains $_.id })
-        if ($script:Batch.operation -eq 'uninstall') { Invoke-Uninstall $selection $onProgress }
-        else { Invoke-Install $selection $onProgress }
-    } finally { $script:ResumingBatch=$false; $script:UpgradePackages=$priorUpgrade }
-}
 if ($Resume) {
     $pending=Get-IwinPendingBatches | Select-Object -First 1
     if (-not $pending) { Write-Log 'No hay lotes pendientes.'; exit 0 }

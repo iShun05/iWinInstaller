@@ -1,5 +1,28 @@
 # Historial de versiones
 
+## v4.6 — 2026-11-09
+
+Sexta versión del camino a v5.0: **Instalar** pasa a la interfaz nueva con todo lo que hacía la ventana clásica.
+
+### Añadido
+- **Catálogo en la interfaz nueva**: las 427 entradas agrupadas por sección, grupo y subsección, con el recuadro «Cuál elegir» y la comparativa de cada app. Lista virtualizada (fluida aunque esté todo visible), iconos con la misma caché que la ventana clásica y la etiqueta «Terminal» en las herramientas de consola.
+- **Búsqueda por palabras** (nombre, uso, grupo, comparativa o id) y filtros por sección, grupo y estado (marcadas, faltan, instaladas, por configurar).
+- **Perfiles**: elegir, guardar, eliminar, importar y exportar `.iwin.json`. Las apps ya instaladas no se marcan.
+- **Lotes**: resumen previo (dependencias, contexto, ajustes, reinicios, espacio y conexión), progreso por app, **Pausar al terminar esta app** (la pausa llega también al proceso de administrador entre aplicaciones), **Reanudar lote**, **Desinstalar** o **Deshacer** por fila o las marcadas, **Abrir** (también en terminal) y **Verificar**.
+- **Pasos y notas**: pasos marcables, tu nota y **Comprobar** (detección técnica), con el mismo seguimiento que la ventana clásica.
+- **Informe al terminar**: una tarjeta por app con motivo, código, qué hacer y líneas del registro. **Copiar informe** y **Reintentar fallidas**; las de instalación manual no se reintentan.
+- Motor: comandos `install.preflight`, `batch.run` (instalar, desinstalar, actualizar o reanudar), `profiles.*`, `postinstall.*` y `app.open` (`src/engine/12-Install.ps1`). `report.last` incluye el texto listo para copiar.
+
+### Cambiado
+- `Resume-IwinBatch` pasa del script principal al motor (`08-Batch.ps1`), sin cambios.
+- Las tarjetas «Lotes de instalación» del Inicio abren ya Instalar.
+- La ventana clásica sigue disponible para Sistema, Acceso remoto y Seguridad hasta la v4.7.
+
+### Archivos y pruebas
+- `src/app/Modules/Install/**`, `Shell/DialogService.cs`, `Engine/EngineOperation.cs`, `src/engine/12-Install.ps1`, `01-Core.ps1` y `lifecycle.ps1` (pausa desde la interfaz), `09-Contract.ps1`.
+- MSTest con el `apps.json` real (sin ids repetidos, notas por subsección, reglas de desinstalar, iconos, estados tras un lote, informe y pasos). Pester de los comandos (ids desconocidos, plan, operaciones no válidas, pasos guardados y archivo de pausa).
+- **Afecta a Windows x86/x64/ARM64 por igual**. CI en x64 y ARM64 y proceso x86.
+
 ## v4.5 — 2026-11-08
 
 Quinta versión del camino a v5.0: **Actualizaciones** pasa a la interfaz nueva, y ahora ves y decides qué se actualiza.
