@@ -33,7 +33,7 @@
                     <CheckBox DockPanel.Dock="Left" IsChecked="{Binding IsSelected, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,0,12,0"
                               IsEnabled="{Binding Excluded, Converter={x:Static local:InverseBoolean.Instance}}"
                               AutomationProperties.Name="{Binding Name, StringFormat=Actualizar {0}}"/>
-                    <Button DockPanel.Dock="Right" Style="{StaticResource Ghost}" VerticalAlignment="Center"
+                    <Button DockPanel.Dock="Right" VerticalAlignment="Center"
                             Command="{Binding DataContext.ToggleExcludedCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}">
                       <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource Ghost}">
