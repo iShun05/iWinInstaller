@@ -22,8 +22,43 @@ namespace IWinInstaller.App.Core
         }
 
         public string Area { get; private set; }
+
+        /// <summary>Icono monoline del área (Segoe Fluent Icons).</summary>
+        public string Glyph
+        {
+            get
+            {
+                switch (Area)
+                {
+                    case "appUpdates": return "\uE895";
+                    case "windowsUpdate": return "\uE777";
+                    case "antivirus": return "\uEA18";
+                    case "diskSpace": return "\uEDA2";
+                    case "diskHealth": return "\uE9D9";
+                    case "battery": return "\uE83F";
+                    case "reboot": return "\uE7E8";
+                    case "pendingBatch": return "\uE896";
+                    default: return "\uE946";
+                }
+            }
+        }
+
+        /// <summary>Texto corto para la pastilla de estado.</summary>
+        public string StateLabel
+        {
+            get
+            {
+                switch (State)
+                {
+                    case StatusState.Ok: return "Correcto";
+                    case StatusState.Attention: return "Atención";
+                    case StatusState.NotApplicable: return "No aplica";
+                    default: return IsLoading ? "Comprobando" : "Sin comprobar";
+                }
+            }
+        }
         public string Title { get; private set; }
-        public StatusState State { get { return _state; } private set { if (Set(ref _state, value)) { OnPropertyChanged("StateText"); OnPropertyChanged("IsVisible"); } } }
+        public StatusState State { get { return _state; } private set { if (Set(ref _state, value)) { OnPropertyChanged("StateText"); OnPropertyChanged("StateLabel"); OnPropertyChanged("IsVisible"); } } }
         public string Summary { get { return _summary; } private set { Set(ref _summary, value); } }
         public string Reason { get { return _reason; } private set { if (Set(ref _reason, value)) OnPropertyChanged("HasReason"); } }
         public string ActionId { get { return _actionId; } private set { if (Set(ref _actionId, value)) OnPropertyChanged("HasAction"); } }
@@ -60,6 +95,7 @@ namespace IWinInstaller.App.Core
             CheckedAt = DateTime.Now;
             State = state;
             OnPropertyChanged("StateText");
+            OnPropertyChanged("StateLabel");
         }
 
         public static StatusState ParseState(string value)

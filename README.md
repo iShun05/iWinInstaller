@@ -16,7 +16,7 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura pide permiso de administrador, instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Si tenías una versión anterior instalada por usuario, se retira sola al instalar la nueva. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v5.0** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v5.1** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
@@ -121,8 +121,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v5.0
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v5.0
+git checkout v5.1
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v5.1
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows; la interfaz necesita además el SDK de .NET (solo para compilar, no para usar la app). La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -141,7 +141,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v5.0](https://github.com/iShun05/iWinInstaller/releases/tag/v5.0) **(actual)** | 2026-11-09 | Centro de control del PC: una sola ventana nueva para instalar, actualizar, mantener, proteger y conectar; se retira la ventana clásica | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.0.zip) |
+| [v5.1](https://github.com/iShun05/iWinInstaller/releases/tag/v5.1) **(actual)** | 2026-11-09 | Apariencia renovada: barra de título oscura, navegación con iconos, Inicio en rejilla y controles oscuros en todas las pantallas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.1.zip) |
+| [v5.0](https://github.com/iShun05/iWinInstaller/releases/tag/v5.0) | 2026-11-09 | Centro de control del PC: una sola ventana nueva para instalar, actualizar, mantener, proteger y conectar; se retira la ventana clásica | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.0.zip) |
 | [v4.9](https://github.com/iShun05/iWinInstaller/releases/tag/v4.9) | 2026-11-09 | Mantenimiento y salud: liberar espacio con confirmación, reparar Windows, salud de discos y batería e informe del equipo | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.9.zip) |
 | [v4.8](https://github.com/iShun05/iWinInstaller/releases/tag/v4.8) | 2026-11-09 | Paleta de búsqueda (Ctrl + K) para llegar a cualquier acción o app | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.8.zip) |
 | [v4.7](https://github.com/iShun05/iWinInstaller/releases/tag/v4.7) | 2026-11-09 | Sistema, Seguridad, Acceso remoto y Ajustes en la interfaz nueva | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.7) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.7.zip) |

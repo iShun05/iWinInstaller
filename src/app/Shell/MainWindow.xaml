@@ -33,11 +33,23 @@
     </Grid.ColumnDefinitions>
 
     <!-- Navegación lateral -->
-    <Border Background="#0B0B0F" BorderBrush="{StaticResource Border}" BorderThickness="0,0,1,0">
-      <DockPanel Margin="14,22,14,16">
-        <TextBlock DockPanel.Dock="Top" Text="iWinInstaller" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" Margin="10,0,0,14"/>
-        <Button DockPanel.Dock="Top" Style="{StaticResource Btn}" HorizontalContentAlignment="Left" Margin="0,0,0,14" Command="{Binding OpenPaletteCommand}" ToolTip="Busca cualquier acción o app (Ctrl + K)" AutomationProperties.Name="Buscar (Ctrl + K)">
-          <DockPanel><TextBlock DockPanel.Dock="Right" Text="Ctrl K" Foreground="#77777F" FontSize="11" Margin="12,0,0,0" VerticalAlignment="Center"/><TextBlock Text="Buscar…" Foreground="{StaticResource TextMuted}"/></DockPanel>
+    <Border Background="{StaticResource Sidebar}" BorderBrush="{StaticResource Border}" BorderThickness="0,0,1,0">
+      <DockPanel Margin="14,20,14,16">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10,0,0,18">
+          <Border Width="28" Height="28" CornerRadius="8" Background="{StaticResource AccentSoft}" Margin="0,0,10,0">
+            <TextBlock Text="&#xE896;" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+          <TextBlock Text="iWinInstaller" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <Button DockPanel.Dock="Top" Style="{StaticResource Btn}" Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" HorizontalContentAlignment="Stretch" Padding="12,8" Margin="0,0,0,16"
+                Command="{Binding OpenPaletteCommand}" ToolTip="Busca cualquier acción o app (Ctrl + K)" AutomationProperties.Name="Buscar (Ctrl + K)">
+          <DockPanel>
+            <Border DockPanel.Dock="Right" Background="{StaticResource SurfaceRaised}" CornerRadius="5" Padding="6,1" VerticalAlignment="Center">
+              <TextBlock Text="Ctrl K" Foreground="{StaticResource TextFaint}" FontSize="10.5"/>
+            </Border>
+            <TextBlock Text="&#xE721;" FontFamily="{StaticResource IconFont}" FontSize="12" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock Text="Buscar" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/>
+          </DockPanel>
         </Button>
         <StackPanel DockPanel.Dock="Bottom" Margin="6,12,0,0">
           <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
@@ -45,7 +57,7 @@
             <TextBlock Text="{Binding ZoomText}" VerticalAlignment="Center" Foreground="{StaticResource TextMuted}" Margin="4,0"/>
             <Button Style="{StaticResource Ghost}" Content="A+" Command="{Binding ZoomInCommand}" ToolTip="Ampliar (Ctrl +)" AutomationProperties.Name="Ampliar tamaño"/>
           </StackPanel>
-          <TextBlock Text="{Binding VersionText}" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+          <TextBlock Text="{Binding VersionText}" Foreground="{StaticResource TextFaint}" FontSize="12"/>
           <TextBlock Margin="0,4,0,0" FontSize="12">
             <Hyperlink Command="{Binding OpenInstagramCommand}" Foreground="{StaticResource Accent}" TextDecorations="{x:Null}">Instagram @_shun._05</Hyperlink>
           </TextBlock>
@@ -55,9 +67,10 @@
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Secciones">
           <ListBox.ItemTemplate>
             <DataTemplate>
-              <StackPanel>
-                <TextBlock Text="{Binding Title}" FontSize="14" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
-                <TextBlock Text="ventana clásica" FontSize="11" Foreground="#77777F" Visibility="{Binding IsClassic, Converter={StaticResource Visible}}"/>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding Glyph}" FontFamily="{StaticResource IconFont}" FontSize="15" Width="18" VerticalAlignment="Center" Margin="0,0,12,0"
+                           Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
+                <TextBlock Text="{Binding Title}" FontSize="13.5" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
               </StackPanel>
             </DataTemplate>
           </ListBox.ItemTemplate>

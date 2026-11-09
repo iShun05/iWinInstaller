@@ -6,7 +6,7 @@
         FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="14" Title="Buscar en iWinInstaller">
   <Border Background="#16161A" BorderBrush="#3A3A45" BorderThickness="1" CornerRadius="14" Padding="10" Margin="0,60,0,0">
     <StackPanel>
-      <TextBox x:Name="Query" Background="#22222B" Foreground="{StaticResource Text}" BorderBrush="{StaticResource Border}" Padding="12,10" FontSize="16"
+      <TextBox x:Name="Query" Padding="12,10" FontSize="16"
                AutomationProperties.Name="Buscar una acción o una app" TextChanged="OnQueryChanged" PreviewKeyDown="OnKey"/>
       <TextBlock Text="Escribe lo que quieres hacer: «resolución», «ssh», «defender», «git»…  ·  Enter abre · Esc cierra" Foreground="#77777F" FontSize="11.5" Margin="4,8,4,6"/>
       <ListBox x:Name="Results" Background="Transparent" BorderThickness="0" MaxHeight="420" ScrollViewer.HorizontalScrollBarVisibility="Disabled"

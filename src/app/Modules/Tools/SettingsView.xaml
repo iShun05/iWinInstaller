@@ -7,10 +7,6 @@
       <Setter Property="Background" Value="{StaticResource Surface}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
       <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="14"/><Setter Property="Padding" Value="18,16"/><Setter Property="Margin" Value="0,0,0,16"/>
     </Style>
-    <Style x:Key="Field" TargetType="Control">
-      <Setter Property="Background" Value="#22222B"/><Setter Property="Foreground" Value="{StaticResource Text}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
-      <Setter Property="Padding" Value="8,6"/><Setter Property="Margin" Value="0,0,10,8"/><Setter Property="MinWidth" Value="170"/>
-    </Style>
   </UserControl.Resources>
   <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
     <StackPanel Margin="32,28,32,24" MaxWidth="860" HorizontalAlignment="Left">

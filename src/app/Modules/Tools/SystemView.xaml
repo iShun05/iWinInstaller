@@ -7,10 +7,6 @@
       <Setter Property="Background" Value="{StaticResource Surface}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
       <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="14"/><Setter Property="Padding" Value="18,16"/><Setter Property="Margin" Value="0,0,0,16"/>
     </Style>
-    <Style x:Key="Field" TargetType="Control">
-      <Setter Property="Background" Value="#22222B"/><Setter Property="Foreground" Value="{StaticResource Text}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
-      <Setter Property="Padding" Value="8,6"/><Setter Property="Margin" Value="0,0,10,8"/><Setter Property="MinWidth" Value="170"/>
-    </Style>
   </UserControl.Resources>
   <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
     <StackPanel Margin="32,28,32,24" MaxWidth="860" HorizontalAlignment="Left">
@@ -23,9 +19,9 @@
           <TextBlock Text="Resolución y frecuencia" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
           <TextBlock Text="{Binding Current}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,12"/>
           <WrapPanel>
-            <ComboBox Style="{StaticResource Field}" MinWidth="240" ItemsSource="{Binding Monitors}" SelectedItem="{Binding Monitor}" AutomationProperties.Name="Monitor"/>
-            <ComboBox Style="{StaticResource Field}" ItemsSource="{Binding Resolutions}" SelectedItem="{Binding Resolution}" AutomationProperties.Name="Resolución"/>
-            <ComboBox Style="{StaticResource Field}" MinWidth="110" ItemsSource="{Binding Rates}" SelectedItem="{Binding Rate}" AutomationProperties.Name="Frecuencia"/>
+            <ComboBox Margin="0,0,10,8" MinWidth="240" ItemsSource="{Binding Monitors}" SelectedItem="{Binding Monitor}" AutomationProperties.Name="Monitor"/>
+            <ComboBox MinWidth="170" Margin="0,0,10,8" ItemsSource="{Binding Resolutions}" SelectedItem="{Binding Resolution}" AutomationProperties.Name="Resolución"/>
+            <ComboBox Margin="0,0,10,8" MinWidth="110" ItemsSource="{Binding Rates}" SelectedItem="{Binding Rate}" AutomationProperties.Name="Frecuencia"/>
             <Button Style="{StaticResource Primary}" Content="Aplicar" Command="{Binding ApplyDisplayCommand}" Margin="0,0,0,8"/>
           </WrapPanel>
           <Border Background="#2A2418" BorderBrush="#4A3D24" BorderThickness="1" CornerRadius="10" Padding="12,10" Margin="0,8,0,0" Visibility="{Binding Confirming, Converter={StaticResource Visible}}">
@@ -45,11 +41,11 @@
             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
             <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
             <TextBlock Text="Apagar la pantalla tras" VerticalAlignment="Center" Margin="0,0,12,8"/>
-            <ComboBox Grid.Column="1" Style="{StaticResource Field}" HorizontalAlignment="Left" ItemsSource="{Binding MonitorOffChoices}" SelectedItem="{Binding MonitorOff}"/>
+            <ComboBox MinWidth="170" Margin="0,0,10,8" Grid.Column="1" HorizontalAlignment="Left" ItemsSource="{Binding MonitorOffChoices}" SelectedItem="{Binding MonitorOff}"/>
             <TextBlock Grid.Row="1" Text="Suspender tras" VerticalAlignment="Center" Margin="0,0,12,8"/>
-            <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource Field}" HorizontalAlignment="Left" ItemsSource="{Binding SleepChoices}" SelectedItem="{Binding Sleep}"/>
+            <ComboBox MinWidth="170" Margin="0,0,10,8" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" ItemsSource="{Binding SleepChoices}" SelectedItem="{Binding Sleep}"/>
             <TextBlock Grid.Row="2" Text="Hibernar tras" VerticalAlignment="Center" Margin="0,0,12,8"/>
-            <ComboBox Grid.Row="2" Grid.Column="1" Style="{StaticResource Field}" HorizontalAlignment="Left" ItemsSource="{Binding HibernateAfterChoices}" SelectedItem="{Binding HibernateAfter}"/>
+            <ComboBox MinWidth="170" Margin="0,0,10,8" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" ItemsSource="{Binding HibernateAfterChoices}" SelectedItem="{Binding HibernateAfter}"/>
             <CheckBox Grid.Row="3" Grid.ColumnSpan="2" Content="Hibernación activada (si la desactivas se libera hiberfil.sys; pide permiso)" IsChecked="{Binding Hibernate}" Foreground="{StaticResource Text}" Margin="0,4,0,8"/>
           </Grid>
           <Button Style="{StaticResource Primary}" Content="Aplicar energía" HorizontalAlignment="Left" Command="{Binding ApplyPowerCommand}"/>

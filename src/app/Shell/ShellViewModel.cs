@@ -22,6 +22,26 @@ namespace IWinInstaller.App.Shell
         public NavItem(string id, string title, string description, bool isClassic)
         {
             Id = id; Title = title; Description = description; IsClassic = isClassic;
+            Glyph = GlyphFor(id);
+        }
+
+        /// <summary>Icono monoline de Segoe Fluent Icons para cada sección.</summary>
+        public string Glyph { get; private set; }
+
+        private static string GlyphFor(string id)
+        {
+            switch (id)
+            {
+                case "home": return "\uE80F";
+                case "install": return "\uE896";
+                case "updates": return "\uE895";
+                case "system": return "\uE7F4";
+                case "maintenance": return "\uE90F";
+                case "remote": return "\uE703";
+                case "security": return "\uEA18";
+                case "settings": return "\uE713";
+                default: return "\uE8A5";
+            }
         }
         public string Id { get; private set; }
         public string Title { get; private set; }

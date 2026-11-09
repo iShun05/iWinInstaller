@@ -67,8 +67,7 @@
             <ComboBox ItemsSource="{Binding Frequencies}" SelectedValue="{Binding ScheduleFrequency, Mode=TwoWay}" SelectedValuePath="Key" DisplayMemberPath="Value"
                       MinWidth="180" Margin="0,0,12,8" AutomationProperties.Name="Frecuencia"/>
             <TextBlock Text="a las" VerticalAlignment="Center" Margin="0,0,8,8"/>
-            <TextBox Text="{Binding ScheduleTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="64" Margin="0,0,12,8" Background="#22222B" Foreground="{StaticResource Text}"
-                     BorderBrush="{StaticResource Border}" Padding="6,4" AutomationProperties.Name="Hora (HH:mm)"/>
+            <TextBox Text="{Binding ScheduleTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="64" Margin="0,0,12,8" Padding="6,4" AutomationProperties.Name="Hora (HH:mm)"/>
             <Button Style="{StaticResource Btn}" Content="Guardar" Command="{Binding SaveScheduleCommand}" Margin="0,0,0,8"/>
           </WrapPanel>
         </StackPanel>

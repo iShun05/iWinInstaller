@@ -25,7 +25,8 @@ function Get-IwinWindowsUpdateCard {
     } catch { return New-IwinStatusCard 'windowsUpdate' 'unknown' 'No se pudo leer Windows Update' $_.Exception.Message 'windowsupdate.open' }
     if (-not $last -or $last.Year -lt 2000) { return New-IwinStatusCard 'windowsUpdate' 'attention' 'Windows Update no ha buscado actualizaciones' 'Abre Windows Update y pulsa «Buscar actualizaciones».' 'windowsupdate.open' }
     $days = [int]((Get-Date).ToUniversalTime() - $last.ToUniversalTime()).TotalDays
-    if ($days -le 7) { return New-IwinStatusCard 'windowsUpdate' 'ok' 'Windows Update al día' "Última búsqueda hace $days día(s)." 'windowsupdate.open' }
+    $when = if ($days -le 0) { 'hoy' } elseif ($days -eq 1) { 'ayer' } else { "hace $days días" }
+    if ($days -le 7) { return New-IwinStatusCard 'windowsUpdate' 'ok' 'Windows Update al día' "Última búsqueda: $when." 'windowsupdate.open' }
     New-IwinStatusCard 'windowsUpdate' 'attention' "Windows Update lleva $days días sin buscar" 'Abre Windows Update y busca actualizaciones.' 'windowsupdate.open'
 }
 

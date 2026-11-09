@@ -1,5 +1,28 @@
 # Historial de versiones
 
+## v5.1 — 2026-11-09
+
+Apariencia renovada de la interfaz, a partir de una captura del usuario en Windows 11.
+
+### Mejorado
+- **Barra de título oscura** del color de la barra lateral; antes era blanca sobre una app negra.
+- **Navegación lateral** con un icono monoline por sección y la sección activa en una pastilla rellena; antes tenía un recuadro azul y una marca sobre el texto. Arriba aparecen el logotipo y un buscador con el atajo `Ctrl K`.
+- **Inicio**:
+  - Las tarjetas se reparten en una **rejilla de 1 a 4 columnas** según el ancho, todas del mismo tamaño; antes tenían ancho fijo y dejaban media ventana vacía.
+  - Cada tarjeta lleva el icono de su área y el estado en una **pastilla de color** (Correcto, Atención, Sin comprobar). «Abrir ›» solo aparece cuando hay algo que abrir.
+  - Las que no aplican (p. ej. batería en un sobremesa) ya no dejan hueco.
+  - La cabecera resume el estado: «Todo en orden», «2 avisos»…
+- **Controles oscuros en todas las pantallas**: desplegables, cuadros de texto, casillas, barras de desplazamiento y textos de ayuda siguen el tema; antes algunos desplegables eran los grises de Windows.
+- **Tema con valores compartidos** (colores, radios, foco visible solo con teclado) en `Theme.xaml`, según la guía de diseño del proyecto.
+
+### Corregido
+- Windows Update decía «Última búsqueda hace 0 día(s)». Ahora dice «hoy», «ayer» o «hace N días».
+
+### Archivos y pruebas
+- `src/app/Theme/Theme.xaml`, `Shell/MainWindow.xaml(.cs)`, `ShellViewModel.cs`, `Modules/Home/**`, `Core/StatusCard.cs`, `Core/Converters.cs`, vistas de Instalar, Sistema, Seguridad, Acceso remoto, Ajustes y Actualizaciones, y `src/engine/11-Status.ps1`.
+- MSTest: columnas según el ancho y etiquetas de estado. Pendiente de revisar en pantalla real: contraste, ventana pequeña y zoom al 200 %.
+- **Afecta a Windows x86/x64/ARM64 por igual**.
+
 ## v5.0 — 2026-11-09
 
 **iWinInstaller pasa a ser el centro de control del PC.** Cierra el plan iniciado en v4.1 (`specs/001-centro-de-control/`): una sola ventana para instalar, mantener al día, revisar la salud, proteger, ajustar y conectar el equipo.

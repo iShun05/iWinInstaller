@@ -3,13 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <UserControl.Resources>
     <BooleanToVisibilityConverter x:Key="Visible"/>
-    <Style x:Key="Field" TargetType="Control">
-      <Setter Property="Background" Value="#22222B"/>
-      <Setter Property="Foreground" Value="{StaticResource Text}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource Border}"/>
-      <Setter Property="Padding" Value="8,6"/>
-      <Setter Property="Margin" Value="0,0,8,8"/>
-    </Style>
   </UserControl.Resources>
   <Grid>
     <Grid.ColumnDefinitions>
@@ -21,11 +14,11 @@
       <StackPanel DockPanel.Dock="Top">
         <TextBlock Text="Instalar" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" Margin="0,0,0,12"/>
         <WrapPanel>
-          <TextBox Style="{StaticResource Field}" Width="260" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged, Delay=150}"
+          <TextBox Margin="0,0,8,8" Width="260" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged, Delay=150}"
                    AutomationProperties.Name="Buscar en el catálogo" ToolTip="Busca por nombre, uso o comparativa"/>
-          <ComboBox Style="{StaticResource Field}" MinWidth="200" ItemsSource="{Binding Scopes}" SelectedItem="{Binding Scope}" AutomationProperties.Name="Sección"/>
-          <ComboBox Style="{StaticResource Field}" MinWidth="140" ItemsSource="{Binding Filters}" SelectedItem="{Binding Filter}" AutomationProperties.Name="Mostrar"/>
-          <ComboBox Style="{StaticResource Field}" MinWidth="220" ItemsSource="{Binding Profiles}" SelectedItem="{Binding Profile}" AutomationProperties.Name="Perfil"/>
+          <ComboBox Margin="0,0,8,8" MinWidth="200" ItemsSource="{Binding Scopes}" SelectedItem="{Binding Scope}" AutomationProperties.Name="Sección"/>
+          <ComboBox Margin="0,0,8,8" MinWidth="140" ItemsSource="{Binding Filters}" SelectedItem="{Binding Filter}" AutomationProperties.Name="Mostrar"/>
+          <ComboBox Margin="0,0,8,8" MinWidth="220" ItemsSource="{Binding Profiles}" SelectedItem="{Binding Profile}" AutomationProperties.Name="Perfil"/>
           <Button Style="{StaticResource Ghost}" Content="Guardar perfil…" Command="{Binding SaveProfileCommand}" Margin="0,0,4,8"/>
           <Button Style="{StaticResource Ghost}" Content="Importar…" Command="{Binding ImportProfileCommand}" Margin="0,0,4,8"/>
           <Button Style="{StaticResource Ghost}" Content="Exportar…" Command="{Binding ExportProfileCommand}" Margin="0,0,4,8"/>
@@ -154,8 +147,7 @@
         <TextBlock DockPanel.Dock="Top" Text="{Binding Summary}" Foreground="{StaticResource TextMuted}" Margin="0,2,0,12"/>
         <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
           <TextBlock Text="Tus notas" Foreground="{StaticResource TextMuted}" FontSize="12"/>
-          <TextBox Text="{Binding UserNote, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="70" MaxHeight="160" Margin="0,4,0,10"
-                   Background="#22222B" Foreground="{StaticResource Text}" BorderBrush="{StaticResource Border}" Padding="8,6" AutomationProperties.Name="Tus notas"/>
+          <TextBox Text="{Binding UserNote, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="70" MaxHeight="160" Margin="0,4,0,10" Padding="8,6" AutomationProperties.Name="Tus notas"/>
           <WrapPanel>
             <Button Style="{StaticResource Btn}" Content="Comprobar" Margin="0,0,8,0" Command="{Binding DataContext.CheckGuideCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
             <Button Style="{StaticResource Ghost}" Content="{Binding LinkLabel}" Visibility="{Binding HasLink, Converter={StaticResource Visible}}"

@@ -44,6 +44,22 @@ namespace IWinInstaller.App.Modules.Home
         public bool IsRefreshing { get { return _isRefreshing; } private set { Set(ref _isRefreshing, value); } }
         public string LastChecked { get { return _lastChecked; } private set { Set(ref _lastChecked, value); } }
 
+        /// <summary>Resumen de la cabecera: cuántos avisos hay o si todo está bien.</summary>
+        public string Headline
+        {
+            get
+            {
+                var visible = Cards.Where(c => c.IsVisible).ToList();
+                if (visible.Any(c => c.IsLoading)) return "Comprobando tu PC…";
+                int attention = visible.Count(c => c.State == StatusState.Attention);
+                int unknown = visible.Count(c => c.State == StatusState.Unknown);
+                if (attention == 0 && unknown == 0) return "Todo en orden";
+                string text = attention == 1 ? "1 aviso" : attention > 1 ? attention + " avisos" : "";
+                if (unknown > 0) text += (text.Length > 0 ? " · " : "") + unknown + (unknown == 1 ? " sin comprobar" : " sin comprobar");
+                return text;
+            }
+        }
+
         public StatusCard Find(string area) { return Cards.FirstOrDefault(c => c.Area == area); }
 
         /// <summary>Comprueba todo: lecturas locales en paralelo y, a la vez, el motor para el resto.</summary>
@@ -109,6 +125,7 @@ namespace IWinInstaller.App.Modules.Home
             {
                 var card = Find(area);
                 if (card != null) card.Apply(result.State, result.Summary, result.Reason, result.ActionId);
+                OnPropertyChanged("Headline");
             }));
         }
 

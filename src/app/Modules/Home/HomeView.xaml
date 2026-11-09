@@ -5,49 +5,88 @@
   <UserControl.Resources>
     <BooleanToVisibilityConverter x:Key="Visible"/>
     <DataTemplate x:Key="Card" DataType="{x:Type core:StatusCard}">
-      <Border x:Name="card" Width="300" MinHeight="132" Margin="0,0,14,14" Padding="18,16" CornerRadius="14"
+      <Border x:Name="card" MinHeight="148" Margin="0,0,14,14" Padding="18,16,18,14" CornerRadius="{StaticResource RadiusCard}"
               Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" BorderThickness="1"
               Visibility="{Binding IsVisible, Converter={StaticResource Visible}}"
               AutomationProperties.Name="{Binding Title}" AutomationProperties.HelpText="{Binding Summary}">
-        <DockPanel LastChildFill="False">
-          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
-            <Ellipse x:Name="dot" Width="9" Height="9" Fill="{StaticResource Unknown}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-          </StackPanel>
-          <TextBlock DockPanel.Dock="Top" Text="{Binding Summary}" FontSize="15" Margin="0,0,0,4"/>
-          <TextBlock DockPanel.Dock="Top" Text="{Binding Reason}" Foreground="{StaticResource TextMuted}"
-                     Visibility="{Binding HasReason, Converter={StaticResource Visible}}"/>
-          <DockPanel DockPanel.Dock="Bottom" Margin="0,10,0,0" LastChildFill="False">
-            <TextBlock x:Name="state" Text="{Binding StateText}" Foreground="{StaticResource TextMuted}" FontSize="12" VerticalAlignment="Center"/>
-            <Button DockPanel.Dock="Right" Style="{StaticResource Ghost}" Content="Abrir"
-                    Command="{Binding DataContext.OpenActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                    CommandParameter="{Binding}" Visibility="{Binding HasAction, Converter={StaticResource Visible}}"
-                    AutomationProperties.Name="{Binding Title, StringFormat=Abrir {0}}"/>
+        <DockPanel LastChildFill="True">
+          <!-- Cabecera: icono del área, título y pastilla de estado -->
+          <DockPanel DockPanel.Dock="Top" LastChildFill="True" Margin="0,0,0,12">
+            <Border x:Name="pill" DockPanel.Dock="Right" CornerRadius="10" Padding="9,2" Background="{StaticResource UnknownSoft}" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal">
+                <Ellipse x:Name="dot" Width="6" Height="6" Fill="{StaticResource Unknown}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBlock x:Name="state" Text="{Binding StateLabel}" FontSize="11.5" Foreground="{StaticResource Unknown}" TextWrapping="NoWrap"/>
+              </StackPanel>
+            </Border>
+            <Border x:Name="iconBox" Width="30" Height="30" CornerRadius="9" Background="{StaticResource SurfaceRaised}" Margin="0,0,10,0" VerticalAlignment="Center">
+              <TextBlock x:Name="icon" Text="{Binding Glyph}" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="{StaticResource TextMuted}"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <TextBlock Text="{Binding Title}" FontSize="12.5" FontWeight="SemiBold" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
           </DockPanel>
+          <!-- Acción al pie, solo si existe -->
+          <Button DockPanel.Dock="Bottom" Style="{StaticResource LinkButton}" Content="Abrir" HorizontalAlignment="Left" Margin="0,10,0,0"
+                  Command="{Binding DataContext.OpenActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  CommandParameter="{Binding}" Visibility="{Binding HasAction, Converter={StaticResource Visible}}"
+                  AutomationProperties.Name="{Binding Title, StringFormat=Abrir {0}}"/>
+          <StackPanel>
+            <TextBlock Text="{Binding Summary}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" LineHeight="22"/>
+            <TextBlock Text="{Binding Reason}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0" LineHeight="18"
+                       Visibility="{Binding HasReason, Converter={StaticResource Visible}}"/>
+          </StackPanel>
         </DockPanel>
       </Border>
       <DataTemplate.Triggers>
-        <DataTrigger Binding="{Binding State}" Value="Ok"><Setter TargetName="dot" Property="Fill" Value="{StaticResource Ok}"/></DataTrigger>
-        <DataTrigger Binding="{Binding State}" Value="Attention">
-          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Attention}"/>
-          <Setter TargetName="card" Property="BorderBrush" Value="#4A3D24"/>
-          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Attention}"/>
+        <DataTrigger Binding="{Binding State}" Value="Ok">
+          <Setter TargetName="pill" Property="Background" Value="{StaticResource OkSoft}"/>
+          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Ok}"/>
+          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Ok}"/>
         </DataTrigger>
+        <DataTrigger Binding="{Binding State}" Value="Attention">
+          <Setter TargetName="pill" Property="Background" Value="{StaticResource AttentionSoft}"/>
+          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Attention}"/>
+          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Attention}"/>
+          <Setter TargetName="card" Property="BorderBrush" Value="#3B3020"/>
+          <Setter TargetName="iconBox" Property="Background" Value="{StaticResource AttentionSoft}"/>
+          <Setter TargetName="icon" Property="Foreground" Value="{StaticResource Attention}"/>
+        </DataTrigger>
+        <Trigger SourceName="card" Property="IsMouseOver" Value="True">
+          <Setter TargetName="card" Property="Background" Value="{StaticResource SurfaceHover}"/>
+        </Trigger>
       </DataTemplate.Triggers>
     </DataTemplate>
   </UserControl.Resources>
-  <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
-    <StackPanel Margin="32,28,18,24">
-      <DockPanel Margin="0,0,14,20" LastChildFill="False">
+  <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Auto" Focusable="False">
+    <StackPanel Margin="36,30,22,28">
+      <DockPanel Margin="0,0,14,22" LastChildFill="False">
         <StackPanel>
-          <TextBlock Text="Estado del PC" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-          <TextBlock Text="{Binding Home.LastChecked}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0"/>
+          <TextBlock Text="Estado del PC" FontSize="28" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+          <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+            <TextBlock Text="{Binding Home.Headline}" FontSize="14" Foreground="{StaticResource Text}"/>
+            <TextBlock Text="  ·  " Foreground="{StaticResource TextFaint}"/>
+            <TextBlock Text="{Binding Home.LastChecked}" Foreground="{StaticResource TextFaint}" VerticalAlignment="Center"/>
+          </StackPanel>
         </StackPanel>
-        <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="Comprobar de nuevo" VerticalAlignment="Top"
-                Command="{Binding Home.RefreshCommand}"/>
+        <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" VerticalAlignment="Top" Command="{Binding Home.RefreshCommand}" ToolTip="Comprobar de nuevo (F5)">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="&#xE72C;" FontFamily="{StaticResource IconFont}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock Text="Comprobar de nuevo" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Button>
       </DockPanel>
+      <!-- Rejilla que se adapta al ancho: de 1 a 4 columnas con tarjetas del mismo tamaño -->
       <ItemsControl ItemsSource="{Binding Home.Cards}" ItemTemplate="{StaticResource Card}" Focusable="False">
-        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <UniformGrid Columns="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}, Converter={x:Static core:WidthToColumns.Instance}}"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <!-- Las tarjetas que no aplican (p. ej. batería en un sobremesa) no ocupan hueco -->
+        <ItemsControl.ItemContainerStyle>
+          <Style TargetType="ContentPresenter">
+            <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource Visible}}"/>
+          </Style>
+        </ItemsControl.ItemContainerStyle>
       </ItemsControl>
     </StackPanel>
   </ScrollViewer>
