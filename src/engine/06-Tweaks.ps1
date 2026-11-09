@@ -120,7 +120,11 @@ function Update-Self {
             if(-not (Test-Path $setup) -or (Get-FileHash $setup).Hash -ne $expected){
                 $download=$setup+'.part'
                 try{
-                    [void](Invoke-IwinWebTransfer $asset.browser_download_url $download 600)
+                    # GitHub responde a veces 502/504: hasta tres intentos (una pausa cancela)
+                    for ($attempt = 1; ; $attempt++) {
+                        try { [void](Invoke-IwinWebTransfer $asset.browser_download_url $download 600); break }
+                        catch { if ($attempt -ge 3 -or (Test-IwinStop)) { throw }; Write-Log "  Descarga fallida; reintento $attempt."; Start-Sleep -Seconds (10 * $attempt) }
+                    }
                     if((Get-FileHash $download).Hash -ne $expected){throw 'La actualización no supera la comprobación SHA256.'}
                     Move-Item $download $setup -Force -ErrorAction Stop
                 }finally{Remove-Item $download -Force -ErrorAction SilentlyContinue}
