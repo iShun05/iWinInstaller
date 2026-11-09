@@ -19,6 +19,8 @@
 - El lanzador exige la interfaz: un paquete sin `iWinInstaller.App.exe` avisa de reinstalar en vez de abrir la ventana clásica.
 - CI: la aceptación prueba la consola (`-Check -Json`) y el contrato del motor en lugar de construir la ventana clásica. Nueva barrera: ningún archivo de código supera 1.500 líneas.
 
+- **Construcción más resistente**: si la ruta pública de descarga de GitHub sigue devolviendo 504 tras tres intentos, los paquetes de WinGet se descargan por la API de GitHub (con la misma comprobación SHA256). Fue lo que detuvo la primera publicación de la v4.9.
+
 ### Pendiente
 - **Firma con SignPath**: espera la solicitud del usuario (2FA en GitHub y formulario en signpath.org).
 - Pruebas físicas en el equipo del usuario: batería, SMART, monitores reales, hibernación, SSH desde el Mac y una reparación real.

@@ -49,10 +49,19 @@ try {
     foreach ($asset in $metadata.assets) {
         $file=Join-Path $OutputDirectory $asset.name
         if (-not (Test-Path $file) -or (Get-FileHash $file).Hash.ToLowerInvariant() -ne $asset.digest.Substring(7)) {
-            # Las descargas de GitHub fallan a veces con 502/504: hasta cinco intentos
+            # Las descargas de GitHub fallan a veces con 502/504: hasta cinco intentos. Si la ruta pública sigue
+            # fallando y hay CLI de GitHub (CI), se descarga por la API, que usa otro servidor. La huella se comprueba igual.
             for ($attempt = 1; ; $attempt++) {
                 try { Invoke-WebRequest $asset.browser_download_url -OutFile $file -UseBasicParsing; break }
-                catch { if ($attempt -ge 5) { throw }; Write-Warning "Descarga de $($asset.name) fallida ($($_.Exception.Message)); reintento $attempt"; Start-Sleep -Seconds (10 * $attempt) }
+                catch {
+                    Write-Warning "Descarga de $($asset.name) fallida ($($_.Exception.Message)); intento $attempt"
+                    if ($attempt -ge 3 -and (Get-Command gh -ErrorAction SilentlyContinue)) {
+                        & gh release download $metadata.version --repo microsoft/winget-cli --pattern $asset.name --dir $OutputDirectory --clobber
+                        if ($LASTEXITCODE -eq 0 -and (Test-Path $file)) { break }
+                    }
+                    if ($attempt -ge 5) { throw }
+                    Start-Sleep -Seconds (10 * $attempt)
+                }
             }
         }
         if ((Get-FileHash $file).Hash.ToLowerInvariant() -ne $asset.digest.Substring(7)) { throw "Hash incorrecto: $($asset.name)" }
