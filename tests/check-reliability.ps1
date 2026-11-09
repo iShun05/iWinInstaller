@@ -52,6 +52,7 @@ function Get-FunctionBody($name) {
     function Update-Self { $false }
     function Update-WingetCache { }
     function Invoke-Install { @() }
+    function Get-IwinExclusions { @() }  # v4.5: -Update respeta las exclusiones
     $Apps = @()
     $wingetOk = @(0); $SetupDir = $env:TEMP; $Version = 'prueba'
     if (Invoke-Update) { throw 'Una autoactualizacion fallida no puede anunciar exito' }
