@@ -17,6 +17,8 @@ Apariencia renovada de la interfaz, a partir de una captura del usuario en Windo
 
 ### Corregido
 - Windows Update decía «Última búsqueda hace 0 día(s)». Ahora dice «hoy», «ayer» o «hace N días».
+- **Sistema**: los desplegables de monitor, resolución, frecuencia y energía tenían el texto invisible (texto claro sobre la plantilla gris de Windows). Ahora usan el tema oscuro.
+- «Plan activo» mostraba el identificador interno del plan (`8c5e7fda-…`); ahora muestra solo su nombre (p. ej. «Alto rendimiento»).
 
 ### Archivos y pruebas
 - `src/app/Theme/Theme.xaml`, `Shell/MainWindow.xaml(.cs)`, `ShellViewModel.cs`, `Modules/Home/**`, `Core/StatusCard.cs`, `Core/Converters.cs`, vistas de Instalar, Sistema, Seguridad, Acceso remoto, Ajustes y Actualizaciones, y `src/engine/11-Status.ps1`.

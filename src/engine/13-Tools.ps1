@@ -9,7 +9,9 @@ function ConvertTo-IwinMinutes($seconds) { if ($null -eq $seconds) { $null } els
 
 Register-IwinEngineCommand 'power.get' {
     param($request)
-    $plan = (& powercfg /getactivescheme 2>$null | Out-String) -replace '^.*?:\s*', '' -replace '\s+$', ''
+    # «GUID del plan de energía: 8c5e7fda-…  (Alto rendimiento)»: se muestra solo el nombre entre paréntesis
+    $raw = (& powercfg /getactivescheme 2>$null | Out-String).Trim()
+    $plan = if ($raw -match '\(([^)]+)\)\s*\*?\s*$') { $Matches[1].Trim() } else { $raw -replace '^.*?:\s*', '' }
     @{
         monitor = ConvertTo-IwinMinutes (Get-AcPowerValue SUB_VIDEO VIDEOIDLE)
         sleep = ConvertTo-IwinMinutes (Get-AcPowerValue SUB_SLEEP STANDBYIDLE)
