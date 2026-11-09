@@ -19,7 +19,7 @@ jobs:
         run: |
           New-Item -ItemType Directory resultados -Force | Out-Null
           "PROCESSOR_ARCHITECTURE=$env:PROCESSOR_ARCHITECTURE PS=$($PSVersionTable.PSVersion) CLR=$([Environment]::Version) 64=$([Environment]::Is64BitProcess)" | Tee-Object resultados\arm-1-entorno.txt
-          & { ./iWinInstaller.ps1 } *>&1 | Tee-Object resultados\arm-2-ventana.txt
+          & { ./iWinInstaller.ps1 -Status } *>&1 | Tee-Object resultados\arm-2-ventana.txt
           "Código: $LASTEXITCODE" | Tee-Object resultados\arm-2-ventana.txt -Append
           Get-ChildItem "$env:LOCALAPPDATA\iWinInstaller" -Filter *.log -ErrorAction SilentlyContinue | Select-String 'ERROR DE INTERFAZ' -Context 0,12 | Out-String -Width 400 | Set-Content resultados\arm-2b-error.txt
       - name: EXE completo

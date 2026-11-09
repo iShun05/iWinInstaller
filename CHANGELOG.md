@@ -1,5 +1,31 @@
 # Historial de versiones
 
+## v5.0 — 2026-11-09
+
+**iWinInstaller pasa a ser el centro de control del PC.** Cierra el plan iniciado en v4.1 (`specs/001-centro-de-control/`): una sola ventana para instalar, mantener al día, revisar la salud, proteger, ajustar y conectar el equipo.
+
+### Resumen de v4.1 a v5.0
+- **Base fiable**: licencia MIT, catálogo validado por esquema, pruebas unitarias (Pester y MSTest) como puertas de publicación y verificación automática de cada release (v4.1). Motor dividido por áreas con contrato JSON y línea de comandos documentada (v4.2).
+- **Instalación protegida** en Archivos de programa, con migración automática y actualización como SYSTEM (v4.3).
+- **Interfaz nueva**: Inicio con el estado del PC (v4.4), Actualizaciones con exclusiones y programación (v4.5), Instalar (v4.6), Sistema, Seguridad, Acceso remoto y Ajustes (v4.7), paleta `Ctrl + K` (v4.8) y Mantenimiento y salud (v4.9).
+
+### Eliminado
+- **La ventana clásica** (PowerShell + WPF): todo lo que hacía está en la interfaz nueva desde v4.7. `iWinInstaller.ps1` queda como motor y consola: pasa de 4.074 líneas (v4.1) a unas 225. Sin parámetros abre la interfaz.
+- `src/ui/*.xaml`, la prueba `check-icons.ps1` (probaba los iconos de la ventana clásica) y el puente a la ventana clásica.
+
+### Cambiado
+- Al abrir, si la actualización automática está activada, la app busca versión nueva en segundo plano (como hacía la ventana clásica). Si hay una, se aplica al cerrarla.
+- El lanzador exige la interfaz: un paquete sin `iWinInstaller.App.exe` avisa de reinstalar en vez de abrir la ventana clásica.
+- CI: la aceptación prueba la consola (`-Check -Json`) y el contrato del motor en lugar de construir la ventana clásica. Nueva barrera: ningún archivo de código supera 1.500 líneas.
+
+### Pendiente
+- **Firma con SignPath**: espera la solicitud del usuario (2FA en GitHub y formulario en signpath.org).
+- Pruebas físicas en el equipo del usuario: batería, SMART, monitores reales, hibernación, SSH desde el Mac y una reparación real.
+
+### Archivos y pruebas
+- `iWinInstaller.ps1`, `src/app/**` (sin `LegacyBridge`), `src/engine/13-Tools.ps1`, `native/Launcher.cs`, workflows `acceptance`, `native`, `windows` y `arm`, `tests/unit/engine/Size.Tests.ps1`, README y plan.
+- **Afecta a Windows x86/x64/ARM64 por igual**. CI en x64 y ARM64 y proceso x86.
+
 ## v4.9 — 2026-11-09
 
 Novena versión del camino a v5.0: **Mantenimiento y salud**.

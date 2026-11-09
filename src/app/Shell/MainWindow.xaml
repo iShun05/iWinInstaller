@@ -75,12 +75,6 @@
       <tools:SettingsView DataContext="{Binding Settings}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=settings}"/>
       <maintenance:MaintenanceView DataContext="{Binding Maintenance}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=maintenance}"/>
       <updates:UpdatesView Visibility="{Binding PageId, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=updates}"/>
-      <StackPanel Visibility="{Binding IsClassicPage, Converter={StaticResource Visible}}" Margin="32,28,32,24" MaxWidth="640" HorizontalAlignment="Left">
-        <TextBlock Text="{Binding Selected.Title}" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-        <TextBlock Text="{Binding Selected.Description}" Foreground="{StaticResource TextMuted}" Margin="0,6,0,18"/>
-        <TextBlock Margin="0,0,0,16">Esta sección todavía se abre en la ventana clásica, con todas sus funciones. Pasará a esta ventana en las próximas versiones.</TextBlock>
-        <Button Style="{StaticResource Primary}" Content="Abrir en la ventana clásica" HorizontalAlignment="Left" Command="{Binding OpenClassicCommand}"/>
-      </StackPanel>
     </Grid>
   </Grid>
 </Window>

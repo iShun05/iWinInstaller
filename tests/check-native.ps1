@@ -49,7 +49,7 @@ foreach ($rule in (Get-Acl $installed).Access) {
     }
 }
 Write-Host 'OK: instalada en Program Files, protegida y migrada desde la copia por usuario.'
-foreach ($name in @('iWinInstaller.exe','launch.ps1','lifecycle.ps1','install.ps1','iWinInstaller.ps1','apps.json','profiles.json','prerequisites\DesktopAppInstaller_Dependencies.zip')) {
+foreach ($name in @('iWinInstaller.exe','iWinInstaller.App.exe','launch.ps1','lifecycle.ps1','install.ps1','iWinInstaller.ps1','apps.json','profiles.json','prerequisites\DesktopAppInstaller_Dependencies.zip')) {
     if (-not (Test-Path (Join-Path $installed $name))) { throw "Falta el archivo instalado $name" }
 }
 $ws=New-Object -ComObject WScript.Shell

@@ -50,15 +50,13 @@ jobs:
         run: |
           powershell -NoProfile -ExecutionPolicy Bypass -File .\iWinInstaller.ps1 -Check *>&1 | Tee-Object resultados\4-check.txt
           "Código de salida (faltan): $LASTEXITCODE" | Tee-Object resultados\4-check.txt -Append
-      - name: Ventana (construcción sin mostrarla)
+      - name: Estado del PC (consola)
         shell: powershell
-        timeout-minutes: 5
+        timeout-minutes: 10
         continue-on-error: true
-        env:
-          IWIN_PRUEBA_GUI: "1"
         run: |
-          powershell -NoProfile -ExecutionPolicy Bypass -File .\iWinInstaller.ps1 *>&1 | Tee-Object resultados\6-ventana.txt
-          "Código: $LASTEXITCODE" | Tee-Object resultados\6-ventana.txt -Append
+          powershell -NoProfile -ExecutionPolicy Bypass -File .\iWinInstaller.ps1 -Status *>&1 | Tee-Object resultados\6-estado.txt
+          "Código: $LASTEXITCODE" | Tee-Object resultados\6-estado.txt -Append
       - name: Instalación sin ventana (perfil Optimización)
         shell: powershell
         timeout-minutes: 30

@@ -22,11 +22,14 @@ jobs:
       - name: Chrome desde cero, repetición e informe
         shell: powershell
         run: ./tests/check-acceptance.ps1
-      - name: Construir la interfaz WPF
+      - name: Consola y contrato del motor
         shell: powershell
-        env:
-          IWIN_PRUEBA_GUI: "1"
-        run: ./iWinInstaller.ps1
+        run: |
+          $state = powershell -NoProfile -ExecutionPolicy Bypass -File ./iWinInstaller.ps1 -Check -Json | ConvertFrom-Json
+          if ($state.contract -ne 1 -or -not $state.items.Count) { throw 'El estado en JSON no es válido' }
+          $dir = Join-Path $env:RUNNER_TEMP 'iwin-contrato'; New-Item $dir -ItemType Directory -Force | Out-Null
+          powershell -NoProfile -ExecutionPolicy Bypass -File ./iWinInstaller.ps1 -EngineCommand profiles.list -EngineResponse "$dir/r.json" -EngineEvents "$dir/e.jsonl"
+          if ($LASTEXITCODE -ne 0 -or -not (Get-Content "$dir/r.json" -Raw | ConvertFrom-Json).builtIn.Count) { throw 'El motor no respondió al contrato' }
       - name: Conservar el diagnóstico de la prueba
         if: always()
         uses: actions/upload-artifact@v4

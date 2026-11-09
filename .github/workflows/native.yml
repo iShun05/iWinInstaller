@@ -16,9 +16,6 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - name: Iconos defectuosos y cierre del dispatcher
-        shell: powershell
-        run: ./tests/check-icons.ps1
       - name: Compilar e instalar el EXE completo
         shell: pwsh
         run: ./tests/check-native.ps1

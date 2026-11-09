@@ -42,7 +42,6 @@ namespace IWinInstaller.App.Shell
             _preferences = preferences;
             _zoom = Preferences.ClampZoom(preferences.Zoom);
             Engine = new EngineClient(root);
-            Legacy = new LegacyBridge(root);
             Home = new HomeViewModel(Engine, dispatcher);
             var dialogs = new DialogService();
             Install = new InstallViewModel(root, Engine, dispatcher, dialogs);
@@ -52,7 +51,7 @@ namespace IWinInstaller.App.Shell
             Settings = new SettingsViewModel(Engine);
             Maintenance = new MaintenanceViewModel(Engine, dialogs);
             Updates = new UpdatesViewModel(Engine, dispatcher);
-            Router = new ActionRouter(Legacy, Navigate);
+            Router = new ActionRouter(Navigate);
             Items = new ObservableCollection<NavItem>
             {
                 new NavItem("home", "Inicio", "Estado del PC de un vistazo.", false),
@@ -70,7 +69,6 @@ namespace IWinInstaller.App.Shell
                 var card = p as StatusCard;
                 if (card != null) Router.Run(card.ActionId);
             });
-            OpenClassicCommand = new RelayCommand(_ => Legacy.Open(), _ => Legacy.IsAvailable);
             OpenInstagramCommand = new RelayCommand(_ => { try { Process.Start(new ProcessStartInfo(InstagramUrl) { UseShellExecute = true }); } catch (System.ComponentModel.Win32Exception) { } });
             ZoomInCommand = new RelayCommand(_ => Zoom += 0.1);
             ZoomOutCommand = new RelayCommand(_ => Zoom -= 0.1);
@@ -79,7 +77,6 @@ namespace IWinInstaller.App.Shell
         }
 
         public EngineClient Engine { get; private set; }
-        public LegacyBridge Legacy { get; private set; }
         public HomeViewModel Home { get; private set; }
         public InstallViewModel Install { get; private set; }
         public SystemViewModel SystemPage { get; private set; }
@@ -91,7 +88,6 @@ namespace IWinInstaller.App.Shell
         public ActionRouter Router { get; private set; }
         public ObservableCollection<NavItem> Items { get; private set; }
         public RelayCommand OpenActionCommand { get; private set; }
-        public RelayCommand OpenClassicCommand { get; private set; }
         public RelayCommand OpenInstagramCommand { get; private set; }
         public RelayCommand ZoomInCommand { get; private set; }
         public RelayCommand ZoomOutCommand { get; private set; }

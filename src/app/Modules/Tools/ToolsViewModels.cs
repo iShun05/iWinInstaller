@@ -273,6 +273,18 @@ namespace IWinInstaller.App.Modules.Tools
 
         public void EnsureLoaded() { if (!_loaded) { _loaded = true; var ignored = LoadAsync(); } }
 
+        /// <summary>Al abrir la app: si la actualización automática está activada, busca versión nueva en segundo plano.</summary>
+        public async void CheckForUpdateOnStart()
+        {
+            try
+            {
+                var info = await _engine.RunAsync("app.info", null, null, TimeSpan.FromMinutes(1), CancellationToken.None);
+                if (!info.Ok || !Json.Flag(info.Response, "autoUpdate")) return;
+                await _engine.RunAsync("app.selfupdate", null, null, TimeSpan.FromMinutes(15), CancellationToken.None);
+            }
+            catch (Exception e) { App.Log("Actualización al abrir: " + e.Message); }
+        }
+
         private async Task LoadAsync()
         {
             var result = await _engine.RunAsync("app.info", null, null, TimeSpan.FromMinutes(1), CancellationToken.None);

@@ -89,8 +89,7 @@ namespace IWinInstaller.App.Shell.Palette
                 new PaletteAction("nav.settings", "Actualizar iWinInstaller", "Ajustes", "version nueva actualizar app automatica"),
                 new PaletteAction("install.report", "Informe de la última instalación", "Instalar", "fallos errores informe reintentar"),
                 new PaletteAction("install.resume", "Reanudar lote pendiente", "Instalar", "continuar pausa pendiente lote"),
-                new PaletteAction("windowsupdate.open", "Abrir Windows Update", "Windows", "parches actualizaciones windows update"),
-                new PaletteAction("classic.open", "Abrir la ventana clásica", "Ajustes", "anterior antigua clasica")
+                new PaletteAction("windowsupdate.open", "Abrir Windows Update", "Windows", "parches actualizaciones windows update")
             };
         }
     }

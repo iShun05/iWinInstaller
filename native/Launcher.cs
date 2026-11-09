@@ -7,8 +7,8 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-[assembly: AssemblyVersion("4.9.0.0")]
-[assembly: AssemblyFileVersion("4.9.0.0")]
+[assembly: AssemblyVersion("5.0.0.0")]
+[assembly: AssemblyFileVersion("5.0.0.0")]
 
 static class Launcher {
     static readonly object LogLock = new object();
@@ -21,12 +21,12 @@ static class Launcher {
         try {
             Directory.CreateDirectory(logs);
             Environment.CurrentDirectory = logs;
-            Log("iWinInstaller v4.9; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
+            Log("iWinInstaller v5.0; Windows " + Environment.OSVersion + "; 64 bits: " + Environment.Is64BitOperatingSystem + "; proceso x86: " + !Environment.Is64BitProcess);
 #if SETUP
             bool quiet = Array.IndexOf(args, "--silent") >= 0;
             if (quiet) { Install(); return 0; }
             using (Form form = new Form()) {
-                form.Text = "iWinInstaller v4.9"; form.Width = 560; form.Height = 230;
+                form.Text = "iWinInstaller v5.0"; form.Width = 560; form.Height = 230;
                 form.StartPosition = FormStartPosition.CenterScreen;
                 form.FormBorderStyle = FormBorderStyle.FixedDialog; form.ControlBox = false;
                 form.BackColor = System.Drawing.Color.Black; form.ForeColor = System.Drawing.Color.White;
@@ -101,7 +101,8 @@ static class Launcher {
             }
             // Desde v4.4 se abre la interfaz nueva; sin ella (paquete sin compilar), la ventana clásica
             string appExe = Path.Combine(root, "iWinInstaller.App.exe");
-            int code = File.Exists(appExe) ? RunApp(appExe, root) : RunPowerShell(Path.Combine(root, "launch.ps1"), "", logs, null);
+            if (!File.Exists(appExe)) throw new FileNotFoundException("Falta la interfaz. Ejecuta de nuevo iWinInstaller-Setup.exe.", "iWinInstaller.App.exe");
+            int code = RunApp(appExe, root);
             // 0x40010004 y 0xC000013A: Windows cerro la app (apagado, reinicio, cierre de sesion o Ctrl+C). No es un fallo.
             if (code == 0x40010004 || code == unchecked((int)0xC000013A)) { Log("La aplicación se cerró porque Windows terminó la sesión (código " + code + ")."); return 0; }
             if (code != 0) throw new Exception("La aplicación terminó con el código " + code + ". El diagnóstico contiene los detalles disponibles.");

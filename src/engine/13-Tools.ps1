@@ -112,29 +112,6 @@ function Get-LinkCommands {
     $win = "`$H='$alias'; `$IP='$ip'; `$U='$user'; `$d=Join-Path `$HOME '.ssh'; New-Item -ItemType Directory -Force `$d | Out-Null; if (-not (Test-Path `"`$d\id_ed25519`")) { Start-Process ssh-keygen -Wait -NoNewWindow -ArgumentList (`"-q -t ed25519 -N ```"```" -f ```"`$d\id_ed25519```" -C `$env:USERNAME@`$env:COMPUTERNAME`") }; `$c=`"`$d\config`"; if (-not (Select-String -Path `$c -Pattern `"^Host `$H`$`" -Quiet -ErrorAction SilentlyContinue)) { Add-Content `$c `"``nHost `$H``n  HostName `$IP``n  User `$U``n  IdentityFile ~/.ssh/id_ed25519``n  ServerAliveInterval 30`" }; Get-Content `"`$d\id_ed25519.pub`" | Set-Clipboard; 'Clave copiada: pegala en iWinInstaller > Vincular equipos'; Get-Content `"`$d\id_ed25519.pub`""
     [pscustomobject]@{ Mac = $mac; Windows = $win; Alias = $alias; Ip = $ip; User = $user; Addresses = $addr }
 }
-function Update-LinkPanel {
-    $info = Get-LinkCommands; $script:LinkInfo = $info
-    $ready = $false; try { $ready = Test-RemoteSsh } catch {}
-    $keys = @(Get-Content (Get-LinkKeysPath) -ErrorAction SilentlyContinue | Where-Object { $_ -match '^(ssh-|ecdsa-|sk-)' })
-    $lan = [bool](Get-NetFirewallRule -Group $SshLanGroup -ErrorAction SilentlyContinue)
-    $ui.LinkLan.IsChecked = $lan
-    $ui.LinkStatus.Text = (@(
-        "Servidor SSH: $(if ($ready) { 'listo (solo claves)' } else { 'sin preparar — pulsa «Preparar este PC»' })",
-        "Tailscale: $(if ($info.Addresses.Tailscale) { $info.Addresses.Tailscale + ' (funciona desde cualquier red)' } else { 'sin conexión — instálalo e inicia sesión para conectar fuera de casa' })",
-        "Red local: $(if ($info.Addresses.Lan) { $info.Addresses.Lan } else { '—' })$(if ($lan) { ' · permitida' })",
-        "Usuario: $($info.User)  ·  Equipos autorizados: $($keys.Count)"
-    ) -join "`n")
-    $ui.LinkMacCmd.Text = $info.Mac
-    $ui.LinkPrepare.Content = if ($ready) { 'Volver a aplicar' } else { 'Preparar este PC' }
-    $ui.LinkGuide.Text = (@(
-        "Terminal: ssh $($info.Alias)   (abre PowerShell de este PC)",
-        "Copiar archivos: scp archivo.txt $($info.Alias):Desktop/",
-        "Claude (app de escritorio o Claude Code): añade una conexión SSH con el host $($info.Alias); usa el alias que creó el comando.",
-        "VS Code: extensión Remote - SSH › $($info.Alias).",
-        "Portapapeles y archivos al vuelo: KDE Connect en ambos equipos (catálogo › Acceso remoto).",
-        "Escritorio completo: Sunshine + Moonlight (perfil «Escritorio remoto»)."
-    ) -join "`n")
-}
 function Invoke-LinkElevated([string]$script, [string]$label) {
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes("`$ErrorActionPreference='Stop'`n" + $script))
     try { $p = Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -EncodedCommand $encoded" -Verb RunAs -WindowStyle Hidden -Wait -PassThru }
@@ -220,6 +197,9 @@ Register-IwinEngineCommand 'app.autoupdate' {
 
 Register-IwinEngineCommand 'app.selfupdate' {
     param($request)
+    # Como la ventana: si la app está abierta, la versión nueva se aplica al cerrarla
+    $script:AutoUpdate = $true
+    Clear-IwinUpdateDownloads
     $ok = Update-Self
     @{ ok = [bool]$ok }
 }

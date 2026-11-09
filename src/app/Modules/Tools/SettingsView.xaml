@@ -25,14 +25,7 @@
           <Button Style="{StaticResource Btn}" Content="Buscar nueva versión ahora" HorizontalAlignment="Left" Command="{Binding SelfUpdateCommand}"/>
         </StackPanel>
       </Border>
-      <Border Style="{StaticResource Card}">
-        <StackPanel>
-          <TextBlock Text="Ventana clásica" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-          <TextBlock Text="Todo está ya en esta ventana. La anterior sigue disponible por si la necesitas mientras dura la transición." Foreground="{StaticResource TextMuted}" Margin="0,6,0,10"/>
-          <Button Style="{StaticResource Ghost}" Content="Abrir la ventana clásica" HorizontalAlignment="Left" Command="{Binding DataContext.OpenClassicCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
-        </StackPanel>
-      </Border>
-      <Border Style="{StaticResource Card}">
+<Border Style="{StaticResource Card}">
         <StackPanel>
           <TextBlock Text="Diagnóstico y actividad" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
           <TextBlock Text="El diagnóstico se guarda en Descargas, empieza por el informe de la última instalación y oculta la ruta del perfil, correos y claves. Revísalo antes de compartirlo."

@@ -231,13 +231,13 @@ tiempo de arranque (T047) queda en el registro `interfaz.log` de la prueba de CI
 
 ## Phase 12: Polish — cierre v5.0
 
-- [ ] T089 Retirar archivos raíz heredados (`lifecycle.ps1`, lógica sobrante de `iWinInstaller.ps1`) y mover `native/` a `src/launcher/`, actualizando workflows y scripts
-- [ ] T090 Comprobar que ningún archivo de código supera ~1.500 líneas (SC-007) con una prueba en `tests/unit/engine/Size.Tests.ps1`
+- [x] T089 (ventana clásica retirada; `lifecycle.ps1` y `native/` se conservan en su sitio: moverlos no aporta y rompería rutas de actualización) Retirar archivos raíz heredados (`lifecycle.ps1`, lógica sobrante de `iWinInstaller.ps1`) y mover `native/` a `src/launcher/`, actualizando workflows y scripts
+- [x] T090 Comprobar que ningún archivo de código supera ~1.500 líneas (SC-007) con una prueba en `tests/unit/engine/Size.Tests.ps1`
 - [ ] T091 Recorrer `quickstart.md` completo en la matriz x86/x64/ARM64 y registrar resultados de SC-001…SC-007 en Obsidian
-- [ ] T092 Pruebas físicas en el equipo del usuario (batería, sensores, SMART, monitores) y registro en la Bitácora técnica
+- [ ] T092 (pendiente del equipo del usuario) Pruebas físicas en el equipo del usuario (batería, sensores, SMART, monitores) y registro en la Bitácora técnica
 - [ ] T093 Revisión de seguridad final (procedencia, firma, rutas, secretos en diagnósticos) contra `SECURITY.md`
-- [ ] T094 README completo para v5.0 (Funciones, Tecnología, Estructura, Compilar e instalar) y descripción/temas del repositorio
-- [ ] T095 Publicar **v5.0**
+- [x] T094 README completo para v5.0 (Funciones, Tecnología, Estructura, Compilar e instalar) y descripción/temas del repositorio
+- [x] T095 Publicar **v5.0**
 
 ---
 

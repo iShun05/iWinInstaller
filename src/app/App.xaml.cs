@@ -33,7 +33,12 @@ namespace IWinInstaller.App
             bool testMode = !String.IsNullOrEmpty(Environment.GetEnvironmentVariable("IWIN_PRUEBA_GUI"));
             window.Loaded += async (sender, args) =>
             {
-                if (!testMode) { await model.Home.RefreshAsync(new[] { "appUpdates", "windowsUpdate", "antivirus", "pendingBatch" }, CancellationToken.None); return; }
+                if (!testMode)
+                {
+                    model.Settings.CheckForUpdateOnStart();
+                    await model.Home.RefreshAsync(new[] { "appUpdates", "windowsUpdate", "antivirus", "pendingBatch" }, CancellationToken.None);
+                    return;
+                }
                 await RunSmokeTest(model);
             };
             window.Show();
@@ -55,8 +60,7 @@ namespace IWinInstaller.App
                 for (int i = 0; i < 50 && pending.Count > 0; i++) { await Task.Delay(100); pending = model.Home.Cards.Where(c => c.IsLoading).Select(c => c.Area).ToList(); }
                 if (pending.Count > 0) throw new InvalidOperationException("Tarjetas sin resultado: " + String.Join(", ", pending));
                 foreach (var card in model.Home.Cards) Log("Prueba · " + card.Area + ": " + card.State + " · " + card.Summary + (card.HasReason ? " · " + card.Reason : ""));
-                code = model.Legacy.IsAvailable ? await Task.Run(() => model.Legacy.RunTest(TimeSpan.FromMinutes(4))) : 0;
-                Log("Prueba · ventana clásica: código " + code);
+                code = 0;
             }
             catch (Exception ex) { Log("Prueba fallida: " + ex); code = 1; }
             Shutdown(code);
