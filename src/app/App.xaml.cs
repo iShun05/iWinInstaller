@@ -18,8 +18,6 @@ namespace IWinInstaller.App
 
         private const string InstanceName = "Local\\iWinInstaller-app";
         private const string ShowSignalName = "Local\\iWinInstaller-app-mostrar";
-        // Tamaño a partir del cual interfaz.log se archiva como interfaz.anterior.log
-        internal const long MaxLogBytes = 1024 * 1024;
         private static readonly string[] StartAreas = { "appUpdates", "windowsUpdate", "antivirus", "pendingBatch" };
         private Mutex _instance;
         private EventWaitHandle _showSignal;
@@ -32,7 +30,7 @@ namespace IWinInstaller.App
             // Una sola instancia: abrir la app otra vez trae al frente la ventana que ya existe
             if (!testMode && !AcquireInstance()) { Shutdown(0); return; }
 
-            RotateLog(Path.Combine(LogDirectory, "interfaz.log"), MaxLogBytes);
+            LogFile.Rotate(Path.Combine(LogDirectory, "interfaz.log"), LogFile.MaxBytes);
             DispatcherUnhandledException += (sender, args) =>
             {
                 Log("Error de la interfaz: " + args.Exception);
@@ -126,22 +124,6 @@ namespace IWinInstaller.App
             if (_tray != null) { _tray.Dispose(); _tray = null; }
             if (_instance != null) { try { _instance.ReleaseMutex(); } catch (ApplicationException) { } _instance.Dispose(); _instance = null; }
             base.OnExit(e);
-        }
-
-        /// <summary>Archiva el registro de la interfaz cuando supera el tamaño máximo (se conserva una copia anterior).</summary>
-        internal static bool RotateLog(string path, long maxBytes)
-        {
-            try
-            {
-                var file = new FileInfo(path);
-                if (!file.Exists || file.Length <= maxBytes) return false;
-                string previous = Path.Combine(file.DirectoryName, Path.GetFileNameWithoutExtension(path) + ".anterior" + file.Extension);
-                if (File.Exists(previous)) File.Delete(previous);
-                File.Move(path, previous);
-                return true;
-            }
-            catch (IOException) { return false; }
-            catch (UnauthorizedAccessException) { return false; }
         }
 
         /// <summary>

@@ -163,12 +163,12 @@ namespace IWinInstaller.App.Tests
         {
             string log = Path.Combine(_dir, "interfaz.log");
             File.WriteAllText(log, new string('x', 100));
-            Assert.IsFalse(App.RotateLog(log, 1000), "por debajo del límite no se toca");
+            Assert.IsFalse(LogFile.Rotate(log, 1000), "por debajo del límite no se toca");
             File.WriteAllText(log, new string('x', 2000));
-            Assert.IsTrue(App.RotateLog(log, 1000));
+            Assert.IsTrue(LogFile.Rotate(log, 1000));
             Assert.IsFalse(File.Exists(log));
             Assert.AreEqual(2000, new FileInfo(Path.Combine(_dir, "interfaz.anterior.log")).Length);
-            Assert.IsFalse(App.RotateLog(Path.Combine(_dir, "no-existe.log"), 1000));
+            Assert.IsFalse(LogFile.Rotate(Path.Combine(_dir, "no-existe.log"), 1000));
         }
 
         [TestMethod]
