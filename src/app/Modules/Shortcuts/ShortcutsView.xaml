@@ -1,0 +1,81 @@
+<UserControl x:Class="IWinInstaller.App.Modules.Shortcuts.ShortcutsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="Visible"/>
+    <!-- Atajo: tarjeta compacta que abre el ajuste de Windows -->
+    <Style x:Key="Shortcut" TargetType="Button">
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="b" Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="{StaticResource RadiusControl}" Padding="14,10" RenderTransformOrigin="0.5,0.5">
+              <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
+              <ContentPresenter/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="b" Property="Background" Value="{StaticResource SurfaceHover}"/>
+                <Setter TargetName="b" Property="BorderBrush" Value="{StaticResource BorderStrong}"/>
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Trigger.EnterActions>
+                  <BeginStoryboard><Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="0.97" Duration="0:0:0.08"/>
+                    <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="0.97" Duration="0:0:0.08"/>
+                  </Storyboard></BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard><Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.12"/>
+                    <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.12"/>
+                  </Storyboard></BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </UserControl.Resources>
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+    <StackPanel Margin="32,28,22,24">
+      <TextBlock Text="Windows a mano" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+      <TextBlock Text="Atajos a los ajustes y herramientas de Windows que más se usan. Solo los abren: no cambian nada por su cuenta. También están en la búsqueda (Ctrl + K)."
+                 Foreground="{StaticResource TextMuted}" Margin="0,6,10,14"/>
+      <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" MaxWidth="420" HorizontalAlignment="Left" MinWidth="280" Padding="10,7" Margin="0,0,0,8"
+               Background="{StaticResource Surface}" Foreground="{StaticResource Text}" BorderBrush="{StaticResource BorderStrong}" CaretBrush="{StaticResource Text}"
+               AutomationProperties.Name="Buscar un ajuste de Windows" ToolTip="Escribe para filtrar: wifi, sonido, arranque…"/>
+      <TextBlock Text="{Binding Message}" Foreground="{StaticResource Attention}" Margin="0,0,0,8" AutomationProperties.LiveSetting="Polite"/>
+      <TextBlock Text="Ningún atajo coincide con la búsqueda." Foreground="{StaticResource TextMuted}" Visibility="{Binding IsEmpty, Converter={StaticResource Visible}}"/>
+      <ItemsControl ItemsSource="{Binding Groups}" Focusable="False">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Margin="0,0,0,18">
+              <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextMuted}" Margin="0,0,0,8"/>
+              <ItemsControl ItemsSource="{Binding Links}" Focusable="False">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Button Style="{StaticResource Shortcut}" Width="250" Margin="0,0,10,10"
+                            Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"
+                            AutomationProperties.Name="{Binding Title}" AutomationProperties.HelpText="{Binding Description}">
+                      <StackPanel>
+                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding Description}" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,3,0,0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" ToolTip="{Binding Description}"/>
+                      </StackPanel>
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

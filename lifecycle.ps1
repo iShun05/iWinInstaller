@@ -112,7 +112,7 @@ function Get-IwinPreflight($selection) {
     }
     if (@($selection | Where-Object type -ne 'tweak').Count) {
         try {
-            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+            [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
             $request = [Net.WebRequest]::Create('https://cdn.winget.microsoft.com/cache/source2.msix')
             $request.Method='HEAD'; $request.Timeout=6000
             $response=$request.GetResponse(); $response.Close()
@@ -228,8 +228,8 @@ function Get-BraveCleanPreferences {
         'brave.wallet.show_wallet_icon_on_toolbar'=$false
         'brave.show_side_panel_button'=$false
         'brave.today.should_show_toolbar_button'=$false
-        'bookmark_bar.visibility_state'=2
-        'bookmark_bar.show_on_all_tabs'=$false
+        'bookmark_bar.visibility_state'=0
+        'bookmark_bar.show_on_all_tabs'=$true
         'ntp.shortcust_visible'=$false
     }
 }
@@ -646,7 +646,7 @@ function Invoke-IwinWebTransfer([string]$url, [string]$outFile, [int]$timeoutSec
     $client.Headers['User-Agent']='iWinInstaller/'+$Version
     $timer=[Diagnostics.Stopwatch]::StartNew()
     try{
-        [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12
+        [Net.ServicePointManager]::SecurityProtocol=[Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
         $task=if($outFile){$client.DownloadFileTaskAsync($uri,$outFile)}else{$client.DownloadStringTaskAsync($uri)}
         while(-not $task.IsCompleted){
             if($timer.Elapsed.TotalSeconds -gt $timeoutSec -or (Test-IwinStop)){$client.CancelAsync();throw 'Actualización pospuesta: cancelada o sin respuesta. Puedes reintentarlo.'}

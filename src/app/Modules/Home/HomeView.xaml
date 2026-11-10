@@ -74,6 +74,30 @@
           </StackPanel>
         </Button>
       </DockPanel>
+      <!-- Monitor en vivo: procesador, memoria y disco del sistema (se actualiza cada pocos segundos) -->
+      <WrapPanel Margin="0,0,14,14" AutomationProperties.Name="Uso del equipo ahora">
+        <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="10" Padding="12,7" Margin="0,0,10,8">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="&#xE950;" FontFamily="{StaticResource IconFont}" FontSize="13" Foreground="{StaticResource Accent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock Text="Procesador" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="0,0,8,0" TextWrapping="NoWrap"/>
+            <TextBlock Text="{Binding Monitor.CpuText}" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+          </StackPanel>
+        </Border>
+        <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="10" Padding="12,7" Margin="0,0,10,8" ToolTip="{Binding Monitor.MemoryDetail}">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="&#xE964;" FontFamily="{StaticResource IconFont}" FontSize="13" Foreground="{StaticResource Accent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock Text="Memoria" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="0,0,8,0" TextWrapping="NoWrap"/>
+            <TextBlock Text="{Binding Monitor.MemoryText}" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+          </StackPanel>
+        </Border>
+        <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="10" Padding="12,7" Margin="0,0,10,8">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="&#xEDA2;" FontFamily="{StaticResource IconFont}" FontSize="13" Foreground="{StaticResource Accent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBlock Text="Disco" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="0,0,8,0" TextWrapping="NoWrap"/>
+            <TextBlock Text="{Binding Monitor.DiskText}" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+          </StackPanel>
+        </Border>
+      </WrapPanel>
       <!-- Rejilla que se adapta al ancho: de 1 a 4 columnas con tarjetas del mismo tamaño -->
       <ItemsControl ItemsSource="{Binding Home.Cards}" ItemTemplate="{StaticResource Card}" Focusable="False">
         <ItemsControl.ItemsPanel>

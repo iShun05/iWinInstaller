@@ -60,12 +60,28 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
-          <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusControl}" Padding="{TemplateBinding Padding}">
+          <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusControl}" Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="True"/>
           </Border>
           <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#26262E"/></Trigger>
-            <Trigger Property="IsPressed" Value="True"><Setter TargetName="b" Property="Opacity" Value="0.75"/></Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="b" Property="Opacity" Value="0.75"/>
+              <!-- Pulsación: el botón cede un poco y vuelve -->
+              <Trigger.EnterActions>
+                <BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="0.97" Duration="0:0:0.08"/>
+                  <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="0.97" Duration="0:0:0.08"/>
+                </Storyboard></BeginStoryboard>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.12"/>
+                  <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.12"/>
+                </Storyboard></BeginStoryboard>
+              </Trigger.ExitActions>
+            </Trigger>
             <Trigger Property="IsEnabled" Value="False"><Setter TargetName="b" Property="Opacity" Value="0.4"/></Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -81,12 +97,28 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
-          <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="{StaticResource RadiusControl}" Padding="{TemplateBinding Padding}">
+          <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="{StaticResource RadiusControl}" Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
           </Border>
           <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="b" Property="Background" Value="#A6D2FF"/></Trigger>
-            <Trigger Property="IsPressed" Value="True"><Setter TargetName="b" Property="Opacity" Value="0.8"/></Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="b" Property="Opacity" Value="0.8"/>
+              <!-- Pulsación: el botón cede un poco y vuelve -->
+              <Trigger.EnterActions>
+                <BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="0.97" Duration="0:0:0.08"/>
+                  <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="0.97" Duration="0:0:0.08"/>
+                </Storyboard></BeginStoryboard>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard><Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.12"/>
+                  <DoubleAnimation Storyboard.TargetName="b" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.12"/>
+                </Storyboard></BeginStoryboard>
+              </Trigger.ExitActions>
+            </Trigger>
             <!-- Desactivado: superficie neutra y texto tenue, sin el azul lavado que parecía activo -->
             <Trigger Property="IsEnabled" Value="False">
               <Setter TargetName="b" Property="Background" Value="{StaticResource SurfaceRaised}"/>
@@ -118,7 +150,14 @@
             </StackPanel>
           </Border>
           <ControlTemplate.Triggers>
-            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="arrow" Property="Margin" Value="9,1,0,0"/></Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard><Storyboard><ThicknessAnimation Storyboard.TargetName="arrow" Storyboard.TargetProperty="Margin" To="9,1,0,0" Duration="0:0:0.12"/></Storyboard></BeginStoryboard>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard><Storyboard><ThicknessAnimation Storyboard.TargetName="arrow" Storyboard.TargetProperty="Margin" To="6,1,0,0" Duration="0:0:0.12"/></Storyboard></BeginStoryboard>
+              </Trigger.ExitActions>
+            </Trigger>
             <Trigger Property="IsEnabled" Value="False"><Setter TargetName="b" Property="Opacity" Value="0.4"/></Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

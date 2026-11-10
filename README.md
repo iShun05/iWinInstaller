@@ -16,7 +16,7 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura pide permiso de administrador, instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Si tenías una versión anterior instalada por usuario, se retira sola al instalar la nueva. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v5.1** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v5.2** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
@@ -34,17 +34,21 @@ Usa **Armoury Crate o G-Helper** como gestor de rendimiento, conservando ASUS Sy
 - **Mantenimiento y salud** (v4.9): liberar espacio (calcula antes, pide confirmación y nunca toca documentos), reparar Windows con DISM y SFC, salud de discos y batería e informe del equipo sin datos sensibles.
 - **Buscar cualquier cosa (`Ctrl + K`)**: una paleta que lleva a cualquier sección, ajuste o app del catálogo escribiendo lo que quieres hacer, sin tildes y con sinónimos.
 - **Inicio · Estado del PC**: al abrir, tarjetas con las actualizaciones de apps, Windows Update, antivirus, espacio y salud de los discos, batería, reinicio pendiente y lotes sin terminar. Cada una dice si está correcta, si requiere atención o si no se pudo comprobar (y por qué), con un botón **Abrir** que lleva a la solución.
+- **Monitor en vivo**: en Inicio, el uso del procesador, la memoria y el espacio libre del disco del sistema, actualizados cada tres segundos sin PowerShell ni contadores de rendimiento.
+- **Segundo plano (opcional)**: en **Ajustes**, «Seguir en segundo plano al cerrar la ventana» deja un icono junto al reloj con el uso del equipo, atajos de Windows, «Comprobar el equipo ahora» y «Salir». Cada dos horas repite las comprobaciones del Inicio y avisa solo de lo que **pasa a requerir atención** (poco espacio, antivirus desactivado, actualizaciones nuevas) o si el procesador o la memoria llevan cinco minutos por encima del 90 %. Puede abrirse en la bandeja al iniciar sesión. Desactivado al principio; no instala ni actualiza nada por su cuenta.
+- **Windows a mano**: 81 atajos a los ajustes y herramientas de Windows (pantalla, sonido, red, Bluetooth, arranque, privacidad, recuperación, Administrador de dispositivos, Visor de eventos, variables de entorno…), con buscador y también desde `Ctrl + K` y la bandeja. Solo los abren: no cambian nada.
+- **Una sola ventana**: abrir la app por segunda vez trae al frente la que ya existe.
 - **Actualizaciones** (v4.5): qué apps tienen versión nueva, cuáles actualizar, **Mantener esta versión** para las que quieras fijar y actualización programada opcional (con tu usuario, sin reiniciar ni abrir asistentes).
 - **Subsecciones con comparativa**: dentro de cada categoría, las apps que hacen lo mismo se agrupan en subsecciones (p. ej. Optimización y privacidad › Quitar telemetría y bloatware, Consola y shells › Terminales, Navegadores › Basados en Firefox). Cada subsección abre con un recuadro **«Cuál elegir»** que dice cuándo compensa una, otra o las dos juntas, y cada app añade una línea con lo que ofrece y lo que no. 84 subsecciones en 24 categorías; la búsqueda también encuentra por esas comparativas.
 - **Sistema · Resolución y frecuencia** sin abrir Configuración: elige monitor, resolución y Hz entre los modos que admite; si no pulsas **Mantener** en 15 s vuelve solo al modo anterior, como hace Windows. En la misma sección, **Energía** ajusta apagado de pantalla, suspensión e hibernación del plan activo.
-- **Pasos y notas**: en cada opción relevante (122 guías), pasos marcables, tu nota y **Comprobar**, que separa la detección técnica de las confirmaciones manuales de cuentas, conexiones, licencias y pruebas físicas. El filtro **Por configurar** muestra lo pendiente. El seguimiento se conserva al cerrar y actualizar.
+- **Pasos y notas**: en cada opción relevante (123 guías), pasos marcables, tu nota y **Comprobar**, que separa la detección técnica de las confirmaciones manuales de cuentas, conexiones, licencias y pruebas físicas. El filtro **Por configurar** muestra lo pendiente. El seguimiento se conserva al cerrar y actualizar.
 - **Lotes recuperables**: el progreso se guarda antes y después de cada aplicación. **Pausar al terminar esta app** deja finalizar el instalador actual y conserva el resto. **Reanudar lote** continúa los pendientes más recientes; los anteriores también se conservan y se ofrecen al completar ese lote. Desde consola: `iWinInstaller.ps1 -Resume`. No se ejecuta un lote automáticamente tras reiniciar.
 - **Resumen antes de instalar**: incluye dependencias, permisos, ajustes y reinicios previstos; comprueba espacio de preparación y conexión HTTPS al origen de WinGet. Los requisitos finales de cada proveedor pueden ser mayores.
 - **Deshacer con estado anterior**: los ajustes reversibles aplicados desde v3.2 guardan valores y tipos originales. El ajuste de acceso remoto conserva energía, red, servicios y accesos. Si el cambio viene de una versión antigua sin estado guardado, se explica y se evita imponer valores genéricos. WSL y puntos de restauración no se deshacen desde aquí; RGB retira su tarea, sin recuperar colores físicos anteriores.
 - **Reinicios visibles**: las aplicaciones que lo solicitan quedan identificadas hasta un nuevo arranque y se pueden comprobar otra vez. iWinInstaller no reinicia por su cuenta.
 - **Actualización opcional de iWinInstaller** (Ajustes): desactivada inicialmente; al activarla (pide permiso de administrador una vez) comprueba GitHub al abrir la app, al iniciar sesión y una vez al día mediante una tarea del sistema que solo ejecuta el actualizador instalado. Descarga solo la nueva versión estable, verifica SHA256 y sustituye la app cuando la cierras. No actualiza otras aplicaciones. **Buscar nueva versión ahora** lo hace a mano.
 
-- **427 entradas en tres secciones**, cada una con sus categorías:
+- **430 entradas en tres secciones**, cada una con sus categorías:
   - **Sistema**: ajustes de Windows (tema oscuro, extensiones visibles, menú contextual clásico, rutas largas, Inicio sin Bing, punto de restauración, alto rendimiento, modo desarrollador, WSL…), optimización y privacidad (O&O ShutUp10++, WinToys, Winhance, privacy.sexy, BleachBit…) y drivers y componentes (Visual C++, .NET, DirectX, NVIDIA, Intel).
   - **Terminal**: consola y shells (Windows Terminal, PowerShell 7, WezTerm, Starship, Oh My Posh, gsudo…), lenguajes y entornos (Git, Python, Node.js, Deno, Go, Rust, Java, .NET SDK, Ruby, Zig, C/C++ con LLVM, CMake y Build Tools, PostgreSQL, MongoDB…) y herramientas de línea de comandos (Claude Code, Codex CLI, lazygit, ripgrep, fzf, FFmpeg, yt-dlp, Azure y AWS CLI…).
   - **Aplicaciones**: todo lo que tiene ventana propia (juegos, navegadores, IA, utilidades, multimedia…).
@@ -121,8 +125,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v5.1
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v5.1
+git checkout v5.2
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v5.2
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows; la interfaz necesita además el SDK de .NET (solo para compilar, no para usar la app). La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -141,7 +145,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v5.1](https://github.com/iShun05/iWinInstaller/releases/tag/v5.1) **(actual)** | 2026-11-09 | Apariencia renovada: barra de título oscura, navegación con iconos, Inicio en rejilla y controles oscuros en todas las pantallas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.1.zip) |
+| v5.2 **(actual, pendiente de publicar)** | 2026-11-10 | Segundo plano con icono en la bandeja y monitor en vivo, «Windows a mano» con 81 atajos, animaciones, Brave limpio con marcadores visibles, instancia única y motor más resistente | [Ver código](https://github.com/iShun05/iWinInstaller/tree/main) |
+| [v5.1](https://github.com/iShun05/iWinInstaller/releases/tag/v5.1) | 2026-11-09 | Apariencia renovada: barra de título oscura, navegación con iconos, Inicio en rejilla y controles oscuros en todas las pantallas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.1.zip) |
 | [v5.0](https://github.com/iShun05/iWinInstaller/releases/tag/v5.0) | 2026-11-09 | Centro de control del PC: una sola ventana nueva para instalar, actualizar, mantener, proteger y conectar; se retira la ventana clásica | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.0.zip) |
 | [v4.9](https://github.com/iShun05/iWinInstaller/releases/tag/v4.9) | 2026-11-09 | Mantenimiento y salud: liberar espacio con confirmación, reparar Windows, salud de discos y batería e informe del equipo | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.9.zip) |
 | [v4.8](https://github.com/iShun05/iWinInstaller/releases/tag/v4.8) | 2026-11-09 | Paleta de búsqueda (Ctrl + K) para llegar a cualquier acción o app | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.8.zip) |

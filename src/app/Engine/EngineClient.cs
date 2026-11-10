@@ -12,7 +12,7 @@ namespace IWinInstaller.App.Engine
     /// <summary>Resultado de un comando del motor (contrato en specs/001-centro-de-control/contracts/engine.md).</summary>
     public sealed class EngineResult
     {
-        public const int Success = 0, InvalidRequest = 2, Cancelled = 3, ElevationDenied = 4, InternalError = 10, TimedOut = 11;
+        public const int Success = 0, InvalidRequest = 2, Cancelled = 3, ElevationDenied = 4, InternalError = 10, TimedOut = 11, EnvironmentBlocked = 12;
         public int ExitCode { get; set; }
         public Dictionary<string, object> Response { get; set; }
         public List<EngineEvent> Events { get; set; }
@@ -91,7 +91,7 @@ namespace IWinInstaller.App.Engine
                 if (File.Exists(responsePath))
                     result.Response = new JavaScriptSerializer { MaxJsonLength = 64 * 1024 * 1024 }.DeserializeObject(File.ReadAllText(responsePath, Encoding.UTF8)) as Dictionary<string, object>;
                 if (result.ExitCode != EngineResult.Success && result.Error == null)
-                    result.Error = LastErrorText(result.Events) ?? ("El motor terminó con el código " + result.ExitCode + ".");
+                    result.Error = DescribeFailure(result.ExitCode, result.Response != null, LastErrorText(result.Events));
             }
             catch (Exception e)
             {
@@ -103,6 +103,20 @@ namespace IWinInstaller.App.Engine
                 try { Directory.Delete(work, true); } catch (IOException) { } catch (UnauthorizedAccessException) { }
             }
             return result;
+        }
+
+        /// <summary>
+        /// Motivo legible de un fallo del motor. Sin respuesta ni eventos, PowerShell no llegó a ejecutar el script:
+        /// casi siempre es una directiva de ejecución impuesta por la organización (GPO), que «-ExecutionPolicy Bypass» no supera.
+        /// </summary>
+        public static string DescribeFailure(int exitCode, bool hasResponse, string lastError)
+        {
+            if (exitCode == EngineResult.EnvironmentBlocked)
+                return "PowerShell está en modo restringido por una directiva de este equipo (AppLocker o Control de aplicaciones). Pide a quien lo administra que permita la carpeta de iWinInstaller.";
+            if (!String.IsNullOrWhiteSpace(lastError)) return lastError;
+            if (!hasResponse && exitCode == 1)
+                return "PowerShell no pudo ejecutar el motor. Si el equipo es de una organización, su directiva de ejecución de scripts puede estar bloqueándolo; en otro caso, reinstala iWinInstaller.";
+            return "El motor terminó con el código " + exitCode + ".";
         }
 
         private static void Deliver(IEnumerable<EngineEvent> events, EngineResult result, Action<EngineEvent> onEvent)

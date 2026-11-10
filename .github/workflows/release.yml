@@ -19,7 +19,7 @@ jobs:
     env:
       RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
       - name: Compilar el EXE y preparar notas
@@ -58,7 +58,7 @@ jobs:
           $entry | Set-Content (Join-Path $output 'notas.md') -Encoding UTF8
           "OUTPUT=$output" >> $env:GITHUB_ENV
       - name: Firmar la procedencia de las descargas
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
         with:
           subject-path: |
             ${{ env.OUTPUT }}/iWinInstaller-Setup.exe
@@ -84,7 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Comprobar la release publicada
         shell: pwsh
         env:

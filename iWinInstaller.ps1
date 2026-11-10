@@ -49,7 +49,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v5.1'
+$Version = 'v5.2'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -64,6 +64,17 @@ New-Item $LogDir -ItemType Directory -Force | Out-Null
 $LogFile = Join-Path $LogDir ('iWinInstaller_{0:yyyy-MM-dd_HH-mm-ss-fff}.log' -f (Get-Date))
 if ($WorkerMode -and $SharedLog) { $LogFile = $SharedLog }
 
+# Equipos restringidos (AppLocker/WDAC): en ConstrainedLanguage el motor no puede funcionar. Se avisa a la
+# interfaz con un motivo claro (código 12 del contrato) en lugar de fallar más adelante con un error opaco.
+if ($ExecutionContext.SessionState.LanguageMode -ne 'FullLanguage') {
+    $blocked = "PowerShell está en modo restringido ($($ExecutionContext.SessionState.LanguageMode)) por una directiva de este equipo (AppLocker o Control de aplicaciones). iWinInstaller no puede trabajar así: pide a quien administra el equipo que permita la carpeta de iWinInstaller."
+    if ($EngineEvents) { try { Add-Content -LiteralPath $EngineEvents -Value ('{"type":"log","level":"error","text":"' + ($blocked -replace '"', "'") + '"}') -Encoding UTF8 } catch { } }
+    Write-Host $blocked
+    exit 12
+}
+# Proxy corporativo con autenticación integrada: se usan las credenciales de la sesión de Windows
+try { if ([Net.WebRequest]::DefaultWebProxy) { [Net.WebRequest]::DefaultWebProxy.Credentials = [Net.CredentialCache]::DefaultCredentials } } catch { }
+
 . (Join-Path $Root 'lifecycle.ps1')
 
 # Motor: los archivos de src/engine se cargan en orden y comparten el ámbito del script.
@@ -73,6 +84,9 @@ foreach ($engineFile in $EngineFiles) {
     if (-not (Test-Path -LiteralPath $enginePath)) { throw "Falta un archivo del motor: $engineFile. Ejecuta de nuevo iWinInstaller-Setup.exe." }
     . $enginePath
 }
+
+# Los registros antiguos no se acumulan sin límite (los lotes hijos comparten el registro del padre)
+if (-not $WorkerMode) { Clear-IwinOldLogs $LogDir }
 
 if ($EngineCommand) {
     exit (Invoke-IwinEngineCommand $EngineCommand $EngineRequest $EngineResponse $EngineEvents)

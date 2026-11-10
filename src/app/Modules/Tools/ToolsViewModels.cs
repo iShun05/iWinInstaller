@@ -291,7 +291,8 @@ namespace IWinInstaller.App.Modules.Tools
             if (!result.Ok) { Message = result.Error; return; }
             _autoUpdate = Json.Flag(result.Response, "autoUpdate"); OnPropertyChanged("AutoUpdate");
             _logDir = Json.Text(result.Response, "logDir");
-            Version = "iWinInstaller " + Json.Text(result.Response, "version") + " · instalada en " + Json.Text(result.Response, "installDir");
+            Version = "iWinInstaller " + Json.Text(result.Response, "version") + " · instalada en " + Json.Text(result.Response, "installDir")
+                + " · PowerShell " + Json.Text(result.Response, "psVersion") + " (directiva " + Json.Text(result.Response, "executionPolicy") + ")";
         }
 
         private async void Do(string command, Dictionary<string, object> request)

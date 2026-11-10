@@ -14,7 +14,7 @@ jobs:
     runs-on: windows-2025
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Sintaxis con Windows PowerShell 5.1
         shell: powershell
         run: ./tests/unit/run.ps1 -Shell powershell
@@ -23,7 +23,7 @@ jobs:
         run: ./tests/unit/run.ps1 -Shell pwsh
       - name: Conservar resultados
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: pruebas-unitarias
           path: tests/unit/resultados-*.xml

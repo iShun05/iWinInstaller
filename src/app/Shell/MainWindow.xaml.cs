@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
 
 namespace IWinInstaller.App.Shell
 {
@@ -22,6 +23,32 @@ namespace IWinInstaller.App.Shell
             DwmSetWindowAttribute(handle, 36, ref text, sizeof(int));
         }
 
+        /// <summary>«Salir» de la bandeja: el siguiente cierre es definitivo.</summary>
+        public bool ExitRequested { get; set; }
+
+        /// <summary>Muestra la ventana (desde la bandeja o al abrir la app por segunda vez) y la trae al frente.</summary>
+        public void ShowFromTray()
+        {
+            Show();
+            if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+            Activate();
+            Topmost = true; Topmost = false;
+            Focus();
+        }
+
+        /// <summary>
+        /// Fundido y desplazamiento de 8 px al entrar en una sección. Se omite si el usuario desactivó las
+        /// animaciones en Ajustes o en Windows (Accesibilidad → Efectos visuales).
+        /// </summary>
+        private void AnimateContent(ShellViewModel model)
+        {
+            if (!model.AnimationsEnabled || !SystemParameters.ClientAreaAnimation) return;
+            var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+            var duration = new Duration(TimeSpan.FromMilliseconds(180));
+            ContentHost.BeginAnimation(OpacityProperty, new DoubleAnimation(0.0, 1.0, duration) { EasingFunction = ease });
+            ContentShift.BeginAnimation(System.Windows.Media.TranslateTransform.YProperty, new DoubleAnimation(8.0, 0.0, duration) { EasingFunction = ease });
+        }
+
         public MainWindow(ShellViewModel model)
         {
             InitializeComponent();
@@ -35,6 +62,15 @@ namespace IWinInstaller.App.Shell
                 if ((Keyboard.Modifiers & ModifierKeys.Control) == 0) return;
                 model.Zoom += e.Delta > 0 ? 0.1 : -0.1;
                 e.Handled = true;
+            };
+            // Transición corta al cambiar de sección
+            model.PropertyChanged += (sender, e) => { if (e.PropertyName == "PageId") AnimateContent(model); };
+            // Con «Seguir en segundo plano» cerrar la ventana la oculta: la app sigue en la bandeja
+            Closing += (sender, e) =>
+            {
+                if (ExitRequested || !model.BackgroundEnabled) return;
+                e.Cancel = true;
+                Hide();
             };
             // La ventana nunca abre más grande que la pantalla disponible
             var area = SystemParameters.WorkArea;
