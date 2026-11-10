@@ -11,6 +11,7 @@ using IWinInstaller.App.Modules.Home;
 using IWinInstaller.App.Modules.Install;
 using IWinInstaller.App.Modules.Tools;
 using IWinInstaller.App.Modules.Maintenance;
+using IWinInstaller.App.Modules.Shortcuts;
 using IWinInstaller.App.Shell.Palette;
 using IWinInstaller.App.Modules.Updates;
 
@@ -39,6 +40,7 @@ namespace IWinInstaller.App.Shell
                 case "maintenance": return "\uE90F";
                 case "remote": return "\uE703";
                 case "security": return "\uEA18";
+                case "shortcuts": return "\uE770";
                 case "settings": return "\uE713";
                 default: return "\uE8A5";
             }
@@ -52,10 +54,13 @@ namespace IWinInstaller.App.Shell
 
     public sealed class ShellViewModel : ObservableObject
     {
+        /// <summary>Prefijo de las acciones de la paleta que abren un atajo de Windows.</summary>
+        public const string QuickPrefix = "quick:";
         public const string InstagramUrl = "https://www.instagram.com/_shun._05/";
         private readonly Preferences _preferences;
         private NavItem _selected;
         private double _zoom;
+        private string _settingsMessage = "";
 
         public ShellViewModel(string root, Dispatcher dispatcher, Preferences preferences)
         {
@@ -71,6 +76,8 @@ namespace IWinInstaller.App.Shell
             Settings = new SettingsViewModel(Engine);
             Maintenance = new MaintenanceViewModel(Engine, dialogs);
             Updates = new UpdatesViewModel(Engine, dispatcher);
+            Shortcuts = new QuickLinksViewModel();
+            Monitor = new LiveMonitor(dispatcher);
             Router = new ActionRouter(Navigate);
             Items = new ObservableCollection<NavItem>
             {
@@ -79,6 +86,7 @@ namespace IWinInstaller.App.Shell
                 new NavItem("updates", "Actualizaciones", "Versiones nuevas, exclusiones y actualización programada.", false),
                 new NavItem("system", "Sistema", "Pantalla y energía.", false),
                 new NavItem("maintenance", "Mantenimiento", "Liberar espacio, reparar Windows y salud del equipo.", false),
+                new NavItem("shortcuts", "Windows", "Atajos a los ajustes y herramientas de Windows.", false),
                 new NavItem("remote", "Acceso remoto", "Vincular equipos por SSH.", false),
                 new NavItem("security", "Seguridad", "Microsoft Defender y antivirus.", false),
                 new NavItem("settings", "Ajustes", "Actualización de la app, diagnóstico y actividad.", false)
@@ -105,6 +113,9 @@ namespace IWinInstaller.App.Shell
         public SettingsViewModel Settings { get; private set; }
         public MaintenanceViewModel Maintenance { get; private set; }
         public UpdatesViewModel Updates { get; private set; }
+        public QuickLinksViewModel Shortcuts { get; private set; }
+        /// <summary>Uso del procesador, la memoria y el disco en vivo (Inicio y bandeja).</summary>
+        public LiveMonitor Monitor { get; private set; }
         public ActionRouter Router { get; private set; }
         public ObservableCollection<NavItem> Items { get; private set; }
         public RelayCommand OpenActionCommand { get; private set; }
@@ -122,6 +133,8 @@ namespace IWinInstaller.App.Shell
             var actions = ActionRegistry.BuiltIn();
             foreach (var item in Install.Items)
                 actions.Add(new PaletteAction("install.search:" + item.Id, item.Name, "Instalar · " + item.Entry.Group, item.Desc + " " + item.Compare + " " + item.Entry.Subgroup));
+            foreach (var link in QuickLinks.All)
+                actions.Add(new PaletteAction(QuickPrefix + link.Id, link.Title, "Windows · " + link.Group, link.Description + " " + link.Keywords));
             return actions;
         }
 
@@ -133,6 +146,12 @@ namespace IWinInstaller.App.Shell
             {
                 Navigate("install");
                 Install.Search = action.Title;
+                return;
+            }
+            if (action.Id.StartsWith(QuickPrefix, StringComparison.Ordinal))
+            {
+                string problem = QuickLinks.Open(QuickLinks.Find(action.Id.Substring(QuickPrefix.Length)));
+                if (problem.Length > 0) App.Log(problem);
                 return;
             }
             if (action.Id == "install.report") { Navigate("install"); Install.ShowLastReportCommand.Execute(null); return; }
@@ -184,6 +203,52 @@ namespace IWinInstaller.App.Shell
                 return "iWinInstaller v" + version.Major + "." + version.Minor;
             }
         }
+
+        // ---------- Segundo plano, avisos y animaciones (Ajustes) ----------
+
+        /// <summary>La app enciende o apaga el icono de la bandeja cuando cambia.</summary>
+        public event EventHandler BackgroundChanged;
+
+        public bool BackgroundEnabled
+        {
+            get { return _preferences.Background; }
+            set
+            {
+                if (_preferences.Background == value) return;
+                _preferences.Background = value; _preferences.Save();
+                OnPropertyChanged();
+                // Sin segundo plano no tiene sentido arrancar con Windows en la bandeja
+                if (!value && StartWithWindows) StartWithWindows = false;
+                var handler = BackgroundChanged; if (handler != null) handler(this, EventArgs.Empty);
+            }
+        }
+
+        public bool NotificationsEnabled
+        {
+            get { return _preferences.Notifications; }
+            set { if (_preferences.Notifications == value) return; _preferences.Notifications = value; _preferences.Save(); OnPropertyChanged(); }
+        }
+
+        public bool AnimationsEnabled
+        {
+            get { return _preferences.Animations; }
+            set { if (_preferences.Animations == value) return; _preferences.Animations = value; _preferences.Save(); OnPropertyChanged(); }
+        }
+
+        /// <summary>Abrir en la bandeja al iniciar sesión (clave Run del usuario).</summary>
+        public bool StartWithWindows
+        {
+            get { return Autostart.IsEnabled(); }
+            set
+            {
+                if (value && !BackgroundEnabled) BackgroundEnabled = true;
+                SettingsMessage = Autostart.Set(value, Assembly.GetExecutingAssembly().Location);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Motivo si no se pudo cambiar el arranque con Windows.</summary>
+        public string SettingsMessage { get { return _settingsMessage; } private set { Set(ref _settingsMessage, value ?? ""); } }
 
         public void Navigate(string id)
         {

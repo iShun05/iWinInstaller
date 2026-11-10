@@ -52,6 +52,8 @@ try{
     Remove-Item $path
     Set-BraveCleanPreferences
     if((Read-BravePreferences).brave.new_tab_page.background.selected_value -ne '#000000'){throw 'No inicializa el fondo negro del perfil principal'}
+    $bar=(Read-BravePreferences).bookmark_bar
+    if($bar.visibility_state -ne 0 -or $bar.show_on_all_tabs -ne $true){throw 'La barra de marcadores debe quedar siempre visible'}
     # La captura conserva solo los valores visuales, nunca el documento completo.
     $snapshot=Get-BraveCleanSnapshot
     if($snapshot.PSObject.Properties.Name -contains 'preserve'){throw 'No debe copiar datos del perfil'}

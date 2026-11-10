@@ -1,7 +1,11 @@
-# Mantiene al día las acciones de GitHub de los workflows
+# Mantiene al día las acciones de GitHub (fijadas por SHA) y los paquetes NuGet de la interfaz y sus pruebas
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: nuget
+    directories: ['/src/app', '/tests/unit/app']
     schedule:
       interval: monthly

@@ -21,6 +21,20 @@
           <Button Style="{StaticResource Btn}" Content="Buscar nueva versión ahora" HorizontalAlignment="Left" Command="{Binding SelfUpdateCommand}"/>
         </StackPanel>
       </Border>
+      <!-- Segundo plano, avisos y animaciones: preferencias de la ventana (ShellViewModel) -->
+      <Border Style="{StaticResource Card}" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}">
+        <StackPanel>
+          <CheckBox Content="Seguir en segundo plano al cerrar la ventana" IsChecked="{Binding BackgroundEnabled}" Foreground="{StaticResource TextStrong}" FontWeight="SemiBold"/>
+          <TextBlock Text="Desactivado al principio. Al activarlo aparece un icono junto al reloj con el uso del procesador y la memoria, atajos de Windows y «Salir». Cada dos horas repite las comprobaciones del Inicio. No instala ni actualiza nada por su cuenta."
+                     Foreground="{StaticResource TextMuted}" Margin="0,6,0,12"/>
+          <CheckBox Content="Abrir en la bandeja al iniciar sesión en Windows" IsChecked="{Binding StartWithWindows}" Foreground="{StaticResource Text}" Margin="0,0,0,8"/>
+          <CheckBox Content="Avisar cuando algo pase a requerir atención" IsChecked="{Binding NotificationsEnabled}" IsEnabled="{Binding BackgroundEnabled}" Foreground="{StaticResource Text}"/>
+          <TextBlock Text="Avisos de Windows: poco espacio, antivirus desactivado, actualizaciones nuevas, o procesador o memoria por encima del 90 % durante cinco minutos."
+                     Foreground="{StaticResource TextMuted}" Margin="0,6,0,12"/>
+          <CheckBox Content="Animaciones al cambiar de sección" IsChecked="{Binding AnimationsEnabled}" Foreground="{StaticResource Text}"/>
+          <TextBlock Text="{Binding SettingsMessage}" Foreground="{StaticResource Attention}" Margin="0,8,0,0" AutomationProperties.LiveSetting="Polite"/>
+        </StackPanel>
+      </Border>
 <Border Style="{StaticResource Card}">
         <StackPanel>
           <TextBlock Text="Diagnóstico y actividad" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>

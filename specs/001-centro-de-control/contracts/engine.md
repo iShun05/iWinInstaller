@@ -67,6 +67,7 @@ Nunca se infiere `success` solo del código de salida (constitución II).
 | 3 | Cancelado por el usuario |
 | 4 | Elevación rechazada |
 | 10 | Error interno (detalle en eventos `log` nivel `error`) |
+| 12 | Entorno bloqueado: PowerShell en modo restringido (AppLocker/WDAC) o directiva de ejecución impuesta (v5.2) |
 
 ## Compatibilidad
 

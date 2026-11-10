@@ -188,7 +188,10 @@ Register-IwinEngineCommand 'link.keys' {
 Register-IwinEngineCommand 'app.info' {
     param($request)
     $task = Get-ScheduledTask -TaskName 'iWinInstaller actualizaciones' -ErrorAction SilentlyContinue
-    @{ version = $Version; autoUpdate = [bool]$task; logDir = $LogDir; installDir = (Get-IwinInstallDir) }
+    # Entorno del motor: sirve para explicar por qué algo no funciona en un equipo restringido
+    $policy = try { [string](Get-ExecutionPolicy) } catch { 'desconocida' }
+    @{ version = $Version; autoUpdate = [bool]$task; logDir = $LogDir; installDir = (Get-IwinInstallDir)
+       psVersion = [string]$PSVersionTable.PSVersion; languageMode = [string]$ExecutionContext.SessionState.LanguageMode; executionPolicy = $policy }
 }
 
 Register-IwinEngineCommand 'app.autoupdate' {

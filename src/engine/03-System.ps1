@@ -11,7 +11,7 @@ $VBoxDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'VirtualBox'
 function Install-VBoxGA {
     if (Test-Path $VBoxISO) { Write-Log "  Incluidas con VirtualBox: $VBoxISO"; return $true }
     try {
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
         $v = ([string](Invoke-WebRequest 'https://download.virtualbox.org/virtualbox/LATEST.TXT' -UseBasicParsing).Content).Trim()
         New-Item $VBoxDir -ItemType Directory -Force | Out-Null
         $dest = Join-Path $VBoxDir "VBoxGuestAdditions_$v.iso"

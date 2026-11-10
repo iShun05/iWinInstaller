@@ -11,7 +11,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <ApplicationIcon>..\..\assets\icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>5.1.0</Version>
+    <Version>5.2.0</Version>
     <Product>iWinInstaller</Product>
     <Company>iShun05</Company>
     <Copyright>MIT</Copyright>
@@ -22,6 +22,8 @@
   <ItemGroup>
     <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
+    <!-- Icono de la bandeja (segundo plano, v5.2) -->
+    <Reference Include="System.Drawing" />
     <!-- JSON con JavaScriptSerializer (System.Web.Extensions depende de System.Web; ambos vienen con Windows) -->
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />

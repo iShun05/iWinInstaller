@@ -3142,7 +3142,7 @@
     "section": "Aplicaciones",
     "group": "Navegadores",
     "name": "Brave limpio",
-    "desc": "Instala Brave oficial y aplica un perfil principal oscuro, sin cripto, Leo, VPN ni tarjetas promocionales. Reversible.",
+    "desc": "Instala Brave oficial y aplica un perfil principal oscuro, con la barra de marcadores siempre visible y sin cripto, Leo, VPN ni tarjetas promocionales. Reversible.",
     "icon": "brave.com",
     "type": "tweak",
     "context": "user",
@@ -3153,7 +3153,8 @@
     "postInstall": {
       "steps": [
         "Cierra Brave antes de aplicar o deshacer el ajuste. No se cierran ventanas automaticamente.",
-        "Abre Brave: comprueba el perfil principal oscuro y la nueva pestaña sin tarjetas. Los perfiles adicionales conservan su aspecto.",
+        "Abre Brave: comprueba el perfil principal oscuro, la barra de marcadores visible y la nueva pestaña sin tarjetas. Los perfiles adicionales conservan su aspecto.",
+        "Buscador Google: abre brave://settings/search y elige Google en Motor de busqueda predeterminado. Brave protege ese ajuste y en un PC domestico bloquea cambiarlo desde fuera, por eso es el unico paso manual.",
         "En brave://policy comprueba las politicas. Puede aparecer Administrado por tu organizacion por estos ajustes locales.",
         "Configura Sync y tus extensiones personalmente. Para Netflix o Prime Video activa Widevine si aceptas sus condiciones y prueba la reproduccion."
       ],
@@ -5331,6 +5332,20 @@
     "compare": "Velocidad de lectura y escritura."
   },
   {
+    "id": "recuva",
+    "section": "Aplicaciones",
+    "group": "Mantenimiento y hardware",
+    "name": "Recuva",
+    "desc": "Recupera archivos borrados de discos, memorias USB y tarjetas",
+    "icon": "ccleaner.com",
+    "type": "winget",
+    "winget": "Piriform.Recuva",
+    "extra": true,
+    "context": "machine",
+    "subgroup": "Discos",
+    "compare": "Para recuperar algo borrado por error. Instalalo en otra unidad distinta de la que quieres recuperar y deja de usar esa unidad."
+  },
+  {
     "id": "occt",
     "section": "Aplicaciones",
     "group": "Mantenimiento y hardware",
@@ -6770,6 +6785,29 @@
     "compare": "Copias cifradas e incrementales a cualquier destino."
   },
   {
+    "id": "hasleobackup",
+    "section": "Aplicaciones",
+    "group": "Almacenamiento y nube",
+    "name": "Hasleo Backup Suite Free",
+    "desc": "Imagen completa del sistema y de discos, con clonado y restauracion desde USB",
+    "icon": "easyuefi.com",
+    "type": "winget",
+    "winget": "Hasleo.BackupSuiteFree",
+    "extra": true,
+    "configure": true,
+    "context": "machine",
+    "postInstall": {
+      "steps": [
+        "Crea una imagen del sistema en un disco externo.",
+        "Crea el medio de rescate USB desde Herramientas y comprueba que el PC arranca con el.",
+        "Programa la copia si quieres que se repita."
+      ],
+      "note": "Una imagen sin medio de rescate probado no garantiza la restauracion. La app no ve tus copias."
+    },
+    "subgroup": "Tu propia nube y copias",
+    "compare": "Imagen del disco entero para volver atras tras un fallo; Duplicati copia archivos, no el sistema."
+  },
+  {
     "id": "mullvad",
     "section": "Aplicaciones",
     "group": "Seguridad y redes",
@@ -7083,7 +7121,22 @@
     "interactive": true,
     "subgroup": "Protección en tiempo real",
     "compare": "Motor de los mejor valorados en AV-Test, ligero y sin anuncios. Desactiva Defender al instalarse.",
-    "subgroupNote": "Cuál elegir: Windows Defender ya protege en tiempo real y basta para la mayoría. Bitdefender Free lo sustituye si quieres otro motor residente (nunca dos residentes a la vez). Malwarebytes, Emsisoft Emergency Kit y AdwCleaner son de segunda opinión: conviven con cualquiera y solo se usan para escanear cuando sospechas algo."
+    "subgroupNote": "Cuál elegir: Windows Defender ya protege en tiempo real y basta para la mayoría. Bitdefender Free lo sustituye si quieres otro motor residente y ESET es la alternativa de pago (nunca dos residentes a la vez). Malwarebytes, Emsisoft Emergency Kit y AdwCleaner son de segunda opinión: conviven con cualquiera y solo se usan para escanear cuando sospechas algo."
+  },
+  {
+    "id": "eset",
+    "section": "Aplicaciones",
+    "group": "Antivirus y antimalware",
+    "name": "ESET Security",
+    "desc": "Antivirus residente de pago con prueba gratuita. Abre su asistente oficial: completalo para terminar.",
+    "icon": "eset.com",
+    "type": "winget",
+    "winget": "ESET.Security",
+    "extra": true,
+    "context": "machine",
+    "interactive": true,
+    "subgroup": "Protección en tiempo real",
+    "compare": "Muy ligero y con pocos falsos positivos; de pago tras la prueba. Sustituye a Defender: nunca dos residentes a la vez."
   },
   {
     "section": "Aplicaciones",

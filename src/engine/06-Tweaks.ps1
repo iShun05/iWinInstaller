@@ -187,7 +187,7 @@ function Install-App($app) {
     if ($Silent) { Write-Log '  Necesita su asistente: se omite en modo sin ventana.'; return $false }
     $tmp = Join-Path $env:TEMP ('iwin-' + [guid]::NewGuid().ToString('N') + '.exe')
     try {
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
         Invoke-WebRequest $app.url -OutFile $tmp -UseBasicParsing
         $bytes = [IO.File]::ReadAllBytes($tmp)
         if ($bytes.Length -lt 1MB -or $bytes[0] -ne 0x4D -or $bytes[1] -ne 0x5A) { throw 'la descarga no es un ejecutable de Windows' }

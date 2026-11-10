@@ -13,9 +13,15 @@ namespace IWinInstaller.App.Core
         public const double MaxZoom = 2.0;
         private readonly string _path;
 
-        public Preferences(string path) { _path = path; Zoom = 1.0; }
+        public Preferences(string path) { _path = path; Zoom = 1.0; Notifications = true; Animations = true; }
 
         public double Zoom { get; set; }
+        /// <summary>Al cerrar la ventana la app sigue en la bandeja vigilando el equipo. Desactivado al principio.</summary>
+        public bool Background { get; set; }
+        /// <summary>Avisos de la bandeja cuando algo pasa a requerir atención.</summary>
+        public bool Notifications { get; set; }
+        /// <summary>Transiciones entre secciones (además se respeta el ajuste de animaciones de Windows).</summary>
+        public bool Animations { get; set; }
 
         public static string DefaultPath
         {
@@ -39,9 +45,18 @@ namespace IWinInstaller.App.Core
                 object zoom;
                 if (data != null && data.TryGetValue("zoom", out zoom) && zoom != null)
                     preferences.Zoom = ClampZoom(Convert.ToDouble(zoom, System.Globalization.CultureInfo.InvariantCulture));
+                preferences.Background = ReadFlag(data, "background", false);
+                preferences.Notifications = ReadFlag(data, "notifications", true);
+                preferences.Animations = ReadFlag(data, "animations", true);
             }
             catch (Exception) { /* un archivo dañado no impide abrir la app: se usan los valores por defecto */ }
             return preferences;
+        }
+
+        private static bool ReadFlag(Dictionary<string, object> data, string key, bool fallback)
+        {
+            object value;
+            return data != null && data.TryGetValue(key, out value) && value is bool ? (bool)value : fallback;
         }
 
         public void Save()
@@ -49,12 +64,13 @@ namespace IWinInstaller.App.Core
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(_path));
-                var data = new Dictionary<string, object> { { "format", "iWinInstaller-interfaz" }, { "version", 1 }, { "zoom", ClampZoom(Zoom) } };
+                var data = new Dictionary<string, object> { { "format", "iWinInstaller-interfaz" }, { "version", 1 }, { "zoom", ClampZoom(Zoom) },
+                    { "background", Background }, { "notifications", Notifications }, { "animations", Animations } };
                 string temporary = _path + ".tmp";
                 File.WriteAllText(temporary, new JavaScriptSerializer().Serialize(data), new UTF8Encoding(false));
                 if (File.Exists(_path)) File.Replace(temporary, _path, null); else File.Move(temporary, _path);
             }
-            catch (Exception) { /* no poder guardar el zoom no es un error para el usuario */ }
+            catch (Exception) { /* no poder guardar las preferencias no es un error para el usuario */ }
         }
     }
 }

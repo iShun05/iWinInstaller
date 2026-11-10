@@ -1,5 +1,46 @@
 # Historial de versiones
 
+## v5.2 — 2026-11-10
+
+Segundo plano, atajos de Windows y una app más resistente. Pendiente de publicar: falta la validación de CI en Windows y la revisión en pantalla real.
+
+### Añadido
+- **Segundo plano (opcional, desactivado al principio)**: en **Ajustes**, «Seguir en segundo plano al cerrar la ventana» deja un **icono en la bandeja** con el uso del procesador y la memoria, «Comprobar el equipo ahora», la búsqueda, ocho atajos de Windows y «Salir».
+  - Cada dos horas repite las comprobaciones del Inicio y **avisa solo de lo que pasa a requerir atención**; lo que ya estaba en aviso al activarlo no se repite.
+  - Avisa también si el procesador o la memoria llevan **cinco minutos por encima del 90 %** (se rearma al bajar del 75 %).
+  - «Abrir en la bandeja al iniciar sesión» usa la clave `Run` del usuario, sin administrador; al desactivar el segundo plano se quita.
+  - No instala, actualiza ni reinicia nada por su cuenta (constitución I).
+- **Monitor en vivo en Inicio**: procesador, memoria y espacio libre del disco del sistema cada tres segundos, con llamadas directas a Windows (`GetSystemTimes`, `GlobalMemoryStatusEx`).
+- **Sección «Windows»** con **81 atajos** a ajustes y herramientas de Windows en nueve grupos, con buscador sin tildes. También en la paleta (`Ctrl + K`). Los destinos salen de una lista fija (`ms-settings:`, `.msc`, `.cpl` y ejecutables de Windows sin ruta); solo abren, no cambian nada.
+- **Animaciones**: fundido corto al cambiar de sección, pulsación en los botones y flecha deslizante en los enlaces. Se desactivan en Ajustes y respetan «Efectos de animación» de Windows.
+- **Catálogo (430 entradas)**: **ESET Security** (antivirus residente de pago con prueba), **Recuva** (recuperar archivos borrados) y **Hasleo Backup Suite Free** (imagen completa del sistema, con guía). Ids comprobados en `microsoft/winget-pkgs`.
+
+### Mejorado
+- **Brave limpio**: la **barra de marcadores queda siempre visible** (`bookmark_bar.visibility_state = 0` y `show_on_all_tabs`, nombres contrastados con el código de Brave y Chromium); antes se ocultaba. Deshacer sigue restaurando el valor anterior.
+- **Una sola instancia**: abrir la app otra vez trae al frente la ventana existente en lugar de abrir otra que pudiera lanzar un segundo lote.
+- **Errores fuera del hilo de la interfaz** (`AppDomain.UnhandledException`, `TaskScheduler.UnobservedTaskException`) quedan en `interfaz.log`; antes la app podía cerrarse sin rastro.
+- **Motor en equipos restringidos**: si PowerShell está en *ConstrainedLanguage* (AppLocker/WDAC) el motor sale con el **código 12** y la interfaz explica el motivo; si una directiva de ejecución impuesta impide arrancar el script, el mensaje lo dice en lugar de «código 1».
+- **Registros**: se borran los `iWinInstaller_*.log` de más de 30 días conservando los 20 más recientes; `interfaz.log` se archiva al superar 1 MB.
+- **Red**: se usan las credenciales de Windows en un proxy con autenticación integrada y se conservan los protocolos TLS del sistema (incluido 1.3) garantizando 1.2; antes se fijaba solo 1.2.
+- **CI**: acciones fijadas por SHA de commit y Dependabot también para NuGet.
+
+### Cambiado
+- **Brave limpio y Google**: se añade a la guía el paso manual para elegir Google como buscador. **No se fuerza**: Chromium bloquea `DefaultSearchProviderEnabled` en equipos que no están en un dominio o MDM (política «sensible») y protege la preferencia con firma; saltárselo exigiría simular un MDM, lo que se descarta por seguridad.
+
+### Eliminado
+- **Cinco duplicados de sincronización** (`LegacyBridge 2.cs`, que se compilaba dentro de la app sin usarse, tres XAML de la ventana clásica en `src/ui` que viajaban en el ZIP, y `check-icons 2.ps1`). Una prueba impide que vuelvan.
+
+### Archivos y pruebas
+- Interfaz: `Core/LiveMonitor.cs`, `Shell/TrayService.cs`, `Modules/Shortcuts/*`, `App.xaml.cs`, `Shell/MainWindow.xaml(.cs)`, `Shell/ShellViewModel.cs`, `Theme/Theme.xaml`, `Modules/Tools/SettingsView.xaml`, `Modules/Home/HomeView.xaml`, `Engine/EngineClient.cs`, `Core/Preferences.cs`.
+- Motor: `iWinInstaller.ps1`, `src/engine/01-Core.ps1`, `src/engine/13-Tools.ps1`, `lifecycle.ps1`; contrato `specs/001-centro-de-control/contracts/engine.md` (código 12).
+- Pruebas nuevas: `tests/unit/app/BackgroundAndShortcutsTests.cs` (11 casos MSTest), `tests/unit/engine/Core.Tests.ps1` (Pester) y una comprobación más en `tests/check-brave-clean.ps1`.
+- **Afecta a Windows x86/x64/ARM64 por igual.** Validado en la nube (Linux): sintaxis de todos los scripts con el analizador de PowerShell 7, XAML y JSON bien formados, rotación de registros ejecutada. **Sin compilar ni ejecutar en Windows**: pendiente de los runners de CI y de revisión en pantalla real (bandeja, avisos, animaciones, zoom al 200 %).
+
+### Pendiente
+- Firma Authenticode (T030, a la espera de SignPath).
+- Pruebas de extremo a extremo de la interfaz, T070 (aplicar → deshacer) y accesibilidad completa (T077).
+- PSScriptAnalyzer y CodeQL en CI; manifiesto en WinGet.
+
 ## v5.1 — 2026-11-09
 
 Apariencia renovada de la interfaz, a partir de una captura del usuario en Windows 11.

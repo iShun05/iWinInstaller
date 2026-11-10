@@ -62,7 +62,9 @@ namespace IWinInstaller.App.Shell.Palette
                 if (action.TitleSearch.Split(' ').Any(t => t.StartsWith(word, StringComparison.Ordinal))) score += 10;
             }
             // Las acciones de la app (pocas) van antes que las apps del catálogo con palabras parecidas
-            if (!action.Id.StartsWith("install.search:", StringComparison.Ordinal)) score += 150;
+            if (!action.Id.StartsWith("install.search:", StringComparison.Ordinal) && !action.Id.StartsWith("quick:", StringComparison.Ordinal)) score += 150;
+            // Los atajos de Windows van por delante de las apps del catálogo
+            else if (action.Id.StartsWith("quick:", StringComparison.Ordinal)) score += 60;
             return score;
         }
     }
@@ -84,7 +86,8 @@ namespace IWinInstaller.App.Shell.Palette
                 new PaletteAction("nav.maintenance", "Salud de discos y batería", "Mantenimiento", "smart disco ssd bateria desgaste salud informe equipo"),
                 new PaletteAction("nav.security", "Seguridad y antivirus", "Seguridad", "defender antivirus virus amenazas analisis firmas proteccion"),
                 new PaletteAction("nav.remote", "Vincular equipos por SSH", "Acceso remoto", "ssh mac remoto terminal tailscale clave vincular conectar"),
-                new PaletteAction("nav.settings", "Ajustes de iWinInstaller", "Ajustes", "configuracion opciones version diagnostico actividad registro"),
+                new PaletteAction("nav.shortcuts", "Windows a mano: ajustes y herramientas", "Windows", "atajos ajustes configuracion panel control herramientas"),
+                new PaletteAction("nav.settings", "Ajustes de iWinInstaller", "Ajustes", "configuracion opciones version diagnostico actividad registro segundo plano bandeja animaciones avisos arranque"),
                 new PaletteAction("nav.settings", "Exportar diagnóstico", "Ajustes", "diagnostico log registro error informe soporte"),
                 new PaletteAction("nav.settings", "Actualizar iWinInstaller", "Ajustes", "version nueva actualizar app automatica"),
                 new PaletteAction("install.report", "Informe de la última instalación", "Instalar", "fallos errores informe reintentar"),

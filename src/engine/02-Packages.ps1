@@ -118,7 +118,7 @@ function Install-Chrome($app) {
     $client = New-Object Net.WebClient
     $timer = [Diagnostics.Stopwatch]::StartNew()
     try {
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
         Write-Log '  Descargando Chrome desde Google...'
         $download = $client.DownloadFileTaskAsync([uri]('https://dl.google.com/dl/chrome/install/' + $name), $msi)
         while (-not $download.IsCompleted) {

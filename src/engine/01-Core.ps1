@@ -14,6 +14,19 @@ function Write-Log($msg) {
     else { Write-Host $line }
 }
 
+# Borra los registros de más de 30 días conservando siempre los 20 más recientes; nunca falla.
+function Clear-IwinOldLogs([string]$directory, [int]$days = 30, [int]$keep = 20) {
+    try {
+        $logs = @(Get-ChildItem -LiteralPath $directory -Filter 'iWinInstaller_*.log' -File -ErrorAction Stop | Sort-Object LastWriteTime -Descending)
+        $limit = (Get-Date).AddDays(-$days)
+        $removed = 0
+        foreach ($old in @($logs | Select-Object -Skip $keep | Where-Object { $_.LastWriteTime -lt $limit })) {
+            try { Remove-Item -LiteralPath $old.FullName -Force -ErrorAction Stop; $removed++ } catch { }
+        }
+        $removed
+    } catch { 0 }
+}
+
 # Procesa los eventos de la ventana (WPF) para que no se congele durante las instalaciones
 function Invoke-UiPump {
     # Interfaz nueva: su pausa es un archivo junto al Request (contrato del motor)
@@ -113,7 +126,7 @@ function Ensure-Winget {
     Update-EnvPath
     if (Test-WingetReady) { return $true }
     try {
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
         Install-PackageProvider -Name NuGet -Force -Scope CurrentUser -ErrorAction Stop | Out-Null
         Install-Module -Name Microsoft.WinGet.Client -Repository PSGallery -Force -Scope CurrentUser -ErrorAction Stop | Out-Null
         Import-Module Microsoft.WinGet.Client -ErrorAction Stop
