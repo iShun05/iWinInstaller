@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Instalar el BAT completo sin acceso a GitHub
         shell: powershell
         run: ./tests/check-embedded-install.ps1
