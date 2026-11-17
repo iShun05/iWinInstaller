@@ -345,7 +345,7 @@ namespace IWinInstaller.App.Modules.Install
             HasPending = _pendingPath != null;
         }
 
-        private async Task RefreshConfiguredAsync()
+        public async Task RefreshConfiguredAsync()
         {
             var result = await _engine.RunAsync("postinstall.get", null, null, TimeSpan.FromMinutes(1), CancellationToken.None);
             if (!result.Ok) return;
