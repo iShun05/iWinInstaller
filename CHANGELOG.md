@@ -1,5 +1,13 @@
 # Historial de versiones
 
+## Sin publicar
+
+### Nuevo
+- **Página Juegos › Otros juegos instalados**: lista los juegos de Xbox / Game Pass (`<unidad>:\XboxGames\*\Content\MicrosoftGame.Config`), Battle.net (entradas de Desinstalar de Blizzard), EA App (`EA Games` del registro y `Program Files\EA Games`), Ubisoft Connect (`Ubisoft\Launcher\Installs`), GOG (`GOG.com\Games`, sin DLC) y, además, los demás de Epic (sin Unreal Engine) y Steam (sin herramientas). Cada fila muestra nombre, lanzador, versión, tamaño (si el manifiesto lo da) y carpeta, con **Abrir carpeta**. Sin repetir carpeta ni los juegos que ya tienen tarjeta.
+- Solo lectura de manifiestos y registro: la optimización sigue limitada a los juegos con tarjeta.
+- Pruebas: `tests/unit/app/LauncherScannerTests.cs` (6 pruebas, incluido XML con DTD rechazado).
+- Sin verificar en un equipo real: claves de EA/Ubisoft/GOG y Desinstalar de Battle.net; el nombre de Xbox cae al de la carpeta si es `ms-resource`.
+
 ## v5.3 — 2026-11-17
 
 Página Juegos: detectar, comprobar y optimizar Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero y Arknights: Endfield. Diseñado con el método elefante‑pez: el diseño (`specs/003-juegos/design.md`) lo revisaron sesiones sin memoria antes de programar.

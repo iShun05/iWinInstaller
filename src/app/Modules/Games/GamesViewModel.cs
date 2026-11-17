@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
@@ -25,6 +28,7 @@ namespace IWinInstaller.App.Modules.Games
         private bool _detecting;
         private string _display = "", _raiseLabel = "";
         private bool _canRaise;
+        private string _otherSummary = "";
 
         public GamesViewModel(Dispatcher dispatcher, IDialogService dialogs, Action openSystem, Action openLatency)
             : this(new WindowsGameEnvironment(), dispatcher, dialogs, openSystem, openLatency) { }
@@ -46,6 +50,10 @@ namespace IWinInstaller.App.Modules.Games
         }
 
         public ObservableCollection<GameCardViewModel> Cards { get; private set; }
+        /// <summary>Juegos de otros lanzadores (solo se listan).</summary>
+        public ObservableCollection<DetectedGameViewModel> OtherGames { get; private set; } = new ObservableCollection<DetectedGameViewModel>();
+        public string OtherGamesSummary { get { return _otherSummary; } private set { Set(ref _otherSummary, value); } }
+        public bool HasOtherGames { get { return OtherGames.Count > 0; } }
         public RelayCommand RefreshCommand { get; private set; }
         public RelayCommand OpenSystemCommand { get; private set; }
         public RelayCommand OpenLatencyCommand { get; private set; }
@@ -110,6 +118,7 @@ namespace IWinInstaller.App.Modules.Games
             _detecting = true;
             foreach (var card in Cards) card.SetDetecting();
             var paths = new Dictionary<string, string>(_paths);
+            List<DetectedGame> others = new List<DetectedGame>();
             Task.Run(() =>
             {
                 var found = new Dictionary<string, GameInstall>();
@@ -130,6 +139,8 @@ namespace IWinInstaller.App.Modules.Games
                     }
                     found[definition.Id] = install;
                 }
+                try { others = LauncherScanner.Scan(_env, found.Values.Where(i => i.Found).Select(i => i.Folder)); }
+                catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException || ex is System.Security.SecurityException) { others = new List<DetectedGame>(); }
                 return found;
             }).ContinueWith(t =>
             {
@@ -146,8 +157,19 @@ namespace IWinInstaller.App.Modules.Games
                     card.SetInstall(install, check);
                 }
                 if (pathsChanged) _state.SavePaths(_paths);
+                ShowOtherGames(others);
                 PollProcesses();
             }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+        private void ShowOtherGames(List<DetectedGame> games)
+        {
+            OtherGames.Clear();
+            foreach (var game in games) OtherGames.Add(new DetectedGameViewModel(game));
+            OtherGamesSummary = games.Count == 0
+                ? "No se han encontrado más juegos en Xbox / Game Pass, Battle.net, EA App, Ubisoft Connect, GOG, Epic ni Steam."
+                : games.Count.ToString(CultureInfo.CurrentCulture) + " juegos más en " + string.Join(", ", games.Select(g => g.Launcher).Distinct()) + ". Solo se listan: la optimización es para los juegos de arriba.";
+            OnPropertyChanged("HasOtherGames");
         }
 
         private void PollProcesses()
@@ -172,6 +194,42 @@ namespace IWinInstaller.App.Modules.Games
         {
             _checks[card.Definition.Id] = summary;
             _state.SaveChecks(_checks);
+        }
+    }
+}
+
+namespace IWinInstaller.App.Modules.Games
+{
+    /// <summary>Fila de un juego de otro lanzador: nombre, lanzador, versión, tamaño y carpeta.</summary>
+    public sealed class DetectedGameViewModel
+    {
+        private readonly DetectedGame _game;
+        public DetectedGameViewModel(DetectedGame game)
+        {
+            _game = game;
+            OpenFolderCommand = new IWinInstaller.App.Core.RelayCommand(_ => OpenFolder());
+        }
+        public string Name { get { return _game.Name; } }
+        public string Launcher { get { return _game.Launcher; } }
+        public string Folder { get { return _game.Folder; } }
+        public string Info
+        {
+            get
+            {
+                var parts = new List<string>();
+                if (!string.IsNullOrEmpty(_game.Version)) parts.Add(_game.Version);
+                if (_game.SizeBytes.HasValue) parts.Add(GameCardViewModel.FormatSize(_game.SizeBytes));
+                parts.Add(_game.Folder);
+                return string.Join("  ·  ", parts);
+            }
+        }
+        public IWinInstaller.App.Core.RelayCommand OpenFolderCommand { get; private set; }
+
+        private void OpenFolder()
+        {
+            if (!Directory.Exists(_game.Folder)) return;
+            try { Process.Start(new ProcessStartInfo("explorer.exe", "\"" + _game.Folder + "\"") { UseShellExecute = false }); }
+            catch (System.ComponentModel.Win32Exception) { }
         }
     }
 }
