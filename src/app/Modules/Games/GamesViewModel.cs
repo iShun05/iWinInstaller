@@ -85,6 +85,14 @@ namespace IWinInstaller.App.Modules.Games
             return mode.HasValue ? mode.Value.Hz : 0;
         }
 
+        /// <summary>Hz máximos que admite la pantalla principal a su resolución actual (0 si no se saben).</summary>
+        public static int MaxHz()
+        {
+            var monitor = PrimaryMonitor();
+            var mode = monitor == null ? null : DisplaySettings.CurrentMode(monitor.Device);
+            return mode.HasValue ? DisplaySettings.MaxRefreshFor(mode.Value.Width, mode.Value.Height, DisplaySettings.Modes(monitor.Device)) : 0;
+        }
+
         private void RefreshDisplay()
         {
             var monitor = PrimaryMonitor();

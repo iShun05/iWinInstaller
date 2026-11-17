@@ -169,9 +169,8 @@ namespace IWinInstaller.App.Tests
             var install = new GameInstall { Folder = @"C:\HSR", ExePath = @"C:\HSR\StarRail.exe" };
             var plan = GameTweaks.Build(game, install, env, 144);
             var fps = plan.Items.Single(i => i.Id == "sr-fps");
-            Assert.IsFalse(fps.IsChecked, "120 FPS no oficial: desmarcado por defecto");
+            Assert.IsTrue(fps.IsChecked, "120 FPS no oficial: marcado por defecto (techo seguro)");
             Assert.IsTrue(fps.IsUnofficial);
-            fps.IsChecked = true;
             var store = new GameBackupStore(Path.Combine(env.LocalAppData, "Juegos"), env);
             var lines = GameTweaks.Apply(game, install, env, plan, store, 144, new DateTime(2026, 11, 17, 19, 0, 0, DateTimeKind.Utc));
             Assert.IsTrue(lines.All(l => l.StartsWith("✓", StringComparison.Ordinal)), string.Join(" | ", lines));
@@ -337,7 +336,8 @@ namespace IWinInstaller.App.Tests
             var install = new GameInstall { Folder = @"C:\Fortnite", ExePath = @"C:\Fortnite\" + GameDefinitions.FortniteExe };
             var plan = GameTweaks.Build(game, install, env, 144);
             Assert.AreEqual(0, plan.Warnings.Count, string.Join(" | ", plan.Warnings));
-            Assert.IsFalse(plan.Items.Single(i => i.Id == "fn-fullscreen").IsChecked, "pantalla completa exclusiva desmarcada");
+            Assert.IsTrue(plan.Items.Single(i => i.Id == "fn-fullscreen").IsChecked, "pantalla completa exclusiva marcada (competitivo)");
+            plan.Items.Single(i => i.Id == "fn-fullscreen").IsChecked = false;
             plan.Items.Single(i => i.Id == "fn-fps").SelectedIndex = 1;
             var store = new GameBackupStore(Path.Combine(local, "Juegos"), env);
             var lines = GameTweaks.Apply(game, install, env, plan, store, 144, new DateTime(2026, 11, 17, 19, 0, 0, DateTimeKind.Utc));
@@ -418,8 +418,34 @@ namespace IWinInstaller.App.Tests
             Assert.AreEqual("141.000000", GameTweaks.FortniteFpsValue(1, 144));
             Assert.AreEqual("0.000000", GameTweaks.FortniteFpsValue(2, 144));
             Assert.AreEqual("0.000000", GameTweaks.FortniteFpsValue(0, 0), "sin Hz conocidos: sin límite");
+            Assert.AreEqual("240.000000", GameTweaks.FortniteFpsValue(3, 60, 240), "máximo del monitor");
+            Assert.AreEqual("60.000000", GameTweaks.FortniteFpsValue(3, 60, 0), "sin máximo conocido: Hz actuales");
             Assert.AreEqual("Sin límite", GameTweaks.FortniteFps("0.000000"));
             Assert.AreEqual("240 FPS", GameTweaks.FortniteFps("240.000000"));
+        }
+
+        [TestMethod]
+        public void FortniteCompetitivo240()
+        {
+            string local = NewTempDir();
+            var env = new FakeGameEnvironment(local);
+            string ini = GameTweaks.FortniteIniPath(env);
+            Directory.CreateDirectory(Path.GetDirectoryName(ini));
+            File.WriteAllText(ini, "[/Script/FortniteGame.FortGameUserSettings]\r\nFrameRateLimit=60.000000\r\nMenuFrameRateLimit=60.000000\r\nbMotionBlur=True\r\n", new UTF8Encoding(false));
+            var game = GameDefinitions.Get(GameDefinitions.Fortnite);
+            var install = new GameInstall { Folder = @"C:\Fortnite", ExePath = @"C:\Fortnite\" + GameDefinitions.FortniteExe };
+            var plan = GameTweaks.Build(game, install, env, 60, 240);
+            Assert.AreEqual(3, plan.Items.Single(i => i.Id == "fn-fps").SelectedIndex, "por defecto: máximo del monitor");
+            Assert.IsTrue(plan.Warnings.Any(w => w.Contains("240")), "avisa de que la pantalla está por debajo");
+            Assert.IsTrue(plan.Items.Any(i => i.Id == "fn-blur"));
+            Assert.IsFalse(plan.Items.Any(i => i.Id == "fn-dynres"), "clave ausente: no se añade");
+            var store = new GameBackupStore(Path.Combine(local, "Juegos"), env);
+            GameTweaks.Apply(game, install, env, plan, store, 60, new DateTime(2026, 11, 17, 19, 0, 0, DateTimeKind.Utc), 240);
+            var doc = IniDocument.Parse(File.ReadAllBytes(ini));
+            Assert.AreEqual("240.000000", doc.Get(GameTweaks.FortniteSection, "FrameRateLimit"));
+            Assert.AreEqual("240.000000", doc.Get(GameTweaks.FortniteSection, "MenuFrameRateLimit"));
+            Assert.AreEqual("False", doc.Get(GameTweaks.FortniteSection, "bMotionBlur"));
+            Assert.IsNull(doc.Get(GameTweaks.FortniteSection, "bUseDynamicResolution"));
         }
     }
 }
