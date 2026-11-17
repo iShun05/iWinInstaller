@@ -28,6 +28,11 @@
 - **Perfil «Dev + Gaming competitivo»** en `profiles.json` (con `@hardware`), por si prefieres elegirlo a mano en Instalar.
 - **Panel de salud** (solo lee, no cambia nada): **Microsoft Defender** (tiempo real y firmas, o el antivirus de otro fabricante), **Windows Update** (última búsqueda con éxito), **espacio libre** del disco del sistema, **apps de inicio** (cuenta solo las activas, respeta el Administrador de tareas y avisa por encima de 12) y **temperaturas** de las zonas térmicas que Windows publica sin drivers extra; sin sensores indica que no aplica y recomienda HWiNFO o Core Temp. Cada fila enlaza a su página.
 - Acciones de la paleta (Ctrl + K): «Hardware y preset Dev + Gaming competitivo» y «Salud del PC: apps de inicio y temperaturas».
+- **Actualizaciones › Drivers y firmware**: avisa de drivers de gráfica, chipset, red y de BIOS/UEFI desactualizados. Solo avisa: no descarga ni instala nada.
+  - Fuentes fiables: **Windows Update** (búsqueda oficial de drivers y firmware no instalados; si ofrece una versión igual o anterior a la instalada, se ignora) y **NVIDIA** (última Game Ready por id de la GPU, el mismo servicio que usa su app; envía solo el modelo de la GPU y la versión de Windows).
+  - AMD, Intel, red y BIOS no publican una consulta fiable: se muestran versión, fecha y antigüedad con la web oficial (fabricante del chip o, en portátiles y BIOS, del equipo o de la placa). La antigüedad sola no genera aviso.
+  - Archivos: `src/app/Modules/Drivers/**` (nuevo), `Updates/UpdatesView.xaml`, `Updates/UpdatesViewModel.cs`. MSTest `tests/unit/app/DriversTests.cs` (16 pruebas).
+  - Pendiente de prueba física: búsqueda de Windows Update con y sin conexión y portátil con NVIDIA. **Afecta a Windows x86/x64/ARM64 por igual** (NVIDIA solo existe en x64).
 
 ### Cambiado
 - Fortnite: perfil competitivo para pantallas de alta frecuencia: opción «máximo del monitor» en el límite de FPS (por defecto si Windows está por debajo), menús al mismo límite, sin desenfoque de movimiento ni resolución dinámica (solo si esas claves ya existen) y pantalla completa exclusiva marcada.

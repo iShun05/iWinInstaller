@@ -57,6 +57,53 @@
         </StackPanel>
       </Border>
 
+      <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="14" Padding="6" Margin="0,18,0,0"
+              DataContext="{Binding Drivers}">
+        <StackPanel>
+          <DockPanel Margin="12,10,12,4" LastChildFill="True">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+              <Button Style="{StaticResource Btn}" Content="Cancelar" Command="{Binding CancelCommand}" Visibility="{Binding IsBusy, Converter={StaticResource Visible}}" Margin="0,0,8,0"/>
+              <Button Style="{StaticResource Btn}" Content="Comprobar drivers" Command="{Binding CheckCommand}"/>
+            </StackPanel>
+            <StackPanel Margin="0,0,12,0">
+              <TextBlock Text="Drivers y firmware" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+              <TextBlock Text="{Binding Message}" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,4,0,0" AutomationProperties.LiveSetting="Polite"/>
+            </StackPanel>
+          </DockPanel>
+          <ItemsControl ItemsSource="{Binding Rows}" Focusable="False" Visibility="{Binding HasRows, Converter={StaticResource Visible}}" Margin="0,6,0,0">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border BorderBrush="{StaticResource Border}" BorderThickness="0,1,0,0" Padding="12,10">
+                  <DockPanel LastChildFill="True">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource Ghost}" VerticalAlignment="Center" Margin="12,0,0,0"
+                            Content="{Binding LinkLabel}" Visibility="{Binding HasLink, Converter={StaticResource Visible}}"
+                            Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
+                    <StackPanel>
+                      <TextBlock Text="{Binding Title}" FontSize="14" Foreground="{StaticResource TextStrong}" TextWrapping="Wrap"/>
+                      <TextBlock Text="{Binding Installed}" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"/>
+                      <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Margin="0,2,0,0">
+                        <TextBlock.Style>
+                          <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+                            <Style.Triggers>
+                              <DataTrigger Binding="{Binding IsUpdate}" Value="True"><Setter Property="Foreground" Value="{StaticResource Attention}"/><Setter Property="FontWeight" Value="SemiBold"/></DataTrigger>
+                              <DataTrigger Binding="{Binding IsUpToDate}" Value="True"><Setter Property="Foreground" Value="{StaticResource Ok}"/></DataTrigger>
+                            </Style.Triggers>
+                          </Style>
+                        </TextBlock.Style>
+                      </TextBlock>
+                      <TextBlock Text="{Binding Note}" Foreground="{StaticResource TextFaint}" FontSize="12" TextWrapping="Wrap" Visibility="{Binding HasNote, Converter={StaticResource Visible}}"/>
+                    </StackPanel>
+                  </DockPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Margin="12,8,12,8" FontSize="12" Foreground="{StaticResource TextFaint}" TextWrapping="Wrap"
+                     Text="Solo avisa: no descarga ni instala nada. Fuentes: Windows Update para todos los dispositivos y NVIDIA para las gráficas GeForce (envía solo el modelo de la GPU y la versión de Windows). AMD, Intel, red y BIOS no publican una consulta fiable: se muestra la versión instalada y la web oficial para compararla."/>
+        </StackPanel>
+      </Border>
+
       <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="14" Padding="18,16" Margin="0,18,0,0">
         <StackPanel>
           <TextBlock Text="Actualización programada" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
