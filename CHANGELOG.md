@@ -2,6 +2,16 @@
 
 ## Sin publicar
 
+### Nuevo
+- **Liberar espacio › Caché de shaders de GPU**: borra las cachés de shaders de DirectX (`D3DSCache`), NVIDIA (`DXCache`, `GLCache`) y AMD (`DxCache`, `GLCache`) en `%LOCALAPPDATA%`. Muestra el tamaño antes de borrar, omite archivos en uso y de menos de un día, y no pide administrador. Viene desmarcada por defecto: al borrarla, el primer arranque de cada juego recompila los shaders y puede tardar más.
+- Carpetas de juegos y anticheat fuera de alcance; solo cachés de controlador.
+
+### Archivos y pruebas
+- `src/engine/14-Maintenance.ps1` (categoría `shaderCache`), `src/app/Modules/Maintenance/MaintenanceViewModel.cs` (desmarcada por defecto).
+- Pester `tests/unit/engine/ShaderCache.Tests.ps1`: no pide administrador y ninguna ruta apunta a juegos o anticheat.
+- Sin verificar en un equipo real con GPU NVIDIA y AMD.
+
+### Cambiado
 - Fortnite: perfil competitivo para pantallas de alta frecuencia: opción «máximo del monitor» en el límite de FPS (por defecto si Windows está por debajo), menús al mismo límite, sin desenfoque de movimiento ni resolución dinámica (solo si esas claves ya existen) y pantalla completa exclusiva marcada.
 - Star Rail: 120 FPS marcado por defecto (es el máximo que admite el juego por el registro).
 
