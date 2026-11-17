@@ -1,5 +1,33 @@
 # Historial de versiones
 
+## v5.2 — 2026-11-17
+
+Juego competitivo y latencia para un portátil gamer. Diseñado con el método elefante‑pez (Elephant‑Goldfish Model de Google): el diseño (`specs/002-juego-competitivo/design.md`) lo revisaron tres sesiones sin memoria antes de programar.
+
+### Nuevo
+- **Página Juego**: ping en vivo al router, a Internet (1.1.1.1) y al servidor del juego con media, jitter, pérdida, máximo y gráfica de 60 s; picos de la sesión; aviso cuando un servidor no contesta a ping. Mide solo con la página abierta (también minimizada) y sin procesos auxiliares.
+- **Prueba de bufferbloat**: ping en reposo y con descarga (4 flujos) y subida (2 flujos) contra Cloudflare, nota de A+ a F por sentido y consejo de SQM/QoS. Tope de 400 MB.
+- **Conexión**: cable o Wi‑Fi, velocidad de enlace, señal, banda y canal (sin SSID ni BSSID), consejo de cable o 5/6 GHz y botón **Elegir GPU por juego**.
+- **Sistema › Red y juego competitivo** (reversibles):
+  - **DNS más rápido (se adapta a cada red)**: tarea de SYSTEM al arrancar, al iniciar sesión y al conectar a una red (evento 10000), con batería permitida. Mide el DNS de la red, Cloudflare, Google y Quad9 (3 nombres × 5 rondas) y aplica el más rápido con IPv4 e IPv6. Respeta DNS manuales, dominio y VPN; vuelve a automático sin internet. Carpeta protegida y script comprobado por SHA256.
+  - **Wi‑Fi sin ahorro de energía (enchufado)** en todos los planes, solo con corriente.
+  - **Sin grabación en segundo plano** (Game DVR) y **Modo Juego activado**.
+- **Aplicaciones › Juegos › Latencia y diagnóstico**: Speedtest by Ookla, LatencyMon, CapFrameX y Process Lasso.
+- Perfil **Juego competitivo (baja latencia)** y acción de la paleta «Ping y latencia para jugar».
+
+### Cambiado
+- `Protect-IwinProgramDataDir` reúne la protección de carpetas de ProgramData (enlaces rechazados, propietario Administradores y permisos solo para SYSTEM y Administradores) que ya usaba el estado de restauración.
+- README: contadores corregidos (435 entradas, 89 subsecciones en 23 categorías, 133 guías).
+
+### Descartado a propósito
+- Nagle/`TcpAckFrequency`/`TCPNoDelay`, `NetworkThrottlingIndex`, `SystemResponsiveness`, la «reserva QoS», el autotuning TCP, desactivar `WlanSvc`, la optimización de entrega y los limpiadores de RAM: sin efecto medible en shooters (UDP) o con riesgo.
+
+### Archivos y pruebas
+- `src/engine/15-Gaming.ps1`, `src/engine/gaming/dns-rapido.ps1`, `03-System.ps1`, `06-Tweaks.ps1`, `lifecycle.ps1`, `iWinInstaller.ps1`, `apps.json`, `profiles.json`, `src/app/Modules/Gaming/**`, `Shell/ShellViewModel.cs`, `Shell/MainWindow.xaml(.cs)`, `Shell/Palette/PaletteSearch.cs`, `Core/Preferences.cs`.
+- Pester `tests/unit/engine/Gaming.Tests.ps1` (elección del DNS, DNS propio frente al del usuario, XML de la tarea, powercfg en inglés, español y otros idiomas). MSTest `tests/unit/app/GamingTests.cs` (estadísticas, notas de bufferbloat, percentiles, colores, servidor válido y Wi‑Fi en dos idiomas).
+- Pendiente de prueba física en el portátil: ping con Wi‑Fi y cable, bufferbloat, aplicar y deshacer los cuatro ajustes y cambio de red.
+- **Afecta a Windows x86/x64/ARM64 por igual**.
+
 ## v5.1 — 2026-11-09
 
 Apariencia renovada de la interfaz, a partir de una captura del usuario en Windows 11.

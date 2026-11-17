@@ -17,6 +17,9 @@ namespace IWinInstaller.App.Core
 
         public double Zoom { get; set; }
 
+        /// <summary>Servidor del juego para el ping en vivo (v5.2): IP o nombre; vacío si no hay.</summary>
+        public string GameServer { get; set; }
+
         public static string DefaultPath
         {
             get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "iWinInstaller", "interfaz.json"); }
@@ -39,6 +42,9 @@ namespace IWinInstaller.App.Core
                 object zoom;
                 if (data != null && data.TryGetValue("zoom", out zoom) && zoom != null)
                     preferences.Zoom = ClampZoom(Convert.ToDouble(zoom, System.Globalization.CultureInfo.InvariantCulture));
+                object server;
+                if (data != null && data.TryGetValue("gameServer", out server) && server is string && ((string)server).Length <= 253)
+                    preferences.GameServer = (string)server;
             }
             catch (Exception) { /* un archivo dañado no impide abrir la app: se usan los valores por defecto */ }
             return preferences;
@@ -49,7 +55,7 @@ namespace IWinInstaller.App.Core
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(_path));
-                var data = new Dictionary<string, object> { { "format", "iWinInstaller-interfaz" }, { "version", 1 }, { "zoom", ClampZoom(Zoom) } };
+                var data = new Dictionary<string, object> { { "format", "iWinInstaller-interfaz" }, { "version", 1 }, { "zoom", ClampZoom(Zoom) }, { "gameServer", GameServer ?? "" } };
                 string temporary = _path + ".tmp";
                 File.WriteAllText(temporary, new JavaScriptSerializer().Serialize(data), new UTF8Encoding(false));
                 if (File.Exists(_path)) File.Replace(temporary, _path, null); else File.Move(temporary, _path);
