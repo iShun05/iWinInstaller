@@ -61,6 +61,42 @@ function Uninstall-Tweak($id) {
     catch { Write-Log "  $($_.Exception.Message)"; return $false }
 }
 
+# Punto de restauración automático antes de ajustes del sistema. Windows permite uno cada 24 h.
+function Test-IwinRestorePointDue($lastCreation, [datetime]$now) {
+    if ($null -eq $lastCreation) { return $true }
+    return (($now - [datetime]$lastCreation).TotalHours -ge 24)
+}
+
+function Test-IwinSystemRestoreOff {
+    $policy = Get-ItemProperty 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\SystemRestore' -Name DisableSR -ErrorAction SilentlyContinue
+    $state = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore' -Name RPSessionInterval -ErrorAction SilentlyContinue
+    return (($null -ne $policy -and $policy.DisableSR -eq 1) -or ($null -ne $state -and $state.RPSessionInterval -eq 0))
+}
+
+# Nunca detiene la instalación: si no puede crear el punto, lo avisa y sigue.
+function Invoke-IwinAutoRestorePoint {
+    try {
+        if (Test-IwinSystemRestoreOff) {
+            Write-Log '  Restauración del sistema desactivada: no se crea punto de restauración. Actívala en Protección del sistema.'
+            return
+        }
+        $last = $null
+        try { $last = Get-ComputerRestorePoint -ErrorAction Stop | Sort-Object CreationTime | Select-Object -Last 1 } catch { $last = $null }
+        $lastTime = $null
+        if ($last) { $lastTime = $last.CreationTime }
+        if (-not (Test-IwinRestorePointDue $lastTime (Get-Date))) {
+            Write-Log '  Ya hay un punto de restauración de las últimas 24 h: se reutiliza.'
+            return
+        }
+        Write-Log '  Creando punto de restauración antes de aplicar los ajustes...'
+        $cmd = 'Checkpoint-Computer -Description "iWinInstaller" -RestorePointType MODIFY_SETTINGS -ErrorAction Stop'
+        if (Invoke-MachineTweak $cmd) { Write-Log '  Punto de restauración creado: «iWinInstaller».' }
+        else { Write-Log '  No se creó el punto de restauración; los ajustes continúan.' }
+    } catch {
+        Write-Log "  No se creó el punto de restauración: $($_.Exception.Message). Los ajustes continúan."
+    }
+}
+
 function Test-Tweak($id) {
     # wsl.exe y powercfg escriben en stderr cuando falta la función; con Stop eso cortaría la ventana
     $ErrorActionPreference = 'Continue'

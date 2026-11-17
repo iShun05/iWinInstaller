@@ -1,5 +1,15 @@
 # Historial de versiones
 
+## Sin publicar
+
+### Añadido
+- **Punto de restauración automático**: antes de aplicar ajustes del sistema, red, acceso remoto o latencia se crea un punto «iWinInstaller». Como máximo uno cada 24 h; si ya hay uno reciente, se reutiliza.
+- Si la restauración del sistema está desactivada, la instalación avisa en el registro y sigue sin crear el punto. Si la creación falla o se cancela el UAC, también avisa y los ajustes continúan.
+
+### Archivos y pruebas
+- `src/engine/06-Tweaks.ps1` (`Invoke-IwinAutoRestorePoint`, `Test-IwinRestorePointDue`, `Test-IwinSystemRestoreOff`), `src/engine/08-Batch.ps1` (`Invoke-Install`).
+- `tests/unit/engine/RestorePoint.Tests.ps1`: regla de 24 horas.
+
 ## v5.1 — 2026-11-09
 
 Apariencia renovada de la interfaz, a partir de una captura del usuario en Windows 11.
