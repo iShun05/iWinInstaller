@@ -11,6 +11,8 @@ function Get-IwinCleanupCategories {
         wuCache = @{ label = 'Descargas de Windows Update ya instaladas'; admin = $true; paths = @(Join-Path $windows 'SoftwareDistribution\Download') }
         deliveryOptimization = @{ label = 'Caché de Optimización de distribución'; admin = $true; paths = @(Join-Path $windows 'ServiceProfiles\NetworkService\AppData\Local\Microsoft\Windows\DeliveryOptimization\Cache') }
         thumbnails = @{ label = 'Miniaturas del Explorador'; admin = $false; paths = @(Join-Path $local 'Microsoft\Windows\Explorer'); filter = 'thumbcache_*.db' }
+        # Solo cachés de controlador en %LOCALAPPDATA%: nunca carpetas de juegos ni de anticheat. Se regeneran al jugar (primer arranque algo más lento).
+        shaderCache = @{ label = 'Caché de shaders de GPU (NVIDIA, AMD, DirectX)'; admin = $false; paths = @((Join-Path $local 'D3DSCache'), (Join-Path $local 'NVIDIA\DXCache'), (Join-Path $local 'NVIDIA\GLCache'), (Join-Path $local 'AMD\DxCache'), (Join-Path $local 'AMD\GLCache')) }
         crashDumps = @{ label = 'Volcados de errores de apps'; admin = $false; paths = @(Join-Path $local 'CrashDumps') }
         recycleBin = @{ label = 'Papelera de reciclaje'; admin = $false; paths = @() }
         iwinDownloads = @{ label = 'Descargas antiguas de iWinInstaller'; admin = $false; paths = @(Join-Path $LogDir 'actualizacion') }
