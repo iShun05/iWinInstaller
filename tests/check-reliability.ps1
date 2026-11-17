@@ -30,6 +30,7 @@ function Get-FunctionBody($name) {
 & {
     . (Get-FunctionBody 'Invoke-Install')
     function Organize-Desktop { }
+    function Invoke-IwinFoldersAuto { }
     function Test-Administrator { $false }
     function Get-InstallContext { 'user' }
     function Write-Log($msg) { }

@@ -3,6 +3,11 @@
 ## Sin publicar
 
 ### Nuevo
+- **Mantenimiento › Carpetas por categoría** (botón **Comprobar y organizar**): detecta las apps del catálogo ya instaladas (por versiones anteriores o a mano) y las ordena por su categoría de `apps.json`. Opcional y reversible (**Deshacer**).
+  - Inicio: Windows 11 no tiene una API soportada para carpetas ancladas, así que se crean subcarpetas en `Programas` del menú Inicio (se ven en «Todas las apps», vista Lista). Solo se mueven los `.lnk` que están directamente en `Programas`; las carpetas de cada fabricante no se tocan. Los del equipo piden permiso una sola vez.
+  - Escritorio: `Aplicaciones\<Categoría>` con copias de los accesos; los que dejó `Organize-Desktop` en `Aplicaciones` se recolocan y al deshacer vuelven.
+  - **Ordenar automáticamente al terminar de instalar** (desmarcado por defecto). Si una actualización recrea un acceso, **Comprobar y organizar** lo vuelve a colocar. Todo queda en `%LOCALAPPDATA%\iWinInstaller\carpetas.json`.
+  - Las apps de la Tienda (sin `.lnk`) no se ordenan. Motor: `src/engine/17-Folders.ps1`, comandos `folders.status|set|apply|revert`; Pester `tests/unit/engine/Folders.Tests.ps1`. Sin verificar en un Windows real.
 - **Liberar espacio › Caché de shaders de GPU**: borra las cachés de shaders de DirectX (`D3DSCache`), NVIDIA (`DXCache`, `GLCache`) y AMD (`DxCache`, `GLCache`) en `%LOCALAPPDATA%`. Muestra el tamaño antes de borrar, omite archivos en uso y de menos de un día, y no pide administrador. Viene desmarcada por defecto: al borrarla, el primer arranque de cada juego recompila los shaders y puede tardar más.
 - Carpetas de juegos y anticheat fuera de alcance; solo cachés de controlador.
 - **Punto de restauración automático**: antes de aplicar ajustes del sistema, red, acceso remoto o latencia se crea un punto «iWinInstaller». Como máximo uno cada 24 h; si ya hay uno reciente, se reutiliza.
