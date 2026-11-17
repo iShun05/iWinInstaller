@@ -256,7 +256,7 @@
     "extra": true,
     "postInstall": {
       "steps": [
-        "Abre la página Juego de iWinInstaller y comprueba en «DNS» qué proveedor se eligió y sus tiempos.",
+        "Abre la página Latencia de iWinInstaller y comprueba en «DNS» qué proveedor se eligió y sus tiempos.",
         "Conéctate a otra red (otra Wi-Fi o el móvil) y comprueba que la medición se actualiza.",
         "Si usas un DNS propio (Pi-hole, NextDNS…), comprueba que se ha respetado."
       ],
@@ -275,7 +275,7 @@
     "extra": true,
     "postInstall": {
       "steps": [
-        "Enchufa el portátil y abre la página Juego: el ping al router debería quedarse estable y por debajo de 5 ms.",
+        "Enchufa el portátil y abre la página Latencia: el ping al router debería quedarse estable y por debajo de 5 ms.",
         "Si sigue con picos, prueba con cable o con Wi-Fi de 5/6 GHz cerca del router.",
         "Opcional: en el Administrador de dispositivos, propiedades avanzadas del adaptador Wi-Fi, revisa «Roaming aggressiveness» (más bajo) y «MIMO power save» (desactivado)."
       ],
@@ -2860,7 +2860,7 @@
     "extra": true,
     "subgroup": "Latencia y diagnóstico",
     "compare": "Velocidad y ping de tu línea en un clic.",
-    "subgroupNote": "Mide antes de tocar: Speedtest para la línea, LatencyMon si hay tirones, CapFrameX para comparar FPS antes y después. Process Lasso solo si un juego compite con procesos de fondo. El ping en vivo y el bufferbloat están en la página Juego."
+    "subgroupNote": "Mide antes de tocar: Speedtest para la línea, LatencyMon si hay tirones, CapFrameX para comparar FPS antes y después. Process Lasso solo si un juego compite con procesos de fondo. El ping en vivo y el bufferbloat están en la página Latencia."
   },
   {
     "id": "latencymon",

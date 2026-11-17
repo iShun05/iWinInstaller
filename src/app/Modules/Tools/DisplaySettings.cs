@@ -100,6 +100,14 @@ namespace IWinInstaller.App.Modules.Tools
             return list;
         }
 
+        /// <summary>Frecuencia más alta admitida a esa resolución (0 si no hay modos).</summary>
+        public static int MaxRefreshFor(int width, int height, IEnumerable<DisplayMode> modes)
+        {
+            int best = 0;
+            foreach (var m in modes) if (m.Width == width && m.Height == height && m.Hz > best) best = m.Hz;
+            return best;
+        }
+
         /// <summary>0 = aplicado, 1 = requiere reiniciar, negativo = rechazado. Se prueba antes de aplicar.</summary>
         public static int Apply(string device, DisplayMode target)
         {
