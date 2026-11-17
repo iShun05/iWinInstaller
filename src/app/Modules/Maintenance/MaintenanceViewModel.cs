@@ -48,6 +48,71 @@ namespace IWinInstaller.App.Modules.Maintenance
             RepairCommand = new RelayCommand(_ => Run(RepairAsync()), _ => !IsBusy);
             ReportCommand = new RelayCommand(_ => Run(ReportAsync()), _ => !IsBusy);
             BatteryReportCommand = new RelayCommand(_ => Run(BatteryReportAsync()), _ => !IsBusy);
+            OrganizeCommand = new RelayCommand(_ => Run(OrganizeAsync()), _ => !IsBusy && (FoldersStartMenu || FoldersDesktop));
+            UndoFoldersCommand = new RelayCommand(_ => Run(UndoFoldersAsync()), _ => !IsBusy);
+        }
+
+        private bool _foldersStartMenu = true, _foldersDesktop = true, _foldersAuto, _foldersLoading;
+        private string _foldersInfo = "";
+        public RelayCommand OrganizeCommand { get; private set; }
+        public RelayCommand UndoFoldersCommand { get; private set; }
+        public bool FoldersStartMenu { get { return _foldersStartMenu; } set { if (Set(ref _foldersStartMenu, value)) SaveFolders(); } }
+        public bool FoldersDesktop { get { return _foldersDesktop; } set { if (Set(ref _foldersDesktop, value)) SaveFolders(); } }
+        public bool FoldersAuto { get { return _foldersAuto; } set { if (Set(ref _foldersAuto, value)) SaveFolders(); } }
+        public string FoldersInfo { get { return _foldersInfo; } private set { Set(ref _foldersInfo, value ?? ""); } }
+
+        private void SaveFolders()
+        {
+            if (_foldersLoading) return;
+            var request = new Dictionary<string, object> { { "auto", _foldersAuto }, { "startMenu", _foldersStartMenu }, { "desktop", _foldersDesktop } };
+            Run(_engine.RunAsync("folders.set", request, null, TimeSpan.FromMinutes(1), CancellationToken.None));
+        }
+
+        private async Task LoadFoldersAsync()
+        {
+            var result = await _engine.RunAsync("folders.status", null, null, TimeSpan.FromMinutes(5), CancellationToken.None);
+            if (!result.Ok) { FoldersInfo = "No se pudo leer el estado: " + result.Error; return; }
+            _foldersLoading = true;
+            try
+            {
+                FoldersAuto = Flag(result.Response, "auto"); FoldersStartMenu = Flag(result.Response, "startMenu"); FoldersDesktop = Flag(result.Response, "desktop");
+            }
+            finally { _foldersLoading = false; }
+            int pending = Convert.ToInt32(result.Response["pending"], CultureInfo.InvariantCulture);
+            FoldersInfo = pending + " apps instaladas con acceso directo se ordenan por categoría. Ya movidos: " + result.Response["moved"] + " en Inicio, " + result.Response["copied"] + " en el escritorio.";
+        }
+
+        /// <summary>«Comprobar y organizar»: detecta las apps ya instaladas (de versiones anteriores o a mano), las casa con el catálogo y las ordena.</summary>
+        private async Task OrganizeAsync()
+        {
+            if (!_dialogs.Confirm("Comprobar y organizar", "Se buscan las apps instaladas del catálogo y se ordenan por categoría:" + Environment.NewLine +
+                (FoldersStartMenu ? "• Inicio: sus accesos se mueven a subcarpetas de «Todas las apps» (vista Lista). Los del equipo piden permiso." + Environment.NewLine : "") +
+                (FoldersDesktop ? "• Escritorio: carpeta «Aplicaciones» con una subcarpeta por categoría (copias de los accesos)." + Environment.NewLine : "") +
+                "Puedes deshacerlo cuando quieras; no se tocan las carpetas de cada fabricante.", "Organizar")) return;
+            IsBusy = true;
+            Message = "Comprobando y ordenando apps…";
+            try
+            {
+                var request = new Dictionary<string, object> { { "startMenu", _foldersStartMenu }, { "desktop", _foldersDesktop } };
+                var result = await _engine.RunAsync("folders.apply", request, null, TimeSpan.FromMinutes(10), CancellationToken.None);
+                Message = result.Ok ? Text(result.Response, "summary") : "No se pudo ordenar: " + result.Error;
+            }
+            finally { IsBusy = false; }
+            await LoadFoldersAsync();
+        }
+
+        private async Task UndoFoldersAsync()
+        {
+            if (!_dialogs.Confirm("Deshacer el orden", "Los accesos movidos vuelven a su sitio y se quitan las copias del escritorio que creó iWinInstaller.", "Deshacer")) return;
+            IsBusy = true;
+            Message = "Devolviendo accesos…";
+            try
+            {
+                var result = await _engine.RunAsync("folders.revert", null, null, TimeSpan.FromMinutes(10), CancellationToken.None);
+                Message = result.Ok ? Text(result.Response, "summary") : "No se pudo deshacer: " + result.Error;
+            }
+            finally { IsBusy = false; }
+            await LoadFoldersAsync();
         }
 
         public ObservableCollection<CleanupCategory> Categories { get; private set; }
@@ -75,6 +140,7 @@ namespace IWinInstaller.App.Modules.Maintenance
             _loaded = true;
             Run(LoadHealthAsync());
             Run(EstimateAsync());
+            Run(LoadFoldersAsync());
         }
 
         private async Task LoadHealthAsync()

@@ -2,9 +2,14 @@
 
 ## v5.4 — 2026-11-17
 
-Más herramientas para el PC: página **Equipo** (hardware, preset y salud), página **Por configurar**, exportar/importar la configuración, punto de restauración automático, caché de shaders, más lanzadores de juegos detectados y aviso de drivers desactualizados.
+Más herramientas para el PC: página **Equipo** (hardware, preset y salud), página **Por configurar**, exportar/importar la configuración, punto de restauración automático, carpetas por categoría, caché de shaders, más lanzadores de juegos detectados y aviso de drivers desactualizados.
 
 ### Nuevo
+- **Mantenimiento › Carpetas por categoría** (botón **Comprobar y organizar**): detecta las apps del catálogo ya instaladas (por versiones anteriores o a mano) y las ordena por su categoría de `apps.json`. Opcional y reversible (**Deshacer**).
+  - Inicio: Windows 11 no tiene una API soportada para carpetas ancladas, así que se crean subcarpetas en `Programas` del menú Inicio (se ven en «Todas las apps», vista Lista). Solo se mueven los `.lnk` que están directamente en `Programas`; las carpetas de cada fabricante no se tocan. Los del equipo piden permiso una sola vez.
+  - Escritorio: `Aplicaciones\<Categoría>` con copias de los accesos; los que dejó `Organize-Desktop` en `Aplicaciones` se recolocan y al deshacer vuelven.
+  - **Ordenar automáticamente al terminar de instalar** (desmarcado por defecto). Si una actualización recrea un acceso, **Comprobar y organizar** lo vuelve a colocar. Todo queda en `%LOCALAPPDATA%\iWinInstaller\carpetas.json`.
+  - Las apps de la Tienda (sin `.lnk`) no se ordenan. Motor: `src/engine/17-Folders.ps1`, comandos `folders.status|set|apply|revert`; Pester `tests/unit/engine/Folders.Tests.ps1`. Sin verificar en un Windows real.
 - **Página Equipo**: detecta portátil o sobremesa, fabricante y modelo, CPU, memoria, gráficas (dedicada o integrada, con aviso de gráfica híbrida) y pantalla (resolución, Hz actuales y máximos), y calcula una gama (básica, media o alta).
 - **Preset «Dev + Gaming competitivo»** (botón **Marcar en Instalar**: solo marca, no instala): base de desarrollo y de baja latencia adaptada al equipo (portátil o sobremesa, menos de 12 GB de RAM sin WSL, software de la gráfica, G-Helper en portátiles ASUS) con avisos de Hz, límite de FPS y GPU por juego. También como perfil en `profiles.json`.
 - **Panel de salud** (solo lee): Defender, Windows Update, espacio libre, apps de inicio y temperaturas; cada fila enlaza a su página. Acciones nuevas en la paleta (Ctrl + K).
@@ -25,9 +30,9 @@ Más herramientas para el PC: página **Equipo** (hardware, preset y salud), pá
 - Equipo y drivers solo usan WMI, registro y, para NVIDIA, una consulta HTTPS, con permisos de usuario y solo al entrar en la página o al pulsar **Comprobar de nuevo**. Sin drivers, temporizadores ni procesos residentes.
 
 ### Archivos y pruebas
-- Motor: `src/engine/06-Tweaks.ps1` (punto de restauración), `08-Batch.ps1`, `14-Maintenance.ps1` (`shaderCache`), `16-Config.ps1` (nuevo), `iWinInstaller.ps1`, `docs/cli.md`.
+- Motor: `src/engine/06-Tweaks.ps1` (punto de restauración), `08-Batch.ps1`, `14-Maintenance.ps1` (`shaderCache`), `16-Config.ps1` y `17-Folders.ps1` (nuevos), `iWinInstaller.ps1`, `docs/cli.md`.
 - Interfaz: `src/app/Modules/Equipo/**`, `Configure/**`, `Drivers/**` (nuevos), `Games`, `Install`, `Maintenance`, `Updates`, `Shell/**`, `Core/StatusCard.cs`; `apps.json`, `profiles.json`. Diseño: `specs/005-equipo/design.md`.
-- Pester: `ShaderCache`, `RestorePoint` y `Config`. MSTest: `EquipoTests` (18), `DriversTests` (16), `LauncherScannerTests` (6) y los de «Por configurar».
+- Pester: `ShaderCache`, `RestorePoint`, `Config` y `Folders`. MSTest: `EquipoTests` (18), `DriversTests` (16), `LauncherScannerTests` (6) y los de «Por configurar».
 - Sin verificar en un equipo real: lecturas WMI y de registro de Equipo, maquetación y temperaturas; claves de EA/Ubisoft/GOG y Desinstalar de Battle.net; Windows Update con y sin conexión y portátil con NVIDIA; limpieza de shaders con GPU NVIDIA y AMD.
 - **Afecta a Windows x86/x64/ARM64 por igual** (NVIDIA solo existe en x64).
 

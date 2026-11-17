@@ -73,7 +73,7 @@ if ($WorkerMode -and $SharedLog) { $LogFile = $SharedLog }
 . (Join-Path $Root 'lifecycle.ps1')
 
 # Motor: los archivos de src/engine se cargan en orden y comparten el ámbito del script.
-$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1', '13-Tools.ps1', '14-Maintenance.ps1', '15-Gaming.ps1', '16-Config.ps1')
+$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1', '13-Tools.ps1', '14-Maintenance.ps1', '15-Gaming.ps1', '16-Config.ps1', '17-Folders.ps1')
 foreach ($engineFile in $EngineFiles) {
     $enginePath = Join-Path $Root "src\engine\$engineFile"
     if (-not (Test-Path -LiteralPath $enginePath)) { throw "Falta un archivo del motor: $engineFile. Ejecuta de nuevo iWinInstaller-Setup.exe." }

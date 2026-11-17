@@ -53,6 +53,7 @@ try{
     function Test-Administrator{$false}
     function Test-AppInstalled{$false}
     function Organize-Desktop{}
+    function Invoke-IwinFoldersAuto { }
     $script:calls=@();$script:pause=$true
     function Install-App($app){$script:calls+=$app.id;if($script:pause){Request-IwinStop};$true}
     $fail=@(Invoke-Install @($Apps[0],$Apps[2]) $null)
