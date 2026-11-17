@@ -169,9 +169,14 @@ Register-IwinEngineCommand 'postinstall.set' {
     $script:PostInstallState = try { Get-PostInstallState } catch { $script:PostInstallReadOnly = $true; throw 'El seguimiento de pasos está dañado; no se modifica para no perder tus notas.' }
     $count = @((Get-PostInstallGuide $app).steps).Count
     $steps = @($request.steps | ForEach-Object { [int]$_ } | Where-Object { $_ -ge 0 -and $_ -lt $count } | Select-Object -Unique)
-    $note = [string]$request.note
+    # Sin «note» en la petición se conserva la nota guardada (la página «Por configurar» solo marca el check)
+    $note = if ($null -ne $request.note) { [string]$request.note } else { [string]$script:PostInstallState[$app.id].note }
     if ($note.Length -gt 2000) { $note = $note.Substring(0, 2000) }
-    $script:PostInstallState[$app.id] = @{ steps = @($steps); guideHash = (Get-IwinGuideHash $app); note = $note }
+    # Se anota la versión en que se confirmó: si la app se actualiza, vuelve a quedar pendiente (configure.list)
+    $version = ''
+    if ($app.type -ne 'tweak') { Update-LocalInventory -Appx; $version = Get-IwinInstalledVersion $app }
+    if (-not $version -and $script:PostInstallState.ContainsKey($app.id)) { $version = [string]$script:PostInstallState[$app.id].version }
+    $script:PostInstallState[$app.id] = @{ steps = @($steps); guideHash = (Get-IwinGuideHash $app); note = $note; version = $version; reopenedFrom = '' }
     Save-PostInstallState
     $configured = Get-IwinConfiguredApps
     $configured[$app.id] = $steps.Count -eq $count
@@ -184,6 +189,48 @@ Register-IwinEngineCommand 'postinstall.check' {
     $app = @(Get-IwinSelection @([string]$request.id))[0]
     $result = Test-PostInstall $app
     @{ id = $app.id; ok = [bool]$result.Ok; text = [string]$result.Text }
+}
+
+# ---------- Por configurar (v5.4) ----------
+# Apps instaladas que hay que configurar por dentro (catálogo: «configure» + «configNote»). Si la versión instalada
+# cambia desde que se marcó como hecha, la marca se quita y la app vuelve a quedar pendiente.
+function Sync-IwinConfigVersions($apps) {
+    $script:PostInstallReadOnly = $false
+    $script:PostInstallState = try { Get-PostInstallState } catch { $script:PostInstallReadOnly = $true; throw 'El seguimiento de pasos está dañado; no se modifica para no perder tus notas.' }
+    $versions = @{}
+    $changed = $false
+    foreach ($app in $apps) {
+        $now = Get-IwinInstalledVersion $app
+        $versions[$app.id] = $now
+        $entry = $script:PostInstallState[$app.id]
+        if (-not $entry -or -not $now) { continue }
+        $stored = [string]$entry.version
+        if (-not $stored) { $entry.version = $now; $changed = $true }
+        elseif ($stored -ne $now) { $entry.steps = @(); $entry.version = $now; $entry.reopenedFrom = $stored; $changed = $true }
+    }
+    if ($changed) { Save-PostInstallState }
+    $versions
+}
+
+Register-IwinEngineCommand 'configure.list' {
+    param($request)
+    if (Test-Cmd winget) { Update-WingetCache } else { Update-LocalInventory -Appx }
+    $apps = @($Apps | Where-Object { $_.configure -and $_.configNote -and $_.type -ne 'tweak' })
+    $versions = Sync-IwinConfigVersions $apps
+    $configured = Get-IwinConfiguredApps
+    $items = foreach ($app in $apps) {
+        $installed = $false
+        try { $installed = [bool](Test-AppInstalled $app) } catch { }
+        $entry = $script:PostInstallState[$app.id]
+        $count = @((Get-PostInstallGuide $app).steps).Count
+        $done = if ($entry) { @($entry.steps | Where-Object { $_ -ge 0 -and $_ -lt $count } | Select-Object -Unique).Count } else { 0 }
+        [ordered]@{
+            id = $app.id; installed = $installed; version = [string]$versions[$app.id]
+            configured = [bool]$(if ($entry) { $done -eq $count } else { $configured[$app.id] })
+            reopenedFrom = [string]$entry.reopenedFrom; stepCount = $count
+        }
+    }
+    @{ items = @($items) }
 }
 
 # ---------- Abrir una app instalada (misma lógica que la ventana clásica) ----------

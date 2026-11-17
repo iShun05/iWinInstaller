@@ -60,6 +60,7 @@ namespace IWinInstaller.App.Modules.Games
                 {
                     "Vídeo › NVIDIA Reflex: Activado + Boost (con NVIDIA). La clave del archivo no está documentada y no se adivina.",
                     "Tras reiniciar el juego, comprueba que «Modo de renderizado» dice Rendimiento.",
+                    "Si no mantienes 240 constantes, el límite suele ser la CPU: cierra overlays (Discord, navegador) y baja la distancia de visión.",
                     "Para comparar antes y después, mira el contador de FPS (lo activa Optimizar) o usa CapFrameX."
                 },
                 Note = "Se edita GameUserSettings.ini, el mismo archivo que guarda el menú del juego. No se toca nada de la carpeta del juego."
@@ -77,7 +78,7 @@ namespace IWinInstaller.App.Modules.Games
                 InGameTips = new[]
                 {
                     "Gráficos › DLSS si tienes NVIDIA.",
-                    "Si aplicas 120 FPS, no cambies la opción FPS dentro del juego: el menú puede mostrar otro valor y, si la tocas, vuelve a 60."
+                    "120 es el máximo que admite el juego (en 240 Hz son 2 fotogramas por refresco). Si aplicas 120 FPS, no cambies la opción FPS dentro del juego: el menú puede mostrar otro valor y, si la tocas, vuelve a 60."
                 },
                 Note = "Se cambian los valores que el juego guarda en tu registro de usuario (HKCU), con el juego cerrado. No se toca la memoria ni los archivos del juego."
             },

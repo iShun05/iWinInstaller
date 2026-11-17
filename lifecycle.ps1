@@ -159,7 +159,7 @@ function Get-PostInstallState {
                 $app=$Apps | Where-Object id -eq $entry.Name | Select-Object -First 1
                 $hash=if($app){Get-IwinGuideHash $app}else{[string]$entry.Value.guideHash}
                 $steps=if(-not $app -or $entry.Value.guideHash -eq $hash){@($entry.Value.steps | Where-Object { ($_ -is [int] -or $_ -is [long]) -and $_ -ge 0 -and $_ -lt 100 })}else{@()}
-                $state[$entry.Name]=@{ steps=@($steps); guideHash=$hash; note=([string]$entry.Value.note).Substring(0,[math]::Min(2000,([string]$entry.Value.note).Length)) }
+                $state[$entry.Name]=@{ steps=@($steps); guideHash=$hash; note=([string]$entry.Value.note).Substring(0,[math]::Min(2000,([string]$entry.Value.note).Length)); version=([string]$entry.Value.version); reopenedFrom=([string]$entry.Value.reopenedFrom) }
             }
         } catch { Write-Log 'No se pudo leer el seguimiento de postinstalación; no se sobrescribe automáticamente.'; throw }
     }

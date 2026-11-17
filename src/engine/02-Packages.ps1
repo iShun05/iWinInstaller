@@ -62,6 +62,23 @@ function Test-LocalApp($app) {
     }
     return $false
 }
+# Versión instalada de una app del catálogo: DisplayVersion del registro o versión del paquete Appx
+# (misma coincidencia que Test-LocalApp). Cadena vacía si no se conoce.
+function Get-IwinInstalledVersion($app) {
+    $names = @($app.name) + @($app.detectNames) + @($app.detect)
+    foreach ($entry in $RegistryApps) {
+        if (-not $entry.DisplayVersion) { continue }
+        foreach ($name in $names) {
+            if ($name -and ($entry.DisplayName -eq $name -or $entry.DisplayName -match ('^' + [regex]::Escape($name) + '(?:\s+\d|\s*\()'))) { return ([string]$entry.DisplayVersion).Trim() }
+        }
+    }
+    foreach ($pkg in $AppxApps) {
+        if (@($app.families) -contains $pkg.PackageFamilyName -and (-not $app.architecture -or [string]$pkg.Architecture -eq $app.architecture)) { return [string]$pkg.Version }
+        $short = ([string]$pkg.Name -split '\.')[-1] -replace 'Desktop$', ''
+        if ((Get-NormName $short) -eq (Get-NormName $app.name)) { return [string]$pkg.Version }
+    }
+    ''
+}
 function Test-Administrator {
     $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
     $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)

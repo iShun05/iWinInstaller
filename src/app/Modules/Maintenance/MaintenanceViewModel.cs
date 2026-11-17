@@ -34,7 +34,9 @@ namespace IWinInstaller.App.Modules.Maintenance
     {
         private readonly EngineClient _engine;
         private readonly IDialogService _dialogs;
-        private bool _isBusy, _loaded, _includeSensitive;
+        private bool _isBusy, _loaded, _includeSensitive, _estimatedOnce;
+        // Categorías que arrancan desmarcadas: borrar cachés de shaders obliga a recompilarlas (primer arranque de juegos más lento)
+        private static readonly string[] OffByDefault = { "shaderCache" };
         private string _message = "", _health = "", _total = "";
 
         public MaintenanceViewModel(EngineClient engine, IDialogService dialogs)
@@ -92,6 +94,7 @@ namespace IWinInstaller.App.Modules.Maintenance
                 var result = await _engine.RunAsync("maintenance.estimate", null, null, TimeSpan.FromMinutes(10), CancellationToken.None);
                 if (!result.Ok) { Message = "No se pudo calcular: " + result.Error; return; }
                 var selected = Categories.Where(c => !c.IsSelected).Select(c => c.Id).ToList();
+                bool firstRun = !_estimatedOnce;
                 Categories.Clear();
                 foreach (var row in Rows(result.Response, "categories"))
                 {
@@ -99,9 +102,10 @@ namespace IWinInstaller.App.Modules.Maintenance
                     {
                         Id = Text(row, "id"), Label = Text(row, "label"), Admin = Flag(row, "admin"),
                         Estimated = Convert.ToInt64(row["estimatedBytes"], CultureInfo.InvariantCulture),
-                        IsSelected = !selected.Contains(Text(row, "id"))
+                        IsSelected = firstRun ? !OffByDefault.Contains(Text(row, "id")) : !selected.Contains(Text(row, "id"))
                     });
                 }
+                _estimatedOnce = true;
                 Total = "Se pueden liberar unos " + FormatBytes(Categories.Sum(c => c.Estimated)) + ". Solo se borran archivos temporales y cachés de más de un día; nunca documentos.";
                 Message = "";
             }

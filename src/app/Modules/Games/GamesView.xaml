@@ -160,6 +160,33 @@
 
       <ItemsControl ItemsSource="{Binding Cards}" ItemTemplate="{StaticResource GameCard}" Focusable="False"/>
 
+      <!-- Juegos de otros lanzadores: solo lista -->
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Text="Otros juegos instalados" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+          <TextBlock Text="{Binding OtherGamesSummary}" Style="{StaticResource Muted}" Margin="0,4,0,8" AutomationProperties.LiveSetting="Polite"/>
+          <ItemsControl ItemsSource="{Binding OtherGames}" Focusable="False">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <DockPanel Margin="0,6">
+                  <Button DockPanel.Dock="Right" Style="{StaticResource SmallBtn}" Content="Abrir carpeta" Command="{Binding OpenFolderCommand}" Margin="12,0,0,0" VerticalAlignment="Center"
+                          AutomationProperties.Name="{Binding Name, StringFormat=Abrir carpeta de {0}}"/>
+                  <StackPanel>
+                    <WrapPanel>
+                      <TextBlock Text="{Binding Name}" Foreground="{StaticResource TextStrong}" FontWeight="SemiBold" Margin="0,0,8,0"/>
+                      <Border CornerRadius="8" Padding="7,1" Background="{StaticResource UnknownSoft}" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Launcher}" FontSize="11" Foreground="{StaticResource TextMuted}"/>
+                      </Border>
+                    </WrapPanel>
+                    <TextBlock Text="{Binding Info}" Style="{StaticResource Muted}" FontSize="12" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" ToolTip="{Binding Folder}"/>
+                  </StackPanel>
+                </DockPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
       <TextBlock Style="{StaticResource Muted}" FontSize="12">
         <Run Text="Modo Juego y sin grabación en segundo plano están en"/>
         <Hyperlink Command="{Binding OpenLatencyCommand}" Foreground="{StaticResource Accent}">Latencia › Ajustes de juego</Hyperlink><Run Text=". La app no mide FPS: para comparar usa el contador del juego o CapFrameX."/>
