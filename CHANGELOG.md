@@ -2,9 +2,23 @@
 
 ## Sin publicar
 
-Página **Equipo**: detecta el hardware, propone un preset «Dev + Gaming competitivo» ajustado a él y muestra un panel de salud. Pensado para un Windows fluido que sirva para programar y jugar en competitivo a la vez. Diseño en `specs/004-equipo/design.md`.
-
 ### Nuevo
+- **Liberar espacio › Caché de shaders de GPU**: borra las cachés de shaders de DirectX (`D3DSCache`), NVIDIA (`DXCache`, `GLCache`) y AMD (`DxCache`, `GLCache`) en `%LOCALAPPDATA%`. Muestra el tamaño antes de borrar, omite archivos en uso y de menos de un día, y no pide administrador. Viene desmarcada por defecto: al borrarla, el primer arranque de cada juego recompila los shaders y puede tardar más.
+- Carpetas de juegos y anticheat fuera de alcance; solo cachés de controlador.
+- **Punto de restauración automático**: antes de aplicar ajustes del sistema, red, acceso remoto o latencia se crea un punto «iWinInstaller». Como máximo uno cada 24 h; si ya hay uno reciente, se reutiliza.
+- Si la restauración del sistema está desactivada, la instalación avisa en el registro y sigue sin crear el punto. Si la creación falla o se cancela el UAC, también avisa y los ajustes continúan.
+- **Página Juegos › Otros juegos instalados**: lista los juegos de Xbox / Game Pass (`<unidad>:\XboxGames\*\Content\MicrosoftGame.Config`), Battle.net (entradas de Desinstalar de Blizzard), EA App (`EA Games` del registro y `Program Files\EA Games`), Ubisoft Connect (`Ubisoft\Launcher\Installs`), GOG (`GOG.com\Games`, sin DLC) y, además, los demás de Epic (sin Unreal Engine) y Steam (sin herramientas). Cada fila muestra nombre, lanzador, versión, tamaño (si el manifiesto lo da) y carpeta, con **Abrir carpeta**. Sin repetir carpeta ni los juegos que ya tienen tarjeta.
+- Solo lectura de manifiestos y registro: la optimización sigue limitada a los juegos con tarjeta.
+- Pruebas: `tests/unit/app/LauncherScannerTests.cs` (6 pruebas, incluido XML con DTD rechazado).
+- Sin verificar en un equipo real: claves de EA/Ubisoft/GOG y Desinstalar de Battle.net; el nombre de Xbox cae al de la carpeta si es `ms-resource`.
+- **Página «Por configurar»**: lista las apps instaladas que hay que configurar por dentro (iniciar sesión, elegir carpetas, emparejar dispositivos…), cada una con una nota breve de qué hacer, un botón **Marcar como hecha** y **Abrir**. Cuando una app cambia de versión, su check se quita solo y vuelve a salir pendiente con «Se actualizó de X a Y».
+- `apps.json`: campo `configNote` (nota breve) junto a `configure`; 110 apps marcadas (launchers, navegadores, mensajería, nube, VPN, contraseñas, software de periféricos y GPU, IA y herramientas de captura).
+- Motor: comando `configure.list`; `postinstalacion.json` guarda la versión en que se confirmó cada app (`version`, `reopenedFrom`). La versión sale del registro de Windows o del paquete Appx; si no se conoce, el check no se quita.
+- **Exportar e importar la configuración**: `-ExportConfig <ruta>` guarda en un JSON versionado (`iWinInstaller-config`, esquema 1) las apps y ajustes aplicados de este PC (o de un perfil con `-Perfil`), las exclusiones de actualización, los pasos de «Por configurar» y el zoom de la interfaz. Las notas y el servidor del juego solo van con `-IncludePersonal`.
+- **Plantilla para varios PC**: `-ImportConfig <ruta>` describe el plan y con `-Yes` lo aplica sin ventana e instala lo que falte (omite las apps de otro hardware y no quita nada de lo que ya hay). Importa también los perfiles `.iwin.json` anteriores.
+- **Formato extensible**: cada parte es una sección registrada con `Register-IwinConfigSection`; las secciones y campos desconocidos se ignoran con aviso y solo una `version` mayor se rechaza, de modo que las funciones nuevas añaden su sección sin romper archivos antiguos.
+- **Instalar › Exportar PC… / Importar PC…**: los mismos archivos desde la ventana; al importar se marcan las apps que faltan.
+- Comandos del motor `config.export`, `config.inspect` y `config.import`.
 - **Página Equipo › Tu equipo**: portátil o sobremesa (chasis SMBIOS, con la batería como respaldo), fabricante y modelo, procesador (núcleos e hilos), memoria, gráficas (dedicada o integrada, con aviso de gráfica híbrida) y pantalla (resolución, Hz actuales y máximos). Calcula una **gama** (básica, media o alta) por memoria, hilos y gráfica dedicada.
 - **Preset «Dev + Gaming competitivo»**: botón **Marcar en Instalar**, que solo marca (no instala nada) las apps y ajustes que faltan. Base de desarrollo (punto de restauración, modo desarrollador, rutas largas, extensiones visibles, «Finalizar tarea», Git, VS Code, Terminal y PowerShell 7) y de baja latencia (sin aceleración del ratón, Modo Juego, sin grabación en segundo plano, DNS rápido, DirectX, Visual C++, LatencyMon y Speedtest). Se adapta al equipo:
   - Portátil: no pone el plan de alto rendimiento (gasta batería) y añade Wi‑Fi sin ahorro de energía; sobremesa: lo contrario.
@@ -15,14 +29,27 @@ Página **Equipo**: detecta el hardware, propone un preset «Dev + Gaming compet
 - **Panel de salud** (solo lee, no cambia nada): **Microsoft Defender** (tiempo real y firmas, o el antivirus de otro fabricante), **Windows Update** (última búsqueda con éxito), **espacio libre** del disco del sistema, **apps de inicio** (cuenta solo las activas, respeta el Administrador de tareas y avisa por encima de 12) y **temperaturas** de las zonas térmicas que Windows publica sin drivers extra; sin sensores indica que no aplica y recomienda HWiNFO o Core Temp. Cada fila enlaza a su página.
 - Acciones de la paleta (Ctrl + K): «Hardware y preset Dev + Gaming competitivo» y «Salud del PC: apps de inicio y temperaturas».
 
-### Ligero
-- Solo WMI y registro con los permisos del usuario, al entrar en la página o al pulsar **Comprobar de nuevo**. Sin PowerShell, sin drivers, sin temporizadores ni procesos residentes.
+### Cambiado
+- Fortnite: perfil competitivo para pantallas de alta frecuencia: opción «máximo del monitor» en el límite de FPS (por defecto si Windows está por debajo), menús al mismo límite, sin desenfoque de movimiento ni resolución dinámica (solo si esas claves ya existen) y pantalla completa exclusiva marcada.
+- Star Rail: 120 FPS marcado por defecto (es el máximo que admite el juego por el registro).
+- `postinstall.set` sin `note` conserva la nota guardada.
 
 ### Archivos y pruebas
+- `src/engine/14-Maintenance.ps1` (categoría `shaderCache`), `src/app/Modules/Maintenance/MaintenanceViewModel.cs` (desmarcada por defecto).
+- Pester `tests/unit/engine/ShaderCache.Tests.ps1`: no pide administrador y ninguna ruta apunta a juegos o anticheat.
+- Sin verificar en un equipo real con GPU NVIDIA y AMD.
+- `src/engine/06-Tweaks.ps1` (`Invoke-IwinAutoRestorePoint`, `Test-IwinRestorePointDue`, `Test-IwinSystemRestoreOff`), `src/engine/08-Batch.ps1` (`Invoke-Install`).
+- `tests/unit/engine/RestorePoint.Tests.ps1`: regla de 24 horas.
+- `src/engine/16-Config.ps1` (nuevo), `iWinInstaller.ps1`, `docs/cli.md`, `tests/unit/engine/Config.Tests.ps1` (Pester; compatibilidad, extensibilidad y rechazo de datos no válidos).
+- `InstallViewModel.cs` e `InstallView.xaml` (botones); sin compilar en este entorno: lo compila el CI.
 - `src/app/Modules/Equipo/**` (nuevo: modelo y reglas puras, lecturas del sistema, vista y modelo de vista), `Install/InstallViewModel.cs` (`SelectPreset`), `Shell/ShellViewModel.cs`, `Shell/MainWindow.xaml`, `Shell/Palette/PaletteSearch.cs`, `Core/StatusCard.cs`, `profiles.json`.
 - MSTest `tests/unit/app/EquipoTests.cs` (18 pruebas: chasis, marca y gráfica dedicada, gama, preset por equipo, reglas de Defender, Windows Update, inicio y temperatura, StartupApproved, y que todos los ids del preset existan en `apps.json` y estén en el perfil).
 - Sin verificar en un equipo real: las lecturas WMI y de registro (`EquipoProbes`), la maquetación de la página y las temperaturas (muchos equipos no exponen zonas térmicas sin driver). La lógica se probó en Linux y la compilación con .NET Framework 4.8 la hace la CI.
 - **Afecta a Windows x86/x64/ARM64 por igual**.
+
+### Ligero
+- Solo WMI y registro con los permisos del usuario, al entrar en la página o al pulsar **Comprobar de nuevo**. Sin PowerShell, sin drivers, sin temporizadores ni procesos residentes.
+
 
 ## v5.3 — 2026-11-17
 

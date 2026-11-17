@@ -153,6 +153,9 @@
         "configure": {
           "type": "boolean"
         },
+        "configNote": {
+          "$ref": "#/$defs/nonEmpty"
+        },
         "restart": {
           "type": "boolean"
         },

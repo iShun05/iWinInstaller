@@ -405,7 +405,8 @@
       "note": "El servicio instalado no demuestra que hayas registrado el equipo en tu cuenta.",
       "link": "https://remotedesktop.google.com/access",
       "linkLabel": "Configurar acceso remoto"
-    }
+    },
+    "configNote": "Inicia sesión y define el nombre y el PIN del equipo en remotedesktop.google.com/access."
   },
   {
     "id": "virtualdisplay",
@@ -468,7 +469,9 @@
         "Prueba cada dispositivo; evita ejecutar a la vez controladores RGB de varios fabricantes."
       ],
       "note": "El hardware compatible depende de los controladores disponibles."
-    }
+    },
+    "configure": true,
+    "configNote": "Abre OpenRGB: detecta los dispositivos y guarda un perfil de iluminación."
   },
   {
     "id": "pawnio",
@@ -646,7 +649,9 @@
     },
     "subgroup": "Drivers de NVIDIA",
     "compare": "Oficial: drivers, ajustes de juego, grabación y filtros. Incluye telemetría y servicios en segundo plano.",
-    "subgroupNote": "Cuál elegir: NVIDIA App si quieres la experiencia completa; NVCleanstall si quieres solo el driver sin telemetría. DDU complementa a cualquiera: úsalo antes de reinstalar o cambiar de gráfica."
+    "subgroupNote": "Cuál elegir: NVIDIA App si quieres la experiencia completa; NVCleanstall si quieres solo el driver sin telemetría. DDU complementa a cualquiera: úsalo antes de reinstalar o cambiar de gráfica.",
+    "configure": true,
+    "configNote": "Revisa el controlador Game Ready, el perfil de cada juego y la sincronización de G-SYNC."
   },
   {
     "id": "nvcleanstall",
@@ -1040,7 +1045,9 @@
       "note": "Alternativa opcional: no incluida en el perfil Base para evitar competir con Armoury Crate. No todas las funciones están disponibles en todos los modelos."
     },
     "subgroup": "Portátiles ASUS",
-    "compare": "Ligero y de código abierto. Alternativa a Armoury Crate, sin instalar ambos gestores a la vez."
+    "compare": "Ligero y de código abierto. Alternativa a Armoury Crate, sin instalar ambos gestores a la vez.",
+    "configure": true,
+    "configNote": "Abre G-Helper: elige el modo de rendimiento y las curvas de ventilador."
   },
   {
     "id": "armourycrate",
@@ -1067,7 +1074,9 @@
     },
     "subgroup": "Placa base y gráfica",
     "compare": "ASUS: placa, RGB Aura y perfiles. Pesado y con muchos servicios.",
-    "subgroupNote": "Instala solo el de tu marca. Varios a la vez se pelean por los ventiladores y el RGB."
+    "subgroupNote": "Instala solo el de tu marca. Varios a la vez se pelean por los ventiladores y el RGB.",
+    "configure": true,
+    "configNote": "Abre Armoury Crate: elige el modo de rendimiento y la iluminación Aura."
   },
   {
     "id": "msicenter",
@@ -1090,7 +1099,9 @@
       "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
     },
     "subgroup": "Placa base y gráfica",
-    "compare": "MSI: placa, RGB Mystic Light y modos de rendimiento."
+    "compare": "MSI: placa, RGB Mystic Light y modos de rendimiento.",
+    "configure": true,
+    "configNote": "Abre MSI Center: instala los módulos que necesites y elige el perfil de rendimiento."
   },
   {
     "id": "rgbfusion",
@@ -1113,7 +1124,9 @@
       "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
     },
     "subgroup": "Placa base y gráfica",
-    "compare": "GIGABYTE: solo RGB de la placa."
+    "compare": "GIGABYTE: solo RGB de la placa.",
+    "configure": true,
+    "configNote": "Abre RGB Fusion: elige la iluminación de la placa y de las zonas."
   },
   {
     "id": "gputweak3",
@@ -1136,7 +1149,9 @@
       "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
     },
     "subgroup": "Placa base y gráfica",
-    "compare": "ASUS: overclock y ventiladores de la gráfica."
+    "compare": "ASUS: overclock y ventiladores de la gráfica.",
+    "configure": true,
+    "configNote": "Abre GPU Tweak III: crea el perfil de ventilador y el de rendimiento."
   },
   {
     "id": "amdsoftware",
@@ -1160,7 +1175,8 @@
       "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
     },
     "subgroup": "Placa base y gráfica",
-    "compare": "AMD: drivers y ajustes de Radeon (y chipset AMD)."
+    "compare": "AMD: drivers y ajustes de Radeon (y chipset AMD).",
+    "configNote": "Abre Adrenalin: activa el perfil de juego y revisa FreeSync y las opciones de latencia."
   },
   {
     "id": "icue",
@@ -1186,7 +1202,9 @@
     },
     "subgroup": "Periféricos y refrigeración",
     "compare": "Corsair: teclado, ratón, RAM y refrigeración.",
-    "subgroupNote": "Uno por marca de periférico. Si solo quieres apagar o unificar luces, OpenRGB (Iluminación RGB) los sustituye a casi todos."
+    "subgroupNote": "Uno por marca de periférico. Si solo quieres apagar o unificar luces, OpenRGB (Iluminación RGB) los sustituye a casi todos.",
+    "configure": true,
+    "configNote": "Abre iCUE: detecta los dispositivos, elige la iluminación y los perfiles de ventilador."
   },
   {
     "id": "nzxtcam",
@@ -1210,7 +1228,9 @@
       "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
     },
     "subgroup": "Periféricos y refrigeración",
-    "compare": "NZXT: refrigeración líquida, ventiladores y RGB."
+    "compare": "NZXT: refrigeración líquida, ventiladores y RGB.",
+    "configure": true,
+    "configNote": "Abre CAM: detecta los componentes y define las curvas de ventilador y la iluminación."
   },
   {
     "id": "lconnect3",
@@ -1234,7 +1254,9 @@
       "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
     },
     "subgroup": "Periféricos y refrigeración",
-    "compare": "Lian Li: ventiladores UNI FAN y RGB."
+    "compare": "Lian Li: ventiladores UNI FAN y RGB.",
+    "configure": true,
+    "configNote": "Abre L-Connect: configura ventiladores y la iluminación de tus controladores Lian Li."
   },
   {
     "id": "ghub",
@@ -1259,7 +1281,9 @@
       "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
     },
     "subgroup": "Periféricos y refrigeración",
-    "compare": "Logitech G: ratón, teclado y auriculares."
+    "compare": "Logitech G: ratón, teclado y auriculares.",
+    "configure": true,
+    "configNote": "Abre Logitech G HUB: asigna perfiles, DPI y luces a tus dispositivos."
   },
   {
     "id": "synapse4",
@@ -1284,7 +1308,9 @@
       "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
     },
     "subgroup": "Periféricos y refrigeración",
-    "compare": "Razer: periféricos y RGB Chroma."
+    "compare": "Razer: periféricos y RGB Chroma.",
+    "configure": true,
+    "configNote": "Inicia sesión, asigna perfiles, DPI y luces de tus dispositivos Razer."
   },
   {
     "id": "steelseriesgg",
@@ -1308,7 +1334,9 @@
       "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
     },
     "subgroup": "Periféricos y refrigeración",
-    "compare": "SteelSeries: periféricos, Sonar (audio) y Moments."
+    "compare": "SteelSeries: periféricos, Sonar (audio) y Moments.",
+    "configure": true,
+    "configNote": "Abre GG: configura Engine, perfiles y la iluminación de tus dispositivos."
   },
   {
     "id": "samsungmagician",
@@ -1333,7 +1361,8 @@
     },
     "subgroup": "Discos SSD",
     "compare": "Samsung: firmware, estado y modo Rapid.",
-    "subgroupNote": "Solo el de la marca de tu SSD: firmware, salud y TRIM."
+    "subgroupNote": "Solo el de la marca de tu SSD: firmware, salud y TRIM.",
+    "configNote": "Revisa el estado del SSD y activa el modo de rendimiento si lo ofrece."
   },
   {
     "id": "kingstonssd",
@@ -1960,7 +1989,8 @@
         "Completa el acceso en el navegador y vuelve a comprobar desde aquí."
       ],
       "note": "La comprobación usa gh auth status y solo conserva si tuvo éxito."
-    }
+    },
+    "configNote": "Ejecuta gh auth login e inicia sesión con tu cuenta de GitHub."
   },
   {
     "id": "go",
@@ -2229,7 +2259,8 @@
     },
     "subgroup": "Agentes de código",
     "compare": "Agente de Anthropic: edita, ejecuta y hace commits.",
-    "subgroupNote": "Conviven; elige según tu suscripción."
+    "subgroupNote": "Conviven; elige según tu suscripción.",
+    "configNote": "Ejecuta claude e inicia sesión con tu cuenta."
   },
   {
     "id": "codex",
@@ -2592,7 +2623,8 @@
         "Completa su autorización y prueba el listado de una carpeta antes de copiar o sincronizar."
       ],
       "note": "Las credenciales se introducen en rclone o en el proveedor; iWinInstaller no las lee. Revisa el origen y destino antes de sincronizar."
-    }
+    },
+    "configNote": "Ejecuta rclone config para crear la conexión con tu nube."
   },
   {
     "id": "btop",
@@ -2695,7 +2727,9 @@
     "context": "user",
     "subgroup": "Lanzadores unificados",
     "compare": "Une Steam, Epic, GOG, emuladores… en una biblioteca. No compra ni descarga juegos.",
-    "subgroupNote": "Playnite para reunir todas tus bibliotecas. Heroic si quieres Epic y GOG sin sus lanzadores oficiales. GOG Galaxy es la alternativa oficial de GOG."
+    "subgroupNote": "Playnite para reunir todas tus bibliotecas. Heroic si quieres Epic y GOG sin sus lanzadores oficiales. GOG Galaxy es la alternativa oficial de GOG.",
+    "configure": true,
+    "configNote": "Importa las bibliotecas de tus tiendas."
   },
   {
     "id": "heroic",
@@ -2710,7 +2744,9 @@
     "scope": "user",
     "context": "user",
     "subgroup": "Lanzadores unificados",
-    "compare": "Juega a Epic, GOG y Amazon sin sus lanzadores; más ligero."
+    "compare": "Juega a Epic, GOG y Amazon sin sus lanzadores; más ligero.",
+    "configure": true,
+    "configNote": "Inicia sesión en Epic o GOG y elige la carpeta de juegos."
   },
   {
     "id": "gog",
@@ -2733,7 +2769,8 @@
       "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
     },
     "subgroup": "Lanzadores unificados",
-    "compare": "Oficial de GOG con integraciones de otras tiendas."
+    "compare": "Oficial de GOG con integraciones de otras tiendas.",
+    "configNote": "Inicia sesión y elige la carpeta de instalación de juegos."
   },
   {
     "id": "sunshine",
@@ -2756,7 +2793,9 @@
     },
     "subgroup": "Jugar en remoto",
     "compare": "Servidor: emite este PC. Se usa con Moonlight.",
-    "subgroupNote": "Sunshine (en el PC) + Moonlight (en el otro dispositivo) para jugar en casa con la mínima latencia. Parsec para jugar con amigos o desde fuera sin abrir puertos."
+    "subgroupNote": "Sunshine (en el PC) + Moonlight (en el otro dispositivo) para jugar en casa con la mínima latencia. Parsec para jugar con amigos o desde fuera sin abrir puertos.",
+    "configure": true,
+    "configNote": "Abre https://localhost:47990 y crea el usuario y la contraseña."
   },
   {
     "id": "moonlight",
@@ -2779,7 +2818,9 @@
       "note": "La instalación no demuestra que el servidor remoto sea accesible."
     },
     "subgroup": "Jugar en remoto",
-    "compare": "Cliente: recibe de Sunshine. Muy baja latencia."
+    "compare": "Cliente: recibe de Sunshine. Muy baja latencia.",
+    "configure": true,
+    "configNote": "Añade el PC con Sunshine e introduce el PIN de emparejamiento."
   },
   {
     "id": "parsec",
@@ -2797,7 +2838,9 @@
       "Parsec"
     ],
     "subgroup": "Jugar en remoto",
-    "compare": "Todo en uno con cuenta: compartir con amigos y acceder desde fuera."
+    "compare": "Todo en uno con cuenta: compartir con amigos y acceder desde fuera.",
+    "configure": true,
+    "configNote": "Inicia sesión y elige el modo anfitrión o cliente."
   },
   {
     "id": "afterburner",
@@ -2816,7 +2859,9 @@
     ],
     "subgroup": "Rendimiento y overlay",
     "compare": "Overclock, ventiladores y monitorización de la gráfica.",
-    "subgroupNote": "Afterburner + RTSS juntos para overclock y FPS en pantalla. Xbox Game Bar si te basta con lo básico de Windows."
+    "subgroupNote": "Afterburner + RTSS juntos para overclock y FPS en pantalla. Xbox Game Bar si te basta con lo básico de Windows.",
+    "configure": true,
+    "configNote": "Configura la curva de ventilador, el perfil de overclock y el overlay."
   },
   {
     "id": "rtss",
@@ -2831,7 +2876,9 @@
     "scope": "machine",
     "context": "machine",
     "subgroup": "Rendimiento y overlay",
-    "compare": "Muestra FPS en pantalla y limita los FPS. Lo usa Afterburner."
+    "compare": "Muestra FPS en pantalla y limita los FPS. Lo usa Afterburner.",
+    "configure": true,
+    "configNote": "Define el límite de FPS global y el estilo del overlay."
   },
   {
     "id": "gamebar",
@@ -2903,7 +2950,9 @@
     "scope": "machine",
     "context": "machine",
     "subgroup": "Latencia y diagnóstico",
-    "compare": "Prioridad de CPU por juego. Queda en segundo plano."
+    "compare": "Prioridad de CPU por juego. Queda en segundo plano.",
+    "configure": true,
+    "configNote": "Define las reglas de prioridad y activa ProBalance si lo quieres."
   },
   {
     "id": "steam",
@@ -2923,7 +2972,8 @@
         "Abre un juego y comprueba acceso, controles y sonido."
       ],
       "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
-    }
+    },
+    "configNote": "Inicia sesión, elige carpeta de biblioteca y desactiva el overlay si no lo quieres."
   },
   {
     "id": "epic",
@@ -2943,7 +2993,8 @@
         "Abre un juego y comprueba acceso, controles y sonido."
       ],
       "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
-    }
+    },
+    "configNote": "Inicia sesión y revisa la carpeta de instalación y las descargas automáticas."
   },
   {
     "id": "hoyo",
@@ -2965,7 +3016,8 @@
         "Abre un juego y comprueba acceso, controles y sonido."
       ],
       "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
-    }
+    },
+    "configNote": "Inicia sesión y elige la carpeta de los juegos de HoYoverse."
   },
   {
     "id": "riot",
@@ -2987,7 +3039,8 @@
         "Abre un juego y comprueba acceso, controles y sonido."
       ],
       "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
-    }
+    },
+    "configNote": "Inicia sesión con tu cuenta Riot y elige la carpeta de instalación."
   },
   {
     "id": "eaapp",
@@ -3008,7 +3061,8 @@
         "Abre un juego y comprueba acceso, controles y sonido."
       ],
       "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
-    }
+    },
+    "configNote": "Inicia sesión y desactiva el inicio automático y el overlay si no los quieres."
   },
   {
     "id": "ubisoft",
@@ -3029,7 +3083,8 @@
         "Abre un juego y comprueba acceso, controles y sonido."
       ],
       "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
-    }
+    },
+    "configNote": "Inicia sesión y desactiva el overlay y la sincronización en la nube si no la quieres."
   },
   {
     "id": "battlenet",
@@ -3051,7 +3106,8 @@
         "Abre un juego y comprueba acceso, controles y sonido."
       ],
       "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
-    }
+    },
+    "configNote": "Inicia sesión y revisa la carpeta de descargas y las actualizaciones automáticas."
   },
   {
     "id": "xboxapp",
@@ -3072,7 +3128,8 @@
         "Abre un juego y comprueba acceso, controles y sonido."
       ],
       "note": "El launcher puede necesitar descargar juegos, dependencias o actualizaciones adicionales."
-    }
+    },
+    "configNote": "Inicia sesión con tu cuenta Microsoft y revisa la carpeta de instalación."
   },
   {
     "id": "itch",
@@ -3242,7 +3299,8 @@
     },
     "subgroup": "Basados en Chromium",
     "compare": "Máxima compatibilidad y sincronización con Google. Recoge más datos.",
-    "subgroupNote": "Brave limpio si quieres Chrome sin rastreo ni extras. Chrome por compatibilidad con Google. Vivaldi o Arc si priorizas organizar pestañas. Ungoogled Chromium solo si no necesitas actualizaciones automáticas."
+    "subgroupNote": "Brave limpio si quieres Chrome sin rastreo ni extras. Chrome por compatibilidad con Google. Vivaldi o Arc si priorizas organizar pestañas. Ungoogled Chromium solo si no necesitas actualizaciones automáticas.",
+    "configNote": "Inicia sesión para sincronizar y revisa extensiones y página de inicio."
   },
   {
     "id": "brave",
@@ -3264,7 +3322,8 @@
       "note": "El inicio de sesión y las preferencias se confirman manualmente."
     },
     "subgroup": "Basados en Chromium",
-    "compare": "Bloqueador integrado, con Rewards, Wallet y Leo."
+    "compare": "Bloqueador integrado, con Rewards, Wallet y Leo.",
+    "configNote": "Elige el buscador, revisa los escudos y la sincronización."
   },
   {
     "id": "braveclean",
@@ -3313,7 +3372,8 @@
       "note": "El inicio de sesión y las preferencias se confirman manualmente."
     },
     "subgroup": "Basados en Chromium",
-    "compare": "Viene con Windows; buen rendimiento, mucho contenido de Microsoft."
+    "compare": "Viene con Windows; buen rendimiento, mucho contenido de Microsoft.",
+    "configNote": "Revisa la sincronización, el buscador y las funciones de Copilot."
   },
   {
     "id": "vivaldi",
@@ -3336,7 +3396,8 @@
       "note": "El inicio de sesión y las preferencias se confirman manualmente."
     },
     "subgroup": "Basados en Chromium",
-    "compare": "El más configurable: pestañas en pila, correo, paneles."
+    "compare": "El más configurable: pestañas en pila, correo, paneles.",
+    "configNote": "Pasa el asistente inicial y elige el tema, el diseño y el buscador."
   },
   {
     "id": "arc",
@@ -3361,7 +3422,8 @@
       "note": "El inicio de sesión y las preferencias se confirman manualmente."
     },
     "subgroup": "Basados en Chromium",
-    "compare": "Pestañas en barra lateral y espacios. Menos ajustes clásicos."
+    "compare": "Pestañas en barra lateral y espacios. Menos ajustes clásicos.",
+    "configNote": "Inicia sesión y revisa los espacios y las extensiones."
   },
   {
     "id": "operagx",
@@ -3384,7 +3446,8 @@
       "note": "El inicio de sesión y las preferencias se confirman manualmente."
     },
     "subgroup": "Basados en Chromium",
-    "compare": "Pensado para jugar: límites de RAM/CPU, integraciones gaming."
+    "compare": "Pensado para jugar: límites de RAM/CPU, integraciones gaming.",
+    "configNote": "Pasa el asistente inicial, revisa el limitador de RAM y CPU y las ofertas."
   },
   {
     "id": "ungoogled",
@@ -3423,7 +3486,8 @@
     },
     "subgroup": "Basados en Firefox",
     "compare": "Motor independiente, extensiones completas y buen bloqueo de rastreo.",
-    "subgroupNote": "Firefox para uso normal. Zen si quieres su motor con diseño moderno. LibreWolf para privacidad estricta. Tor solo para anonimato."
+    "subgroupNote": "Firefox para uso normal. Zen si quieres su motor con diseño moderno. LibreWolf para privacidad estricta. Tor solo para anonimato.",
+    "configNote": "Inicia sesión en Firefox Sync y revisa privacidad y extensiones."
   },
   {
     "id": "zen",
@@ -3445,7 +3509,8 @@
       "note": "El inicio de sesión y las preferencias se confirman manualmente."
     },
     "subgroup": "Basados en Firefox",
-    "compare": "Firefox con barra lateral, espacios y diseño moderno."
+    "compare": "Firefox con barra lateral, espacios y diseño moderno.",
+    "configNote": "Importa tus datos, inicia sesión y revisa espacios y extensiones."
   },
   {
     "id": "librewolf",
@@ -3501,7 +3566,8 @@
     },
     "subgroup": "Asistentes de chat",
     "compare": "Anthropic: redacción, código y documentos largos.",
-    "subgroupNote": "Elige según tu suscripción; conviven sin conflicto."
+    "subgroupNote": "Elige según tu suscripción; conviven sin conflicto.",
+    "configNote": "Inicia sesión con tu cuenta de Claude."
   },
   {
     "id": "chatgpt",
@@ -3523,7 +3589,8 @@
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
     },
     "subgroup": "Asistentes de chat",
-    "compare": "OpenAI: generalista, voz e imágenes."
+    "compare": "OpenAI: generalista, voz e imágenes.",
+    "configNote": "Inicia sesión con tu cuenta de OpenAI."
   },
   {
     "id": "gemini",
@@ -3545,7 +3612,8 @@
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
     },
     "subgroup": "Asistentes de chat",
-    "compare": "Google: integrado con Gmail, Drive y búsqueda."
+    "compare": "Google: integrado con Gmail, Drive y búsqueda.",
+    "configNote": "Inicia sesión con tu cuenta de Google."
   },
   {
     "id": "copilot",
@@ -3568,7 +3636,8 @@
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
     },
     "subgroup": "Asistentes de chat",
-    "compare": "Microsoft: integrado con Windows y Office."
+    "compare": "Microsoft: integrado con Windows y Office.",
+    "configNote": "Inicia sesión con tu cuenta Microsoft y revisa los permisos."
   },
   {
     "id": "lmstudio",
@@ -3584,7 +3653,9 @@
     "context": "machine",
     "subgroup": "IA local",
     "compare": "Interfaz para descargar y chatear con modelos locales.",
-    "subgroupNote": "LM Studio para probar modelos con interfaz. Ollama para usarlos desde terminal o desde otras apps. Juntos solo si quieres ambas cosas."
+    "subgroupNote": "LM Studio para probar modelos con interfaz. Ollama para usarlos desde terminal o desde otras apps. Juntos solo si quieres ambas cosas.",
+    "configure": true,
+    "configNote": "Descarga un modelo y comprueba que carga en tu GPU."
   },
   {
     "id": "ollama",
@@ -3602,7 +3673,9 @@
       "ollama"
     ],
     "subgroup": "IA local",
-    "compare": "Servicio y API local; lo usan otras apps y editores."
+    "compare": "Servicio y API local; lo usan otras apps y editores.",
+    "configure": true,
+    "configNote": "Descarga un modelo con ollama pull y comprueba que responde."
   },
   {
     "id": "cursor",
@@ -3618,7 +3691,9 @@
     "context": "machine",
     "subgroup": "Editores con IA",
     "compare": "Fork de VS Code con agente y autocompletado propio.",
-    "subgroupNote": "Cursor es el más maduro; Antigravity IDE si usas Gemini."
+    "subgroupNote": "Cursor es el más maduro; Antigravity IDE si usas Gemini.",
+    "configure": true,
+    "configNote": "Inicia sesión y elige el modelo y la privacidad."
   },
   {
     "id": "antigravityide",
@@ -3640,7 +3715,8 @@
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
     },
     "subgroup": "Editores con IA",
-    "compare": "IDE de Google con agentes de Gemini."
+    "compare": "IDE de Google con agentes de Gemini.",
+    "configNote": "Inicia sesión y elige el modelo y los permisos del proyecto."
   },
   {
     "id": "antigravity",
@@ -3660,7 +3736,8 @@
         "Revisa preferencias y prueba la función que vayas a utilizar."
       ],
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
-    }
+    },
+    "configNote": "Inicia sesión y revisa los permisos."
   },
   {
     "id": "obsidian",
@@ -3683,7 +3760,8 @@
     },
     "subgroup": "Notas en Markdown local",
     "compare": "Archivos Markdown locales, plugins sin fin. Sincronización de pago o por tu cuenta.",
-    "subgroupNote": "Obsidian para la mayoría. Logseq si piensas en esquemas y diario. Zettlr para textos académicos. Elige una por bóveda."
+    "subgroupNote": "Obsidian para la mayoría. Logseq si piensas en esquemas y diario. Zettlr para textos académicos. Elige una por bóveda.",
+    "configNote": "Abre tu bóveda de notas y activa Obsidian Sync o los plugins que uses."
   },
   {
     "id": "logseq",
@@ -3767,7 +3845,8 @@
     },
     "subgroup": "Espacios de trabajo",
     "compare": "Bases de datos, wikis y equipo. Solo en la nube.",
-    "subgroupNote": "Notion si trabajas en equipo. AFFiNE o Anytype si quieres algo parecido local y privado."
+    "subgroupNote": "Notion si trabajas en equipo. AFFiNE o Anytype si quieres algo parecido local y privado.",
+    "configNote": "Inicia sesión y elige el espacio de trabajo."
   },
   {
     "id": "affine",
@@ -3905,7 +3984,8 @@
     },
     "subgroup": "Tareas",
     "compare": "Lenguaje natural y proyectos; muy pulido.",
-    "subgroupNote": "Todoist o TickTick como gestor completo (TickTick incluye calendario y pomodoro). Microsoft To Do si vives en Outlook."
+    "subgroupNote": "Todoist o TickTick como gestor completo (TickTick incluye calendario y pomodoro). Microsoft To Do si vives en Outlook.",
+    "configNote": "Inicia sesión y revisa las notificaciones."
   },
   {
     "id": "ticktick",
@@ -3954,7 +4034,9 @@
         "Si necesitas integración de pantalla o carpetas, instala Guest Additions dentro del invitado."
       ],
       "note": "La presencia de VirtualBox no demuestra que sus controladores o una máquina invitada funcionen. Cada controlador debe corresponder a la arquitectura de Windows."
-    }
+    },
+    "configure": true,
+    "configNote": "Crea la primera máquina virtual o importa un disco."
   },
   {
     "id": "vboxga",
@@ -3988,7 +4070,9 @@
     ],
     "subgroup": "Editores de código",
     "compare": "Extensiones para todo. Telemetría de Microsoft.",
-    "subgroupNote": "VS Code para casi todo. VSCodium si no quieres telemetría de Microsoft. Zed o Sublime si priorizas velocidad. Windsurf y Kiro añaden agentes de IA."
+    "subgroupNote": "VS Code para casi todo. VSCodium si no quieres telemetría de Microsoft. Zed o Sublime si priorizas velocidad. Windsurf y Kiro añaden agentes de IA.",
+    "configure": true,
+    "configNote": "Inicia sesión para sincronizar ajustes e instala tus extensiones."
   },
   {
     "id": "vscodium",
@@ -4275,7 +4359,8 @@
     },
     "subgroup": "Clientes de Git",
     "compare": "Sencillo y gratis, muy ligado a GitHub.",
-    "subgroupNote": "GitHub Desktop si usas GitHub y quieres sencillez. Fork o GitKraken para ramas y rebase visuales."
+    "subgroupNote": "GitHub Desktop si usas GitHub y quieres sencillez. Fork o GitKraken para ramas y rebase visuales.",
+    "configNote": "Inicia sesión en GitHub y define el nombre y correo de autor."
   },
   {
     "id": "fork",
@@ -4327,7 +4412,9 @@
     },
     "subgroup": "Contenedores",
     "compare": "El estándar; licencia de pago en empresas grandes.",
-    "subgroupNote": "Docker Desktop por compatibilidad. Podman Desktop si no quieres licencia ni demonio con privilegios."
+    "subgroupNote": "Docker Desktop por compatibilidad. Podman Desktop si no quieres licencia ni demonio con privilegios.",
+    "configure": true,
+    "configNote": "Acepta el asistente, activa WSL 2 y reinicia si lo pide."
   },
   {
     "id": "podman",
@@ -4604,7 +4691,9 @@
     "context": "machine",
     "extra": true,
     "subgroup": "Gestores de descargas",
-    "compare": "Especialista en webs de alojamiento y enlaces en lote."
+    "compare": "Especialista en webs de alojamiento y enlaces en lote.",
+    "configure": true,
+    "configNote": "Elige la carpeta de descargas y crea tu cuenta myjdownloader si la quieres."
   },
   {
     "id": "qbittorrent",
@@ -4619,7 +4708,9 @@
     "scope": "machine",
     "context": "machine",
     "subgroup": "Gestores de descargas",
-    "compare": "Torrents sin anuncios."
+    "compare": "Torrents sin anuncios.",
+    "configure": true,
+    "configNote": "Elige la carpeta de descargas, el límite de velocidad y el puerto."
   },
   {
     "id": "powertoys",
@@ -4634,7 +4725,9 @@
     "context": "machine",
     "detectNames": [
       "PowerToys (Preview) ARM64"
-    ]
+    ],
+    "configure": true,
+    "configNote": "Activa los módulos que uses y revisa los atajos."
   },
   {
     "id": "everything",
@@ -4725,7 +4818,8 @@
         "Revisa preferencias y prueba la función que vayas a utilizar."
       ],
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
-    }
+    },
+    "configNote": "Inicia sesión con tu Apple ID y empareja el iPhone."
   },
   {
     "id": "hpsmart",
@@ -4746,7 +4840,8 @@
         "Revisa preferencias y prueba la función que vayas a utilizar."
       ],
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
-    }
+    },
+    "configNote": "Inicia sesión con tu cuenta HP y añade la impresora."
   },
   {
     "id": "scrcpy",
@@ -4785,7 +4880,9 @@
     "context": "machine",
     "subgroup": "Capturas de pantalla",
     "compare": "Capturas, vídeo, OCR y subida automática. Mucha configuración.",
-    "subgroupNote": "ShareX si quieres todo (capturas, vídeo, subir, OCR). Greenshot o Flameshot para anotar rápido. Recortes ya viene con Windows. ScreenToGif para GIF."
+    "subgroupNote": "ShareX si quieres todo (capturas, vídeo, subir, OCR). Greenshot o Flameshot para anotar rápido. Recortes ya viene con Windows. ScreenToGif para GIF.",
+    "configure": true,
+    "configNote": "Elige la carpeta de capturas, los atajos y las acciones tras capturar."
   },
   {
     "id": "greenshot",
@@ -4939,7 +5036,8 @@
     },
     "subgroup": "Pasar archivos al móvil",
     "compare": "Cualquier sistema en la misma red, sin cuenta.",
-    "subgroupNote": "LocalSend para cualquier móvil sin cuenta. KDE Connect si además quieres notificaciones y portapapeles con Android. Enlace Móvil para mensajes y llamadas. Quick Share para Android cercano."
+    "subgroupNote": "LocalSend para cualquier móvil sin cuenta. KDE Connect si además quieres notificaciones y portapapeles con Android. Enlace Móvil para mensajes y llamadas. Quick Share para Android cercano.",
+    "configNote": "Pon un alias al equipo y elige la carpeta de descarga."
   },
   {
     "id": "kdeconnect",
@@ -4965,7 +5063,8 @@
       "note": "El portapapeles requiere vinculación y una prueba en ambos equipos."
     },
     "subgroup": "Pasar archivos al móvil",
-    "compare": "Android: archivos, portapapeles, notificaciones y control."
+    "compare": "Android: archivos, portapapeles, notificaciones y control.",
+    "configNote": "Empareja el móvil con el PC y activa los permisos que necesites."
   },
   {
     "id": "phonelink",
@@ -4988,7 +5087,8 @@
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
     },
     "subgroup": "Pasar archivos al móvil",
-    "compare": "Oficial: mensajes, llamadas y fotos (Android e iPhone limitado)."
+    "compare": "Oficial: mensajes, llamadas y fotos (Android e iPhone limitado).",
+    "configNote": "Empareja el móvil e inicia sesión con tu cuenta Microsoft."
   },
   {
     "id": "quickshare",
@@ -5558,7 +5658,9 @@
     "type": "winget",
     "winget": "Rem0o.FanControl",
     "extra": true,
-    "context": "machine"
+    "context": "machine",
+    "configure": true,
+    "configNote": "Detecta los ventiladores y crea las curvas de temperatura."
   },
   {
     "id": "patchmypc",
@@ -5618,7 +5720,8 @@
     },
     "subgroup": "Discord",
     "compare": "Oficial.",
-    "subgroupNote": "Discord oficial por compatibilidad. Vesktop si quieres menos consumo, temas y compartir pantalla con audio."
+    "subgroupNote": "Discord oficial por compatibilidad. Vesktop si quieres menos consumo, temas y compartir pantalla con audio.",
+    "configNote": "Inicia sesión y ajusta audio, overlay e inicio automático."
   },
   {
     "id": "vesktop",
@@ -5659,7 +5762,8 @@
     },
     "subgroup": "Mensajería privada",
     "compare": "Cifrado de extremo a extremo siempre.",
-    "subgroupNote": "Signal para privacidad. Telegram para canales y bots. Element si quieres Matrix federado. WhatsApp y Viber por tus contactos."
+    "subgroupNote": "Signal para privacidad. Telegram para canales y bots. Element si quieres Matrix federado. WhatsApp y Viber por tus contactos.",
+    "configNote": "Vincula el dispositivo escaneando el QR desde el móvil."
   },
   {
     "id": "telegram",
@@ -5682,7 +5786,8 @@
       "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
     },
     "subgroup": "Mensajería privada",
-    "compare": "Grupos enormes, canales y bots. Chats no cifrados por defecto."
+    "compare": "Grupos enormes, canales y bots. Chats no cifrados por defecto.",
+    "configNote": "Inicia sesión con tu número de teléfono."
   },
   {
     "id": "element",
@@ -5719,7 +5824,8 @@
       "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
     },
     "subgroup": "Mensajería privada",
-    "compare": "Donde están la mayoría de contactos."
+    "compare": "Donde están la mayoría de contactos.",
+    "configNote": "Vincula el dispositivo escaneando el QR desde el móvil."
   },
   {
     "id": "viber",
@@ -5749,7 +5855,9 @@
     "context": "machine",
     "subgroup": "Correo",
     "compare": "Cualquier cuenta IMAP, calendario y cifrado.",
-    "subgroupNote": "Thunderbird para cualquier cuenta. Proton Mail solo si usas Proton."
+    "subgroupNote": "Thunderbird para cualquier cuenta. Proton Mail solo si usas Proton.",
+    "configure": true,
+    "configNote": "Añade tu cuenta de correo y revisa la sincronización."
   },
   {
     "id": "protonmail",
@@ -5771,7 +5879,8 @@
       "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
     },
     "subgroup": "Correo",
-    "compare": "Cliente oficial de Proton Mail."
+    "compare": "Cliente oficial de Proton Mail.",
+    "configNote": "Inicia sesión con tu cuenta Proton."
   },
   {
     "id": "teams",
@@ -5797,7 +5906,8 @@
     },
     "subgroup": "Videollamadas y trabajo",
     "compare": "Microsoft 365.",
-    "subgroupNote": "La que use tu empresa o clase."
+    "subgroupNote": "La que use tu empresa o clase.",
+    "configNote": "Inicia sesión y prueba cámara y micrófono."
   },
   {
     "id": "zoom",
@@ -5820,7 +5930,8 @@
       "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
     },
     "subgroup": "Videollamadas y trabajo",
-    "compare": "Reuniones."
+    "compare": "Reuniones.",
+    "configNote": "Inicia sesión y prueba cámara y micrófono."
   },
   {
     "id": "slack",
@@ -5846,7 +5957,8 @@
       "note": "Los permisos y el acceso a tu cuenta se confirman manualmente."
     },
     "subgroup": "Videollamadas y trabajo",
-    "compare": "Chat de equipo."
+    "compare": "Chat de equipo.",
+    "configNote": "Inicia sesión en tus espacios de trabajo."
   },
   {
     "id": "vlc",
@@ -5975,7 +6087,8 @@
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
     },
     "subgroup": "Centros multimedia",
-    "compare": "Pulido, con cuenta y extras de pago."
+    "compare": "Pulido, con cuenta y extras de pago.",
+    "configNote": "Inicia sesión y añade o conecta tu servidor."
   },
   {
     "id": "kodi",
@@ -6107,7 +6220,9 @@
     "context": "machine",
     "extra": true,
     "subgroup": "Audio",
-    "compare": "Mezclador virtual para streaming y micrófono."
+    "compare": "Mezclador virtual para streaming y micrófono.",
+    "configure": true,
+    "configNote": "Elige tus dispositivos de entrada y salida de audio."
   },
   {
     "id": "spotify",
@@ -6128,7 +6243,8 @@
         "Revisa preferencias y prueba la función que vayas a utilizar."
       ],
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
-    }
+    },
+    "configNote": "Inicia sesión y revisa la calidad de audio y el inicio automático."
   },
   {
     "id": "obs",
@@ -6141,7 +6257,9 @@
     "winget": "OBSProject.OBSStudio",
     "extra": true,
     "scope": "machine",
-    "context": "machine"
+    "context": "machine",
+    "configure": true,
+    "configNote": "Pasa el asistente: elige el codificador (NVENC si tienes NVIDIA), la resolución y las escenas."
   },
   {
     "id": "foobar",
@@ -6175,7 +6293,8 @@
         "Revisa preferencias y prueba la función que vayas a utilizar."
       ],
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
-    }
+    },
+    "configNote": "Inicia sesión con tu Apple ID."
   },
   {
     "id": "appletv",
@@ -6196,7 +6315,8 @@
         "Revisa preferencias y prueba la función que vayas a utilizar."
       ],
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
-    }
+    },
+    "configNote": "Inicia sesión con tu Apple ID."
   },
   {
     "id": "mediainfo",
@@ -6376,7 +6496,8 @@
     },
     "subgroup": "Diseño de interfaces",
     "compare": "Estándar y colaborativo; necesita internet.",
-    "subgroupNote": "Figma es el estándar. Lunacy si quieres trabajar sin conexión gratis. Canva para piezas rápidas."
+    "subgroupNote": "Figma es el estándar. Lunacy si quieres trabajar sin conexión gratis. Canva para piezas rápidas.",
+    "configNote": "Inicia sesión y abre tus archivos."
   },
   {
     "id": "lunacy",
@@ -6413,7 +6534,8 @@
       "note": "La comprobación técnica acredita detección local; confirma tú el acceso y la prueba de uso."
     },
     "subgroup": "Diseño de interfaces",
-    "compare": "Plantillas para redes y presentaciones."
+    "compare": "Plantillas para redes y presentaciones.",
+    "configNote": "Inicia sesión con tu cuenta."
   },
   {
     "id": "inkscape",
@@ -6486,7 +6608,8 @@
     },
     "subgroup": "Suites ofimáticas",
     "compare": "El original; de pago.",
-    "subgroupNote": "Microsoft 365 si tienes licencia. ONLYOFFICE para máxima compatibilidad gratis con Word. LibreOffice para más funciones y formatos abiertos."
+    "subgroupNote": "Microsoft 365 si tienes licencia. ONLYOFFICE para máxima compatibilidad gratis con Word. LibreOffice para más funciones y formatos abiertos.",
+    "configNote": "Inicia sesión con tu cuenta Microsoft para activar la licencia."
   },
   {
     "id": "onlyoffice",
@@ -6710,7 +6833,9 @@
     "context": "machine",
     "subgroup": "Nube comercial",
     "compare": "Integrada con Google.",
-    "subgroupNote": "La de tu ecosistema: Google Drive, OneDrive (Office), iCloud (iPhone). MEGA o Proton Drive si priorizas cifrado."
+    "subgroupNote": "La de tu ecosistema: Google Drive, OneDrive (Office), iCloud (iPhone). MEGA o Proton Drive si priorizas cifrado.",
+    "configure": true,
+    "configNote": "Inicia sesión y elige las carpetas que se sincronizan."
   },
   {
     "id": "onedrive",
@@ -6733,7 +6858,8 @@
       "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
     },
     "subgroup": "Nube comercial",
-    "compare": "Integrada en Windows y Office."
+    "compare": "Integrada en Windows y Office.",
+    "configNote": "Inicia sesión y elige las carpetas que se sincronizan."
   },
   {
     "id": "icloud",
@@ -6755,7 +6881,8 @@
       "note": "No borres archivos para probar la sincronización; comprueba con un archivo nuevo."
     },
     "subgroup": "Nube comercial",
-    "compare": "Fotos y archivos del iPhone."
+    "compare": "Fotos y archivos del iPhone.",
+    "configNote": "Inicia sesión con tu Apple ID y elige qué sincronizar."
   },
   {
     "id": "dropbox",
@@ -6778,7 +6905,8 @@
       "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
     },
     "subgroup": "Nube comercial",
-    "compare": "Sincronización fiable; plan gratis pequeño."
+    "compare": "Sincronización fiable; plan gratis pequeño.",
+    "configNote": "Inicia sesión y elige la sincronización selectiva."
   },
   {
     "id": "mega",
@@ -6801,7 +6929,8 @@
       "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
     },
     "subgroup": "Nube comercial",
-    "compare": "Cifrado y 20 GB gratis."
+    "compare": "Cifrado y 20 GB gratis.",
+    "configNote": "Inicia sesión y elige las carpetas que se sincronizan."
   },
   {
     "id": "protondrive",
@@ -6823,7 +6952,8 @@
       "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
     },
     "subgroup": "Nube comercial",
-    "compare": "Cifrado de extremo a extremo, suizo."
+    "compare": "Cifrado de extremo a extremo, suizo.",
+    "configNote": "Inicia sesión y elige las carpetas que se sincronizan."
   },
   {
     "id": "syncthing",
@@ -6850,7 +6980,8 @@
     },
     "subgroup": "Tu propia nube y copias",
     "compare": "Sincroniza dispositivos directamente, sin nube.",
-    "subgroupNote": "Syncthing para sincronizar entre tus equipos sin servidor. Nextcloud si tienes servidor. Duplicati para copias de seguridad programadas."
+    "subgroupNote": "Syncthing para sincronizar entre tus equipos sin servidor. Nextcloud si tienes servidor. Duplicati para copias de seguridad programadas.",
+    "configNote": "Abre su panel web, añade los dispositivos y elige las carpetas."
   },
   {
     "id": "nextcloud",
@@ -6872,7 +7003,8 @@
       "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
     },
     "subgroup": "Tu propia nube y copias",
-    "compare": "Cliente de tu servidor Nextcloud."
+    "compare": "Cliente de tu servidor Nextcloud.",
+    "configNote": "Conecta con la dirección de tu servidor e inicia sesión."
   },
   {
     "id": "duplicati",
@@ -6896,7 +7028,8 @@
       "note": "Una instalación o una copia terminada no sustituye la prueba de restauración. La app no recibe tu clave."
     },
     "subgroup": "Tu propia nube y copias",
-    "compare": "Copias cifradas e incrementales a cualquier destino."
+    "compare": "Copias cifradas e incrementales a cualquier destino.",
+    "configNote": "Crea la primera copia de seguridad: origen, destino y contraseña."
   },
   {
     "id": "mullvad",
@@ -6923,7 +7056,8 @@
     },
     "subgroup": "VPN",
     "compare": "Sin cuenta ni correo; precio fijo.",
-    "subgroupNote": "Mullvad o Proton VPN para privacidad. Windscribe o Proton para plan gratis. WARP solo acelera DNS, no oculta tu IP. WireGuard/OpenVPN para tu propio servidor."
+    "subgroupNote": "Mullvad o Proton VPN para privacidad. Windscribe o Proton para plan gratis. WARP solo acelera DNS, no oculta tu IP. WireGuard/OpenVPN para tu propio servidor.",
+    "configNote": "Introduce el número de cuenta y elige el servidor."
   },
   {
     "id": "protonvpn",
@@ -6946,7 +7080,8 @@
       "note": "Una aplicación instalada no garantiza que su conexión o suscripción esté activa."
     },
     "subgroup": "VPN",
-    "compare": "Plan gratis sin límite de datos."
+    "compare": "Plan gratis sin límite de datos.",
+    "configNote": "Inicia sesión y elige el protocolo y el servidor."
   },
   {
     "id": "windscribe",
@@ -6968,7 +7103,8 @@
       "note": "Una aplicación instalada no garantiza que su conexión o suscripción esté activa."
     },
     "subgroup": "VPN",
-    "compare": "Plan gratis con 10 GB."
+    "compare": "Plan gratis con 10 GB.",
+    "configNote": "Inicia sesión y elige la ubicación y el protocolo."
   },
   {
     "id": "nordvpn",
@@ -6990,7 +7126,8 @@
       "note": "Una aplicación instalada no garantiza que su conexión o suscripción esté activa."
     },
     "subgroup": "VPN",
-    "compare": "Muchos servidores y streaming."
+    "compare": "Muchos servidores y streaming.",
+    "configNote": "Inicia sesión y elige el servidor y el protocolo."
   },
   {
     "id": "nortonvpn",
@@ -7012,7 +7149,8 @@
       "note": "Una aplicación instalada no garantiza que su conexión o suscripción esté activa."
     },
     "subgroup": "VPN",
-    "compare": "Integrado con Norton."
+    "compare": "Integrado con Norton.",
+    "configNote": "Inicia sesión con tu cuenta Norton."
   },
   {
     "id": "warp",
@@ -7027,7 +7165,9 @@
     "scope": "machine",
     "context": "machine",
     "subgroup": "VPN",
-    "compare": "DNS rápido y cifrado; no es VPN de anonimato."
+    "compare": "DNS rápido y cifrado; no es VPN de anonimato.",
+    "configure": true,
+    "configNote": "Acepta los términos y activa WARP."
   },
   {
     "id": "wireguard",
@@ -7041,7 +7181,9 @@
     "context": "machine",
     "extra": true,
     "subgroup": "VPN",
-    "compare": "Cliente para tu propio servidor WireGuard."
+    "compare": "Cliente para tu propio servidor WireGuard.",
+    "configure": true,
+    "configNote": "Importa tu archivo de túnel y actívalo."
   },
   {
     "id": "openvpn",
@@ -7055,7 +7197,9 @@
     "context": "machine",
     "extra": true,
     "subgroup": "VPN",
-    "compare": "Cliente para servidores OpenVPN."
+    "compare": "Cliente para servidores OpenVPN.",
+    "configure": true,
+    "configNote": "Importa tu perfil .ovpn e inicia sesión."
   },
   {
     "id": "simplewall",
@@ -7280,7 +7424,8 @@
         "Si debe funcionar sin sesión, activa el modo desatendido y prueba después de reiniciar."
       ],
       "note": "La comprobación lee el estado de conexión; no guarda credenciales ni prueba otro equipo por ti."
-    }
+    },
+    "configNote": "Inicia sesión y comprueba que el equipo aparece en tu red."
   },
   {
     "id": "sandboxie",
@@ -7322,7 +7467,8 @@
     },
     "subgroup": "Gestores de contraseñas",
     "compare": "Gratis, código abierto y en la nube.",
-    "subgroupNote": "Bitwarden para la mayoría (gratis y en todos tus dispositivos). KeePassXC si no quieres nube. 1Password si quieres lo más pulido. Proton Pass si usas Proton."
+    "subgroupNote": "Bitwarden para la mayoría (gratis y en todos tus dispositivos). KeePassXC si no quieres nube. 1Password si quieres lo más pulido. Proton Pass si usas Proton.",
+    "configNote": "Inicia sesión y activa el desbloqueo con Windows Hello."
   },
   {
     "id": "keepassxc",
@@ -7337,7 +7483,9 @@
     "scope": "machine",
     "context": "machine",
     "subgroup": "Gestores de contraseñas",
-    "compare": "Archivo local, sin cuenta; la sincronización es cosa tuya."
+    "compare": "Archivo local, sin cuenta; la sincronización es cosa tuya.",
+    "configure": true,
+    "configNote": "Abre o crea tu base de datos de contraseñas."
   },
   {
     "id": "onepassword",
@@ -7355,7 +7503,9 @@
       "Agilebits.1Password_amwd9z03whsfe"
     ],
     "subgroup": "Gestores de contraseñas",
-    "compare": "El más pulido; de pago."
+    "compare": "El más pulido; de pago.",
+    "configure": true,
+    "configNote": "Inicia sesión y activa el desbloqueo con Windows Hello."
   },
   {
     "id": "protonpass",
@@ -7377,7 +7527,8 @@
       "note": "iWinInstaller no lee tus claves ni el contenido de tus archivos."
     },
     "subgroup": "Gestores de contraseñas",
-    "compare": "Integrado con Proton y alias de correo."
+    "compare": "Integrado con Proton y alias de correo.",
+    "configNote": "Inicia sesión y activa el desbloqueo biométrico."
   },
   {
     "id": "startallback",

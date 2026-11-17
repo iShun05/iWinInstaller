@@ -33,6 +33,15 @@ namespace IWinInstaller.App.Tests
         }
 
         [TestMethod]
+        public void LasAppsPorConfigurarTienenNotaYSoloSonApps()
+        {
+            var listed = _catalog.Where(e => e.ListedToConfigure).ToList();
+            Assert.IsTrue(listed.Count >= 60, "apps por configurar: " + listed.Count);
+            Assert.IsTrue(listed.All(e => !e.IsTweak && e.ConfigNote.Length <= 140), "las notas son breves y no hay ajustes de Windows");
+            Assert.IsTrue(_catalog.Where(e => e.Configure && !e.IsTweak).All(e => e.ListedToConfigure), "toda app con configure tiene configNote");
+        }
+
+        [TestMethod]
         public void LaNotaCualElegirValeParaTodaLaSubseccion()
         {
             foreach (var group in _catalog.Where(e => !String.IsNullOrEmpty(e.Subgroup)).GroupBy(e => e.Group + "/" + e.Subgroup))

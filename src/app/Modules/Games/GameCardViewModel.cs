@@ -289,7 +289,7 @@ namespace IWinInstaller.App.Modules.Games
         private void BuildPlan()
         {
             Items.Clear(); Warnings.Clear();
-            try { _plan = GameTweaks.Build(Definition, Install, _env, _currentHz()); }
+            try { _plan = GameTweaks.Build(Definition, Install, _env, _currentHz(), GamesViewModel.MaxHz()); }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
             {
                 _plan = null;
@@ -305,7 +305,7 @@ namespace IWinInstaller.App.Modules.Games
             if (_plan == null || !CanModify) return;
             if (_env.AnyProcessRunning(Definition.GameProcesses)) { SetRunning(true, _launcherRunning); return; }
             List<string> lines;
-            try { lines = GameTweaks.Apply(Definition, Install, _env, _plan, _backups, _currentHz(), DateTime.UtcNow); }
+            try { lines = GameTweaks.Apply(Definition, Install, _env, _plan, _backups, _currentHz(), DateTime.UtcNow, GamesViewModel.MaxHz()); }
             catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is System.Security.SecurityException)
             {
                 lines = new List<string> { "✗ " + ex.Message };

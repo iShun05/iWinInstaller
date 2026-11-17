@@ -76,6 +76,7 @@ namespace IWinInstaller.App.Shell.Palette
             {
                 new PaletteAction("nav.home", "Inicio · estado del PC", "Inicio", "estado resumen salud tarjetas comprobar"),
                 new PaletteAction("nav.install", "Instalar aplicaciones", "Instalar", "catalogo perfiles programas apps descargar"),
+                new PaletteAction("nav.configure", "Apps por configurar", "Por configurar", "configurar pendiente iniciar sesion cuenta ajustes despues de instalar check lista"),
                 new PaletteAction("nav.updates", "Actualizaciones de apps", "Actualizaciones", "actualizar versiones nuevas upgrade winget excluir programar"),
                 new PaletteAction("nav.system", "Resolución y frecuencia de la pantalla", "Sistema", "monitor hz hercios refresco pantalla resolucion frecuencia"),
                 new PaletteAction("nav.system", "Energía: pantalla, suspensión e hibernación", "Sistema", "energia suspender dormir hibernar apagar pantalla bateria plan"),

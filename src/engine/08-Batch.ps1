@@ -6,6 +6,7 @@ function Invoke-Install($sel, [scriptblock]$onProgress) {
     $sel = @(Get-InstallPlan $sel)
     if ($script:ResumingBatch -and $script:Batch) { $done=@($script:Batch.items | Where-Object state -eq 'done' | ForEach-Object id); $sel=@($sel | Where-Object { $done -notcontains $_.id }) }
     if (-not $WorkerMode -and -not $script:ResumingBatch) { Start-IwinBatch $sel $(if($UpgradePackages){'upgrade'}else{'install'}) }
+    if (-not $WorkerMode -and @($sel | Where-Object { $_.type -eq 'tweak' -and $_.id -notin @('wsl', 'restorepoint', 'rgboff', 'virtualdisplayon') }).Count) { Invoke-IwinAutoRestorePoint }
     $script:LastInstallCode = 0
     # Punto de partida del informe final: resultados de esta pasada y registro desde aquí.
     $reportPlan = @($sel); $script:RunResults = @{}
