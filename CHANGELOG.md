@@ -6,11 +6,12 @@
 - **Exportar e importar la configuración**: `-ExportConfig <ruta>` guarda en un JSON versionado (`iWinInstaller-config`, esquema 1) las apps y ajustes aplicados de este PC (o de un perfil con `-Perfil`), las exclusiones de actualización, los pasos de «Por configurar» y el zoom de la interfaz. Las notas y el servidor del juego solo van con `-IncludePersonal`.
 - **Plantilla para varios PC**: `-ImportConfig <ruta>` describe el plan y con `-Yes` lo aplica sin ventana e instala lo que falte (omite las apps de otro hardware y no quita nada de lo que ya hay). Importa también los perfiles `.iwin.json` anteriores.
 - **Formato extensible**: cada parte es una sección registrada con `Register-IwinConfigSection`; las secciones y campos desconocidos se ignoran con aviso y solo una `version` mayor se rechaza, de modo que las funciones nuevas añaden su sección sin romper archivos antiguos.
-- Comandos del motor `config.export`, `config.inspect` y `config.import` para la interfaz.
+- **Instalar › Exportar PC… / Importar PC…**: los mismos archivos desde la ventana; al importar se marcan las apps que faltan.
+- Comandos del motor `config.export`, `config.inspect` y `config.import`.
 
 ### Archivos y pruebas
 - `src/engine/16-Config.ps1` (nuevo), `iWinInstaller.ps1`, `docs/cli.md`, `tests/unit/engine/Config.Tests.ps1` (Pester; compatibilidad, extensibilidad y rechazo de datos no válidos).
-- Sin botón en la ventana todavía: de momento solo CLI y comandos del contrato.
+- `InstallViewModel.cs` e `InstallView.xaml` (botones); sin compilar en este entorno: lo compila el CI.
 
 ## v5.3 — 2026-11-17
 

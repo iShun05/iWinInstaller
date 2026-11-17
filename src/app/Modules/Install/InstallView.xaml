@@ -22,6 +22,8 @@
           <Button Style="{StaticResource Ghost}" Content="Guardar perfil…" Command="{Binding SaveProfileCommand}" Margin="0,0,4,8"/>
           <Button Style="{StaticResource Ghost}" Content="Importar…" Command="{Binding ImportProfileCommand}" Margin="0,0,4,8"/>
           <Button Style="{StaticResource Ghost}" Content="Exportar…" Command="{Binding ExportProfileCommand}" Margin="0,0,4,8"/>
+          <Button Style="{StaticResource Ghost}" Content="Importar PC…" Command="{Binding ImportConfigCommand}" Margin="0,0,4,8" ToolTip="Importa la configuración completa de otro PC (apps, ajustes, pasos y exclusiones)"/>
+          <Button Style="{StaticResource Ghost}" Content="Exportar PC…" Command="{Binding ExportConfigCommand}" Margin="0,0,4,8" ToolTip="Exporta lo instalado y configurado en este PC como plantilla"/>
           <Button Style="{StaticResource Ghost}" Content="Desmarcar todo" Command="{Binding ClearCommand}" Margin="0,0,4,8"/>
           <Button Style="{StaticResource Ghost}" Content="Eliminar perfil" Command="{Binding DeleteProfileCommand}" Margin="0,0,4,8"/>
           <Button Style="{StaticResource Ghost}" Content="Verificar" Command="{Binding VerifyCommand}" Margin="0,0,4,8" ToolTip="Vuelve a comprobar qué está instalado"/>
