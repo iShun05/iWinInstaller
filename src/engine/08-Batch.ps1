@@ -76,6 +76,7 @@ function Invoke-Install($sel, [scriptblock]$onProgress) {
         Complete-IwinItem $app $ok $onProgress
     }
     Organize-Desktop
+    Invoke-IwinFoldersAuto
     if (-not $WorkerMode -and $LogDir) {
         # Informe con el motivo de cada fallo: panel al terminar, portapapeles y cabecera del diagnóstico.
         try {
