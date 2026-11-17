@@ -73,6 +73,8 @@ namespace IWinInstaller.App.Modules.Install
             SaveProfileCommand = new RelayCommand(_ => Run(SaveProfileAsync()), _ => !IsBusy && CheckedCount > 0);
             ImportProfileCommand = new RelayCommand(_ => Run(ImportProfileAsync()), _ => !IsBusy);
             ExportProfileCommand = new RelayCommand(_ => Run(ExportProfileAsync()), _ => !IsBusy && CheckedCount > 0);
+            ImportConfigCommand = new RelayCommand(_ => Run(ImportConfigAsync()), _ => !IsBusy);
+            ExportConfigCommand = new RelayCommand(_ => Run(ExportConfigAsync()), _ => !IsBusy);
             ClearCommand = new RelayCommand(_ => { foreach (var item in Items) item.IsChecked = false; RefreshCounts(); }, _ => !IsBusy);
             CloseReportCommand = new RelayCommand(_ => Report = null);
             CopyReportCommand = new RelayCommand(_ => { if (Report != null) _dialogs.CopyText(Report.Text); Message = "Informe copiado: listo para pegar en un chat o un correo."; });
@@ -102,6 +104,8 @@ namespace IWinInstaller.App.Modules.Install
         public RelayCommand SaveProfileCommand { get; private set; }
         public RelayCommand ImportProfileCommand { get; private set; }
         public RelayCommand ExportProfileCommand { get; private set; }
+        public RelayCommand ImportConfigCommand { get; private set; }
+        public RelayCommand ExportConfigCommand { get; private set; }
         public RelayCommand ClearCommand { get; private set; }
         public RelayCommand CloseReportCommand { get; private set; }
         public RelayCommand CopyReportCommand { get; private set; }
@@ -430,6 +434,30 @@ namespace IWinInstaller.App.Modules.Install
             string name = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(path));
             var result = await _engine.RunAsync("profiles.export", new Dictionary<string, object> { { "path", path }, { "name", name }, { "ids", ids } }, null, TimeSpan.FromMinutes(1), CancellationToken.None);
             Message = result.Ok ? "Perfil exportado: llévalo a otro PC y pulsa Importar." : "No se pudo exportar: " + result.Error;
+        }
+
+        // Configuración completa de este PC (apps, ajustes, seguimiento, exclusiones): plantilla para otros equipos
+        private async Task ExportConfigAsync()
+        {
+            string path = _dialogs.SaveFile("Configuración de iWinInstaller (*.iwin-config.json)|*.iwin-config.json", "Mi PC.iwin-config.json");
+            if (path == null) return;
+            Message = "Exportando la configuración de este PC…";
+            string name = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(path));
+            var result = await _engine.RunAsync("config.export", new Dictionary<string, object> { { "path", path }, { "name", name } }, null, TimeSpan.FromMinutes(5), CancellationToken.None);
+            Message = result.Ok ? "Configuración exportada (sin notas personales): llévala a otro PC y pulsa Importar PC." : "No se pudo exportar: " + result.Error;
+        }
+
+        private async Task ImportConfigAsync()
+        {
+            string path = _dialogs.OpenFile("Configuración de iWinInstaller (*.iwin-config.json)|*.iwin-config.json|JSON (*.json)|*.json");
+            if (path == null) return;
+            var result = await _engine.RunAsync("config.import", new Dictionary<string, object> { { "path", path } }, null, TimeSpan.FromMinutes(2), CancellationToken.None);
+            if (!result.Ok) { Message = "No se pudo importar: " + result.Error; return; }
+            var ids = new HashSet<string>(ReadList(result.Response, "ids"));
+            foreach (var item in Items) item.IsChecked = ids.Contains(item.Id) && !item.Installed;
+            int errors = ReadList(result.Response, "errors").Count();
+            Message = "Configuración importada: " + CheckedCount + " por instalar (pulsa Instalar)." + (errors > 0 ? " " + errors + " secciones con error." : "");
+            View.Refresh();
         }
 
         private async Task ShowReportAsync(bool afterBatch)

@@ -14,6 +14,11 @@
 - **Página «Por configurar»**: lista las apps instaladas que hay que configurar por dentro (iniciar sesión, elegir carpetas, emparejar dispositivos…), cada una con una nota breve de qué hacer, un botón **Marcar como hecha** y **Abrir**. Cuando una app cambia de versión, su check se quita solo y vuelve a salir pendiente con «Se actualizó de X a Y».
 - `apps.json`: campo `configNote` (nota breve) junto a `configure`; 110 apps marcadas (launchers, navegadores, mensajería, nube, VPN, contraseñas, software de periféricos y GPU, IA y herramientas de captura).
 - Motor: comando `configure.list`; `postinstalacion.json` guarda la versión en que se confirmó cada app (`version`, `reopenedFrom`). La versión sale del registro de Windows o del paquete Appx; si no se conoce, el check no se quita.
+- **Exportar e importar la configuración**: `-ExportConfig <ruta>` guarda en un JSON versionado (`iWinInstaller-config`, esquema 1) las apps y ajustes aplicados de este PC (o de un perfil con `-Perfil`), las exclusiones de actualización, los pasos de «Por configurar» y el zoom de la interfaz. Las notas y el servidor del juego solo van con `-IncludePersonal`.
+- **Plantilla para varios PC**: `-ImportConfig <ruta>` describe el plan y con `-Yes` lo aplica sin ventana e instala lo que falte (omite las apps de otro hardware y no quita nada de lo que ya hay). Importa también los perfiles `.iwin.json` anteriores.
+- **Formato extensible**: cada parte es una sección registrada con `Register-IwinConfigSection`; las secciones y campos desconocidos se ignoran con aviso y solo una `version` mayor se rechaza, de modo que las funciones nuevas añaden su sección sin romper archivos antiguos.
+- **Instalar › Exportar PC… / Importar PC…**: los mismos archivos desde la ventana; al importar se marcan las apps que faltan.
+- Comandos del motor `config.export`, `config.inspect` y `config.import`.
 
 ### Cambiado
 - Fortnite: perfil competitivo para pantallas de alta frecuencia: opción «máximo del monitor» en el límite de FPS (por defecto si Windows está por debajo), menús al mismo límite, sin desenfoque de movimiento ni resolución dinámica (solo si esas claves ya existen) y pantalla completa exclusiva marcada.
@@ -26,6 +31,9 @@
 - Sin verificar en un equipo real con GPU NVIDIA y AMD.
 - `src/engine/06-Tweaks.ps1` (`Invoke-IwinAutoRestorePoint`, `Test-IwinRestorePointDue`, `Test-IwinSystemRestoreOff`), `src/engine/08-Batch.ps1` (`Invoke-Install`).
 - `tests/unit/engine/RestorePoint.Tests.ps1`: regla de 24 horas.
+- `src/engine/16-Config.ps1` (nuevo), `iWinInstaller.ps1`, `docs/cli.md`, `tests/unit/engine/Config.Tests.ps1` (Pester; compatibilidad, extensibilidad y rechazo de datos no válidos).
+- `InstallViewModel.cs` e `InstallView.xaml` (botones); sin compilar en este entorno: lo compila el CI.
+
 
 ## v5.3 — 2026-11-17
 
