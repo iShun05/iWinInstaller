@@ -10,12 +10,15 @@ BeforeAll {
         [pscustomobject]@{ id = 'oscuro'; name = 'Tema oscuro'; type = 'tweak'; section = 'Sistema'; restart = $true; postInstall = [pscustomobject]@{ steps = @('Uno', 'Dos'); note = 'Nota' } }
     )
     function Write-Log($msg) { }
-    function Get-InstallContext($app) { if ($app.type -eq 'tweak') { 'user' } else { 'machine' } }
     function Get-IwinPreflight($plan) { [pscustomobject]@{ Ok = $true; Text = 'Espacio suficiente.' } }
     . (Join-Path $root 'lifecycle.ps1')
     . (Join-Path $root 'src\engine\02-Packages.ps1')
-    $script:RegistryApps = @(); $script:AppxApps = @()
-    function Update-LocalInventory([switch]$Appx) { }
+    function Get-InstallContext($app) { if ($app.type -eq 'tweak') { 'user' } else { 'machine' } }
+    # El inventario real (02-Packages) lee el registro y Appx: aquí se sustituyen por datos de prueba
+    $script:FakeRegistry = @()
+    function Get-ItemProperty { $script:FakeRegistry }
+    function Get-AppxPackage { @() }
+    function Update-EnvPath { }
     function Update-WingetCache { }
     function Test-Cmd($name) { $false }
     function Get-NormName($s) { ($s -replace '[^A-Za-z0-9]', '').ToLower() }
@@ -52,14 +55,14 @@ Describe 'Comandos de Instalar' {
     }
 
     It 'Por configurar: el check se quita solo cuando cambia la versión instalada' {
-        $script:RegistryApps = @([pscustomobject]@{ DisplayName = 'Demo App'; DisplayVersion = '1.0' })
+        $script:FakeRegistry = @([pscustomobject]@{ DisplayName = 'Demo App'; DisplayVersion = '1.0' })
         $set = & $IwinEngineCommands['postinstall.set'] ([pscustomobject]@{ contract = 1; id = 'demo'; steps = @(0, 1) })
         $set.configured | Should -BeTrue
         $first = & $IwinEngineCommands['configure.list'] ([pscustomobject]@{ contract = 1 })
         $item = $first.items | Where-Object id -eq 'demo'
         $item.configured | Should -BeTrue
         $item.version | Should -Be '1.0'
-        $script:RegistryApps = @([pscustomobject]@{ DisplayName = 'Demo App'; DisplayVersion = '1.1' })
+        $script:FakeRegistry = @([pscustomobject]@{ DisplayName = 'Demo App'; DisplayVersion = '1.1' })
         $second = & $IwinEngineCommands['configure.list'] ([pscustomobject]@{ contract = 1 })
         $item = $second.items | Where-Object id -eq 'demo'
         $item.configured | Should -BeFalse
