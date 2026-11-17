@@ -79,6 +79,7 @@ namespace IWinInstaller.App.Shell.Palette
                 new PaletteAction("nav.updates", "Actualizaciones de apps", "Actualizaciones", "actualizar versiones nuevas upgrade winget excluir programar"),
                 new PaletteAction("nav.system", "Resolución y frecuencia de la pantalla", "Sistema", "monitor hz hercios refresco pantalla resolucion frecuencia"),
                 new PaletteAction("nav.system", "Energía: pantalla, suspensión e hibernación", "Sistema", "energia suspender dormir hibernar apagar pantalla bateria plan"),
+                new PaletteAction("nav.gaming", "Ping y latencia para jugar", "Juego", "ping latencia lag jitter perdida paquetes bufferbloat juego shooter competitivo red wifi dns gaming"),
                 new PaletteAction("nav.maintenance", "Liberar espacio en disco", "Mantenimiento", "limpiar limpieza temporales cache papelera espacio disco lleno"),
                 new PaletteAction("nav.maintenance", "Reparar Windows (DISM y SFC)", "Mantenimiento", "reparar sfc dism errores sistema archivos corruptos"),
                 new PaletteAction("nav.maintenance", "Salud de discos y batería", "Mantenimiento", "smart disco ssd bateria desgaste salud informe equipo"),
