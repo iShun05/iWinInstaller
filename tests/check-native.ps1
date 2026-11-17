@@ -103,7 +103,11 @@ try {
     $repair=Start-Process $setup -ArgumentList '--silent' -PassThru -Wait
     if ($repair.ExitCode -ne 0) { throw 'La reparacion no debe fallar por el ejecutable anterior en uso' }
     $p.WaitForExit()
-    if ($p.ExitCode -ne 0) { throw 'El EXE instalado no completo el arranque real de WPF' }
+    if ($p.ExitCode -ne 0) {
+        Write-Host "Codigo de salida del EXE: $($p.ExitCode)"
+        foreach ($f in @(Get-ChildItem (Join-Path $env:LOCALAPPDATA 'iWinInstaller') -Include 'interfaz.log','arranque-*.log' -Recurse -ErrorAction SilentlyContinue)) { Write-Host "--- $($f.FullName)"; Get-Content $f.FullName -Tail 60 | Write-Host }
+        throw 'El EXE instalado no completo el arranque real de WPF'
+    }
 } finally { Remove-Item Env:IWIN_PRUEBA_GUI }
 Write-Host 'OK: ventana real del EXE instalado, inventario y cambios de perfil.'
 
