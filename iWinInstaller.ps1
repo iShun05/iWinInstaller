@@ -11,6 +11,8 @@
 #   iWinInstaller.ps1 -Clean [-Categories a,b] [-Yes]  estima (o con -Yes, libera) espacio
 #   iWinInstaller.ps1 -MachineReport <ruta>       informe del equipo en JSON (sin datos sensibles)
 #   iWinInstaller.ps1 -Silent -Perfil mi.iwin.json instala un perfil exportado desde la ventana
+#   iWinInstaller.ps1 -ExportConfig <ruta> [-Perfil p] [-IncludePersonal]   exporta la configuración de este PC (JSON)
+#   iWinInstaller.ps1 -ImportConfig <ruta> [-Yes]  describe (o con -Yes aplica e instala) una configuración o plantilla
 param(
     [switch]$Check,
     [switch]$Silent,
@@ -38,6 +40,10 @@ param(
     [switch]$Yes,
     [string]$MachineReport,
     [switch]$IncludeSensitive,
+    # Configuración y plantilla multi-PC (v5.4): -ExportConfig <ruta> [-Perfil p] [-IncludePersonal]; -ImportConfig <ruta> [-Yes]
+    [string]$ExportConfig,
+    [string]$ImportConfig,
+    [switch]$IncludePersonal,
     # Contrato interfaz ↔ motor (specs/001-centro-de-control/contracts/engine.md)
     [string]$EngineCommand,
     [string]$EngineRequest,
@@ -56,7 +62,7 @@ $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Apps = @(Get-Content (Join-Path $Root 'apps.json') -Raw -Encoding UTF8 | ConvertFrom-Json | ForEach-Object { $_ })
 $Profiles = Get-Content (Join-Path $Root 'profiles.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $ReleaseApi = 'https://api.github.com/repos/iShun05/iWinInstaller/releases/latest'
-$UI = -not ($Check -or $Silent -or $Update -or $WorkerMode -or $Resume -or $AutoUpdate -or $EngineCommand -or $Updates -or $Status -or $Clean -or $MachineReport)
+$UI = -not ($Check -or $Silent -or $Update -or $WorkerMode -or $Resume -or $AutoUpdate -or $EngineCommand -or $Updates -or $Status -or $Clean -or $MachineReport -or $ExportConfig -or $ImportConfig)
 
 # Registro en archivo: %LOCALAPPDATA%\iWinInstaller\iWinInstaller_AAAA-MM-DD.log
 $LogDir = Join-Path $env:LOCALAPPDATA 'iWinInstaller'
@@ -67,7 +73,7 @@ if ($WorkerMode -and $SharedLog) { $LogFile = $SharedLog }
 . (Join-Path $Root 'lifecycle.ps1')
 
 # Motor: los archivos de src/engine se cargan en orden y comparten el ámbito del script.
-$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1', '13-Tools.ps1', '14-Maintenance.ps1', '15-Gaming.ps1')
+$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1', '13-Tools.ps1', '14-Maintenance.ps1', '15-Gaming.ps1', '16-Config.ps1')
 foreach ($engineFile in $EngineFiles) {
     $enginePath = Join-Path $Root "src\engine\$engineFile"
     if (-not (Test-Path -LiteralPath $enginePath)) { throw "Falta un archivo del motor: $engineFile. Ejecuta de nuevo iWinInstaller-Setup.exe." }
@@ -204,6 +210,45 @@ if ($MachineReport) {
     $saved = & $IwinEngineCommands['report.machine'] ([pscustomobject]@{ contract = 1; path = [IO.Path]::GetFullPath($MachineReport); includeSensitive = [bool]$IncludeSensitive })
     Write-Host "Informe del equipo: $($saved.path)"
     exit 0
+}
+
+if ($ExportConfig) {
+    try {
+        $request = [pscustomobject]@{ contract = 1; path = [IO.Path]::GetFullPath($ExportConfig); includePersonal = [bool]$IncludePersonal }
+        if ($PSBoundParameters.ContainsKey('Perfil')) {
+            $chosen = @(Get-ProfileApps $Perfil | ForEach-Object id)
+            if (-not $chosen) { Write-Log "Perfil desconocido o vacío: $Perfil"; exit 1 }
+            $request | Add-Member -NotePropertyName ids -NotePropertyValue $chosen
+        }
+        $saved = & $IwinEngineCommands['config.export'] $request
+    } catch { Write-Log "No se pudo exportar la configuración: $($_.Exception.Message)"; exit 1 }
+    Write-Host "Configuración exportada: $($saved.path) ($($saved.count) apps y ajustes · secciones: $($saved.sections -join ', '))"
+    if ($saved.failed) { Write-Host "No se pudieron exportar: $($saved.failed -join ', ')"; exit 1 }
+    exit 0
+}
+
+if ($ImportConfig) {
+    try { $config = Read-IwinConfigFile $ImportConfig } catch { Write-Log "No se pudo leer la configuración: $($_.Exception.Message)"; exit 1 }
+    $plan = Invoke-IwinConfigImport $config ([bool]$Yes) $null
+    Write-Host "Configuración «$($config.Name)» (esquema v$($config.Version))"
+    foreach ($line in $plan.Lines) { Write-Host "  $line" }
+    if ($plan.Ignored) { Write-Host "  Secciones que esta versión no conoce (se ignoran): $($plan.Ignored -join ', ')" }
+    foreach ($problem in $plan.Errors) { Write-Host "  ✗ $problem" }
+    $wanted = @($Apps | Where-Object { $plan.Ids -contains $_.id })
+    if (-not $Yes) {
+        Update-WingetCache
+        $pending = @($wanted | Where-Object { -not $(try { Test-AppInstalled $_ } catch { $false }) })
+        Write-Host "  Faltan por instalar o aplicar: $($pending.Count) de $($wanted.Count)$(if ($pending) { ' (' + (($pending | ForEach-Object name) -join ', ') + ')' })"
+        Write-Host 'Añade -Yes para aplicarla.'
+        exit $plan.Errors.Count
+    }
+    $failed = @()
+    if ($wanted) {
+        if (-not (Ensure-Winget)) { exit 1 }
+        Write-Log "Modo sin ventana · configuración $($config.Name)"
+        $failed = @(Invoke-Install $wanted $null)
+    }
+    exit ($failed.Count + $plan.Errors.Count)
 }
 
 if ($Silent) {
