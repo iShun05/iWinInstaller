@@ -97,7 +97,7 @@ namespace IWinInstaller.App.Modules.Gaming
         }
     }
 
-    /// <summary>Juego: ping en vivo, bufferbloat, conexión y DNS. Solo mide con la página abierta.</summary>
+    /// <summary>Latencia: ping en vivo, bufferbloat, conexión y DNS. Solo mide con la página abierta.</summary>
     public sealed class GamingViewModel : ObservableObject
     {
         private const string InternetHost = "1.1.1.1";

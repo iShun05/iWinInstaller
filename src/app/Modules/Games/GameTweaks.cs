@@ -71,11 +71,11 @@ namespace IWinInstaller.App.Modules.Games
             return list;
         }
 
-        public static TweakPlan Build(GameDefinition game, GameInstall install, IGameEnvironment env, int currentHz)
+        public static TweakPlan Build(GameDefinition game, GameInstall install, IGameEnvironment env, int currentHz, int maxHz = 0)
         {
             var plan = new TweakPlan();
             if (install == null || !install.Found) return plan;
-            if (game.Id == GameDefinitions.Fortnite) BuildFortnite(plan, env, currentHz);
+            if (game.Id == GameDefinitions.Fortnite) BuildFortnite(plan, env, currentHz, maxHz);
             else if (game.Id == GameDefinitions.StarRail) BuildStarRail(plan, install, env);
             BuildGpu(plan, game, install, env);
             return plan;
@@ -124,10 +124,11 @@ namespace IWinInstaller.App.Modules.Games
             return Math.Round(fps).ToString(CultureInfo.InvariantCulture) + " FPS";
         }
 
-        /// <summary>Valor de FrameRateLimit para la opción elegida: 0 = Hz actuales, 1 = Hz − 3, 2 = sin límite.</summary>
-        public static string FortniteFpsValue(int option, int currentHz)
+        /// <summary>Valor de FrameRateLimit: 0 = Hz actuales, 1 = Hz − 3, 2 = sin límite, 3 = máximo del monitor (si se conoce).</summary>
+        public static string FortniteFpsValue(int option, int currentHz, int maxHz = 0)
         {
-            int fps = option == 2 || currentHz <= 0 ? 0 : option == 1 ? Math.Max(30, currentHz - 3) : currentHz;
+            int baseHz = option == 3 && maxHz > 0 ? maxHz : currentHz;
+            int fps = option == 2 || baseHz <= 0 ? 0 : option == 1 ? Math.Max(30, baseHz - 3) : baseHz;
             return fps.ToString(CultureInfo.InvariantCulture) + ".000000";
         }
 
@@ -147,7 +148,7 @@ namespace IWinInstaller.App.Modules.Games
             return item;
         }
 
-        private static void BuildFortnite(TweakPlan plan, IGameEnvironment env, int currentHz)
+        private static void BuildFortnite(TweakPlan plan, IGameEnvironment env, int currentHz, int maxHz)
         {
             string path = FortniteIniPath(env);
             plan.FortniteIni = path;
@@ -176,6 +177,8 @@ namespace IWinInstaller.App.Modules.Games
             plan.Items.Add(view);
             plan.Items.Add(Ini(ini, "fn-res", "Resolución 3D al 100 %", "100 %", v => v == null ? "—" : v + " %", "ScalabilityGroups", "sg.ResolutionQuality", "100"));
 
+            bool useMax = maxHz > currentHz && currentHz > 0;
+            if (useMax) plan.Warnings.Add("Tu pantalla está a " + currentHz + " Hz pero admite " + maxHz + " Hz: súbela en Sistema para aprovechar el límite.");
             string hzText = currentHz > 0 ? currentHz.ToString(CultureInfo.InvariantCulture) : "?";
             var fps = new TweakItem
             {
@@ -185,20 +188,28 @@ namespace IWinInstaller.App.Modules.Games
                     hzText + " FPS (los Hz de tu pantalla)",
                     (currentHz > 0 ? Math.Max(30, currentHz - 3).ToString(CultureInfo.InvariantCulture) : "?") + " FPS (Hz − 3, con G‑Sync o FreeSync)",
                     "Sin límite (con Reflex + Boost; más calor)"
-                },
+                }.Concat(maxHz > 0 ? new[] { maxHz + " FPS (máximo de tu monitor, competitivo)" } : new string[0]).ToList(),
+                SelectedIndex = useMax ? 3 : 0,
                 IsChecked = true
             };
-            fps.New = fps.Options[0];
-            fps.Changes.Add(new[] { FortniteSection, "FrameRateLimit", FortniteFpsValue(0, currentHz) });
+            fps.New = fps.Options[fps.SelectedIndex];
+            fps.Changes.Add(new[] { FortniteSection, "FrameRateLimit", FortniteFpsValue(fps.SelectedIndex, currentHz, maxHz) });
             plan.Items.Add(fps);
 
+            if (ini.Get(FortniteSection, "bMotionBlur") != null)
+                plan.Items.Add(Ini(ini, "fn-blur", "Desenfoque de movimiento desactivado", "Desactivado", OnOff, FortniteSection, "bMotionBlur", "False"));
+            if (ini.Get(FortniteSection, "bUseDynamicResolution") != null)
+            {
+                var dyn = Ini(ini, "fn-dynres", "Resolución dinámica desactivada", "Desactivado", OnOff, FortniteSection, "bUseDynamicResolution", "False");
+                dyn.Note = "Una carga de GPU estable da tiempos de fotograma más constantes.";
+                plan.Items.Add(dyn);
+            }
             plan.Items.Add(Ini(ini, "fn-vsync", "VSync desactivado", "Desactivado", OnOff, FortniteSection, "bUseVSync", "False"));
             plan.Items.Add(Ini(ini, "fn-showfps", "Contador de FPS visible", "Activado", OnOff, FortniteSection, "bShowFPS", "True"));
             var full = Ini(ini, "fn-fullscreen", "Pantalla completa exclusiva", "Pantalla completa",
                 v => v == "0" ? "Pantalla completa" : v == "1" ? "Sin bordes" : v == "2" ? "Ventana" : "—",
                 FortniteSection, "FullscreenMode", "0", FortniteSection, "LastConfirmedFullscreenMode", "0", FortniteSection, "PreferredFullscreenMode", "0");
-            full.IsChecked = false;
-            full.Note = "Algo menos de latencia; cambiar de ventana con Alt+Tab es más lento.";
+            full.Note = "Menos latencia (perfil competitivo); cambiar de ventana con Alt+Tab es más lento.";
             plan.Items.Add(full);
         }
 
@@ -227,8 +238,8 @@ namespace IWinInstaller.App.Modules.Games
             {
                 var item = new TweakItem
                 {
-                    Id = "sr-fps", Title = "120 FPS", Label = UnofficialLabel, Current = fps.Value + " FPS", New = "120 FPS", AlreadyDone = fps.Value == 120,
-                    Note = "Escribe en tu registro el mismo valor que guarda el juego, con el juego cerrado; no toca la memoria ni los archivos. No es una opción oficial: HoYoverse no lo garantiza. No cambies la opción FPS dentro del juego."
+                    Id = "sr-fps", Title = "120 FPS", Label = UnofficialLabel, Current = fps.Value + " FPS", New = "120 FPS", AlreadyDone = fps.Value == 120, IsChecked = true,
+                    Note = "120 es el máximo que admite el juego por esta vía (otros valores se resetean). Escribe en tu registro el mismo valor que guarda el juego, con el juego cerrado; no toca la memoria ni los archivos. No es una opción oficial: HoYoverse no lo garantiza. No cambies la opción FPS dentro del juego."
                 };
                 item.Changes.Add(new[] { "FPS", "120" });
                 plan.Items.Add(item);
@@ -274,7 +285,7 @@ namespace IWinInstaller.App.Modules.Games
         }
 
         /// <summary>Copia y aplica los cambios marcados. Si la copia falla no se cambia nada. Una línea por cambio.</summary>
-        public static List<string> Apply(GameDefinition game, GameInstall install, IGameEnvironment env, TweakPlan plan, GameBackupStore store, int currentHz, DateTime nowUtc)
+        public static List<string> Apply(GameDefinition game, GameInstall install, IGameEnvironment env, TweakPlan plan, GameBackupStore store, int currentHz, DateTime nowUtc, int maxHz = 0)
         {
             var lines = new List<string>();
             var chosen = plan.Items.Where(i => i.IsChecked).ToList();
@@ -313,7 +324,12 @@ namespace IWinInstaller.App.Modules.Games
                     var ini = IniDocument.Parse(File.ReadAllBytes(plan.FortniteIni));
                     foreach (var item in fortnite)
                     {
-                        if (item.Id == "fn-fps") ini.Set(FortniteSection, "FrameRateLimit", FortniteFpsValue(item.SelectedIndex, currentHz));
+                        if (item.Id == "fn-fps")
+                        {
+                            string value = FortniteFpsValue(item.SelectedIndex, currentHz, maxHz);
+                            ini.Set(FortniteSection, "FrameRateLimit", value);
+                            if (ini.Get(FortniteSection, "MenuFrameRateLimit") != null) ini.Set(FortniteSection, "MenuFrameRateLimit", value);
+                        }
                         else foreach (var c in item.Changes) ini.Set(c[0], c[1], c[2]);
                     }
                     SafeFile.WriteAtomic(plan.FortniteIni, ini.ToBytes());
