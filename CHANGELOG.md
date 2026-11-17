@@ -42,7 +42,7 @@
 - `tests/unit/engine/RestorePoint.Tests.ps1`: regla de 24 horas.
 - `src/engine/16-Config.ps1` (nuevo), `iWinInstaller.ps1`, `docs/cli.md`, `tests/unit/engine/Config.Tests.ps1` (Pester; compatibilidad, extensibilidad y rechazo de datos no válidos).
 - `InstallViewModel.cs` e `InstallView.xaml` (botones); sin compilar en este entorno: lo compila el CI.
-- `src/app/Modules/Equipo/**` (nuevo: modelo y reglas puras, lecturas del sistema, vista y modelo de vista), `Install/InstallViewModel.cs` (`SelectPreset`), `Shell/ShellViewModel.cs`, `Shell/MainWindow.xaml`, `Shell/Palette/PaletteSearch.cs`, `Core/StatusCard.cs`, `profiles.json`.
+- `src/app/Modules/Equipo/**` (nuevo: modelo y reglas puras, lecturas del sistema, vista y modelo de vista), `Install/InstallViewModel.cs` (`SelectPreset`), `Shell/ShellViewModel.cs`, `Shell/MainWindow.xaml`, `Shell/Palette/PaletteSearch.cs`, `Core/StatusCard.cs`, `profiles.json`. Diseño: `specs/005-equipo/design.md`.
 - MSTest `tests/unit/app/EquipoTests.cs` (18 pruebas: chasis, marca y gráfica dedicada, gama, preset por equipo, reglas de Defender, Windows Update, inicio y temperatura, StartupApproved, y que todos los ids del preset existan en `apps.json` y estén en el perfil).
 - Sin verificar en un equipo real: las lecturas WMI y de registro (`EquipoProbes`), la maquetación de la página y las temperaturas (muchos equipos no exponen zonas térmicas sin driver). La lógica se probó en Linux y la compilación con .NET Framework 4.8 la hace la CI.
 - **Afecta a Windows x86/x64/ARM64 por igual**.

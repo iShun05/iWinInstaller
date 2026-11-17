@@ -1,4 +1,4 @@
-# 004 · Equipo: perfiles de hardware y panel de salud
+# 005 · Equipo: perfiles de hardware y panel de salud
 
 Estado: implementado, sin publicar. Objetivo del usuario: un Windows muy fluido para **desarrollar y jugar en competitivo a la vez**, sin procesos residentes.
 
