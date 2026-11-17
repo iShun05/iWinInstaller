@@ -50,6 +50,10 @@ function Install-Tweak($id) {
                 Write-Log '  Se aplica al reiniciar la sesión.'
                 return $true
             }
+            'gamedns' { return (Set-GameDns) }
+            'wifiperf' { return (Set-WifiPerf) }
+            'nodvr' { Set-RegDword $GameConfigStore 'GameDVR_Enabled' 0; Set-RegDword $GameDvrKey 'AppCaptureEnabled' 0; return $true }
+            'gamemode' { Set-RegDword $GameBarKey 'AutoGameModeEnabled' 1; Set-RegDword $GameBarKey 'AllowAutoGameMode' 1; return $true }
         }
     } catch { Write-Log "  $($_.Exception.Message)" }
     return $false
@@ -93,6 +97,10 @@ function Test-TweakCore($id) {
         'remotessh' { return (Test-RemoteSsh) }
         'virtualdisplayon' { return (Test-VirtualDisplay) }
         'rgboff' { return (Test-RgbOff) }
+        'gamedns' { return (Test-GameDns) }
+        'wifiperf' { return (Test-WifiPerf) }
+        'nodvr' { return ((Get-RegValue $GameConfigStore 'GameDVR_Enabled') -eq 0 -and (Get-RegValue $GameDvrKey 'AppCaptureEnabled') -eq 0) }
+        'gamemode' { return ((Get-RegValue $GameBarKey 'AutoGameModeEnabled') -eq 1 -and (Get-RegValue $GameBarKey 'AllowAutoGameMode') -eq 1) }
     }
     return $false
 }

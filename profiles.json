@@ -28,6 +28,17 @@
     "sumatra",
     "notepadpp"
   ],
+  "Juego competitivo (baja latencia)": [
+    "power",
+    "wifiperf",
+    "gamedns",
+    "nodvr",
+    "gamemode",
+    "mouseaccel",
+    "rtss",
+    "latencymon",
+    "speedtest"
+  ],
   "Solo sistema (ajustes y optimización)": [
     "@Sistema"
   ],
