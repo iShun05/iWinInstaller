@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Windows.Threading;
 using IWinInstaller.App.Core;
 using IWinInstaller.App.Engine;
+using IWinInstaller.App.Modules.Games;
+using IWinInstaller.App.Modules.Gaming;
 using IWinInstaller.App.Modules.Home;
 using IWinInstaller.App.Modules.Install;
 using IWinInstaller.App.Modules.Tools;
@@ -36,6 +38,8 @@ namespace IWinInstaller.App.Shell
                 case "install": return "\uE896";
                 case "updates": return "\uE895";
                 case "system": return "\uE7F4";
+                case "games": return "\uE7FC";
+                case "gaming": return "\uE701";
                 case "maintenance": return "\uE90F";
                 case "remote": return "\uE703";
                 case "security": return "\uEA18";
@@ -71,6 +75,8 @@ namespace IWinInstaller.App.Shell
             Settings = new SettingsViewModel(Engine);
             Maintenance = new MaintenanceViewModel(Engine, dialogs);
             Updates = new UpdatesViewModel(Engine, dispatcher);
+            Gaming = new GamingViewModel(preferences, dispatcher, () => { Navigate("install"); Install.Search = "Red y juego competitivo"; });
+            Games = new GamesViewModel(dispatcher, dialogs, () => Navigate("system"), () => Navigate("gaming"));
             Router = new ActionRouter(Navigate);
             Items = new ObservableCollection<NavItem>
             {
@@ -78,6 +84,8 @@ namespace IWinInstaller.App.Shell
                 new NavItem("install", "Instalar", "Catálogo, perfiles, guías después de instalar e informe.", false),
                 new NavItem("updates", "Actualizaciones", "Versiones nuevas, exclusiones y actualización programada.", false),
                 new NavItem("system", "Sistema", "Pantalla y energía.", false),
+                new NavItem("games", "Juegos", "Tus juegos: instalación, archivos y optimización.", false),
+                new NavItem("gaming", "Latencia", "Ping en vivo, bufferbloat y ajustes para jugar online.", false),
                 new NavItem("maintenance", "Mantenimiento", "Liberar espacio, reparar Windows y salud del equipo.", false),
                 new NavItem("remote", "Acceso remoto", "Vincular equipos por SSH.", false),
                 new NavItem("security", "Seguridad", "Microsoft Defender y antivirus.", false),
@@ -105,6 +113,8 @@ namespace IWinInstaller.App.Shell
         public SettingsViewModel Settings { get; private set; }
         public MaintenanceViewModel Maintenance { get; private set; }
         public UpdatesViewModel Updates { get; private set; }
+        public GamingViewModel Gaming { get; private set; }
+        public GamesViewModel Games { get; private set; }
         public ActionRouter Router { get; private set; }
         public ObservableCollection<NavItem> Items { get; private set; }
         public RelayCommand OpenActionCommand { get; private set; }
@@ -145,6 +155,10 @@ namespace IWinInstaller.App.Shell
             set
             {
                 if (value == null || !Set(ref _selected, value)) return;
+                // El ping en vivo y la vigilancia de juegos abiertos solo funcionan con su página seleccionada
+                Gaming.Stop(); Games.Stop();
+                if (value.Id == "gaming") Gaming.Start();
+                if (value.Id == "games") Games.Start();
                 OnPropertyChanged("IsHome"); OnPropertyChanged("IsClassicPage"); OnPropertyChanged("PageId");
                 if (value.Id == "updates") Updates.EnsureLoaded();
                 if (value.Id == "install") Install.EnsureLoaded();

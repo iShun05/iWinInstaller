@@ -1,0 +1,169 @@
+<UserControl x:Class="IWinInstaller.App.Modules.Games.GamesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="Visible"/>
+    <Style x:Key="Card" TargetType="Border">
+      <Setter Property="Background" Value="{StaticResource Surface}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+      <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="14"/><Setter Property="Padding" Value="18,16"/><Setter Property="Margin" Value="0,0,0,16"/>
+    </Style>
+    <Style x:Key="Muted" TargetType="TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource TextMuted}"/><Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style x:Key="SmallBtn" TargetType="Button" BasedOn="{StaticResource Btn}">
+      <Setter Property="Margin" Value="0,0,8,8"/>
+    </Style>
+
+    <!-- Una tarjeta por juego -->
+    <DataTemplate x:Key="GameCard">
+      <Border x:Name="card" Style="{StaticResource Card}" AutomationProperties.Name="{Binding Name}" AutomationProperties.HelpText="{Binding StateLabel}">
+        <StackPanel>
+          <!-- Cabecera: nombre y estado -->
+          <DockPanel LastChildFill="True">
+            <Border x:Name="pill" DockPanel.Dock="Right" CornerRadius="10" Padding="9,2" Background="{StaticResource UnknownSoft}" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal">
+                <Ellipse x:Name="dot" Width="6" Height="6" Fill="{StaticResource Unknown}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBlock x:Name="state" Text="{Binding StateLabel}" FontSize="11.5" Foreground="{StaticResource Unknown}"/>
+              </StackPanel>
+            </Border>
+            <TextBlock Text="{Binding Name}" FontSize="17" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" VerticalAlignment="Center"/>
+          </DockPanel>
+          <TextBlock Text="{Binding Summary}" Style="{StaticResource Muted}" Margin="0,4,0,10"/>
+          <TextBlock Text="{Binding BusyText}" Foreground="{StaticResource Accent}" TextWrapping="Wrap" Margin="0,0,0,8"
+                     Visibility="{Binding Busy, Converter={StaticResource Visible}}" AutomationProperties.LiveSetting="Polite"/>
+
+          <!-- Botones -->
+          <WrapPanel Visibility="{Binding IsInstalled, Converter={StaticResource Visible}}">
+            <Button Style="{StaticResource Primary}" Margin="0,0,8,8" Content="Optimizar" Command="{Binding OptimizeCommand}"/>
+            <Button Style="{StaticResource SmallBtn}" Content="Comprobar archivos" Command="{Binding CheckCommand}"/>
+            <Button Style="{StaticResource SmallBtn}" Content="Detalles" Command="{Binding DetailsCommand}"/>
+            <Button Style="{StaticResource SmallBtn}" Content="Restaurar" Command="{Binding RestoreCommand}" Visibility="{Binding HasBackup, Converter={StaticResource Visible}}"/>
+            <Button Style="{StaticResource SmallBtn}" Content="Abrir carpeta" Command="{Binding OpenFolderCommand}"/>
+          </WrapPanel>
+          <WrapPanel Visibility="{Binding IsMissing, Converter={StaticResource Visible}}">
+            <Button Style="{StaticResource SmallBtn}" Content="Buscar el ejecutable…" Command="{Binding BrowseCommand}"/>
+            <Button Style="{StaticResource Ghost}" Margin="0,0,8,8" Content="Web oficial" Command="{Binding WebsiteCommand}"/>
+          </WrapPanel>
+
+          <!-- Comprobar archivos -->
+          <StackPanel Visibility="{Binding IsInstalled, Converter={StaticResource Visible}}">
+            <WrapPanel>
+              <CheckBox Content="Comprobación completa (MD5, lenta)" IsChecked="{Binding FullCheck}" Foreground="{StaticResource TextMuted}" Margin="0,0,16,6" VerticalAlignment="Center"
+                        ToolTip="Además del tamaño, calcula el MD5 de cada archivo. Solo en juegos de HoYoverse."/>
+              <Button Style="{StaticResource Ghost}" Content="Cancelar" Command="{Binding CancelCheckCommand}" Margin="0,0,8,6" Visibility="{Binding IsChecking, Converter={StaticResource Visible}}"/>
+              <Button Style="{StaticResource Ghost}" Content="Verificar en Steam" Command="{Binding SteamVerifyCommand}" Margin="0,0,8,6" Visibility="{Binding IsSteam, Converter={StaticResource Visible}}"/>
+            </WrapPanel>
+            <ProgressBar Height="4" Maximum="1" Value="{Binding CheckProgress}" Margin="0,0,0,6" Visibility="{Binding IsChecking, Converter={StaticResource Visible}}"
+                         Background="{StaticResource SurfaceRaised}" Foreground="{StaticResource Accent}" BorderThickness="0"/>
+            <TextBlock Text="{Binding CheckMessage}" Foreground="{StaticResource Text}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/>
+            <ItemsControl ItemsSource="{Binding Problems}" Focusable="False" Margin="0,4,0,0">
+              <ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" Foreground="{StaticResource Attention}" FontSize="12" TextTrimming="CharacterEllipsis"/></DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+
+          <!-- Detalles -->
+          <Border Background="{StaticResource SurfaceRaised}" CornerRadius="10" Padding="14,10" Margin="0,10,0,0" Visibility="{Binding ShowDetails, Converter={StaticResource Visible}}">
+            <ItemsControl ItemsSource="{Binding Details}" Focusable="False">
+              <ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,2"/></DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Border>
+
+          <!-- Optimizar -->
+          <Border Background="{StaticResource SurfaceRaised}" CornerRadius="10" Padding="14,12" Margin="0,10,0,0" Visibility="{Binding ShowOptimize, Converter={StaticResource Visible}}">
+            <StackPanel>
+              <TextBlock Text="{Binding Note}" Style="{StaticResource Muted}" Margin="0,0,0,8"/>
+              <ItemsControl ItemsSource="{Binding Warnings}" Focusable="False">
+                <ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" Foreground="{StaticResource Attention}" TextWrapping="Wrap" Margin="0,0,0,6"/></DataTemplate></ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <DockPanel Margin="0,6">
+                      <CheckBox DockPanel.Dock="Left" IsChecked="{Binding IsChecked, Mode=TwoWay}" IsEnabled="{Binding CanToggle}" VerticalAlignment="Top" Margin="0,2,10,0"
+                                AutomationProperties.Name="{Binding Title}"/>
+                      <StackPanel>
+                        <WrapPanel>
+                          <TextBlock Text="{Binding Title}" Foreground="{StaticResource TextStrong}" FontWeight="SemiBold" Margin="0,0,8,0"/>
+                          <Border x:Name="tag" CornerRadius="8" Padding="7,1" Background="{StaticResource UnknownSoft}" VerticalAlignment="Center">
+                            <TextBlock x:Name="tagText" Text="{Binding Label}" FontSize="11" Foreground="{StaticResource TextMuted}"/>
+                          </Border>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding Change}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                        <ComboBox ItemsSource="{Binding Options}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" HorizontalAlignment="Left" MinWidth="320" Margin="0,6,0,0"
+                                  Visibility="{Binding HasOptions, Converter={StaticResource Visible}}" AutomationProperties.Name="Límite de FPS"/>
+                        <TextBlock Text="{Binding Note}" Foreground="{StaticResource TextFaint}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                      </StackPanel>
+                    </DockPanel>
+                    <DataTemplate.Triggers>
+                      <DataTrigger Binding="{Binding IsUnofficial}" Value="True">
+                        <Setter TargetName="tag" Property="Background" Value="{StaticResource AttentionSoft}"/>
+                        <Setter TargetName="tagText" Property="Foreground" Value="{StaticResource Attention}"/>
+                      </DataTrigger>
+                    </DataTemplate.Triggers>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <TextBlock Text="Hazlo tú en el juego" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" Margin="0,10,0,4"/>
+              <ItemsControl ItemsSource="{Binding InGameTips}" Focusable="False">
+                <ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding StringFormat=• {0}}" Style="{StaticResource Muted}" Margin="0,1"/></DataTemplate></ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <WrapPanel Margin="0,12,0,0">
+                <Button Style="{StaticResource Primary}" Content="Aplicar" Command="{Binding ApplyCommand}" Margin="0,0,10,0"/>
+                <TextBlock Text="Antes se guarda una copia; «Restaurar» la devuelve." Style="{StaticResource Muted}" VerticalAlignment="Center" FontSize="12"/>
+              </WrapPanel>
+            </StackPanel>
+          </Border>
+          <TextBlock Text="{Binding Result}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,10,0,0" AutomationProperties.LiveSetting="Polite"/>
+        </StackPanel>
+      </Border>
+      <DataTemplate.Triggers>
+        <DataTrigger Binding="{Binding State}" Value="Installed">
+          <Setter TargetName="pill" Property="Background" Value="{StaticResource OkSoft}"/>
+          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Ok}"/>
+          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Ok}"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding State}" Value="Attention">
+          <Setter TargetName="pill" Property="Background" Value="{StaticResource AttentionSoft}"/>
+          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Attention}"/>
+          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Attention}"/>
+          <Setter TargetName="card" Property="BorderBrush" Value="#3B3020"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding State}" Value="Running">
+          <Setter TargetName="pill" Property="Background" Value="{StaticResource AccentSoft}"/>
+          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Accent}"/>
+          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Accent}"/>
+        </DataTrigger>
+      </DataTemplate.Triggers>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+    <StackPanel Margin="32,28,32,24" MaxWidth="900" HorizontalAlignment="Left">
+      <DockPanel LastChildFill="False">
+        <TextBlock Text="Juegos" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+        <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="Buscar de nuevo" Command="{Binding RefreshCommand}"/>
+      </DockPanel>
+      <TextBlock Style="{StaticResource Muted}" Margin="0,6,0,16"
+                 Text="Comprueba si tus juegos están instalados y sus archivos, y optimízalos para más FPS y menos input lag. Solo se tocan ajustes que guarda el propio juego o Windows, siempre con el juego cerrado y con copia para restaurar: nada de memoria, ejecutables ni archivos del juego."/>
+
+      <!-- Pantalla -->
+      <Border Style="{StaticResource Card}">
+        <DockPanel LastChildFill="True">
+          <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="{Binding RaiseHzLabel}" Command="{Binding OpenSystemCommand}" VerticalAlignment="Center"
+                  Visibility="{Binding CanRaiseHz, Converter={StaticResource Visible}}"/>
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="Pantalla" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+            <TextBlock Text="{Binding Display}" Style="{StaticResource Muted}" Margin="0,2,12,0"/>
+          </StackPanel>
+        </DockPanel>
+      </Border>
+
+      <ItemsControl ItemsSource="{Binding Cards}" ItemTemplate="{StaticResource GameCard}" Focusable="False"/>
+
+      <TextBlock Style="{StaticResource Muted}" FontSize="12">
+        <Run Text="Modo Juego y sin grabación en segundo plano están en"/>
+        <Hyperlink Command="{Binding OpenLatencyCommand}" Foreground="{StaticResource Accent}">Latencia › Ajustes de juego</Hyperlink><Run Text=". La app no mide FPS: para comparar usa el contador del juego o CapFrameX."/>
+      </TextBlock>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

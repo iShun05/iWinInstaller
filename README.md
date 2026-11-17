@@ -16,7 +16,7 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura pide permiso de administrador, instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Si tenías una versión anterior instalada por usuario, se retira sola al instalar la nueva. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v5.1** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v5.3** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
@@ -31,20 +31,22 @@ Usa **Armoury Crate o G-Helper** como gestor de rendimiento, conservando ASUS Sy
 
 ## Funciones principales
 
+- **Juegos · detectar, comprobar y optimizar** (v5.3): página **Juegos** que encuentra Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero y Arknights: Endfield, comprueba sus archivos y aplica en Fortnite y Star Rail ajustes oficiales de rendimiento con copia para deshacer. Ver [Juegos](#juegos-detectar-comprobar-y-optimizar).
+- **Latencia · ping en vivo y baja latencia** (v5.2): página **Latencia** (antes Juego) con ping al router, a Internet y al servidor del juego (jitter, pérdida y picos de la sesión), prueba de **bufferbloat**, estado del Wi‑Fi y DNS en uso; ajustes reversibles en **Sistema › Red y juego competitivo** y perfil «Juego competitivo (baja latencia)». Ver [Juego competitivo y latencia](#juego-competitivo-y-latencia).
 - **Mantenimiento y salud** (v4.9): liberar espacio (calcula antes, pide confirmación y nunca toca documentos), reparar Windows con DISM y SFC, salud de discos y batería e informe del equipo sin datos sensibles.
 - **Buscar cualquier cosa (`Ctrl + K`)**: una paleta que lleva a cualquier sección, ajuste o app del catálogo escribiendo lo que quieres hacer, sin tildes y con sinónimos.
 - **Inicio · Estado del PC**: al abrir, tarjetas con las actualizaciones de apps, Windows Update, antivirus, espacio y salud de los discos, batería, reinicio pendiente y lotes sin terminar. Cada una dice si está correcta, si requiere atención o si no se pudo comprobar (y por qué), con un botón **Abrir** que lleva a la solución.
 - **Actualizaciones** (v4.5): qué apps tienen versión nueva, cuáles actualizar, **Mantener esta versión** para las que quieras fijar y actualización programada opcional (con tu usuario, sin reiniciar ni abrir asistentes).
-- **Subsecciones con comparativa**: dentro de cada categoría, las apps que hacen lo mismo se agrupan en subsecciones (p. ej. Optimización y privacidad › Quitar telemetría y bloatware, Consola y shells › Terminales, Navegadores › Basados en Firefox). Cada subsección abre con un recuadro **«Cuál elegir»** que dice cuándo compensa una, otra o las dos juntas, y cada app añade una línea con lo que ofrece y lo que no. 84 subsecciones en 24 categorías; la búsqueda también encuentra por esas comparativas.
+- **Subsecciones con comparativa**: dentro de cada categoría, las apps que hacen lo mismo se agrupan en subsecciones (p. ej. Optimización y privacidad › Quitar telemetría y bloatware, Consola y shells › Terminales, Navegadores › Basados en Firefox). Cada subsección abre con un recuadro **«Cuál elegir»** que dice cuándo compensa una, otra o las dos juntas, y cada app añade una línea con lo que ofrece y lo que no. 89 subsecciones en 23 categorías; la búsqueda también encuentra por esas comparativas.
 - **Sistema · Resolución y frecuencia** sin abrir Configuración: elige monitor, resolución y Hz entre los modos que admite; si no pulsas **Mantener** en 15 s vuelve solo al modo anterior, como hace Windows. En la misma sección, **Energía** ajusta apagado de pantalla, suspensión e hibernación del plan activo.
-- **Pasos y notas**: en cada opción relevante (122 guías), pasos marcables, tu nota y **Comprobar**, que separa la detección técnica de las confirmaciones manuales de cuentas, conexiones, licencias y pruebas físicas. El filtro **Por configurar** muestra lo pendiente. El seguimiento se conserva al cerrar y actualizar.
+- **Pasos y notas**: en cada opción relevante (133 guías), pasos marcables, tu nota y **Comprobar**, que separa la detección técnica de las confirmaciones manuales de cuentas, conexiones, licencias y pruebas físicas. El filtro **Por configurar** muestra lo pendiente. El seguimiento se conserva al cerrar y actualizar.
 - **Lotes recuperables**: el progreso se guarda antes y después de cada aplicación. **Pausar al terminar esta app** deja finalizar el instalador actual y conserva el resto. **Reanudar lote** continúa los pendientes más recientes; los anteriores también se conservan y se ofrecen al completar ese lote. Desde consola: `iWinInstaller.ps1 -Resume`. No se ejecuta un lote automáticamente tras reiniciar.
 - **Resumen antes de instalar**: incluye dependencias, permisos, ajustes y reinicios previstos; comprueba espacio de preparación y conexión HTTPS al origen de WinGet. Los requisitos finales de cada proveedor pueden ser mayores.
 - **Deshacer con estado anterior**: los ajustes reversibles aplicados desde v3.2 guardan valores y tipos originales. El ajuste de acceso remoto conserva energía, red, servicios y accesos. Si el cambio viene de una versión antigua sin estado guardado, se explica y se evita imponer valores genéricos. WSL y puntos de restauración no se deshacen desde aquí; RGB retira su tarea, sin recuperar colores físicos anteriores.
 - **Reinicios visibles**: las aplicaciones que lo solicitan quedan identificadas hasta un nuevo arranque y se pueden comprobar otra vez. iWinInstaller no reinicia por su cuenta.
 - **Actualización opcional de iWinInstaller** (Ajustes): desactivada inicialmente; al activarla (pide permiso de administrador una vez) comprueba GitHub al abrir la app, al iniciar sesión y una vez al día mediante una tarea del sistema que solo ejecuta el actualizador instalado. Descarga solo la nueva versión estable, verifica SHA256 y sustituye la app cuando la cierras. No actualiza otras aplicaciones. **Buscar nueva versión ahora** lo hace a mano.
 
-- **427 entradas en tres secciones**, cada una con sus categorías:
+- **435 entradas en tres secciones**, cada una con sus categorías:
   - **Sistema**: ajustes de Windows (tema oscuro, extensiones visibles, menú contextual clásico, rutas largas, Inicio sin Bing, punto de restauración, alto rendimiento, modo desarrollador, WSL…), optimización y privacidad (O&O ShutUp10++, WinToys, Winhance, privacy.sexy, BleachBit…) y drivers y componentes (Visual C++, .NET, DirectX, NVIDIA, Intel).
   - **Terminal**: consola y shells (Windows Terminal, PowerShell 7, WezTerm, Starship, Oh My Posh, gsudo…), lenguajes y entornos (Git, Python, Node.js, Deno, Go, Rust, Java, .NET SDK, Ruby, Zig, C/C++ con LLVM, CMake y Build Tools, PostgreSQL, MongoDB…) y herramientas de línea de comandos (Claude Code, Codex CLI, lazygit, ripgrep, fzf, FFmpeg, yt-dlp, Azure y AWS CLI…).
   - **Aplicaciones**: todo lo que tiene ventana propia (juegos, navegadores, IA, utilidades, multimedia…).
@@ -67,6 +69,38 @@ Usa **Armoury Crate o G-Helper** como gestor de rendimiento, conservando ASUS Sy
 - **Actualización pública** del instalador, con comprobación SHA256. Los lotes separan las instalaciones por usuario de las que requieren administrador.
 
 Algunos productos necesitan su asistente o una suscripción. Norton VPN se instala desde la cuenta del proveedor: abrir sus instrucciones no se considera una instalación correcta. WSL puede requerir reiniciar Windows. La app no importa configuraciones personales ni administra proyectos de código.
+
+## Juegos: detectar, comprobar y optimizar
+
+La página **Juegos** busca cada juego en HoYoPlay, Epic, Steam y la lista de programas instalados (o deja elegir el ejecutable a mano), muestra carpeta, versión, tamaño y origen, y comprueba los archivos: rápida (existencia y tamaño) o completa (MD5) con la lista `pkg_version` de HoYoverse; Fortnite y Endfield remiten a **Verificar** de su lanzador. **Optimizar** solo se activa con el juego y su lanzador cerrados, enseña cada cambio (actual → nuevo) y guarda antes una copia en `%LOCALAPPDATA%\iWinInstaller\Juegos\copias` (se conservan 10); **Restaurar** la devuelve.
+
+Solo se tocan archivos y claves de configuración que el propio juego lee y que cambias igual desde su menú. Nunca memoria, ejecutables, archivos del juego ni nada protegido por el anticheat.
+
+| Juego | Qué cambia | Qué no y por qué |
+| --- | --- | --- |
+| Fortnite | `GameUserSettings.ini`: modo Rendimiento, mallas bajas, texturas bajas, distancia de visión épica, resolución 100 %, FPS = Hz de la pantalla (o −3 o sin límite), VSync off, contador de FPS; pantalla completa opcional | Nada fuera del ini; Easy Anti‑Cheat no vigila la configuración del usuario |
+| Honkai: Star Rail | Registro `HKCU\Software\Cognosphere\Star Rail`: VSync off y bajar calidades; **120 FPS opcional y marcado como no oficial** (el juego lo ofrece solo en algunos equipos y puede volver a 60) | No sube calidades ni cambia nada más |
+| Genshin Impact | Solo GPU de alto rendimiento | El tope oficial es 60 FPS; los «unlockers» escriben en la memoria del juego y pueden suponer baneo |
+| Zenless Zone Zero | Solo GPU de alto rendimiento | Ya permite FPS sin límite en su menú; su configuración está cifrada |
+| Arknights: Endfield | Solo GPU de alto rendimiento | Ya ofrece 120 FPS en su menú |
+
+**GPU de alto rendimiento** usa la preferencia oficial de Windows (`UserGpuPreferences`) y solo se marca con dos GPU. Para pasar de 60 Hz, la tarjeta **Pantalla** avisa si el monitor admite más y lleva a **Sistema › Resolución y frecuencia**.
+
+## Juego competitivo y latencia
+
+Pensado para un portátil gamer con shooters online. **Lo que más baja el ping no es un ajuste de Windows**: el cable (o Wi‑Fi de 5/6 GHz cerca del router), elegir la región más cercana en el juego y que nadie sature la línea (bufferbloat). La app mide eso y aplica solo los cambios de Windows que ayudan de verdad.
+
+**Página Latencia** (ligera): ping cada segundo al router, a 1.1.1.1 y, si lo escribes, al servidor del juego, con media, jitter, pérdida, máximo y gráfica de 60 s. Guarda los 20 últimos picos para revisarlos después de una partida. Mide solo con la página abierta (también minimizada); al cambiar de página o cerrar la app no queda nada en marcha. Si el servidor no contesta a ping (habitual), lo indica en vez de marcarlo en rojo. **Bufferbloat** (botón): ping en reposo y con descarga y subida a la vez contra Cloudflare, nota de A+ a F y qué hacer en el router (SQM/QoS con fq_codel o CAKE); usa hasta 400 MB. También muestra tipo de conexión, señal, banda y canal del Wi‑Fi (sin el nombre de la red), el DNS en uso y un acceso a **Elegir GPU por juego** (muchos portátiles lanzan el juego en la gráfica integrada).
+
+**Ajustes (Sistema › Red y juego competitivo, con Deshacer)**:
+- **DNS más rápido (se adapta a cada red)**: una tarea del sistema mide el DNS de tu red, Cloudflare, Google y Quad9 al arrancar, al iniciar sesión y al conectar a cada red, y deja el más rápido (el de tu red si está a 5 ms o 15 % del mejor). No toca un DNS manual (Pi‑hole, NextDNS), equipos de dominio ni VPN; sin internet (portal de hotel) vuelve a automático. **No cambia el ping dentro de la partida**: acelera conectar con lanzadores y matchmaking.
+- **Wi‑Fi sin ahorro de energía (enchufado)**: máximo rendimiento del adaptador inalámbrico con corriente en todos los planes; con batería sigue ahorrando.
+- **Sin grabación en segundo plano** (Game DVR) y **Modo Juego activado** (viene activado; el ajuste lo garantiza).
+- Se recomiendan también **Plan de energía: alto rendimiento** y **Sin aceleración del ratón** (Ajustes de Windows); el perfil los incluye.
+
+**Apps (Aplicaciones › Juegos › Latencia y diagnóstico)**: Speedtest by Ookla, LatencyMon (drivers que causan tirones), CapFrameX (frametimes y 1 % low) y Process Lasso (opcional, queda residente). RTSS y MSI Afterburner siguen en «Rendimiento y overlay».
+
+**Descartados a propósito** (placebo o arriesgados): Nagle/`TcpAckFrequency`/`TCPNoDelay` (solo TCP; los shooters usan UDP), `NetworkThrottlingIndex` y `SystemResponsiveness`, la «reserva QoS del 20 %», el autotuning TCP, desactivar el servicio Wi‑Fi, la optimización de entrega (ya es solo red local de serie), ajustes de GPU genéricos (se hacen en NVIDIA App o Adrenalin), limpiadores de RAM y «optimizadores» de registro. Tampoco se incluyen route optimizers de pago.
 
 ## Jugar en remoto
 
@@ -101,8 +135,8 @@ Interfaz en C# con WPF sobre .NET Framework 4.8 (incluido en Windows); motor en 
 | Archivo | Función |
 | --- | --- |
 | `iWinInstaller.ps1` | Arranque del motor y modos de consola (abre la interfaz si no recibe parámetros) |
-| `src/engine/` | Motor por áreas: WinGet, paquetes, sistema, remoto, RGB, ajustes, perfiles, lotes y contrato con la interfaz |
-| `src/app/` | Interfaz (C#, WPF): Inicio, Instalar, Actualizaciones, Mantenimiento, Sistema, Acceso remoto, Seguridad, Ajustes y paleta |
+| `src/engine/` | Motor por áreas: WinGet, paquetes, sistema, remoto, RGB, ajustes, perfiles, lotes, juego competitivo (`15-Gaming.ps1` y `gaming/dns-rapido.ps1`) y contrato con la interfaz |
+| `src/app/` | Interfaz (C#, WPF): Inicio, Instalar, Actualizaciones, Mantenimiento, Sistema, Juegos, Latencia, Acceso remoto, Seguridad, Ajustes y paleta |
 | `apps.json`, `profiles.json` | Catálogo, guías de postinstalación y perfiles |
 | `lifecycle.ps1` | Lotes, comprobaciones, restauración y actualizaciones opcionales |
 | `install.ps1`, `launch.ps1`, `Iniciar.bat` | Instalación, desinstalación y apertura |
@@ -111,7 +145,7 @@ Interfaz en C# con WPF sobre .NET Framework 4.8 (incluido en Windows); motor en 
 | `src/catalog/schema/` | Esquemas que validan el catálogo y los perfiles |
 | `tests/` | Pruebas unitarias (Pester), pruebas aisladas, aceptación en un Windows desechable y comprobación de la release |
 | `docs/` | Línea de comandos (`cli.md`) y política de firma de código |
-| `specs/`, `.specify/` | Especificación y plan del camino a v5.0 (Spec Kit) |
+| `specs/`, `.specify/` | Especificación y plan del camino a v5.0 y diseño de juego competitivo (v5.2) y de la página Juegos (v5.3) |
 | `assets/` | Iconos |
 
 ## Compilar e instalar
@@ -121,8 +155,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v5.1
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v5.1
+git checkout v5.3
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v5.3
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows; la interfaz necesita además el SDK de .NET (solo para compilar, no para usar la app). La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -141,7 +175,9 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v5.1](https://github.com/iShun05/iWinInstaller/releases/tag/v5.1) **(actual)** | 2026-11-09 | Apariencia renovada: barra de título oscura, navegación con iconos, Inicio en rejilla y controles oscuros en todas las pantallas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.1.zip) |
+| [v5.3](https://github.com/iShun05/iWinInstaller/releases/tag/v5.3) **(actual)** | 2026-11-17 | Juegos: detecta Fortnite, Genshin, Star Rail, Zenless y Endfield, comprueba sus archivos y optimiza los que lo permiten con ajustes oficiales y copia para deshacer; la página Juego pasa a llamarse Latencia | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.3) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.3.zip) |
+| [v5.2](https://github.com/iShun05/iWinInstaller/releases/tag/v5.2) | 2026-11-17 | Juego competitivo: página Juego con ping en vivo y bufferbloat, DNS más rápido por red, Wi‑Fi sin ahorro y apps de latencia | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.2) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.2.zip) |
+| [v5.1](https://github.com/iShun05/iWinInstaller/releases/tag/v5.1) | 2026-11-09 | Apariencia renovada: barra de título oscura, navegación con iconos, Inicio en rejilla y controles oscuros en todas las pantallas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.1.zip) |
 | [v5.0](https://github.com/iShun05/iWinInstaller/releases/tag/v5.0) | 2026-11-09 | Centro de control del PC: una sola ventana nueva para instalar, actualizar, mantener, proteger y conectar; se retira la ventana clásica | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.0.zip) |
 | [v4.9](https://github.com/iShun05/iWinInstaller/releases/tag/v4.9) | 2026-11-09 | Mantenimiento y salud: liberar espacio con confirmación, reparar Windows, salud de discos y batería e informe del equipo | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.9) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.9.zip) |
 | [v4.8](https://github.com/iShun05/iWinInstaller/releases/tag/v4.8) | 2026-11-09 | Paleta de búsqueda (Ctrl + K) para llegar a cualquier acción o app | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v4.8) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v4.8.zip) |

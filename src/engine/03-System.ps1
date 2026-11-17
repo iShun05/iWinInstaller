@@ -47,6 +47,10 @@ $Balanced = '381b4222-f694-41f0-9685-ff5bb260df2e'
 $ClassicMenu = 'HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}'
 $SearchPolicy = 'HKCU:\Software\Policies\Microsoft\Windows\Explorer'
 $MouseKey = 'HKCU:\Control Panel\Mouse'
+# Juego competitivo (v5.2)
+$GameConfigStore = 'HKCU:\System\GameConfigStore'
+$GameDvrKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR'
+$GameBarKey = 'HKCU:\Software\Microsoft\GameBar'
 $FileSystemKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem'
 $DevSettings = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings'
 function Get-RegValue($path, $name) { (Get-ItemProperty $path -Name $name -ErrorAction SilentlyContinue).$name }

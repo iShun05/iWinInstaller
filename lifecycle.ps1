@@ -333,6 +333,8 @@ function Get-TweakRegistryTargets($id) {
         'thispc' { ,@($ExplorerAdv,'LaunchTo') }
         'endtask' { ,@($DevSettings,'TaskbarEndTask') }
         'mouseaccel' { foreach ($name in 'MouseSpeed','MouseThreshold1','MouseThreshold2') { ,@($MouseKey,$name) } }
+        'nodvr' { ,@($GameConfigStore,'GameDVR_Enabled'); ,@($GameDvrKey,'AppCaptureEnabled') }
+        'gamemode' { ,@($GameBarKey,'AutoGameModeEnabled'); ,@($GameBarKey,'AllowAutoGameMode') }
         'remotehost' { ,@($PasswordLessKey,'DevicePasswordLessBuildVersion') }
         'remotessh' { ,@($SshShellKey,'DefaultShell') }
     }
@@ -342,28 +344,32 @@ function Get-TweakSnapshotPath($id, [switch]$ReadOnly) {
     $machine = (Get-InstallContext ($Apps | Where-Object id -eq $id | Select-Object -First 1)) -eq 'machine'
     $base = if ($machine) { Join-Path $env:ProgramData 'iWinInstaller\restauracion' } else { Join-Path $LogDir 'restauracion' }
     if ($machine -and -not $ReadOnly) {
-        foreach($directory in @((Join-Path $env:ProgramData 'iWinInstaller'),$base)){
-            if(Test-Path $directory){
-                if((Get-Item $directory -Force -ErrorAction Stop).Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'No se guarda estado privilegiado a través de enlaces de carpetas.'}
-            }else{New-Item $directory -ItemType Directory -ErrorAction Stop | Out-Null}
-            & icacls.exe $directory /setowner '*S-1-5-32-544' | Out-Null
-            if($LASTEXITCODE){throw 'No se pudo proteger el propietario del estado anterior.'}
-            & icacls.exe $directory /reset | Out-Null
-            if($LASTEXITCODE){throw 'No se pudieron limpiar los permisos del estado anterior.'}
-            & icacls.exe $directory /inheritance:r /grant:r '*S-1-5-18:(OI)(CI)F' '*S-1-5-32-544:(OI)(CI)F' '*S-1-5-32-545:(OI)(CI)RX' | Out-Null
-            if($LASTEXITCODE){throw 'No se pudieron proteger los datos de restauración.'}
-        }
+        foreach($directory in @((Join-Path $env:ProgramData 'iWinInstaller'),$base)){ Protect-IwinProgramDataDir $directory }
     }
     Join-Path $base ($id + '.json')
+}
+# Carpeta de ProgramData solo modificable por SYSTEM y administradores (estado de restauración, scripts de tareas de SYSTEM).
+# Rechaza enlaces de carpetas y retoma la propiedad: un usuario estándar puede haberla creado antes.
+function Protect-IwinProgramDataDir([string]$directory) {
+    if(Test-Path $directory){
+        if((Get-Item $directory -Force -ErrorAction Stop).Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'No se guarda estado privilegiado a través de enlaces de carpetas.'}
+    }else{New-Item $directory -ItemType Directory -ErrorAction Stop | Out-Null}
+    & icacls.exe $directory /setowner '*S-1-5-32-544' | Out-Null
+    if($LASTEXITCODE){throw 'No se pudo proteger el propietario del estado anterior.'}
+    & icacls.exe $directory /reset | Out-Null
+    if($LASTEXITCODE){throw 'No se pudieron limpiar los permisos del estado anterior.'}
+    & icacls.exe $directory /inheritance:r /grant:r '*S-1-5-18:(OI)(CI)F' '*S-1-5-32-544:(OI)(CI)F' '*S-1-5-32-545:(OI)(CI)RX' | Out-Null
+    if($LASTEXITCODE){throw 'No se pudieron proteger los datos de restauración.'}
 }
 function Test-IwinPreviousState($app) {
     if($app.type -ne 'tweak' -or $app.id -in @('wsl','restorepoint')){return $false}
     if($app.id -eq 'rgboff'){return (Test-Path $RgbScript)}
     if($app.id -eq 'virtualdisplayon'){return (Test-VirtualDisplay)}
+    if($app.id -eq 'gamedns'){return (Test-GameDnsTask)}
     try{return (Test-Path (Get-TweakSnapshotPath $app.id -ReadOnly))}catch{return $false}
 }
 function Save-TweakSnapshot($id) {
-    if ($id -in @('wsl','restorepoint','rgboff','virtualdisplayon')) { return }
+    if ($id -in @('wsl','restorepoint','rgboff','virtualdisplayon','gamedns')) { return }
     $path=Get-TweakSnapshotPath $id
     if (Test-Path $path) { return }
     $values=@()
@@ -381,11 +387,13 @@ function Save-TweakSnapshot($id) {
     if ($id -eq 'remotehost') { $state.remote=Get-RemoteSnapshot }
     if ($id -eq 'remotessh') { $state.remote=Get-SshSnapshot }
     if ($id -eq 'braveclean') { $state.brave=Get-BraveCleanSnapshot }
+    if ($id -eq 'wifiperf') { $state.wifi=@(Get-WifiPerfPlans) }
     Write-IwinJson $path $state
 }
 function Restore-TweakSnapshot($id) {
     if ($id -eq 'rgboff') { return (Reset-RgbOff) }
     if ($id -eq 'virtualdisplayon') { return (Reset-VirtualDisplay) }
+    if ($id -eq 'gamedns') { return (Reset-GameDns) }
     $path=Get-TweakSnapshotPath $id
     if (-not (Test-Path $path)) { throw 'No se guardó el estado anterior (ajuste previo a v3.2). No se impondrán valores genéricos; revísalo desde Configuración de Windows.' }
     $file=Get-Item $path
@@ -437,6 +445,7 @@ function Restore-TweakSnapshot($id) {
     }
     if ($id -eq 'remotehost') { Restore-RemoteSnapshot $state.remote }
     if ($id -eq 'remotessh') { Restore-SshSnapshot $state.remote }
+    if ($id -eq 'wifiperf') { Restore-WifiPerf $state.wifi }
     Remove-Item $path -Force -ErrorAction Stop
     Write-Log '  Estado anterior restaurado. Algunos ajustes requieren reiniciar la sesión o Windows.'
     return $true

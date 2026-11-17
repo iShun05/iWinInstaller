@@ -2,13 +2,77 @@
 
 ## Sin publicar
 
-### Añadido
+### Nuevo
+- **Liberar espacio › Caché de shaders de GPU**: borra las cachés de shaders de DirectX (`D3DSCache`), NVIDIA (`DXCache`, `GLCache`) y AMD (`DxCache`, `GLCache`) en `%LOCALAPPDATA%`. Muestra el tamaño antes de borrar, omite archivos en uso y de menos de un día, y no pide administrador. Viene desmarcada por defecto: al borrarla, el primer arranque de cada juego recompila los shaders y puede tardar más.
+- Carpetas de juegos y anticheat fuera de alcance; solo cachés de controlador.
 - **Punto de restauración automático**: antes de aplicar ajustes del sistema, red, acceso remoto o latencia se crea un punto «iWinInstaller». Como máximo uno cada 24 h; si ya hay uno reciente, se reutiliza.
 - Si la restauración del sistema está desactivada, la instalación avisa en el registro y sigue sin crear el punto. Si la creación falla o se cancela el UAC, también avisa y los ajustes continúan.
 
+### Cambiado
+- Fortnite: perfil competitivo para pantallas de alta frecuencia: opción «máximo del monitor» en el límite de FPS (por defecto si Windows está por debajo), menús al mismo límite, sin desenfoque de movimiento ni resolución dinámica (solo si esas claves ya existen) y pantalla completa exclusiva marcada.
+- Star Rail: 120 FPS marcado por defecto (es el máximo que admite el juego por el registro).
+
 ### Archivos y pruebas
+- `src/engine/14-Maintenance.ps1` (categoría `shaderCache`), `src/app/Modules/Maintenance/MaintenanceViewModel.cs` (desmarcada por defecto).
+- Pester `tests/unit/engine/ShaderCache.Tests.ps1`: no pide administrador y ninguna ruta apunta a juegos o anticheat.
+- Sin verificar en un equipo real con GPU NVIDIA y AMD.
 - `src/engine/06-Tweaks.ps1` (`Invoke-IwinAutoRestorePoint`, `Test-IwinRestorePointDue`, `Test-IwinSystemRestoreOff`), `src/engine/08-Batch.ps1` (`Invoke-Install`).
 - `tests/unit/engine/RestorePoint.Tests.ps1`: regla de 24 horas.
+
+## v5.3 — 2026-11-17
+
+Página Juegos: detectar, comprobar y optimizar Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero y Arknights: Endfield. Diseñado con el método elefante‑pez: el diseño (`specs/003-juegos/design.md`) lo revisaron sesiones sin memoria antes de programar.
+
+### Nuevo
+- **Página Juegos**: una tarjeta por juego con estado (no instalado, instalado, atención, en marcha). Detecta por HoYoPlay (global antes que China), Epic, Steam y la lista de programas instalados; permite elegir el ejecutable a mano.
+- **Detalles**: carpeta, ejecutable, versión, tamaño, origen, anticheat, modo de pantalla y GPU preferida.
+- **Comprobar archivos**: rápida (existencia y tamaño) o completa (MD5) con `pkg_version` en los juegos de HoYoverse, con progreso y cancelación; Endfield remite a Verificar de Steam o del lanzador y Fortnite a Verificar de Epic. El último resultado se guarda.
+- **Optimizar** (con juego y lanzador cerrados): lista de cambios actual → nuevo, copia previa (10 por juego) y **Restaurar**.
+  - Fortnite (`GameUserSettings.ini`): modo Rendimiento, mallas y texturas bajas, distancia de visión épica, resolución 100 %, límite de FPS (Hz, Hz − 3 o sin límite), VSync off, contador de FPS y pantalla completa opcional.
+  - Star Rail (registro del usuario): VSync off y bajar calidades; 120 FPS opcional marcado como no oficial.
+  - Todos: GPU de alto rendimiento con la preferencia oficial de Windows (solo se marca con dos GPU).
+- **Pantalla**: Hz actuales y máximos de la principal, con acceso a Sistema › Resolución y frecuencia.
+
+### Cambiado
+- La página **Juego** pasa a llamarse **Latencia** (icono nuevo); paleta y `apps.json` actualizados.
+- Las tarjetas van en una sola columna (el diseño preveía 1–2) para que los paneles abiertos no descuadren la rejilla.
+
+### Descartado a propósito
+- Desbloquear FPS en Genshin (solo con «unlockers» que escriben en memoria: riesgo de baneo), tocar la configuración cifrada de Zenless, editar archivos del juego o ejecutables y cualquier cosa protegida por el anticheat.
+
+### Archivos y pruebas
+- `src/app/Modules/Games/**` (nuevo), `Tools/DisplaySettings.cs`, `Shell/ShellViewModel.cs`, `Shell/MainWindow.xaml(.cs)`, `Shell/Palette/PaletteSearch.cs`, `Gaming/GamingView.xaml`, `apps.json`.
+- MSTest `tests/unit/app/GamesTests.cs` (22 pruebas: JSON, ini, Star Rail, GPU, `pkg_version`, Epic/Steam/HoYoPlay, copias y restauración, FPS).
+- Sin verificar en un equipo real: `PreferredFeatureLevel=es31` de Fortnite, nombre del ejecutable de Endfield y escala de calidad de Star Rail. Pendiente de prueba física con los cinco juegos.
+- **Afecta a Windows x86/x64/ARM64 por igual**.
+
+## v5.2 — 2026-11-17
+
+Juego competitivo y latencia para un portátil gamer. Diseñado con el método elefante‑pez (Elephant‑Goldfish Model de Google): el diseño (`specs/002-juego-competitivo/design.md`) lo revisaron tres sesiones sin memoria antes de programar.
+
+### Nuevo
+- **Página Juego**: ping en vivo al router, a Internet (1.1.1.1) y al servidor del juego con media, jitter, pérdida, máximo y gráfica de 60 s; picos de la sesión; aviso cuando un servidor no contesta a ping. Mide solo con la página abierta (también minimizada) y sin procesos auxiliares.
+- **Prueba de bufferbloat**: ping en reposo y con descarga (4 flujos) y subida (2 flujos) contra Cloudflare, nota de A+ a F por sentido y consejo de SQM/QoS. Tope de 400 MB.
+- **Conexión**: cable o Wi‑Fi, velocidad de enlace, señal, banda y canal (sin SSID ni BSSID), consejo de cable o 5/6 GHz y botón **Elegir GPU por juego**.
+- **Sistema › Red y juego competitivo** (reversibles):
+  - **DNS más rápido (se adapta a cada red)**: tarea de SYSTEM al arrancar, al iniciar sesión y al conectar a una red (evento 10000), con batería permitida. Mide el DNS de la red, Cloudflare, Google y Quad9 (3 nombres × 5 rondas) y aplica el más rápido con IPv4 e IPv6. Respeta DNS manuales, dominio y VPN; vuelve a automático sin internet. Carpeta protegida y script comprobado por SHA256.
+  - **Wi‑Fi sin ahorro de energía (enchufado)** en todos los planes, solo con corriente.
+  - **Sin grabación en segundo plano** (Game DVR) y **Modo Juego activado**.
+- **Aplicaciones › Juegos › Latencia y diagnóstico**: Speedtest by Ookla, LatencyMon, CapFrameX y Process Lasso.
+- Perfil **Juego competitivo (baja latencia)** y acción de la paleta «Ping y latencia para jugar».
+
+### Cambiado
+- `Protect-IwinProgramDataDir` reúne la protección de carpetas de ProgramData (enlaces rechazados, propietario Administradores y permisos solo para SYSTEM y Administradores) que ya usaba el estado de restauración.
+- README: contadores corregidos (435 entradas, 89 subsecciones en 23 categorías, 133 guías).
+
+### Descartado a propósito
+- Nagle/`TcpAckFrequency`/`TCPNoDelay`, `NetworkThrottlingIndex`, `SystemResponsiveness`, la «reserva QoS», el autotuning TCP, desactivar `WlanSvc`, la optimización de entrega y los limpiadores de RAM: sin efecto medible en shooters (UDP) o con riesgo.
+
+### Archivos y pruebas
+- `src/engine/15-Gaming.ps1`, `src/engine/gaming/dns-rapido.ps1`, `03-System.ps1`, `06-Tweaks.ps1`, `lifecycle.ps1`, `iWinInstaller.ps1`, `apps.json`, `profiles.json`, `src/app/Modules/Gaming/**`, `Shell/ShellViewModel.cs`, `Shell/MainWindow.xaml(.cs)`, `Shell/Palette/PaletteSearch.cs`, `Core/Preferences.cs`.
+- Pester `tests/unit/engine/Gaming.Tests.ps1` (elección del DNS, DNS propio frente al del usuario, XML de la tarea, powercfg en inglés, español y otros idiomas). MSTest `tests/unit/app/GamingTests.cs` (estadísticas, notas de bufferbloat, percentiles, colores, servidor válido y Wi‑Fi en dos idiomas).
+- Pendiente de prueba física en el portátil: ping con Wi‑Fi y cable, bufferbloat, aplicar y deshacer los cuatro ajustes y cambio de red.
+- **Afecta a Windows x86/x64/ARM64 por igual**.
 
 ## v5.1 — 2026-11-09
 

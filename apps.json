@@ -245,6 +245,78 @@
     "restart": true
   },
   {
+    "id": "gamedns",
+    "section": "Sistema",
+    "group": "Red y juego competitivo",
+    "name": "DNS más rápido (se adapta a cada red)",
+    "desc": "Mide el DNS de tu red, Cloudflare, Google y Quad9 al conectar a cada red y deja el más rápido. No toca un DNS manual, de empresa ni de VPN",
+    "icon": "glyph:E774",
+    "type": "tweak",
+    "context": "machine",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la página Latencia de iWinInstaller y comprueba en «DNS» qué proveedor se eligió y sus tiempos.",
+        "Conéctate a otra red (otra Wi-Fi o el móvil) y comprueba que la medición se actualiza.",
+        "Si usas un DNS propio (Pi-hole, NextDNS…), comprueba que se ha respetado."
+      ],
+      "note": "El DNS acelera conectar con lanzadores, tiendas y matchmaking; no cambia el ping dentro de la partida. Sin internet (portal de hotel) el adaptador vuelve a DNS automático. Deshacer quita la tarea y devuelve el DNS automático."
+    }
+  },
+  {
+    "id": "wifiperf",
+    "section": "Sistema",
+    "group": "Red y juego competitivo",
+    "name": "Wi-Fi sin ahorro de energía (enchufado)",
+    "desc": "Con el portátil enchufado, el adaptador inalámbrico deja de ahorrar energía en todos los planes: menos picos de ping por Wi-Fi. Con batería sigue ahorrando",
+    "icon": "glyph:E701",
+    "type": "tweak",
+    "context": "machine",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Enchufa el portátil y abre la página Latencia: el ping al router debería quedarse estable y por debajo de 5 ms.",
+        "Si sigue con picos, prueba con cable o con Wi-Fi de 5/6 GHz cerca del router.",
+        "Opcional: en el Administrador de dispositivos, propiedades avanzadas del adaptador Wi-Fi, revisa «Roaming aggressiveness» (más bajo) y «MIMO power save» (desactivado)."
+      ],
+      "note": "Gasta algo más de energía solo enchufado. Deshacer devuelve a cada plan su valor anterior."
+    }
+  },
+  {
+    "id": "nodvr",
+    "section": "Sistema",
+    "group": "Red y juego competitivo",
+    "name": "Sin grabación en segundo plano",
+    "desc": "Desactiva la grabación continua de Xbox Game Bar (Game DVR), que consume GPU y disco mientras juegas",
+    "icon": "glyph:E714",
+    "type": "tweak",
+    "context": "user",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Comprueba en Configuración › Juegos › Capturas que «Grabar lo que ha ocurrido» está desactivado."
+      ],
+      "note": "Si ya estaba desactivado, no cambia nada. Las capturas manuales (Win + Alt + R) siguen funcionando. Deshacer recupera el valor anterior."
+    }
+  },
+  {
+    "id": "gamemode",
+    "section": "Sistema",
+    "group": "Red y juego competitivo",
+    "name": "Modo Juego activado",
+    "desc": "Windows prioriza el juego y no instala actualizaciones ni muestra avisos mientras juegas",
+    "icon": "glyph:E7FC",
+    "type": "tweak",
+    "context": "user",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Comprueba en Configuración › Juegos › Modo de juego que está activado."
+      ],
+      "note": "Viene activado de serie; este ajuste lo garantiza si se había desactivado. Deshacer recupera el valor anterior."
+    }
+  },
+  {
     "id": "autologon",
     "section": "Sistema",
     "group": "Acceso remoto",
@@ -2775,6 +2847,63 @@
     "context": "user",
     "subgroup": "Rendimiento y overlay",
     "compare": "Integrada en Windows: rendimiento básico y grabación."
+  },
+  {
+    "id": "speedtest",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Speedtest by Ookla",
+    "desc": "Velocidad de bajada, subida y ping al servidor más cercano",
+    "icon": "speedtest.net",
+    "type": "winget",
+    "winget": "Ookla.Speedtest.Desktop",
+    "extra": true,
+    "subgroup": "Latencia y diagnóstico",
+    "compare": "Velocidad y ping de tu línea en un clic.",
+    "subgroupNote": "Mide antes de tocar: Speedtest para la línea, LatencyMon si hay tirones, CapFrameX para comparar FPS antes y después. Process Lasso solo si un juego compite con procesos de fondo. El ping en vivo y el bufferbloat están en la página Latencia."
+  },
+  {
+    "id": "latencymon",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "LatencyMon",
+    "desc": "Detecta drivers que causan tirones, cortes de audio o input lag (latencia DPC/ISR)",
+    "icon": "resplendence.com",
+    "type": "winget",
+    "winget": "Resplendence.LatencyMon",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "subgroup": "Latencia y diagnóstico",
+    "compare": "Encuentra el driver culpable de los tirones."
+  },
+  {
+    "id": "capframex",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "CapFrameX",
+    "desc": "Mide frametimes, FPS medios y 1 % low para comparar antes y después de un cambio",
+    "icon": "capframex.com",
+    "type": "winget",
+    "winget": "CXWorld.CapFrameX",
+    "extra": true,
+    "subgroup": "Latencia y diagnóstico",
+    "compare": "Frametimes y 1 % low; usa RTSS para medir."
+  },
+  {
+    "id": "processlasso",
+    "section": "Aplicaciones",
+    "group": "Juegos",
+    "name": "Process Lasso",
+    "desc": "Prioridad y núcleos de CPU por juego; frena procesos de fondo que roban CPU",
+    "icon": "bitsum.com",
+    "type": "winget",
+    "winget": "BitSum.ProcessLasso",
+    "extra": true,
+    "scope": "machine",
+    "context": "machine",
+    "subgroup": "Latencia y diagnóstico",
+    "compare": "Prioridad de CPU por juego. Queda en segundo plano."
   },
   {
     "id": "steam",
