@@ -188,7 +188,27 @@ namespace IWinInstaller.App.Modules.Install
                 Message = count + " de " + Items.Count + " instaladas. Elige un perfil o marca lo que necesites.";
                 View.Refresh();
             }
-            finally { IsBusy = false; RefreshCounts(); }
+            finally { IsBusy = false; ApplyPendingPreset(); RefreshCounts(); }
+        }
+
+        private HashSet<string> _presetIds;
+        private string _presetTitle = "";
+
+        /// <summary>Marca el preset (los ids que no estén ya instalados). Si el inventario aún se está leyendo, espera a que termine.</summary>
+        public void SelectPreset(IEnumerable<string> ids, string title)
+        {
+            _presetIds = new HashSet<string>(ids);
+            _presetTitle = title ?? "";
+            if (_loaded && !IsBusy) ApplyPendingPreset(); else EnsureLoaded();
+        }
+
+        private void ApplyPendingPreset()
+        {
+            if (_presetIds == null || IsBusy) return;
+            var ids = _presetIds; _presetIds = null;
+            foreach (var item in Items) item.IsChecked = ids.Contains(item.Id) && !item.Installed;
+            Message = "Preset «" + _presetTitle + "»: " + CheckedCount + " por instalar (las ya instaladas no se marcan).";
+            View.Refresh();
         }
 
         private void FillProfiles(Dictionary<string, object> response)
@@ -267,7 +287,7 @@ namespace IWinInstaller.App.Modules.Install
                 await RefreshConfiguredAsync();
                 View.Refresh();
             }
-            finally { _operation = null; ProgressText = ""; IsBusy = false; RefreshCounts(); }
+            finally { _operation = null; ProgressText = ""; IsBusy = false; ApplyPendingPreset(); RefreshCounts(); }
         }
 
         private async Task<bool> ConfirmPlanAsync(string operation, string[] ids)

@@ -1,5 +1,29 @@
 # Historial de versiones
 
+## Sin publicar
+
+Página **Equipo**: detecta el hardware, propone un preset «Dev + Gaming competitivo» ajustado a él y muestra un panel de salud. Pensado para un Windows fluido que sirva para programar y jugar en competitivo a la vez. Diseño en `specs/004-equipo/design.md`.
+
+### Nuevo
+- **Página Equipo › Tu equipo**: portátil o sobremesa (chasis SMBIOS, con la batería como respaldo), fabricante y modelo, procesador (núcleos e hilos), memoria, gráficas (dedicada o integrada, con aviso de gráfica híbrida) y pantalla (resolución, Hz actuales y máximos). Calcula una **gama** (básica, media o alta) por memoria, hilos y gráfica dedicada.
+- **Preset «Dev + Gaming competitivo»**: botón **Marcar en Instalar**, que solo marca (no instala nada) las apps y ajustes que faltan. Base de desarrollo (punto de restauración, modo desarrollador, rutas largas, extensiones visibles, «Finalizar tarea», Git, VS Code, Terminal y PowerShell 7) y de baja latencia (sin aceleración del ratón, Modo Juego, sin grabación en segundo plano, DNS rápido, DirectX, Visual C++, LatencyMon y Speedtest). Se adapta al equipo:
+  - Portátil: no pone el plan de alto rendimiento (gasta batería) y añade Wi‑Fi sin ahorro de energía; sobremesa: lo contrario.
+  - Menos de 12 GB de RAM: no propone WSL y lo explica.
+  - Software de la gráfica (NVIDIA App, AMD Software o Intel DSA) según la gráfica dedicada, y G-Helper en portátiles ASUS.
+  - Avisos con enlace: pantalla que admite más Hz de los que usa, límite de FPS recomendado (Hz − 3), GPU por juego en portátiles híbridos y gama.
+- **Perfil «Dev + Gaming competitivo»** en `profiles.json` (con `@hardware`), por si prefieres elegirlo a mano en Instalar.
+- **Panel de salud** (solo lee, no cambia nada): **Microsoft Defender** (tiempo real y firmas, o el antivirus de otro fabricante), **Windows Update** (última búsqueda con éxito), **espacio libre** del disco del sistema, **apps de inicio** (cuenta solo las activas, respeta el Administrador de tareas y avisa por encima de 12) y **temperaturas** de las zonas térmicas que Windows publica sin drivers extra; sin sensores indica que no aplica y recomienda HWiNFO o Core Temp. Cada fila enlaza a su página.
+- Acciones de la paleta (Ctrl + K): «Hardware y preset Dev + Gaming competitivo» y «Salud del PC: apps de inicio y temperaturas».
+
+### Ligero
+- Solo WMI y registro con los permisos del usuario, al entrar en la página o al pulsar **Comprobar de nuevo**. Sin PowerShell, sin drivers, sin temporizadores ni procesos residentes.
+
+### Archivos y pruebas
+- `src/app/Modules/Equipo/**` (nuevo: modelo y reglas puras, lecturas del sistema, vista y modelo de vista), `Install/InstallViewModel.cs` (`SelectPreset`), `Shell/ShellViewModel.cs`, `Shell/MainWindow.xaml`, `Shell/Palette/PaletteSearch.cs`, `Core/StatusCard.cs`, `profiles.json`.
+- MSTest `tests/unit/app/EquipoTests.cs` (18 pruebas: chasis, marca y gráfica dedicada, gama, preset por equipo, reglas de Defender, Windows Update, inicio y temperatura, StartupApproved, y que todos los ids del preset existan en `apps.json` y estén en el perfil).
+- Sin verificar en un equipo real: las lecturas WMI y de registro (`EquipoProbes`), la maquetación de la página y las temperaturas (muchos equipos no exponen zonas térmicas sin driver). La lógica se probó en Linux y la compilación con .NET Framework 4.8 la hace la CI.
+- **Afecta a Windows x86/x64/ARM64 por igual**.
+
 ## v5.3 — 2026-11-17
 
 Página Juegos: detectar, comprobar y optimizar Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero y Arknights: Endfield. Diseñado con el método elefante‑pez: el diseño (`specs/003-juegos/design.md`) lo revisaron sesiones sin memoria antes de programar.

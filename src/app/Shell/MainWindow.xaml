@@ -8,6 +8,7 @@
         xmlns:maintenance="clr-namespace:IWinInstaller.App.Modules.Maintenance"
         xmlns:gaming="clr-namespace:IWinInstaller.App.Modules.Gaming"
         xmlns:games="clr-namespace:IWinInstaller.App.Modules.Games"
+        xmlns:equipo="clr-namespace:IWinInstaller.App.Modules.Equipo"
         xmlns:core="clr-namespace:IWinInstaller.App.Core"
         Title="iWinInstaller" Width="1180" Height="780" MinWidth="560" MinHeight="420"
         WindowStartupLocation="CenterScreen" Background="{StaticResource Background}" Foreground="{StaticResource Text}"
@@ -85,6 +86,7 @@
       <home:HomeView Visibility="{Binding IsHome, Converter={StaticResource Visible}}"/>
       <install:InstallView DataContext="{Binding Install}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=install}"/>
       <tools:SystemView DataContext="{Binding SystemPage}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=system}"/>
+      <equipo:EquipoView DataContext="{Binding Equipo}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=equipo}"/>
       <games:GamesView DataContext="{Binding Games}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=games}"/>
       <gaming:GamingView DataContext="{Binding Gaming}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=gaming}"/>
       <tools:SecurityView DataContext="{Binding Security}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=security}"/>

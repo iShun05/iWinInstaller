@@ -38,6 +38,7 @@ namespace IWinInstaller.App.Core
                     case "battery": return "\uE83F";
                     case "reboot": return "\uE7E8";
                     case "pendingBatch": return "\uE896";
+                    case "startup": return "\uE768";
                     default: return "\uE946";
                 }
             }
