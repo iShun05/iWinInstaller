@@ -39,6 +39,28 @@
     "latencymon",
     "speedtest"
   ],
+  "Dev + Gaming competitivo": [
+    "restorepoint",
+    "devmode",
+    "longpaths",
+    "showext",
+    "endtask",
+    "git",
+    "vscode",
+    "terminal",
+    "pwsh",
+    "wsl",
+    "power",
+    "mouseaccel",
+    "gamemode",
+    "nodvr",
+    "gamedns",
+    "directx",
+    "vcredist",
+    "latencymon",
+    "speedtest",
+    "@hardware"
+  ],
   "Solo sistema (ajustes y optimización)": [
     "@Sistema"
   ],
