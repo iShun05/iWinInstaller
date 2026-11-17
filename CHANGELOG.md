@@ -1,5 +1,13 @@
 # Historial de versiones
 
+## Sin publicar
+
+- **Actualizaciones › Drivers y firmware**: avisa de drivers de gráfica, chipset, red y de BIOS/UEFI desactualizados. Solo avisa: no descarga ni instala nada.
+  - Fuentes fiables: **Windows Update** (búsqueda oficial de drivers y firmware no instalados; si ofrece una versión igual o anterior a la instalada, se ignora) y **NVIDIA** (última Game Ready por id de la GPU, el mismo servicio que usa su app; envía solo el modelo de la GPU y la versión de Windows).
+  - AMD, Intel, red y BIOS no publican una consulta fiable: se muestran versión, fecha y antigüedad con la web oficial (fabricante del chip o, en portátiles y BIOS, del equipo o de la placa). La antigüedad sola no genera aviso.
+  - Archivos: `src/app/Modules/Drivers/**` (nuevo), `Updates/UpdatesView.xaml`, `Updates/UpdatesViewModel.cs`. MSTest `tests/unit/app/DriversTests.cs` (16 pruebas).
+  - Pendiente de prueba física: búsqueda de Windows Update con y sin conexión y portátil con NVIDIA. **Afecta a Windows x86/x64/ARM64 por igual** (NVIDIA solo existe en x64).
+
 ## v5.3 — 2026-11-17
 
 Página Juegos: detectar, comprobar y optimizar Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero y Arknights: Endfield. Diseñado con el método elefante‑pez: el diseño (`specs/003-juegos/design.md`) lo revisaron sesiones sin memoria antes de programar.

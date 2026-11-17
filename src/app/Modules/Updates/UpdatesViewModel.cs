@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Threading;
 using IWinInstaller.App.Core;
 using IWinInstaller.App.Engine;
+using IWinInstaller.App.Modules.Drivers;
 
 namespace IWinInstaller.App.Modules.Updates
 {
@@ -28,6 +29,7 @@ namespace IWinInstaller.App.Modules.Updates
             _engine = engine;
             _dispatcher = dispatcher;
             Items = new ObservableCollection<UpdateItem>();
+            Drivers = new DriversViewModel();
             Frequencies = new[] { new KeyValuePair<string, string>("daily", "Cada día"), new KeyValuePair<string, string>("weekly", "Cada semana (domingo)") };
             RefreshCommand = new RelayCommand(_ => { var ignored = LoadAsync(); }, _ => !IsBusy);
             ApplyCommand = new RelayCommand(_ => { var ignored = ApplyAsync(); }, _ => !IsBusy && Items.Any(i => i.IsSelected));
@@ -38,6 +40,8 @@ namespace IWinInstaller.App.Modules.Updates
         }
 
         public ObservableCollection<UpdateItem> Items { get; private set; }
+        /// <summary>Sección Drivers y firmware (solo avisa).</summary>
+        public DriversViewModel Drivers { get; private set; }
         public KeyValuePair<string, string>[] Frequencies { get; private set; }
         public RelayCommand RefreshCommand { get; private set; }
         public RelayCommand ApplyCommand { get; private set; }
@@ -54,7 +58,7 @@ namespace IWinInstaller.App.Modules.Updates
         public string ScheduleTime { get { return _scheduleTime; } set { Set(ref _scheduleTime, (value ?? "").Trim()); } }
 
         /// <summary>Se llama al entrar en la sección: la primera vez busca automáticamente.</summary>
-        public void EnsureLoaded() { if (!_loaded) { _loaded = true; var ignored = LoadAsync(); } }
+        public void EnsureLoaded() { if (!_loaded) { _loaded = true; var ignored = LoadAsync(); } Drivers.EnsureLoaded(); }
 
         public async Task LoadAsync()
         {
