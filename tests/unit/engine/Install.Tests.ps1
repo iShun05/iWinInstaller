@@ -6,12 +6,20 @@ BeforeAll {
     New-Item $script:LogDir -ItemType Directory | Out-Null
     $script:Apps = @(
         [pscustomobject]@{ id = 'git'; name = 'Git'; type = 'winget'; winget = 'Git.Git'; section = 'Terminal' },
+        [pscustomobject]@{ id = 'demo'; name = 'Demo App'; type = 'winget'; winget = 'Demo.App'; section = 'Aplicaciones'; configure = $true; configNote = 'Inicia sesión.' },
         [pscustomobject]@{ id = 'oscuro'; name = 'Tema oscuro'; type = 'tweak'; section = 'Sistema'; restart = $true; postInstall = [pscustomobject]@{ steps = @('Uno', 'Dos'); note = 'Nota' } }
     )
     function Write-Log($msg) { }
     function Get-InstallContext($app) { if ($app.type -eq 'tweak') { 'user' } else { 'machine' } }
     function Get-IwinPreflight($plan) { [pscustomobject]@{ Ok = $true; Text = 'Espacio suficiente.' } }
     . (Join-Path $root 'lifecycle.ps1')
+    . (Join-Path $root 'src\engine\02-Packages.ps1')
+    $script:RegistryApps = @(); $script:AppxApps = @()
+    function Update-LocalInventory([switch]$Appx) { }
+    function Update-WingetCache { }
+    function Test-Cmd($name) { $false }
+    function Get-NormName($s) { ($s -replace '[^A-Za-z0-9]', '').ToLower() }
+    function Test-AppInstalled($app) { $true }
     . (Join-Path $root 'src\engine\09-Contract.ps1')
     . (Join-Path $root 'src\engine\12-Install.ps1')
 }
@@ -41,6 +49,33 @@ Describe 'Comandos de Instalar' {
         $get = & $IwinEngineCommands['postinstall.get'] ([pscustomobject]@{ contract = 1; ids = @('oscuro') })
         @($get.guides[0].done) | Should -Be @(0, 1)
         $get.guides[0].userNote | Should -Be 'hecho'
+    }
+
+    It 'Por configurar: el check se quita solo cuando cambia la versión instalada' {
+        $script:RegistryApps = @([pscustomobject]@{ DisplayName = 'Demo App'; DisplayVersion = '1.0' })
+        $set = & $IwinEngineCommands['postinstall.set'] ([pscustomobject]@{ contract = 1; id = 'demo'; steps = @(0, 1) })
+        $set.configured | Should -BeTrue
+        $first = & $IwinEngineCommands['configure.list'] ([pscustomobject]@{ contract = 1 })
+        $item = $first.items | Where-Object id -eq 'demo'
+        $item.configured | Should -BeTrue
+        $item.version | Should -Be '1.0'
+        $script:RegistryApps = @([pscustomobject]@{ DisplayName = 'Demo App'; DisplayVersion = '1.1' })
+        $second = & $IwinEngineCommands['configure.list'] ([pscustomobject]@{ contract = 1 })
+        $item = $second.items | Where-Object id -eq 'demo'
+        $item.configured | Should -BeFalse
+        $item.reopenedFrom | Should -Be '1.0'
+        $again = & $IwinEngineCommands['configure.list'] ([pscustomobject]@{ contract = 1 })
+        ($again.items | Where-Object id -eq 'demo').configured | Should -BeFalse
+        $done = & $IwinEngineCommands['postinstall.set'] ([pscustomobject]@{ contract = 1; id = 'demo'; steps = @(0, 1) })
+        $done.configured | Should -BeTrue
+        $last = & $IwinEngineCommands['configure.list'] ([pscustomobject]@{ contract = 1 })
+        ($last.items | Where-Object id -eq 'demo').reopenedFrom | Should -Be ''
+    }
+
+    It 'postinstall.set sin nota conserva la nota guardada' {
+        & $IwinEngineCommands['postinstall.set'] ([pscustomobject]@{ contract = 1; id = 'oscuro'; steps = @(0); note = 'mi nota' }) | Out-Null
+        & $IwinEngineCommands['postinstall.set'] ([pscustomobject]@{ contract = 1; id = 'oscuro'; steps = @(0, 1) }) | Out-Null
+        (& $IwinEngineCommands['postinstall.get'] ([pscustomobject]@{ contract = 1; ids = @('oscuro') })).guides[0].userNote | Should -Be 'mi nota'
     }
 
     It 'el archivo de pausa del contrato se deriva del Request' {

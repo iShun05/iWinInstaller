@@ -1,5 +1,15 @@
 # Historial de versiones
 
+## Sin publicar — Por configurar
+
+### Nuevo
+- **Página «Por configurar»**: lista las apps instaladas que hay que configurar por dentro (iniciar sesión, elegir carpetas, emparejar dispositivos…), cada una con una nota breve de qué hacer, un botón **Marcar como hecha** y **Abrir**. Cuando una app cambia de versión, su check se quita solo y vuelve a salir pendiente con «Se actualizó de X a Y».
+- `apps.json`: campo `configNote` (nota breve) junto a `configure`; 110 apps marcadas (launchers, navegadores, mensajería, nube, VPN, contraseñas, software de periféricos y GPU, IA y herramientas de captura).
+- Motor: comando `configure.list`; `postinstalacion.json` guarda la versión en que se confirmó cada app (`version`, `reopenedFrom`). La versión sale del registro de Windows o del paquete Appx; si no se conoce, el check no se quita.
+
+### Cambiado
+- `postinstall.set` sin `note` conserva la nota guardada.
+
 ## v5.3 — 2026-11-17
 
 Página Juegos: detectar, comprobar y optimizar Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero y Arknights: Endfield. Diseñado con el método elefante‑pez: el diseño (`specs/003-juegos/design.md`) lo revisaron sesiones sin memoria antes de programar.
