@@ -28,7 +28,7 @@ namespace IWinInstaller.App.Shell
             DataContext = model;
             SourceInitialized += (sender, e) => ApplyDarkTitleBar();
             // Al cerrar no queda ninguna medición en marcha
-            Closing += (sender, e) => model.Gaming.Stop();
+            Closing += (sender, e) => { model.Gaming.Stop(); model.Games.Stop(); };
             // Paleta de búsqueda (Ctrl + K o botón «Buscar…»)
             model.PaletteRequested += (sender, e) => new Palette.PaletteWindow(this, model.PaletteActions(), model.RunPaletteAction).Show();
             // Ctrl + rueda cambia el tamaño de todo, como en la ventana clásica

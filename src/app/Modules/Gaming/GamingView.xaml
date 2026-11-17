@@ -10,7 +10,7 @@
   <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
     <StackPanel Margin="32,28,32,24" MaxWidth="860" HorizontalAlignment="Left">
       <DockPanel LastChildFill="False">
-        <TextBlock Text="Juego" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+        <TextBlock Text="Latencia" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
         <Button DockPanel.Dock="Right" Style="{StaticResource Primary}" Content="Ajustes de juego" Command="{Binding OpenTweaksCommand}"/>
         <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="Elegir GPU por juego" Command="{Binding OpenGpuCommand}" Margin="0,0,8,0"/>
       </DockPanel>

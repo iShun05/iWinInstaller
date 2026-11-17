@@ -1,5 +1,32 @@
 # Historial de versiones
 
+## v5.3 — 2026-11-17
+
+Página Juegos: detectar, comprobar y optimizar Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero y Arknights: Endfield. Diseñado con el método elefante‑pez: el diseño (`specs/003-juegos/design.md`) lo revisaron sesiones sin memoria antes de programar.
+
+### Nuevo
+- **Página Juegos**: una tarjeta por juego con estado (no instalado, instalado, atención, en marcha). Detecta por HoYoPlay (global antes que China), Epic, Steam y la lista de programas instalados; permite elegir el ejecutable a mano.
+- **Detalles**: carpeta, ejecutable, versión, tamaño, origen, anticheat, modo de pantalla y GPU preferida.
+- **Comprobar archivos**: rápida (existencia y tamaño) o completa (MD5) con `pkg_version` en los juegos de HoYoverse, con progreso y cancelación; Endfield remite a Verificar de Steam o del lanzador y Fortnite a Verificar de Epic. El último resultado se guarda.
+- **Optimizar** (con juego y lanzador cerrados): lista de cambios actual → nuevo, copia previa (10 por juego) y **Restaurar**.
+  - Fortnite (`GameUserSettings.ini`): modo Rendimiento, mallas y texturas bajas, distancia de visión épica, resolución 100 %, límite de FPS (Hz, Hz − 3 o sin límite), VSync off, contador de FPS y pantalla completa opcional.
+  - Star Rail (registro del usuario): VSync off y bajar calidades; 120 FPS opcional marcado como no oficial.
+  - Todos: GPU de alto rendimiento con la preferencia oficial de Windows (solo se marca con dos GPU).
+- **Pantalla**: Hz actuales y máximos de la principal, con acceso a Sistema › Resolución y frecuencia.
+
+### Cambiado
+- La página **Juego** pasa a llamarse **Latencia** (icono nuevo); paleta y `apps.json` actualizados.
+- Las tarjetas van en una sola columna (el diseño preveía 1–2) para que los paneles abiertos no descuadren la rejilla.
+
+### Descartado a propósito
+- Desbloquear FPS en Genshin (solo con «unlockers» que escriben en memoria: riesgo de baneo), tocar la configuración cifrada de Zenless, editar archivos del juego o ejecutables y cualquier cosa protegida por el anticheat.
+
+### Archivos y pruebas
+- `src/app/Modules/Games/**` (nuevo), `Tools/DisplaySettings.cs`, `Shell/ShellViewModel.cs`, `Shell/MainWindow.xaml(.cs)`, `Shell/Palette/PaletteSearch.cs`, `Gaming/GamingView.xaml`, `apps.json`.
+- MSTest `tests/unit/app/GamesTests.cs` (22 pruebas: JSON, ini, Star Rail, GPU, `pkg_version`, Epic/Steam/HoYoPlay, copias y restauración, FPS).
+- Sin verificar en un equipo real: `PreferredFeatureLevel=es31` de Fortnite, nombre del ejecutable de Endfield y escala de calidad de Star Rail. Pendiente de prueba física con los cinco juegos.
+- **Afecta a Windows x86/x64/ARM64 por igual**.
+
 ## v5.2 — 2026-11-17
 
 Juego competitivo y latencia para un portátil gamer. Diseñado con el método elefante‑pez (Elephant‑Goldfish Model de Google): el diseño (`specs/002-juego-competitivo/design.md`) lo revisaron tres sesiones sin memoria antes de programar.
