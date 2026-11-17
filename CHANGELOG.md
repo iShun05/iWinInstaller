@@ -11,6 +11,10 @@
 - Pester `tests/unit/engine/ShaderCache.Tests.ps1`: no pide administrador y ninguna ruta apunta a juegos o anticheat.
 - Sin verificar en un equipo real con GPU NVIDIA y AMD.
 
+### Cambiado
+- Fortnite: perfil competitivo para pantallas de alta frecuencia: opción «máximo del monitor» en el límite de FPS (por defecto si Windows está por debajo), menús al mismo límite, sin desenfoque de movimiento ni resolución dinámica (solo si esas claves ya existen) y pantalla completa exclusiva marcada.
+- Star Rail: 120 FPS marcado por defecto (es el máximo que admite el juego por el registro).
+
 ## v5.3 — 2026-11-17
 
 Página Juegos: detectar, comprobar y optimizar Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero y Arknights: Endfield. Diseñado con el método elefante‑pez: el diseño (`specs/003-juegos/design.md`) lo revisaron sesiones sin memoria antes de programar.
