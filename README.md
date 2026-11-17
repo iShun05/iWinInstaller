@@ -16,7 +16,7 @@ El EXE incluye el programa y los componentes de Microsoft para preparar WinGet. 
 
 Alternativa ZIP: [iWinInstaller.zip](https://github.com/iShun05/iWinInstaller/releases/latest/download/iWinInstaller.zip), descomprime y abre `iWinInstaller.exe`: la primera apertura pide permiso de administrador, instala y registra la misma app en Windows. Las versiones nuevas sustituyen esa instalación y conservan perfiles, notas y lotes. Si tenías una versión anterior instalada por usuario, se retira sola al instalar la nueva. Para retirarla usa **Configuración de Windows › Aplicaciones instaladas › iWinInstaller › Desinstalar**; los programas instalados y tu seguimiento se conservan.
 
-**Versión actual: v5.3** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
+**Versión actual: v5.4** · Windows 10/11 · x86, x64 y ARM64 según los paquetes disponibles.
 
 **Brave normal o Brave limpio**: en Navegadores puedes instalar Brave oficial tal cual o añadir una limpieza reversible: sin cripto, Leo, VPN ni noticias, con el perfil principal oscuro y sin tarjetas promocionales. Cierra Brave antes de aplicar o deshacer. No copia perfiles ni cuentas, conserva Shields/Sync y no acepta Widevine por ti. Los perfiles adicionales mantienen su aspecto; los widgets de búsqueda/reloj pueden requerir ajuste manual según la versión. Las políticas pueden mostrar «Administrado por tu organización». Para volver al estado anterior usa **Brave limpio → Deshacer**; instalar Brave normal no revierte estos ajustes.
 
@@ -31,7 +31,8 @@ Usa **Armoury Crate o G-Helper** como gestor de rendimiento, conservando ASUS Sy
 
 ## Funciones principales
 
-- **Equipo · hardware, preset y salud** (sin publicar): página **Equipo** que detecta portátil o sobremesa, CPU, RAM, gráficas y Hz, propone el preset **Dev + Gaming competitivo** ajustado a ese hardware (se marca en Instalar, no instala nada solo) y muestra la salud: Defender, Windows Update, disco, apps de inicio y temperaturas si Windows las expone. Ver [Equipo](#equipo-hardware-preset-y-salud).
+- **Equipo · hardware, preset y salud** (v5.4): página **Equipo** que detecta portátil o sobremesa, CPU, RAM, gráficas y Hz, propone el preset **Dev + Gaming competitivo** ajustado a ese hardware (se marca en Instalar, no instala nada solo) y muestra la salud: Defender, Windows Update, disco, apps de inicio y temperaturas si Windows las expone. Ver [Equipo](#equipo-hardware-preset-y-salud).
+- **Más en v5.4**: página **Por configurar** (apps que hay que configurar por dentro; el check se reinicia al actualizar la app), **Exportar/Importar PC** y plantilla multi-PC (`-ExportConfig` / `-ImportConfig`), **punto de restauración automático** antes de ajustes del sistema, limpieza de **caché de shaders**, juegos de Xbox, Battle.net, EA, Ubisoft y GOG detectados, y aviso de **drivers y firmware** desactualizados en Actualizaciones.
 - **Juegos · detectar, comprobar y optimizar** (v5.3): página **Juegos** que encuentra Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero y Arknights: Endfield, comprueba sus archivos y aplica en Fortnite y Star Rail ajustes oficiales de rendimiento con copia para deshacer. Ver [Juegos](#juegos-detectar-comprobar-y-optimizar).
 - **Latencia · ping en vivo y baja latencia** (v5.2): página **Latencia** (antes Juego) con ping al router, a Internet y al servidor del juego (jitter, pérdida y picos de la sesión), prueba de **bufferbloat**, estado del Wi‑Fi y DNS en uso; ajustes reversibles en **Sistema › Red y juego competitivo** y perfil «Juego competitivo (baja latencia)». Ver [Juego competitivo y latencia](#juego-competitivo-y-latencia).
 - **Mantenimiento y salud** (v4.9): liberar espacio (calcula antes, pide confirmación y nunca toca documentos), reparar Windows con DISM y SFC, salud de discos y batería e informe del equipo sin datos sensibles.
@@ -162,8 +163,8 @@ En Windows, con Git y PowerShell disponibles:
 ```powershell
 git clone https://github.com/iShun05/iWinInstaller.git
 cd iWinInstaller
-git checkout v5.3
-./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v5.3
+git checkout v5.4
+./scripts/build_exe.ps1 -OutputDirectory "$env:TEMP/iwin-release" -Ref v5.4
 ```
 
 Abre `iWinInstaller-Setup.exe` del directorio de salida. El compilador C# de .NET Framework está incluido en Windows; la interfaz necesita además el SDK de .NET (solo para compilar, no para usar la app). La construcción descarga los paquetes Microsoft cuyos hashes están fijados en `native/prerequisites.json`.
@@ -182,7 +183,8 @@ No se garantiza la instalación de todos los paquetes en todas las ediciones de 
 
 | Versión | Fecha | Novedades | Código |
 | --- | --- | --- | --- |
-| [v5.3](https://github.com/iShun05/iWinInstaller/releases/tag/v5.3) **(actual)** | 2026-11-17 | Juegos: detecta Fortnite, Genshin, Star Rail, Zenless y Endfield, comprueba sus archivos y optimiza los que lo permiten con ajustes oficiales y copia para deshacer; la página Juego pasa a llamarse Latencia | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.3) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.3.zip) |
+| [v5.4](https://github.com/iShun05/iWinInstaller/releases/tag/v5.4) **(actual)** | 2026-11-17 | Equipo (hardware, preset Dev + Gaming y salud), «Por configurar», exportar/importar configuración, punto de restauración automático, caché de shaders, más lanzadores de juegos y aviso de drivers | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.4) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.4.zip) |
+| [v5.3](https://github.com/iShun05/iWinInstaller/releases/tag/v5.3) | 2026-11-17 | Juegos: detecta Fortnite, Genshin, Star Rail, Zenless y Endfield, comprueba sus archivos y optimiza los que lo permiten con ajustes oficiales y copia para deshacer; la página Juego pasa a llamarse Latencia | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.3) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.3.zip) |
 | [v5.2](https://github.com/iShun05/iWinInstaller/releases/tag/v5.2) | 2026-11-17 | Juego competitivo: página Juego con ping en vivo y bufferbloat, DNS más rápido por red, Wi‑Fi sin ahorro y apps de latencia | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.2) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.2.zip) |
 | [v5.1](https://github.com/iShun05/iWinInstaller/releases/tag/v5.1) | 2026-11-09 | Apariencia renovada: barra de título oscura, navegación con iconos, Inicio en rejilla y controles oscuros en todas las pantallas | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.1) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.1.zip) |
 | [v5.0](https://github.com/iShun05/iWinInstaller/releases/tag/v5.0) | 2026-11-09 | Centro de control del PC: una sola ventana nueva para instalar, actualizar, mantener, proteger y conectar; se retira la ventana clásica | [Ver código](https://github.com/iShun05/iWinInstaller/tree/v5.0) · [ZIP](https://github.com/iShun05/iWinInstaller/archive/refs/tags/v5.0.zip) |
