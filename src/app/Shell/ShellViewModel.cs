@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Windows.Threading;
 using IWinInstaller.App.Core;
 using IWinInstaller.App.Engine;
+using IWinInstaller.App.Modules.Equipo;
+using IWinInstaller.App.Modules.Configure;
 using IWinInstaller.App.Modules.Games;
 using IWinInstaller.App.Modules.Gaming;
 using IWinInstaller.App.Modules.Home;
@@ -36,8 +38,10 @@ namespace IWinInstaller.App.Shell
             {
                 case "home": return "\uE80F";
                 case "install": return "\uE896";
+                case "configure": return "\uE73A";
                 case "updates": return "\uE895";
                 case "system": return "\uE7F4";
+                case "equipo": return "\uE770";
                 case "games": return "\uE7FC";
                 case "gaming": return "\uE701";
                 case "maintenance": return "\uE90F";
@@ -75,15 +79,19 @@ namespace IWinInstaller.App.Shell
             Settings = new SettingsViewModel(Engine);
             Maintenance = new MaintenanceViewModel(Engine, dialogs);
             Updates = new UpdatesViewModel(Engine, dispatcher);
+            Configure = new ConfigureViewModel(Engine, () => Install.Items.Select(i => i.Entry), () => { var ignored = Install.RefreshConfiguredAsync(); });
             Gaming = new GamingViewModel(preferences, dispatcher, () => { Navigate("install"); Install.Search = "Red y juego competitivo"; });
             Games = new GamesViewModel(dispatcher, dialogs, () => Navigate("system"), () => Navigate("gaming"));
             Router = new ActionRouter(Navigate);
+            Equipo = new EquipoViewModel(dispatcher, id => Router.Run(id), (ids, title) => { Install.SelectPreset(ids, title); Navigate("install"); });
             Items = new ObservableCollection<NavItem>
             {
                 new NavItem("home", "Inicio", "Estado del PC de un vistazo.", false),
                 new NavItem("install", "Instalar", "Catálogo, perfiles, guías después de instalar e informe.", false),
+                new NavItem("configure", "Por configurar", "Apps instaladas que hay que configurar por dentro, con su check.", false),
                 new NavItem("updates", "Actualizaciones", "Versiones nuevas, exclusiones y actualización programada.", false),
                 new NavItem("system", "Sistema", "Pantalla y energía.", false),
+                new NavItem("equipo", "Equipo", "Hardware, preset Dev + Gaming y salud del PC.", false),
                 new NavItem("games", "Juegos", "Tus juegos: instalación, archivos y optimización.", false),
                 new NavItem("gaming", "Latencia", "Ping en vivo, bufferbloat y ajustes para jugar online.", false),
                 new NavItem("maintenance", "Mantenimiento", "Liberar espacio, reparar Windows y salud del equipo.", false),
@@ -113,8 +121,10 @@ namespace IWinInstaller.App.Shell
         public SettingsViewModel Settings { get; private set; }
         public MaintenanceViewModel Maintenance { get; private set; }
         public UpdatesViewModel Updates { get; private set; }
+        public ConfigureViewModel Configure { get; private set; }
         public GamingViewModel Gaming { get; private set; }
         public GamesViewModel Games { get; private set; }
+        public EquipoViewModel Equipo { get; private set; }
         public ActionRouter Router { get; private set; }
         public ObservableCollection<NavItem> Items { get; private set; }
         public RelayCommand OpenActionCommand { get; private set; }
@@ -160,7 +170,9 @@ namespace IWinInstaller.App.Shell
                 if (value.Id == "gaming") Gaming.Start();
                 if (value.Id == "games") Games.Start();
                 OnPropertyChanged("IsHome"); OnPropertyChanged("IsClassicPage"); OnPropertyChanged("PageId");
+                if (value.Id == "equipo") Equipo.EnsureLoaded();
                 if (value.Id == "updates") Updates.EnsureLoaded();
+                if (value.Id == "configure") Configure.Reload();
                 if (value.Id == "install") Install.EnsureLoaded();
                 if (value.Id == "system") SystemPage.EnsureLoaded();
                 if (value.Id == "security") Security.EnsureLoaded();

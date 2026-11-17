@@ -1,0 +1,101 @@
+<UserControl x:Class="IWinInstaller.App.Modules.Equipo.EquipoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:core="clr-namespace:IWinInstaller.App.Core">
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="Visible"/>
+    <Style x:Key="Card" TargetType="Border">
+      <Setter Property="Background" Value="{StaticResource Surface}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
+      <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="14"/><Setter Property="Padding" Value="18,16"/><Setter Property="Margin" Value="0,0,0,16"/>
+    </Style>
+    <!-- Una fila del panel de salud con la misma pastilla de estado que el Inicio -->
+    <DataTemplate x:Key="HealthRow" DataType="{x:Type core:StatusCard}">
+      <Border x:Name="row" Padding="0,12" BorderBrush="{StaticResource Border}" BorderThickness="0,0,0,1"
+              AutomationProperties.Name="{Binding Title}" AutomationProperties.HelpText="{Binding Summary}">
+        <DockPanel LastChildFill="True">
+          <Border x:Name="pill" DockPanel.Dock="Right" CornerRadius="10" Padding="9,2" Background="{StaticResource UnknownSoft}" VerticalAlignment="Top" Margin="12,0,0,0">
+            <StackPanel Orientation="Horizontal">
+              <Ellipse x:Name="dot" Width="6" Height="6" Fill="{StaticResource Unknown}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+              <TextBlock x:Name="state" Text="{Binding StateLabel}" FontSize="11.5" Foreground="{StaticResource Unknown}" TextWrapping="NoWrap"/>
+            </StackPanel>
+          </Border>
+          <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" Content="Abrir" VerticalAlignment="Top"
+                  Command="{Binding DataContext.OpenActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                  CommandParameter="{Binding}" Visibility="{Binding HasAction, Converter={StaticResource Visible}}"
+                  AutomationProperties.Name="{Binding Title, StringFormat=Abrir {0}}"/>
+          <StackPanel>
+            <TextBlock Text="{Binding Title}" FontSize="12.5" Foreground="{StaticResource TextMuted}"/>
+            <TextBlock Text="{Binding Summary}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+            <TextBlock Text="{Binding Reason}" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,3,0,0"
+                       Visibility="{Binding HasReason, Converter={StaticResource Visible}}"/>
+          </StackPanel>
+        </DockPanel>
+      </Border>
+      <DataTemplate.Triggers>
+        <DataTrigger Binding="{Binding State}" Value="Ok">
+          <Setter TargetName="pill" Property="Background" Value="{StaticResource OkSoft}"/>
+          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Ok}"/>
+          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Ok}"/>
+        </DataTrigger>
+        <DataTrigger Binding="{Binding State}" Value="Attention">
+          <Setter TargetName="pill" Property="Background" Value="{StaticResource AttentionSoft}"/>
+          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Attention}"/>
+          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Attention}"/>
+        </DataTrigger>
+      </DataTemplate.Triggers>
+    </DataTemplate>
+  </UserControl.Resources>
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+    <StackPanel Margin="32,28,32,24" MaxWidth="860" HorizontalAlignment="Left">
+      <DockPanel LastChildFill="False">
+        <TextBlock Text="Equipo" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+        <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="Comprobar de nuevo" Command="{Binding RefreshCommand}"/>
+      </DockPanel>
+      <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextMuted}" Margin="0,6,0,4"
+                 Text="Lee el hardware y el estado de Windows al entrar o al pulsar Comprobar. No deja nada en marcha en segundo plano."/>
+      <TextBlock Text="{Binding LastChecked}" Foreground="{StaticResource TextFaint}" FontSize="12" Margin="0,0,0,16"/>
+
+      <!-- Hardware y preset -->
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <DockPanel LastChildFill="False">
+            <TextBlock Text="{Binding Machine}" FontWeight="SemiBold" FontSize="16" Foreground="{StaticResource TextStrong}" VerticalAlignment="Center"/>
+            <TextBlock DockPanel.Dock="Right" Text="{Binding Tier}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource Accent}" VerticalAlignment="Center"/>
+          </DockPanel>
+          <TextBlock Text="{Binding Cpu}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+          <TextBlock Text="{Binding Ram}" Foreground="{StaticResource Text}" Margin="0,3,0,0"/>
+          <TextBlock Text="{Binding Gpu}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,3,0,0"/>
+          <TextBlock Text="{Binding Display}" Foreground="{StaticResource Text}" Margin="0,3,0,0"/>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Text="Preset: Dev + Gaming competitivo" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+          <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextMuted}" Margin="0,4,0,10"
+                     Text="Un Windows ágil para programar y jugar en competitivo: base de desarrollo (Git, VS Code, terminal, modo desarrollador), baja latencia (Modo Juego, sin aceleración del ratón, sin grabación en segundo plano, DNS rápido) y lo que pide tu hardware."/>
+          <TextBlock Text="{Binding PlanText}" Foreground="{StaticResource Text}" TextWrapping="Wrap"/>
+          <ItemsControl ItemsSource="{Binding Notes}" Margin="0,10,0,0" Focusable="False">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,0,0,6" Text="{Binding Text}"/>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Button Style="{StaticResource Primary}" Content="Marcar en Instalar" Command="{Binding ApplyPresetCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+        </StackPanel>
+      </Border>
+
+      <!-- Salud -->
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <TextBlock Text="Salud" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
+          <ItemsControl ItemsSource="{Binding Cards}" ItemTemplate="{StaticResource HealthRow}" Margin="0,4,0,0" Focusable="False"/>
+        </StackPanel>
+      </Border>
+
+      <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextFaint}" FontSize="12"
+                 Text="Las temperaturas salen de las zonas térmicas que Windows publica sin drivers extra; si tu equipo no las expone, usa HWiNFO o Core Temp desde Instalar."/>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

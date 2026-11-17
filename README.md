@@ -31,6 +31,7 @@ Usa **Armoury Crate o G-Helper** como gestor de rendimiento, conservando ASUS Sy
 
 ## Funciones principales
 
+- **Equipo · hardware, preset y salud** (sin publicar): página **Equipo** que detecta portátil o sobremesa, CPU, RAM, gráficas y Hz, propone el preset **Dev + Gaming competitivo** ajustado a ese hardware (se marca en Instalar, no instala nada solo) y muestra la salud: Defender, Windows Update, disco, apps de inicio y temperaturas si Windows las expone. Ver [Equipo](#equipo-hardware-preset-y-salud).
 - **Juegos · detectar, comprobar y optimizar** (v5.3): página **Juegos** que encuentra Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero y Arknights: Endfield, comprueba sus archivos y aplica en Fortnite y Star Rail ajustes oficiales de rendimiento con copia para deshacer. Ver [Juegos](#juegos-detectar-comprobar-y-optimizar).
 - **Latencia · ping en vivo y baja latencia** (v5.2): página **Latencia** (antes Juego) con ping al router, a Internet y al servidor del juego (jitter, pérdida y picos de la sesión), prueba de **bufferbloat**, estado del Wi‑Fi y DNS en uso; ajustes reversibles en **Sistema › Red y juego competitivo** y perfil «Juego competitivo (baja latencia)». Ver [Juego competitivo y latencia](#juego-competitivo-y-latencia).
 - **Mantenimiento y salud** (v4.9): liberar espacio (calcula antes, pide confirmación y nunca toca documentos), reparar Windows con DISM y SFC, salud de discos y batería e informe del equipo sin datos sensibles.
@@ -69,6 +70,12 @@ Usa **Armoury Crate o G-Helper** como gestor de rendimiento, conservando ASUS Sy
 - **Actualización pública** del instalador, con comprobación SHA256. Los lotes separan las instalaciones por usuario de las que requieren administrador.
 
 Algunos productos necesitan su asistente o una suscripción. Norton VPN se instala desde la cuenta del proveedor: abrir sus instrucciones no se considera una instalación correcta. WSL puede requerir reiniciar Windows. La app no importa configuraciones personales ni administra proyectos de código.
+
+## Equipo: hardware, preset y salud
+
+La página **Equipo** lee, al entrar o al pulsar **Comprobar de nuevo**, el tipo de equipo (portátil o sobremesa), el procesador, la memoria, las gráficas (dedicada o integrada) y la frecuencia de la pantalla, y calcula una gama (básica, media o alta). Con eso propone el preset **Dev + Gaming competitivo**: base de desarrollo (Git, VS Code, Terminal, modo desarrollador, rutas largas) y de baja latencia (Modo Juego, sin aceleración del ratón, sin grabación en segundo plano, DNS rápido). **Marcar en Instalar** solo marca lo que falta; instalas tú. En un portátil no se pone el plan de alto rendimiento y con poca RAM no se propone WSL. El mismo perfil está en Instalar › Perfil.
+
+El **panel de salud** solo lee: Microsoft Defender, Windows Update, espacio libre, apps de inicio (avisa por encima de 12 activas) y temperaturas de las zonas térmicas que Windows publica sin drivers; si tu equipo no las expone, no se inventa nada y se sugiere HWiNFO o Core Temp. No deja procesos ni tareas en segundo plano.
 
 ## Juegos: detectar, comprobar y optimizar
 
@@ -136,7 +143,7 @@ Interfaz en C# con WPF sobre .NET Framework 4.8 (incluido en Windows); motor en 
 | --- | --- |
 | `iWinInstaller.ps1` | Arranque del motor y modos de consola (abre la interfaz si no recibe parámetros) |
 | `src/engine/` | Motor por áreas: WinGet, paquetes, sistema, remoto, RGB, ajustes, perfiles, lotes, juego competitivo (`15-Gaming.ps1` y `gaming/dns-rapido.ps1`) y contrato con la interfaz |
-| `src/app/` | Interfaz (C#, WPF): Inicio, Instalar, Actualizaciones, Mantenimiento, Sistema, Juegos, Latencia, Acceso remoto, Seguridad, Ajustes y paleta |
+| `src/app/` | Interfaz (C#, WPF): Inicio, Instalar, Actualizaciones, Mantenimiento, Sistema, Equipo, Juegos, Latencia, Acceso remoto, Seguridad, Ajustes y paleta |
 | `apps.json`, `profiles.json` | Catálogo, guías de postinstalación y perfiles |
 | `lifecycle.ps1` | Lotes, comprobaciones, restauración y actualizaciones opcionales |
 | `install.ps1`, `launch.ps1`, `Iniciar.bat` | Instalación, desinstalación y apertura |
@@ -145,7 +152,7 @@ Interfaz en C# con WPF sobre .NET Framework 4.8 (incluido en Windows); motor en 
 | `src/catalog/schema/` | Esquemas que validan el catálogo y los perfiles |
 | `tests/` | Pruebas unitarias (Pester), pruebas aisladas, aceptación en un Windows desechable y comprobación de la release |
 | `docs/` | Línea de comandos (`cli.md`) y política de firma de código |
-| `specs/`, `.specify/` | Especificación y plan del camino a v5.0 y diseño de juego competitivo (v5.2) y de la página Juegos (v5.3) |
+| `specs/`, `.specify/` | Especificación y plan del camino a v5.0 y diseño de juego competitivo (v5.2) de la página Juegos (v5.3) y de la página Equipo |
 | `assets/` | Iconos |
 
 ## Compilar e instalar

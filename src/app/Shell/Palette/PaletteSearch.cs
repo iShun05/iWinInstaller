@@ -76,9 +76,12 @@ namespace IWinInstaller.App.Shell.Palette
             {
                 new PaletteAction("nav.home", "Inicio · estado del PC", "Inicio", "estado resumen salud tarjetas comprobar"),
                 new PaletteAction("nav.install", "Instalar aplicaciones", "Instalar", "catalogo perfiles programas apps descargar"),
+                new PaletteAction("nav.configure", "Apps por configurar", "Por configurar", "configurar pendiente iniciar sesion cuenta ajustes despues de instalar check lista"),
                 new PaletteAction("nav.updates", "Actualizaciones de apps", "Actualizaciones", "actualizar versiones nuevas upgrade winget excluir programar"),
                 new PaletteAction("nav.system", "Resolución y frecuencia de la pantalla", "Sistema", "monitor hz hercios refresco pantalla resolucion frecuencia"),
                 new PaletteAction("nav.system", "Energía: pantalla, suspensión e hibernación", "Sistema", "energia suspender dormir hibernar apagar pantalla bateria plan"),
+                new PaletteAction("nav.equipo", "Hardware y preset Dev + Gaming competitivo", "Equipo", "hardware portatil sobremesa gpu cpu ram gama preset perfil dev gaming competitivo desarrollo programar jugar optimizar"),
+                new PaletteAction("nav.equipo", "Salud del PC: apps de inicio y temperaturas", "Equipo", "salud windows update disco apps inicio arranque startup temperatura calor ventilador"),
                 new PaletteAction("nav.games", "Optimizar juegos (FPS e input lag)", "Juegos", "fortnite genshin star rail honkai zenless zzz endfield arknights fps 120 input lag optimizar texturas juegos instalado archivos verificar"),
                 new PaletteAction("nav.gaming", "Ping y latencia para jugar", "Latencia", "ping latencia lag jitter perdida paquetes bufferbloat juego shooter competitivo red wifi dns gaming"),
                 new PaletteAction("nav.maintenance", "Liberar espacio en disco", "Mantenimiento", "limpiar limpieza temporales cache papelera espacio disco lleno"),

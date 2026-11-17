@@ -27,6 +27,8 @@ namespace IWinInstaller.App.Modules.Install
         public bool NoOpen { get; set; }
         public bool Configure { get; set; }
         public bool HasPostInstall { get; set; }
+        /// <summary>Qué hay que configurar dentro de la app (apps.json: configNote).</summary>
+        public string ConfigNote { get; set; }
         public string[] Winget { get; set; }
 
         /// <summary>Opcional: no se marca sola (optin o catálogo ampliado).</summary>
@@ -36,6 +38,8 @@ namespace IWinInstaller.App.Modules.Install
         public bool OpensInConsole { get { return IsCli && !Gui; } }
         public bool CanOpen { get { return Type != "tweak" && Type != "vboxga" && !NoOpen && Section != "Sistema"; } }
         public bool NeedsConfiguration { get { return Configure || HasPostInstall; } }
+        /// <summary>Aparece en la página «Por configurar»: app con nota de configuración (los ajustes de Windows no).</summary>
+        public bool ListedToConfigure { get { return Configure && !IsTweak && !String.IsNullOrEmpty(ConfigNote); } }
 
         /// <summary>Test-Uninstallable de la ventana clásica.</summary>
         public bool CanUninstall
@@ -92,7 +96,7 @@ namespace IWinInstaller.App.Modules.Install
                     Id = S(row, "id"), Section = S(row, "section"), Group = S(row, "group"), Subgroup = S(row, "subgroup"),
                     SubgroupNote = S(row, "subgroupNote"), Compare = S(row, "compare"), Name = S(row, "name"), Desc = S(row, "desc"),
                     Icon = S(row, "icon"), Type = S(row, "type"), OptIn = B(row, "optin"), Extra = B(row, "extra"), Keep = B(row, "keep"),
-                    Gui = B(row, "gui"), NoOpen = B(row, "noopen"), Configure = B(row, "configure"), HasPostInstall = row.ContainsKey("postInstall"),
+                    Gui = B(row, "gui"), NoOpen = B(row, "noopen"), Configure = B(row, "configure"), HasPostInstall = row.ContainsKey("postInstall"), ConfigNote = S(row, "configNote"),
                     Winget = Strings(row, "winget")
                 };
                 if (!String.IsNullOrEmpty(entry.SubgroupNote)) notes[entry.Group + "/" + entry.Subgroup] = entry.SubgroupNote;
