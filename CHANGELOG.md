@@ -1,6 +1,8 @@
 # Historial de versiones
 
-## Sin publicar
+## v5.4 — 2026-11-17
+
+Más herramientas para el PC: página **Equipo** (hardware, preset y salud), página **Por configurar**, exportar/importar la configuración, punto de restauración automático, carpetas por categoría, caché de shaders, más lanzadores de juegos detectados y aviso de drivers desactualizados.
 
 ### Nuevo
 - **Mantenimiento › Carpetas por categoría** (botón **Comprobar y organizar**): detecta las apps del catálogo ya instaladas (por versiones anteriores o a mano) y las ordena por su categoría de `apps.json`. Opcional y reversible (**Deshacer**).
@@ -8,58 +10,31 @@
   - Escritorio: `Aplicaciones\<Categoría>` con copias de los accesos; los que dejó `Organize-Desktop` en `Aplicaciones` se recolocan y al deshacer vuelven.
   - **Ordenar automáticamente al terminar de instalar** (desmarcado por defecto). Si una actualización recrea un acceso, **Comprobar y organizar** lo vuelve a colocar. Todo queda en `%LOCALAPPDATA%\iWinInstaller\carpetas.json`.
   - Las apps de la Tienda (sin `.lnk`) no se ordenan. Motor: `src/engine/17-Folders.ps1`, comandos `folders.status|set|apply|revert`; Pester `tests/unit/engine/Folders.Tests.ps1`. Sin verificar en un Windows real.
-- **Liberar espacio › Caché de shaders de GPU**: borra las cachés de shaders de DirectX (`D3DSCache`), NVIDIA (`DXCache`, `GLCache`) y AMD (`DxCache`, `GLCache`) en `%LOCALAPPDATA%`. Muestra el tamaño antes de borrar, omite archivos en uso y de menos de un día, y no pide administrador. Viene desmarcada por defecto: al borrarla, el primer arranque de cada juego recompila los shaders y puede tardar más.
-- Carpetas de juegos y anticheat fuera de alcance; solo cachés de controlador.
-- **Punto de restauración automático**: antes de aplicar ajustes del sistema, red, acceso remoto o latencia se crea un punto «iWinInstaller». Como máximo uno cada 24 h; si ya hay uno reciente, se reutiliza.
-- Si la restauración del sistema está desactivada, la instalación avisa en el registro y sigue sin crear el punto. Si la creación falla o se cancela el UAC, también avisa y los ajustes continúan.
-- **Página Juegos › Otros juegos instalados**: lista los juegos de Xbox / Game Pass (`<unidad>:\XboxGames\*\Content\MicrosoftGame.Config`), Battle.net (entradas de Desinstalar de Blizzard), EA App (`EA Games` del registro y `Program Files\EA Games`), Ubisoft Connect (`Ubisoft\Launcher\Installs`), GOG (`GOG.com\Games`, sin DLC) y, además, los demás de Epic (sin Unreal Engine) y Steam (sin herramientas). Cada fila muestra nombre, lanzador, versión, tamaño (si el manifiesto lo da) y carpeta, con **Abrir carpeta**. Sin repetir carpeta ni los juegos que ya tienen tarjeta.
-- Solo lectura de manifiestos y registro: la optimización sigue limitada a los juegos con tarjeta.
-- Pruebas: `tests/unit/app/LauncherScannerTests.cs` (6 pruebas, incluido XML con DTD rechazado).
-- Sin verificar en un equipo real: claves de EA/Ubisoft/GOG y Desinstalar de Battle.net; el nombre de Xbox cae al de la carpeta si es `ms-resource`.
-- **Página «Por configurar»**: lista las apps instaladas que hay que configurar por dentro (iniciar sesión, elegir carpetas, emparejar dispositivos…), cada una con una nota breve de qué hacer, un botón **Marcar como hecha** y **Abrir**. Cuando una app cambia de versión, su check se quita solo y vuelve a salir pendiente con «Se actualizó de X a Y».
-- `apps.json`: campo `configNote` (nota breve) junto a `configure`; 110 apps marcadas (launchers, navegadores, mensajería, nube, VPN, contraseñas, software de periféricos y GPU, IA y herramientas de captura).
-- Motor: comando `configure.list`; `postinstalacion.json` guarda la versión en que se confirmó cada app (`version`, `reopenedFrom`). La versión sale del registro de Windows o del paquete Appx; si no se conoce, el check no se quita.
-- **Exportar e importar la configuración**: `-ExportConfig <ruta>` guarda en un JSON versionado (`iWinInstaller-config`, esquema 1) las apps y ajustes aplicados de este PC (o de un perfil con `-Perfil`), las exclusiones de actualización, los pasos de «Por configurar» y el zoom de la interfaz. Las notas y el servidor del juego solo van con `-IncludePersonal`.
-- **Plantilla para varios PC**: `-ImportConfig <ruta>` describe el plan y con `-Yes` lo aplica sin ventana e instala lo que falte (omite las apps de otro hardware y no quita nada de lo que ya hay). Importa también los perfiles `.iwin.json` anteriores.
-- **Formato extensible**: cada parte es una sección registrada con `Register-IwinConfigSection`; las secciones y campos desconocidos se ignoran con aviso y solo una `version` mayor se rechaza, de modo que las funciones nuevas añaden su sección sin romper archivos antiguos.
-- **Instalar › Exportar PC… / Importar PC…**: los mismos archivos desde la ventana; al importar se marcan las apps que faltan.
-- Comandos del motor `config.export`, `config.inspect` y `config.import`.
-- **Página Equipo › Tu equipo**: portátil o sobremesa (chasis SMBIOS, con la batería como respaldo), fabricante y modelo, procesador (núcleos e hilos), memoria, gráficas (dedicada o integrada, con aviso de gráfica híbrida) y pantalla (resolución, Hz actuales y máximos). Calcula una **gama** (básica, media o alta) por memoria, hilos y gráfica dedicada.
-- **Preset «Dev + Gaming competitivo»**: botón **Marcar en Instalar**, que solo marca (no instala nada) las apps y ajustes que faltan. Base de desarrollo (punto de restauración, modo desarrollador, rutas largas, extensiones visibles, «Finalizar tarea», Git, VS Code, Terminal y PowerShell 7) y de baja latencia (sin aceleración del ratón, Modo Juego, sin grabación en segundo plano, DNS rápido, DirectX, Visual C++, LatencyMon y Speedtest). Se adapta al equipo:
-  - Portátil: no pone el plan de alto rendimiento (gasta batería) y añade Wi‑Fi sin ahorro de energía; sobremesa: lo contrario.
-  - Menos de 12 GB de RAM: no propone WSL y lo explica.
-  - Software de la gráfica (NVIDIA App, AMD Software o Intel DSA) según la gráfica dedicada, y G-Helper en portátiles ASUS.
-  - Avisos con enlace: pantalla que admite más Hz de los que usa, límite de FPS recomendado (Hz − 3), GPU por juego en portátiles híbridos y gama.
-- **Perfil «Dev + Gaming competitivo»** en `profiles.json` (con `@hardware`), por si prefieres elegirlo a mano en Instalar.
-- **Panel de salud** (solo lee, no cambia nada): **Microsoft Defender** (tiempo real y firmas, o el antivirus de otro fabricante), **Windows Update** (última búsqueda con éxito), **espacio libre** del disco del sistema, **apps de inicio** (cuenta solo las activas, respeta el Administrador de tareas y avisa por encima de 12) y **temperaturas** de las zonas térmicas que Windows publica sin drivers extra; sin sensores indica que no aplica y recomienda HWiNFO o Core Temp. Cada fila enlaza a su página.
-- Acciones de la paleta (Ctrl + K): «Hardware y preset Dev + Gaming competitivo» y «Salud del PC: apps de inicio y temperaturas».
-- **Actualizaciones › Drivers y firmware**: avisa de drivers de gráfica, chipset, red y de BIOS/UEFI desactualizados. Solo avisa: no descarga ni instala nada.
-  - Fuentes fiables: **Windows Update** (búsqueda oficial de drivers y firmware no instalados; si ofrece una versión igual o anterior a la instalada, se ignora) y **NVIDIA** (última Game Ready por id de la GPU, el mismo servicio que usa su app; envía solo el modelo de la GPU y la versión de Windows).
-  - AMD, Intel, red y BIOS no publican una consulta fiable: se muestran versión, fecha y antigüedad con la web oficial (fabricante del chip o, en portátiles y BIOS, del equipo o de la placa). La antigüedad sola no genera aviso.
-  - Archivos: `src/app/Modules/Drivers/**` (nuevo), `Updates/UpdatesView.xaml`, `Updates/UpdatesViewModel.cs`. MSTest `tests/unit/app/DriversTests.cs` (16 pruebas).
-  - Pendiente de prueba física: búsqueda de Windows Update con y sin conexión y portátil con NVIDIA. **Afecta a Windows x86/x64/ARM64 por igual** (NVIDIA solo existe en x64).
+- **Página Equipo**: detecta portátil o sobremesa, fabricante y modelo, CPU, memoria, gráficas (dedicada o integrada, con aviso de gráfica híbrida) y pantalla (resolución, Hz actuales y máximos), y calcula una gama (básica, media o alta).
+- **Preset «Dev + Gaming competitivo»** (botón **Marcar en Instalar**: solo marca, no instala): base de desarrollo y de baja latencia adaptada al equipo (portátil o sobremesa, menos de 12 GB de RAM sin WSL, software de la gráfica, G-Helper en portátiles ASUS) con avisos de Hz, límite de FPS y GPU por juego. También como perfil en `profiles.json`.
+- **Panel de salud** (solo lee): Defender, Windows Update, espacio libre, apps de inicio y temperaturas; cada fila enlaza a su página. Acciones nuevas en la paleta (Ctrl + K).
+- **Página «Por configurar»**: apps instaladas que hay que configurar por dentro, con nota breve, **Marcar como hecha** y **Abrir**. El check se quita solo cuando la app cambia de versión («Se actualizó de X a Y»). 110 apps marcadas (`configNote` en `apps.json`); comando del motor `configure.list`.
+- **Exportar e importar la configuración**: `-ExportConfig <ruta>` guarda apps, ajustes, exclusiones, pasos de «Por configurar» y zoom en un JSON versionado (`-IncludePersonal` añade notas y servidor del juego); `-ImportConfig <ruta>` describe el plan y con `-Yes` lo aplica sin ventana (plantilla multi-PC; omite apps de otro hardware y no quita nada). Formato extensible por secciones (`Register-IwinConfigSection`). En **Instalar**: botones **Exportar PC… / Importar PC…**.
+- **Punto de restauración automático**: antes de aplicar ajustes del sistema, red, acceso remoto o latencia se crea un punto «iWinInstaller» (como máximo uno cada 24 h). Si la restauración del sistema está desactivada, o la creación falla o se cancela el UAC, avisa en el registro y los ajustes continúan.
+- **Liberar espacio › Caché de shaders de GPU**: borra las cachés de DirectX, NVIDIA y AMD en `%LOCALAPPDATA%` (muestra el tamaño, omite archivos en uso y de menos de un día, sin administrador). Desmarcada por defecto: el primer arranque de cada juego recompila los shaders. No toca carpetas de juegos ni anticheat.
+- **Juegos › Otros juegos instalados**: Xbox / Game Pass, Battle.net, EA App, Ubisoft Connect y GOG, además de los demás de Epic (sin Unreal Engine) y Steam (sin herramientas). Solo lectura; la optimización sigue limitada a los juegos con tarjeta.
+- **Actualizaciones › Drivers y firmware**: avisa de drivers de gráfica, chipset, red y BIOS/UEFI desactualizados; solo avisa, no descarga ni instala. Fuentes fiables: Windows Update y NVIDIA (envía solo el modelo de la GPU y la versión de Windows). AMD, Intel, red y BIOS muestran versión, fecha y antigüedad con la web oficial; la antigüedad sola no genera aviso.
 
 ### Cambiado
-- Fortnite: perfil competitivo para pantallas de alta frecuencia: opción «máximo del monitor» en el límite de FPS (por defecto si Windows está por debajo), menús al mismo límite, sin desenfoque de movimiento ni resolución dinámica (solo si esas claves ya existen) y pantalla completa exclusiva marcada.
-- Star Rail: 120 FPS marcado por defecto (es el máximo que admite el juego por el registro).
+- Fortnite: perfil competitivo para pantallas de alta frecuencia: «máximo del monitor» en el límite de FPS (por defecto si Windows está por debajo), menús al mismo límite, sin desenfoque de movimiento ni resolución dinámica (solo si esas claves ya existen) y pantalla completa exclusiva marcada.
+- Star Rail: 120 FPS marcado por defecto (máximo que admite el juego por el registro).
 - `postinstall.set` sin `note` conserva la nota guardada.
-
-### Archivos y pruebas
-- `src/engine/14-Maintenance.ps1` (categoría `shaderCache`), `src/app/Modules/Maintenance/MaintenanceViewModel.cs` (desmarcada por defecto).
-- Pester `tests/unit/engine/ShaderCache.Tests.ps1`: no pide administrador y ninguna ruta apunta a juegos o anticheat.
-- Sin verificar en un equipo real con GPU NVIDIA y AMD.
-- `src/engine/06-Tweaks.ps1` (`Invoke-IwinAutoRestorePoint`, `Test-IwinRestorePointDue`, `Test-IwinSystemRestoreOff`), `src/engine/08-Batch.ps1` (`Invoke-Install`).
-- `tests/unit/engine/RestorePoint.Tests.ps1`: regla de 24 horas.
-- `src/engine/16-Config.ps1` (nuevo), `iWinInstaller.ps1`, `docs/cli.md`, `tests/unit/engine/Config.Tests.ps1` (Pester; compatibilidad, extensibilidad y rechazo de datos no válidos).
-- `InstallViewModel.cs` e `InstallView.xaml` (botones); sin compilar en este entorno: lo compila el CI.
-- `src/app/Modules/Equipo/**` (nuevo: modelo y reglas puras, lecturas del sistema, vista y modelo de vista), `Install/InstallViewModel.cs` (`SelectPreset`), `Shell/ShellViewModel.cs`, `Shell/MainWindow.xaml`, `Shell/Palette/PaletteSearch.cs`, `Core/StatusCard.cs`, `profiles.json`. Diseño: `specs/005-equipo/design.md`.
-- MSTest `tests/unit/app/EquipoTests.cs` (18 pruebas: chasis, marca y gráfica dedicada, gama, preset por equipo, reglas de Defender, Windows Update, inicio y temperatura, StartupApproved, y que todos los ids del preset existan en `apps.json` y estén en el perfil).
-- Sin verificar en un equipo real: las lecturas WMI y de registro (`EquipoProbes`), la maquetación de la página y las temperaturas (muchos equipos no exponen zonas térmicas sin driver). La lógica se probó en Linux y la compilación con .NET Framework 4.8 la hace la CI.
-- **Afecta a Windows x86/x64/ARM64 por igual**.
+- Pulido: corregido un nombre obsoleto («Latencia») en un comentario.
 
 ### Ligero
-- Solo WMI y registro con los permisos del usuario, al entrar en la página o al pulsar **Comprobar de nuevo**. Sin PowerShell, sin drivers, sin temporizadores ni procesos residentes.
+- Equipo y drivers solo usan WMI, registro y, para NVIDIA, una consulta HTTPS, con permisos de usuario y solo al entrar en la página o al pulsar **Comprobar de nuevo**. Sin drivers, temporizadores ni procesos residentes.
 
+### Archivos y pruebas
+- Motor: `src/engine/06-Tweaks.ps1` (punto de restauración), `08-Batch.ps1`, `14-Maintenance.ps1` (`shaderCache`), `16-Config.ps1` y `17-Folders.ps1` (nuevos), `iWinInstaller.ps1`, `docs/cli.md`.
+- Interfaz: `src/app/Modules/Equipo/**`, `Configure/**`, `Drivers/**` (nuevos), `Games`, `Install`, `Maintenance`, `Updates`, `Shell/**`, `Core/StatusCard.cs`; `apps.json`, `profiles.json`. Diseño: `specs/005-equipo/design.md`.
+- Pester: `ShaderCache`, `RestorePoint`, `Config` y `Folders`. MSTest: `EquipoTests` (18), `DriversTests` (16), `LauncherScannerTests` (6) y los de «Por configurar».
+- Sin verificar en un equipo real: lecturas WMI y de registro de Equipo, maquetación y temperaturas; claves de EA/Ubisoft/GOG y Desinstalar de Battle.net; Windows Update con y sin conexión y portátil con NVIDIA; limpieza de shaders con GPU NVIDIA y AMD.
+- **Afecta a Windows x86/x64/ARM64 por igual** (NVIDIA solo existe en x64).
 
 ## v5.3 — 2026-11-17
 

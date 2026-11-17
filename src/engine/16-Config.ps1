@@ -2,7 +2,7 @@
 # Se carga con «.» desde iWinInstaller.ps1, en orden, en el ámbito del script principal.
 #
 # Un archivo de configuración es un JSON de datos (nunca se evalúa como órdenes) con este esquema:
-#   { "formato": "iWinInstaller-config", "version": 1, "nombre": "…", "creado": "AAAA-MM-DD", "app": "v5.3",
+#   { "formato": "iWinInstaller-config", "version": 1, "nombre": "…", "creado": "AAAA-MM-DD", "app": "v5.4",
 #     "secciones": { "perfil": {…}, "seguimiento": {…}, "exclusiones": {…}, "interfaz": {…} } }
 # Es extensible: cada «sección» se registra con Register-IwinConfigSection (exportar + importar).
 # Reglas de compatibilidad: una sección desconocida se ignora y se avisa; campos desconocidos dentro de
