@@ -3,14 +3,17 @@
 ## Sin publicar
 
 ### Nuevo
+### Cambiado
 - **Liberar espacio › Caché de shaders de GPU**: borra las cachés de shaders de DirectX (`D3DSCache`), NVIDIA (`DXCache`, `GLCache`) y AMD (`DxCache`, `GLCache`) en `%LOCALAPPDATA%`. Muestra el tamaño antes de borrar, omite archivos en uso y de menos de un día, y no pide administrador. Viene desmarcada por defecto: al borrarla, el primer arranque de cada juego recompila los shaders y puede tardar más.
 - Carpetas de juegos y anticheat fuera de alcance; solo cachés de controlador.
 - **Punto de restauración automático**: antes de aplicar ajustes del sistema, red, acceso remoto o latencia se crea un punto «iWinInstaller». Como máximo uno cada 24 h; si ya hay uno reciente, se reutiliza.
 - Si la restauración del sistema está desactivada, la instalación avisa en el registro y sigue sin crear el punto. Si la creación falla o se cancela el UAC, también avisa y los ajustes continúan.
-
-### Cambiado
 - Fortnite: perfil competitivo para pantallas de alta frecuencia: opción «máximo del monitor» en el límite de FPS (por defecto si Windows está por debajo), menús al mismo límite, sin desenfoque de movimiento ni resolución dinámica (solo si esas claves ya existen) y pantalla completa exclusiva marcada.
 - Star Rail: 120 FPS marcado por defecto (es el máximo que admite el juego por el registro).
+- **Página Juegos › Otros juegos instalados**: lista los juegos de Xbox / Game Pass (`<unidad>:\XboxGames\*\Content\MicrosoftGame.Config`), Battle.net (entradas de Desinstalar de Blizzard), EA App (`EA Games` del registro y `Program Files\EA Games`), Ubisoft Connect (`Ubisoft\Launcher\Installs`), GOG (`GOG.com\Games`, sin DLC) y, además, los demás de Epic (sin Unreal Engine) y Steam (sin herramientas). Cada fila muestra nombre, lanzador, versión, tamaño (si el manifiesto lo da) y carpeta, con **Abrir carpeta**. Sin repetir carpeta ni los juegos que ya tienen tarjeta.
+- Solo lectura de manifiestos y registro: la optimización sigue limitada a los juegos con tarjeta.
+- Pruebas: `tests/unit/app/LauncherScannerTests.cs` (6 pruebas, incluido XML con DTD rechazado).
+- Sin verificar en un equipo real: claves de EA/Ubisoft/GOG y Desinstalar de Battle.net; el nombre de Xbox cae al de la carpeta si es `ms-resource`.
 
 ### Archivos y pruebas
 - `src/engine/14-Maintenance.ps1` (categoría `shaderCache`), `src/app/Modules/Maintenance/MaintenanceViewModel.cs` (desmarcada por defecto).
@@ -18,6 +21,7 @@
 - Sin verificar en un equipo real con GPU NVIDIA y AMD.
 - `src/engine/06-Tweaks.ps1` (`Invoke-IwinAutoRestorePoint`, `Test-IwinRestorePointDue`, `Test-IwinSystemRestoreOff`), `src/engine/08-Batch.ps1` (`Invoke-Install`).
 - `tests/unit/engine/RestorePoint.Tests.ps1`: regla de 24 horas.
+
 
 ## v5.3 — 2026-11-17
 
