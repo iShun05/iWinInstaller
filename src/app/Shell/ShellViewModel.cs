@@ -15,6 +15,7 @@ using IWinInstaller.App.Modules.Home;
 using IWinInstaller.App.Modules.Install;
 using IWinInstaller.App.Modules.Tools;
 using IWinInstaller.App.Modules.Maintenance;
+using IWinInstaller.App.Modules.Rendimiento;
 using IWinInstaller.App.Shell.Palette;
 using IWinInstaller.App.Modules.Updates;
 
@@ -42,6 +43,7 @@ namespace IWinInstaller.App.Shell
                 case "updates": return "\uE895";
                 case "system": return "\uE7F4";
                 case "equipo": return "\uE770";
+                case "performance": return "\uE945";
                 case "games": return "\uE7FC";
                 case "gaming": return "\uE701";
                 case "maintenance": return "\uE90F";
@@ -84,6 +86,8 @@ namespace IWinInstaller.App.Shell
             Games = new GamesViewModel(dispatcher, dialogs, () => Navigate("system"), () => Navigate("gaming"));
             Router = new ActionRouter(Navigate);
             Equipo = new EquipoViewModel(dispatcher, id => Router.Run(id), (ids, title) => { Install.SelectPreset(ids, title); Navigate("install"); });
+            Performance = new PerformanceViewModel(new WindowsGameEnvironment(), new WindowsPerfHost(), new WindowsThermalSource(), dispatcher, dialogs,
+                id => Router.Run(id), text => { Navigate("install"); Install.Search = text; });
             Items = new ObservableCollection<NavItem>
             {
                 new NavItem("home", "Inicio", "Estado del PC de un vistazo.", false),
@@ -92,6 +96,7 @@ namespace IWinInstaller.App.Shell
                 new NavItem("updates", "Actualizaciones", "Versiones nuevas, exclusiones y actualización programada.", false),
                 new NavItem("system", "Sistema", "Pantalla y energía.", false),
                 new NavItem("equipo", "Equipo", "Hardware, preset Dev + Gaming y salud del PC.", false),
+                new NavItem("performance", "Rendimiento", "Acciones reversibles, perfil de juego, mediciones y temperaturas.", false),
                 new NavItem("games", "Juegos", "Tus juegos: instalación, archivos y optimización.", false),
                 new NavItem("gaming", "Latencia", "Ping en vivo, bufferbloat y ajustes para jugar online.", false),
                 new NavItem("maintenance", "Mantenimiento", "Liberar espacio, reparar Windows y salud del equipo.", false),
@@ -110,6 +115,8 @@ namespace IWinInstaller.App.Shell
             ZoomOutCommand = new RelayCommand(_ => Zoom -= 0.1);
             ZoomResetCommand = new RelayCommand(_ => Zoom = 1.0);
             OpenPaletteCommand = new RelayCommand(_ => { var handler = PaletteRequested; if (handler != null) handler(this, EventArgs.Empty); });
+            // Recupera un perfil de juego que quedó a medias y, si el usuario activó la vigilancia, la reanuda
+            Performance.Start();
         }
 
         public EngineClient Engine { get; private set; }
@@ -125,6 +132,7 @@ namespace IWinInstaller.App.Shell
         public GamingViewModel Gaming { get; private set; }
         public GamesViewModel Games { get; private set; }
         public EquipoViewModel Equipo { get; private set; }
+        public PerformanceViewModel Performance { get; private set; }
         public ActionRouter Router { get; private set; }
         public ObservableCollection<NavItem> Items { get; private set; }
         public RelayCommand OpenActionCommand { get; private set; }
@@ -171,6 +179,7 @@ namespace IWinInstaller.App.Shell
                 if (value.Id == "games") Games.Start();
                 OnPropertyChanged("IsHome"); OnPropertyChanged("IsClassicPage"); OnPropertyChanged("PageId");
                 if (value.Id == "equipo") Equipo.EnsureLoaded();
+                if (value.Id == "performance") Performance.EnsureLoaded();
                 if (value.Id == "updates") Updates.EnsureLoaded();
                 if (value.Id == "configure") Configure.Reload();
                 if (value.Id == "install") Install.EnsureLoaded();

@@ -1,5 +1,18 @@
 # Historial de versiones
 
+## Sin publicar
+
+### Nuevo
+- **Página Rendimiento**: acciones de rendimiento que se aplican desde la propia app, sin abrir otras. Todas guardan el valor anterior y se deshacen: Modo Juego, sin grabación de partidas (Game DVR), sin transparencias, apps de la Tienda sin segundo plano y plan de energía Alto rendimiento (solo HKCU y `powercfg`, sin administrador). Muestra además los programas que más memoria usan con un botón **Cerrar** (cierre normal de ventana, nunca forzado).
+- **Medir antes y después**: mide en ~14 s la sobrecarga de `Sleep(1)` (planificador y temporizador, la causa de muchos tirones) y el ping a Internet, y con PresentMon instalado y un juego en marcha añade FPS, frametime p99 y 1 % low. Al aplicar o deshacer una acción puede medir antes y después y comparar («mejor», «peor» o «sin cambio notable» según el ruido de cada métrica). Historial de las últimas 30 mediciones.
+- **Perfil de juego** (apagado por defecto, interruptor **Vigilar mis juegos**): al detectar Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero, Endfield o un juego añadido a mano, cierra con cortesía navegadores y superposiciones (Xbox Game Bar, NVIDIA Overlay), sube la prioridad del juego a Alta (nunca tiempo real) y activa Alto rendimiento; al salir restaura prioridad y plan, y reabre lo que cerró. La sesión se guarda en disco: si la app se cierra a mitad de partida, la siguiente apertura restaura. Cada juego tiene sus cuatro opciones.
+- **Avisos de temperatura y throttling en partida**: con la vigilancia activa se mira cada 5 s la temperatura (zonas térmicas de Windows y `nvidia-smi` si existe) y la frecuencia de la CPU; avisa con un globo de Windows y en la página si pasa de 90 °C (88 °C la gráfica) o la frecuencia se recorta con carga alta, y guarda el historial y un resumen por partida.
+- Acciones nuevas en la paleta (`Ctrl + K`). Datos en `%LOCALAPPDATA%\iWinInstaller\Rendimiento` (`estado.json`, `mediciones.json`, `termico.json`).
+
+### Archivos y pruebas
+- Interfaz: `src/app/Modules/Rendimiento/` (almacén, acciones, perfil, mediciones, térmico y página). MSTest `tests/unit/app/PerformanceTests.cs`.
+- Sin verificar en un Windows real: los sensores y contadores dependen del equipo; la captura de frametimes necesita PresentMon.
+
 ## v5.5 — 2026-11-18
 
 Verificación en un Windows 11 real (informes del 17-11): los fallos de instalación tienen ahora salida y las carpetas por categoría se aplican de verdad al instalar.
