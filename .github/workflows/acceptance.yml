@@ -32,7 +32,7 @@ jobs:
           if ($LASTEXITCODE -ne 0 -or -not (Get-Content "$dir/r.json" -Raw | ConvertFrom-Json).builtIn.Count) { throw 'El motor no respondió al contrato' }
       - name: Conservar el diagnóstico de la prueba
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: aceptacion-windows-${{ matrix.os }}
           path: |
