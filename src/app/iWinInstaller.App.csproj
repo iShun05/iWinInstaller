@@ -21,6 +21,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Management" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <!-- JSON con JavaScriptSerializer (System.Web.Extensions depende de System.Web; ambos vienen con Windows) -->
     <Reference Include="System.Web" />
