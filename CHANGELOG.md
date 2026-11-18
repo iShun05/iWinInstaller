@@ -1,22 +1,42 @@
 # Historial de versiones
 
-## Sin publicar
+## v5.6 — 2026-11-18
 
-### Nuevo
-- **Página Rendimiento**: acciones de rendimiento que se aplican desde la propia app, sin abrir otras. Todas guardan el valor anterior y se deshacen: Modo Juego, sin grabación de partidas (Game DVR), sin transparencias, apps de la Tienda sin segundo plano y plan de energía Alto rendimiento (solo HKCU y `powercfg`, sin administrador). Muestra además los programas que más memoria usan con un botón **Cerrar** (cierre normal de ventana, nunca forzado).
-- **Medir antes y después**: mide en ~14 s la sobrecarga de `Sleep(1)` (planificador y temporizador, la causa de muchos tirones) y el ping a Internet, y con PresentMon instalado y un juego en marcha añade FPS, frametime p99 y 1 % low. Al aplicar o deshacer una acción puede medir antes y después y comparar («mejor», «peor» o «sin cambio notable» según el ruido de cada métrica). Historial de las últimas 30 mediciones.
-- **Perfil de juego** (apagado por defecto, interruptor **Vigilar mis juegos**): al detectar Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero, Endfield o un juego añadido a mano, cierra con cortesía navegadores y superposiciones (Xbox Game Bar, NVIDIA Overlay), sube la prioridad del juego a Alta (nunca tiempo real) y activa Alto rendimiento; al salir restaura prioridad y plan, y reabre lo que cerró. La sesión se guarda en disco: si la app se cierra a mitad de partida, la siguiente apertura restaura. Cada juego tiene sus cuatro opciones.
-- **Avisos de temperatura y throttling en partida**: con la vigilancia activa se mira cada 5 s la temperatura (zonas térmicas de Windows y `nvidia-smi` si existe) y la frecuencia de la CPU; avisa con un globo de Windows y en la página si pasa de 90 °C (88 °C la gráfica) o la frecuencia se recorta con carga alta, y guarda el historial y un resumen por partida.
-- Acciones nuevas en la paleta (`Ctrl + K`). Datos en `%LOCALAPPDATA%\iWinInstaller\Rendimiento` (`estado.json`, `mediciones.json`, `termico.json`).
+Integración de seis líneas de trabajo: página **Rendimiento**, **entorno de desarrollo** y **sincronización con un repo privado** (ya con botones en la interfaz), estado por colores, carpetas por categoría completas en Inicio y el escritorio, y una revisión de fallos de arranque, carreras y limpieza.
+
+### Añadido
+- **Instalar › Preparar entorno** (Node.js, Python o Java): comprueba la plantilla, instala con el lote normal (con su plan y confirmación) lo que falte de Git, VS Code y el lenguaje con su versión fijada, y después la configura (Corepack, pip o `JAVA_HOME`). El mensaje dice si la versión instalada coincide con la fijada. Motor `src/engine/18-DevEnv.ps1` (`devenv.list|status|configure`, también `-DevEnv`).
+- **Instalar › Repo privado… / Subir / Bajar**: conecta un repo **privado** tuyo de GitHub (`https://github.com/usuario/repo`; los públicos se rechazan), sube la configuración de este PC sin notas personales y, en otro PC, la baja: aplica sus ajustes como Importar PC y marca sus apps para instalar. Usa tu propio `git` y su sesión; iWinInstaller no guarda tokens. Pulsar de nuevo **Repo privado…** desconecta (solo borra la copia local). Motor `src/engine/19-Sync.ps1` (`sync.*`, también `-Sync`).
+- **Página Rendimiento**: acciones que se aplican desde la app y se deshacen (Modo Juego, sin Game DVR, sin transparencias, apps de la Tienda sin segundo plano, plan Alto rendimiento; solo HKCU y `powercfg`, sin administrador) y los programas que más memoria usan con **Cerrar** (cierre normal, nunca forzado).
+- **Medir antes y después**: ~14 s de sobrecarga de `Sleep(1)` y ping; con PresentMon y un juego abierto, FPS, frametime p99 y 1 % low. Compara «mejor», «peor» o «sin cambio notable» según el ruido de cada métrica; historial de 30 mediciones.
+- **Perfil de juego** (apagado por defecto, **Vigilar mis juegos**): al abrir Fortnite, Genshin Impact, Honkai: Star Rail, Zenless Zone Zero, Endfield o uno añadido a mano, cierra con cortesía navegadores y superposiciones, sube la prioridad a Alta y activa Alto rendimiento; al salir lo restaura y reabre lo cerrado. Si la app se cierra a mitad de partida, la siguiente apertura restaura.
+- **Avisos de temperatura y throttling** en partida (cada 5 s; 90 °C CPU, 88 °C gráfica o frecuencia recortada con carga), con globo de Windows e historial por partida.
+- **Estado por colores**: punto verde (instalada y configurada), naranja (instalada sin configurar), rojo (no instalada) o gris (sin leer) junto a cada app de Instalar, con leyenda; **Por configurar** muestra el punto y «Faltan N pasos por confirmar».
+- **Salud del catálogo** (`catalog-health.yml`, cada lunes): detecta huellas de WinGet desfasadas y URLs muertas.
+
+### Mejorado
+- **Carpetas por categoría completas** (Mantenimiento): en Inicio se mueven también las carpetas de cada fabricante y las apps que no instaló iWinInstaller (por palabras clave o «Otras apps»), en «Programas» del usuario y de todos los usuarios; desinstaladores, ayudas y webs se guardan aparte y vuelven con Deshacer. En el escritorio se crean los accesos de las apps de la Tienda con su icono y se retiran duplicados. Dos casillas nuevas en Mantenimiento. Lo guardado del equipo va a una carpeta solo de administradores y cada acceso lleva su SHA-256. Registro v2, compatible con el de la v5.5.
+- **Abrir** (Instalar y Por configurar): si la app no tiene entrada en Inicio con su nombre, se busca su ejecutable en el `.lnk` o en el desinstalador antes de pedir que la elijas.
+- **Brave limpio**: si Brave está abierto, el plan lo dice y la app pide «Cerrar Brave y continuar»; si se cancela, no se aplica nada.
+- Descargas: `install.ps1` reintenta la API de GitHub y descarga más rápido en PowerShell 5.1; las Guest Additions de VirtualBox se descargan a `.part` con hash.
+
+### Corregido
+- Si fallaba crear la ventana, la app quedaba viva e invisible; ahora avisa, registra y sale.
+- Juegos: un proceso cerrado entre listarlo y leerlo abría avisos repetidos cada 3 s; una ruta o clave inválida dejaba todas las tarjetas sin resultado.
+- Acentos rotos en el registro del motor cuando un carácter UTF-8 quedaba partido entre dos lecturas.
+- WinGet: el límite de 45 s de «el lote no llegó a iniciarse» contaba la espera del UAC; un HEAD con 4xx/5xx ya no bloquea el plan.
+- **Limpieza**: Windows PowerShell 5.1 seguía uniones y enlaces al recorrer temporales; ahora no entra en carpetas-enlace ni recorre la raíz de un disco.
+- El escritorio acumulaba `Brave (1).lnk` y otros duplicados.
+- **Sincronizar** decía «Falta Git» en equipos donde Git para Windows está instalado pero no en el PATH; ahora se busca también en sus carpetas de instalación (encontrado al probar en un PC real).
+- **Preparar entorno Node** decía «Node no está instalado» con Node 25 o posterior, que ya no incluye Corepack; ahora explica que pnpm va aparte.
+- Instalar: tras una orden (conectar, subir, preparar…) los botones podían quedarse grises hasta mover el foco.
 
 ### Archivos y pruebas
-- Interfaz: `src/app/Modules/Rendimiento/` (almacén, acciones, perfil, mediciones, térmico y página). MSTest `tests/unit/app/PerformanceTests.cs`.
-- Sin verificar en un Windows real: los sensores y contadores dependen del equipo; la captura de frametimes necesita PresentMon.
-- **Entorno de desarrollo** (`src/engine/18-DevEnv.ps1`, `-DevEnv`): plantillas Node, Python y Java con versión fijada (comprueba que la instalada coincide), pasos de configuración de lista cerrada (Corepack, pip, `JAVA_HOME`) y comandos `devenv.list|status|configure` para la interfaz.
-- **Sincronizar la configuración entre PC** (`src/engine/19-Sync.ps1`, `-Sync`): `connect`, `push`, `pull`, `disconnect` y `status` sobre un repo privado de GitHub del usuario, con su propio `git` y credenciales; solo acepta `https://github.com/…`, rechaza repos públicos y nunca sube datos personales. Complementa Exportar/Importar.
-- **Salud del catálogo** (`.github/workflows/catalog-health.yml`, `scripts/catalog_health.py`): cada lunes detecta huellas de WinGet desfasadas (comparando el SHA-256 real del instalador con el manifiesto) y URLs muertas del catálogo; falla solo con errores y lista los avisos.
-- Pruebas: Pester `DevEnv.Tests.ps1` y `Sync.Tests.ps1`; `tests/catalog/` (Python, sin red).
-- Sin verificar en un Windows real: el motor se probó con PowerShell 7 en Linux (funciones con simulaciones); falta una prueba de instalación real. La interfaz (botones) aún no está.
+- Interfaz: `src/app/Modules/Install/` (entorno dev, sincronización y colores), `Configure/`, `Rendimiento/` (nuevo), `Maintenance/`, `Games/`, `App.xaml.cs`, `Engine/EngineClient.cs`, `Shell/`.
+- Motor: `18-DevEnv.ps1` y `19-Sync.ps1` (nuevos), `02-Packages.ps1`, `03-System.ps1`, `06-Tweaks.ps1`, `07-Profiles.ps1`, `12-Install.ps1`, `14-Maintenance.ps1`, `17-Folders.ps1`, `install.ps1`, `lifecycle.ps1`.
+- Pruebas: MSTest `PerformanceTests`, `ResumenDelEntornoDev`, lector UTF-8; Pester `DevEnv`, `Sync`, `Folders` (18 casos), `Install`, `Maintenance`; `tests/catalog/` en Python. CI de la interfaz y del motor en verde en cada PR.
+- **Probado en un Windows 11 Pro 26300 x64 real** con la app compilada en la CI («Ejecutable y estabilidad»), abierta sin instalar: versión v5.6 visible; puntos de color y leyenda en Instalar; Por configurar con puntos y «Faltan N pasos»; **Abrir** lanzó Antigravity; **Brave limpio** con Brave abierto pide «Cerrar Brave y continuar» y al cancelar no cambia nada; página **Rendimiento** con el estado real de cada acción; **Preparar entorno Node.js** instaló pnpm con el plan normal y terminó «listo»; **Repo privado…** rechazó un repo público, conectó uno privado, **Subir** guardó 129 apps, **Bajar** aplicó la configuración y **Desconectar** borró la copia local. No probado: aplicar acciones de Rendimiento, perfil de juego y mediciones con PresentMon, ni la instalación con el EXE (pide administrador).
+- **Afecta a Windows x86/x64/ARM64 por igual**; PresentMon y `nvidia-smi` solo donde existen.
 
 ## v5.5 — 2026-11-18
 

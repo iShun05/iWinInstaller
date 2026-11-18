@@ -42,13 +42,25 @@ function Test-IwinSyncRepoPublic($repo) {
     }
 }
 
+# git del PATH o, si Git para Windows no se añadió al PATH, el de sus carpetas de instalación habituales
+function Get-IwinGitPath {
+    $command = Get-Command git -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($command) { return $command.Source }
+    foreach ($base in @($env:ProgramW6432, $env:ProgramFiles, ${env:ProgramFiles(x86)}, (Join-Path ([string]$env:LOCALAPPDATA) 'Programs')) | Where-Object { $_ }) {
+        $candidate = Join-Path $base 'Git\cmd\git.exe'
+        if (Test-Path -LiteralPath $candidate) { return $candidate }
+    }
+    $null
+}
+
 function Invoke-IwinGit([string[]]$arguments, [string]$dir) {
-    if (-not (Test-Cmd git)) { throw 'Falta Git. Instálalo desde el catálogo (Git) y vuelve a intentarlo.' }
+    $git = Get-IwinGitPath
+    if (-not $git) { throw 'Falta Git. Instálalo desde el catálogo (Git) y vuelve a intentarlo.' }
     $previous = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     try {
         # GIT_TERMINAL_PROMPT=0: si no hay credenciales guardadas falla en vez de quedarse esperando una consola
         $env:GIT_TERMINAL_PROMPT = '0'
-        $out = if ($dir) { & git -C $dir @arguments 2>&1 } else { & git @arguments 2>&1 }
+        $out = if ($dir) { & $git -C $dir @arguments 2>&1 } else { & $git @arguments 2>&1 }
         [pscustomobject]@{ Code = $LASTEXITCODE; Text = (($out | Out-String).Trim()) }
     } finally { $ErrorActionPreference = $previous }
 }

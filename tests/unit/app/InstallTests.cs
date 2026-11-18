@@ -109,5 +109,24 @@ namespace IWinInstaller.App.Tests
             Assert.IsTrue(guide.AllDone);
             CollectionAssert.AreEqual(new[] { 0, 1 }, guide.DoneIndexes);
         }
+
+        [TestMethod]
+        public void ResumenDelEntornoDev()
+        {
+            var ok = new Dictionary<string, object>
+            {
+                { "lines", new object[] { "Corepack activado (pnpm y yarn por proyecto)" } },
+                { "status", new Dictionary<string, object> { { "ready", true }, { "pins", new object[] { new Dictionary<string, object> { { "app", "node" }, { "expected", ">= 22" }, { "found", "22.11.0" }, { "ok", true } } } } } }
+            };
+            Assert.AreEqual("Entorno Node.js listo. Corepack activado (pnpm y yarn por proyecto)", InstallViewModel.DevSummary("Entorno Node.js", ok));
+
+            var wrong = new Dictionary<string, object>
+            {
+                { "lines", new object[0] },
+                { "status", new Dictionary<string, object> { { "ready", false }, { "pins", new object[] { new Dictionary<string, object> { { "app", "python" }, { "expected", "3.13" }, { "found", "3.12.4" }, { "ok", false } } } } } }
+            };
+            StringAssert.Contains(InstallViewModel.DevSummary("Entorno Python", wrong), "python 3.12.4 (se espera 3.13)");
+            StringAssert.Contains(InstallViewModel.DevSummary("Entorno Java", null), "con avisos");
+        }
     }
 }

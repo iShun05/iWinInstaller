@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Threading;
 using IWinInstaller.App.Core;
 using IWinInstaller.App.Engine;
@@ -34,7 +35,7 @@ namespace IWinInstaller.App.Modules.Install
         private readonly Dictionary<string, CatalogItem> _byId;
         private bool _loaded, _isBusy, _hasPending;
         private string _search = "", _message = "Leyendo qué está instalado…", _progressText = "";
-        private Choice _scope, _filter, _profile;
+        private Choice _scope, _filter, _profile, _devTemplate;
         private EngineOperation _operation;
         private GuideViewModel _guide;
         private ReportViewModel _report;
@@ -60,6 +61,8 @@ namespace IWinInstaller.App.Modules.Install
             Filters = new ObservableCollection<Choice> { new Choice("all", "Todas"), new Choice("checked", "Marcadas"), new Choice("missing", "Faltan"), new Choice("installed", "Instaladas"), new Choice("configure", "Por configurar") };
             Profiles = new ObservableCollection<Choice> { new Choice("Manual", "Manual") };
             _scope = Scopes[0]; _filter = Filters[0]; _profile = Profiles[0];
+            DevTemplates = new ObservableCollection<Choice> { new Choice("node", "Entorno Node.js"), new Choice("python", "Entorno Python"), new Choice("java", "Entorno Java") };
+            _devTemplate = DevTemplates[0];
 
             InstallCommand = new RelayCommand(_ => Run(InstallSelectedAsync()), _ => !IsBusy && CheckedCount > 0);
             PauseCommand = new RelayCommand(_ => { if (_operation != null) { _operation.RequestPause(); Message = "Se pausará cuando termine esta aplicación. El resto quedará guardado."; } }, _ => IsBusy && _operation != null);
@@ -75,6 +78,10 @@ namespace IWinInstaller.App.Modules.Install
             ExportProfileCommand = new RelayCommand(_ => Run(ExportProfileAsync()), _ => !IsBusy && CheckedCount > 0);
             ImportConfigCommand = new RelayCommand(_ => Run(ImportConfigAsync()), _ => !IsBusy);
             ExportConfigCommand = new RelayCommand(_ => Run(ExportConfigAsync()), _ => !IsBusy);
+            PrepareDevCommand = new RelayCommand(_ => Run(PrepareDevAsync()), _ => !IsBusy && _devTemplate != null);
+            SyncRepoCommand = new RelayCommand(_ => Run(SyncRepoAsync()), _ => !IsBusy);
+            SyncPushCommand = new RelayCommand(_ => Run(SyncPushAsync()), _ => !IsBusy);
+            SyncPullCommand = new RelayCommand(_ => Run(SyncPullAsync()), _ => !IsBusy);
             ClearCommand = new RelayCommand(_ => { foreach (var item in Items) item.IsChecked = false; RefreshCounts(); }, _ => !IsBusy);
             CloseReportCommand = new RelayCommand(_ => Report = null);
             CopyReportCommand = new RelayCommand(_ => { if (Report != null) _dialogs.CopyText(Report.Text); Message = "Informe copiado: listo para pegar en un chat o un correo."; });
@@ -91,6 +98,8 @@ namespace IWinInstaller.App.Modules.Install
         public ObservableCollection<Choice> Scopes { get; private set; }
         public ObservableCollection<Choice> Filters { get; private set; }
         public ObservableCollection<Choice> Profiles { get; private set; }
+        public ObservableCollection<Choice> DevTemplates { get; private set; }
+        public Choice DevTemplate { get { return _devTemplate; } set { if (value != null) Set(ref _devTemplate, value); } }
 
         public RelayCommand InstallCommand { get; private set; }
         public RelayCommand PauseCommand { get; private set; }
@@ -106,6 +115,10 @@ namespace IWinInstaller.App.Modules.Install
         public RelayCommand ExportProfileCommand { get; private set; }
         public RelayCommand ImportConfigCommand { get; private set; }
         public RelayCommand ExportConfigCommand { get; private set; }
+        public RelayCommand PrepareDevCommand { get; private set; }
+        public RelayCommand SyncRepoCommand { get; private set; }
+        public RelayCommand SyncPushCommand { get; private set; }
+        public RelayCommand SyncPullCommand { get; private set; }
         public RelayCommand ClearCommand { get; private set; }
         public RelayCommand CloseReportCommand { get; private set; }
         public RelayCommand CopyReportCommand { get; private set; }
@@ -115,7 +128,8 @@ namespace IWinInstaller.App.Modules.Install
         public RelayCommand UninstallSelectedCommand { get; private set; }
         public RelayCommand DeleteProfileCommand { get; private set; }
 
-        public bool IsBusy { get { return _isBusy; } private set { Set(ref _isBusy, value); } }
+        // Al cambiar se reevalúan los botones: sin esto quedaban grises tras una orden hasta mover el foco
+        public bool IsBusy { get { return _isBusy; } private set { if (Set(ref _isBusy, value)) CommandManager.InvalidateRequerySuggested(); } }
         public bool HasPending { get { return _hasPending; } private set { Set(ref _hasPending, value); } }
         public string Message { get { return _message; } set { Set(ref _message, value ?? ""); } }
         public string ProgressText { get { return _progressText; } private set { Set(ref _progressText, value ?? ""); } }
@@ -499,6 +513,119 @@ namespace IWinInstaller.App.Modules.Install
             int errors = ReadList(result.Response, "errors").Count();
             Message = "Configuración importada: " + CheckedCount + " por instalar (pulsa Instalar)." + (errors > 0 ? " " + errors + " secciones con error." : "");
             View.Refresh();
+        }
+
+        // Entorno de desarrollo: instala con batch.run lo que falte de la plantilla y luego ejecuta sus pasos (devenv.configure)
+        private async Task PrepareDevAsync()
+        {
+            var template = _devTemplate;
+            if (template == null) return;
+            var request = new Dictionary<string, object> { { "template", template.Key } };
+            string[] missing;
+            IsBusy = true;
+            try
+            {
+                Message = "Comprobando el " + template.Label + "…";
+                var status = await _engine.RunAsync("devenv.status", request, null, TimeSpan.FromMinutes(3), CancellationToken.None);
+                if (!status.Ok) { Message = "No se pudo comprobar el entorno: " + status.Error; return; }
+                missing = ReadList(status.Response, "missing").Where(id => _byId.ContainsKey(id)).ToArray();
+            }
+            finally { IsBusy = false; }
+            if (missing.Length > 0)
+            {
+                await RunBatchAsync("install", missing, null);
+                var again = await _engine.RunAsync("devenv.status", request, null, TimeSpan.FromMinutes(3), CancellationToken.None);
+                var still = again.Ok ? ReadList(again.Response, "missing").ToList() : missing.ToList();
+                if (still.Count > 0) { Message = "El " + template.Label + " no está completo: falta " + String.Join(", ", still.Select(NameOf)) + ". Pulsa Preparar de nuevo cuando se instale."; return; }
+            }
+            IsBusy = true;
+            try
+            {
+                Message = "Configurando el " + template.Label + "…";
+                var result = await _engine.RunAsync("devenv.configure", request, null, TimeSpan.FromMinutes(10), CancellationToken.None);
+                if (!result.Ok) { Message = "No se pudo configurar el entorno: " + result.Error; return; }
+                Message = DevSummary(template.Label, result.Response);
+            }
+            finally { IsBusy = false; }
+        }
+
+        private string NameOf(string id) { CatalogItem item; return _byId.TryGetValue(id, out item) ? item.Name : id; }
+
+        // Resumen de devenv.configure: pasos hechos y si la versión fijada coincide
+        internal static string DevSummary(string label, Dictionary<string, object> response)
+        {
+            var lines = ReadList(response, "lines").ToList();
+            object raw = null;
+            var status = response != null && response.TryGetValue("status", out raw) ? raw as Dictionary<string, object> : null;
+            var wrong = new List<string>();
+            object pins;
+            if (status != null && status.TryGetValue("pins", out pins) && pins is object[])
+                foreach (var pin in ((object[])pins).OfType<Dictionary<string, object>>().Where(p => !ReadBool(p, "ok")))
+                {
+                    object found, app, expected;
+                    pin.TryGetValue("found", out found); pin.TryGetValue("app", out app); pin.TryGetValue("expected", out expected);
+                    wrong.Add(Convert.ToString(app) + " " + (found == null ? "no responde" : Convert.ToString(found)) + " (se espera " + Convert.ToString(expected) + ")");
+                }
+            string head = wrong.Count == 0 && ReadBool(status, "ready") ? label + " listo." : label + " con avisos: " + (wrong.Count > 0 ? String.Join("; ", wrong) + "." : "revisa lo instalado.");
+            return lines.Count == 0 ? head : head + " " + String.Join(" · ", lines);
+        }
+
+        // Repo privado de GitHub: conectar o desconectar (solo la copia local; el repo no se toca)
+        private async Task SyncRepoAsync()
+        {
+            IsBusy = true;
+            try
+            {
+                var status = await _engine.RunAsync("sync.status", null, null, TimeSpan.FromMinutes(1), CancellationToken.None);
+                if (!status.Ok) { Message = "No se pudo leer la sincronización: " + status.Error; return; }
+                if (ReadBool(status.Response, "connected"))
+                {
+                    string repo = Convert.ToString(status.Response["repo"]);
+                    if (!_dialogs.Confirm("Repo privado", "Este PC se sincroniza con " + repo + ".\n\n¿Desconectarlo? Solo se borra la copia local; tu repo de GitHub no se toca.", "Desconectar")) { Message = "Sincronizado con " + repo + ": usa Subir o Bajar."; return; }
+                    var off = await _engine.RunAsync("sync.disconnect", null, null, TimeSpan.FromMinutes(1), CancellationToken.None);
+                    Message = off.Ok ? "Desconectado de " + repo + "." : "No se pudo desconectar: " + off.Error;
+                    return;
+                }
+                string url = _dialogs.Ask("Conectar repo privado", "Dirección de un repo PRIVADO tuyo en GitHub (https://github.com/usuario/repo). Se usa tu sesión de Git; iWinInstaller no guarda tokens ni sube notas personales.", "https://github.com/");
+                if (String.IsNullOrWhiteSpace(url)) return;
+                Message = "Comprobando que el repo es privado…";
+                var result = await _engine.RunAsync("sync.connect", new Dictionary<string, object> { { "repo", url.Trim() } }, null, TimeSpan.FromMinutes(1), CancellationToken.None);
+                Message = result.Ok ? "Conectado a " + Convert.ToString(result.Response["repo"]) + ". Pulsa Subir en este PC y Bajar en los demás." : "No se pudo conectar: " + result.Error;
+            }
+            finally { IsBusy = false; }
+        }
+
+        private async Task SyncPushAsync()
+        {
+            IsBusy = true;
+            try
+            {
+                Message = "Subiendo la configuración de este PC a tu repo…";
+                var result = await _engine.RunAsync("sync.push", null, null, TimeSpan.FromMinutes(5), CancellationToken.None);
+                if (!result.Ok) { Message = "No se pudo subir: " + result.Error; return; }
+                Message = ReadBool(result.Response, "unchanged") ? "Tu repo ya tenía esta configuración: nada que subir."
+                    : "Configuración subida (" + Convert.ToString(result.Response["count"]) + " apps, sin notas personales).";
+            }
+            finally { IsBusy = false; }
+        }
+
+        // Baja la configuración del repo, aplica sus ajustes como Importar PC y marca las apps que faltan
+        private async Task SyncPullAsync()
+        {
+            if (!_dialogs.Confirm("Bajar de tu repo", "Se aplicarán los ajustes guardados en tu repo (como Importar PC) y se marcarán sus apps para que pulses Instalar. No se quita nada.", "Bajar")) return;
+            IsBusy = true;
+            try
+            {
+                Message = "Bajando la configuración de tu repo…";
+                var result = await _engine.RunAsync("sync.pull", new Dictionary<string, object> { { "apply", true } }, null, TimeSpan.FromMinutes(5), CancellationToken.None);
+                if (!result.Ok) { Message = "No se pudo bajar: " + result.Error; return; }
+                var ids = new HashSet<string>(ReadList(result.Response, "ids"));
+                foreach (var item in Items) item.IsChecked = ids.Contains(item.Id) && !item.Installed;
+                int errors = ReadList(result.Response, "errors").Count();
+                Message = "Configuración de «" + Convert.ToString(result.Response["name"]) + "» aplicada: " + CheckedCount + " por instalar (pulsa Instalar)." + (errors > 0 ? " " + errors + " secciones con error." : "");
+                View.Refresh();
+            }
+            finally { IsBusy = false; RefreshCounts(); }
         }
 
         private async Task ShowReportAsync(bool afterBatch)
