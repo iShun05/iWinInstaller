@@ -28,7 +28,12 @@
           <Button Style="{StaticResource Ghost}" Content="Eliminar perfil" Command="{Binding DeleteProfileCommand}" Margin="0,0,4,8"/>
           <Button Style="{StaticResource Ghost}" Content="Verificar" Command="{Binding VerifyCommand}" Margin="0,0,4,8" ToolTip="Vuelve a comprobar qué está instalado"/>
         </WrapPanel>
-        <TextBlock Text="{Binding Message}" Foreground="{StaticResource TextMuted}" Margin="0,0,0,8" AutomationProperties.LiveSetting="Polite"/>
+        <TextBlock Text="{Binding Message}" Foreground="{StaticResource TextMuted}" Margin="0,0,0,4" AutomationProperties.LiveSetting="Polite"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+          <Ellipse Width="9" Height="9" Fill="#3DDC6B" Margin="0,0,5,0" VerticalAlignment="Center"/><TextBlock Text="Instalada" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,0,14,0"/>
+          <Ellipse Width="9" Height="9" Fill="#FF9F2E" Margin="0,0,5,0" VerticalAlignment="Center"/><TextBlock Text="Instalada, sin configurar" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,0,14,0"/>
+          <Ellipse Width="9" Height="9" Fill="#FF5C5C" Margin="0,0,5,0" VerticalAlignment="Center"/><TextBlock Text="No instalada" Foreground="{StaticResource TextMuted}" FontSize="12"/>
+        </StackPanel>
       </StackPanel>
 
       <!-- Barra de acciones -->
@@ -108,6 +113,8 @@
                   <Border DockPanel.Dock="Right" CornerRadius="6" Padding="6,1" Margin="8,0,0,0" Background="#1E2A33" VerticalAlignment="Center" Visibility="{Binding IsCli, Converter={StaticResource Visible}}">
                     <TextBlock Text="&gt;_ Terminal" FontFamily="Cascadia Mono, Consolas" FontSize="10.5" Foreground="#7FC8E8"/>
                   </Border>
+                  <Ellipse x:Name="dot" DockPanel.Dock="Left" Width="10" Height="10" Margin="0,0,8,0" VerticalAlignment="Center" Fill="{StaticResource Unknown}"
+                           ToolTip="{Binding StateText}" AutomationProperties.Name="{Binding StateText}"/>
                   <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource Text}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
                 </DockPanel>
                 <TextBlock Text="{Binding Desc}" Foreground="{StaticResource TextMuted}" Margin="0,1,0,0"/>
@@ -129,6 +136,9 @@
             <DataTemplate.Triggers>
               <DataTrigger Binding="{Binding HasGlyph}" Value="True"><Setter TargetName="gly" Property="Visibility" Value="Visible"/><Setter TargetName="ini" Property="Visibility" Value="Collapsed"/></DataTrigger>
               <DataTrigger Binding="{Binding HasImage}" Value="True"><Setter TargetName="pic" Property="Visibility" Value="Visible"/><Setter TargetName="ini" Property="Visibility" Value="Collapsed"/><Setter TargetName="gly" Property="Visibility" Value="Collapsed"/></DataTrigger>
+              <DataTrigger Binding="{Binding StateKind}" Value="ok"><Setter TargetName="dot" Property="Fill" Value="#3DDC6B"/></DataTrigger>
+              <DataTrigger Binding="{Binding StateKind}" Value="pending"><Setter TargetName="dot" Property="Fill" Value="#FF9F2E"/></DataTrigger>
+              <DataTrigger Binding="{Binding StateKind}" Value="missing"><Setter TargetName="dot" Property="Fill" Value="#FF5C5C"/></DataTrigger>
               <DataTrigger Binding="{Binding StatusKind}" Value="ok"><Setter TargetName="badge" Property="Background" Value="#1C3326"/><Setter TargetName="badgeText" Property="Foreground" Value="#78DC96"/></DataTrigger>
               <DataTrigger Binding="{Binding StatusKind}" Value="bad"><Setter TargetName="badge" Property="Background" Value="#3A1E22"/><Setter TargetName="badgeText" Property="Foreground" Value="#FF7878"/></DataTrigger>
               <DataTrigger Binding="{Binding StatusKind}" Value="busy"><Setter TargetName="badge" Property="Background" Value="#182536"/><Setter TargetName="badgeText" Property="Foreground" Value="#8CC4FF"/></DataTrigger>

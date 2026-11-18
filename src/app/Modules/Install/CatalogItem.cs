@@ -42,17 +42,41 @@ namespace IWinInstaller.App.Modules.Install
         public bool Installed
         {
             get { return _installed; }
-            set { if (Set(ref _installed, value)) { OnPropertyChanged("ShowUninstall"); OnPropertyChanged("ShowOpen"); OnPropertyChanged("Configuration"); } }
+            set { if (Set(ref _installed, value)) { OnPropertyChanged("ShowUninstall"); OnPropertyChanged("ShowOpen"); OnPropertyChanged("Configuration"); RaiseState(); } }
         }
 
         /// <summary>El inventario ya se leyó: hasta entonces no se afirma «instalada» ni «falta».</summary>
-        public bool InventoryKnown { get { return _inventoryKnown; } set { Set(ref _inventoryKnown, value); } }
+        public bool InventoryKnown { get { return _inventoryKnown; } set { if (Set(ref _inventoryKnown, value)) RaiseState(); } }
 
         public bool HasPreviousState { get { return _hasPreviousState; } set { if (Set(ref _hasPreviousState, value)) OnPropertyChanged("ShowUninstall"); } }
         public bool ShowUninstall { get { return (Installed || HasPreviousState) && Entry.CanUninstall; } }
         public bool ShowOpen { get { return Installed && Entry.CanOpen; } }
 
-        public bool Configured { get { return _configured; } set { if (Set(ref _configured, value)) OnPropertyChanged("Configuration"); } }
+        public bool Configured { get { return _configured; } set { if (Set(ref _configured, value)) { OnPropertyChanged("Configuration"); RaiseState(); } } }
+
+        /// <summary>Indicador de color: unknown (gris, inventario sin leer), missing (rojo), pending (naranja: instalada sin configurar), ok (verde).</summary>
+        public string StateKind
+        {
+            get
+            {
+                if (Installed) return NeedsConfiguration && !Configured ? "pending" : "ok";
+                return InventoryKnown ? "missing" : "unknown";
+            }
+        }
+        public string StateText
+        {
+            get
+            {
+                switch (StateKind)
+                {
+                    case "ok": return "Instalada" + (NeedsConfiguration ? " y configurada" : "");
+                    case "pending": return "Instalada, falta configurarla";
+                    case "missing": return "No instalada";
+                    default: return "Estado sin comprobar";
+                }
+            }
+        }
+        private void RaiseState() { OnPropertyChanged("StateKind"); OnPropertyChanged("StateText"); }
         public string Configuration
         {
             get { return !Installed || !NeedsConfiguration ? "" : Configured ? "Configuración confirmada por ti" : "Después de instalar · pasos pendientes"; }
