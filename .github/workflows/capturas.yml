@@ -1,0 +1,88 @@
+name: Capturas de la interfaz
+# Genera capturas PNG de todas las páginas de la app (antes y después) para comparar un rediseño.
+on:
+  push:
+    branches: ['claude/**']
+    paths: ['src/app/**', '.github/workflows/capturas.yml']
+  workflow_dispatch:
+    inputs:
+      base:
+        description: 'Rama o ref para la captura «antes»'
+        required: false
+        default: 'main'
+permissions:
+  contents: read
+jobs:
+  capturas:
+    name: capturas
+    runs-on: windows-2025
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Capturar las páginas
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $capRoot = Join-Path $env:RUNNER_TEMP 'capturas'
+          New-Item -ItemType Directory -Force -Path $capRoot | Out-Null
+
+          function Capture($srcRoot, $label) {
+            $out = Join-Path $env:RUNNER_TEMP "app-$label"
+            dotnet build "$srcRoot/src/app/iWinInstaller.App.csproj" -c Release -o $out
+            if ($LASTEXITCODE -ne 0) { throw "La compilación de '$label' falló." }
+            # Lo que el motor necesita junto al ejecutable
+            foreach ($name in 'iWinInstaller.ps1', 'lifecycle.ps1', 'apps.json', 'profiles.json', 'src', 'assets') {
+              $from = Join-Path $srcRoot $name
+              if (Test-Path $from) { Copy-Item $from -Destination $out -Recurse -Force }
+            }
+            $dir = Join-Path $capRoot $label
+            New-Item -ItemType Directory -Force -Path $dir | Out-Null
+            $env:IWIN_CAPTURA = $dir
+            $proc = Start-Process -FilePath (Join-Path $out 'iWinInstaller.App.exe') -PassThru
+            if (-not $proc.WaitForExit(8 * 60 * 1000)) {
+              $proc.Kill()
+              throw "La app de '$label' no terminó en 8 minutos."
+            }
+            $env:IWIN_CAPTURA = $null
+            $png = @(Get-ChildItem $dir -Filter *.png)
+            $png | ForEach-Object { Write-Host "[$label] $($_.Name)" }
+            if ($png.Count -eq 0) { throw "No se generó ninguna captura de '$label'." }
+          }
+
+          # Después: el checkout actual
+          Capture $PWD.Path 'despues'
+
+          # Antes: la rama base (input, o la rama de la que sale esta)
+          $base = '${{ github.event.inputs.base }}'
+          if (-not $base) {
+            git ls-remote --exit-code --heads origin claude/v5-6-devenv-sync *> $null
+            if ($LASTEXITCODE -eq 0) { $base = 'claude/v5-6-devenv-sync' } else { $base = 'main' }
+          }
+          $global:LASTEXITCODE = 0
+          Write-Host "Referencia del «antes»: $base"
+          $before = Join-Path $env:RUNNER_TEMP 'antes'
+          $ref = "origin/$base"
+          git rev-parse --verify --quiet $ref *> $null
+          if ($LASTEXITCODE -ne 0) { $ref = $base }
+          $global:LASTEXITCODE = 0
+          try {
+            git worktree add $before $ref
+            if ($LASTEXITCODE -ne 0) { throw "No se pudo crear el worktree de '$ref'." }
+            # El «antes» también necesita el modo captura
+            Copy-Item (Join-Path $PWD.Path 'src/app/App.xaml.cs') (Join-Path $before 'src/app/App.xaml.cs') -Force
+            Capture $before 'antes'
+          }
+          catch {
+            Write-Host "::warning::No se pudo generar el «antes»: $_"
+          }
+          $global:LASTEXITCODE = 0
+
+          $log = Join-Path $env:LOCALAPPDATA 'iWinInstaller/interfaz.log'
+          if (Test-Path $log) { Copy-Item $log $capRoot -Force }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: capturas
+          path: ${{ runner.temp }}/capturas

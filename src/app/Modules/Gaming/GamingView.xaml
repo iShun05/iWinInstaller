@@ -1,72 +1,89 @@
 <UserControl x:Class="IWinInstaller.App.Modules.Gaming.GamingView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <UserControl.Resources>
-    <Style x:Key="Card" TargetType="Border">
-      <Setter Property="Background" Value="{StaticResource Surface}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
-      <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="14"/><Setter Property="Padding" Value="18,16"/><Setter Property="Margin" Value="0,0,0,16"/>
-    </Style>
-  </UserControl.Resources>
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:core="clr-namespace:IWinInstaller.App.Core">
   <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
-    <StackPanel Margin="32,28,32,24" MaxWidth="860" HorizontalAlignment="Left">
-      <DockPanel LastChildFill="False">
-        <TextBlock Text="Latencia" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-        <Button DockPanel.Dock="Right" Style="{StaticResource Primary}" Content="Ajustes de juego" Command="{Binding OpenTweaksCommand}"/>
-        <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="Elegir GPU por juego" Command="{Binding OpenGpuCommand}" Margin="0,0,8,0"/>
+    <StackPanel Margin="{StaticResource PageMargin}" MaxWidth="{StaticResource PageMaxWidth}" HorizontalAlignment="Left">
+      <DockPanel LastChildFill="True" Margin="0,0,0,20">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,0,0,0">
+          <Button Style="{StaticResource Btn}" core:Ui.Icon="&#xE7F4;" Content="Elegir GPU por juego" Command="{Binding OpenGpuCommand}" Margin="0,0,8,0"/>
+          <Button Style="{StaticResource Primary}" core:Ui.Icon="&#xE713;" Content="Ajustes de juego" Command="{Binding OpenTweaksCommand}"/>
+        </StackPanel>
+        <StackPanel>
+          <TextBlock Text="Latencia" Style="{StaticResource PageTitle}"/>
+          <TextBlock Style="{StaticResource PageSubtitle}"
+                     Text="Mide mientras esta página está abierta, también con la ventana minimizada: juega y revisa después los picos. Al salir de la página o cerrar la app deja de medir."/>
+        </StackPanel>
       </DockPanel>
-      <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextMuted}" Margin="0,6,0,16"
-                 Text="Mide mientras esta página está abierta, también con la ventana minimizada: juega y revisa después los picos. Al salir de la página o cerrar la app deja de medir."/>
-      <TextBlock Text="{Binding Message}" Foreground="{StaticResource Attention}" Margin="0,0,0,12" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/>
+      <ContentControl Style="{StaticResource InfoBar}" Content="{Binding Message}"/>
 
       <!-- Ping en vivo -->
       <Border Style="{StaticResource Card}">
         <StackPanel>
-          <DockPanel LastChildFill="False">
-            <TextBlock Text="Ping en vivo" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" VerticalAlignment="Center"/>
-            <Button DockPanel.Dock="Right" Style="{StaticResource Ghost}" Content="Reiniciar" Command="{Binding ClearCommand}"/>
+          <DockPanel LastChildFill="True">
+            <Button DockPanel.Dock="Right" Style="{StaticResource Ghost}" core:Ui.Icon="&#xE72C;" Content="Reiniciar" Command="{Binding ClearCommand}" VerticalAlignment="Top" Margin="12,0,0,0"/>
+            <Border DockPanel.Dock="Left" Style="{StaticResource IconTile}" Margin="0,0,12,0">
+              <TextBlock Style="{StaticResource Glyph}" Text="&#xE701;" FontSize="16" Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="Ping en vivo" Style="{StaticResource SectionTitle}"/>
+              <TextBlock Text="{Binding Connection}" Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+            </StackPanel>
           </DockPanel>
-          <TextBlock Text="{Binding Connection}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0"/>
-          <ItemsControl ItemsSource="{Binding Targets}" Margin="0,8,0,0" Focusable="False">
+          <ItemsControl ItemsSource="{Binding Targets}" Margin="0,10,0,0" Focusable="False">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Grid Margin="0,8,0,8">
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="170"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                  </Grid.ColumnDefinitions>
-                  <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Title}" Foreground="{StaticResource Text}"/>
-                    <TextBlock Text="{Binding Host}" Foreground="{StaticResource TextFaint}" FontSize="12"/>
-                  </StackPanel>
-                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0">
-                    <TextBlock Text="{Binding Summary}" FontSize="20" FontWeight="SemiBold" Foreground="{Binding Color}"/>
-                    <TextBlock Text="{Binding Detail}" Foreground="{StaticResource TextMuted}" FontSize="12" TextWrapping="Wrap"/>
-                  </StackPanel>
-                  <Border Grid.Column="2" Width="244" Height="48" Background="{StaticResource SurfaceRaised}" CornerRadius="8" VerticalAlignment="Center">
-                    <Polyline Points="{Binding Points}" Stroke="{Binding Color}" StrokeThickness="1.6" Margin="2" StrokeLineJoin="Round"/>
-                  </Border>
-                </Grid>
+                <Border Style="{StaticResource ListRow}">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="170"/>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                      <TextBlock Text="{Binding Title}" Style="{StaticResource CardTitle}"/>
+                      <TextBlock Text="{Binding Host}" Style="{StaticResource Caption}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0">
+                      <TextBlock Text="{Binding Summary}" FontSize="20" FontWeight="SemiBold" Foreground="{Binding Color}"/>
+                      <TextBlock Text="{Binding Detail}" Style="{StaticResource Caption}"/>
+                    </StackPanel>
+                    <Border Grid.Column="2" Width="244" Height="48" Background="{StaticResource SurfaceRaised}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="8" VerticalAlignment="Center">
+                      <Polyline Points="{Binding Points}" Stroke="{Binding Color}" StrokeThickness="1.6" Margin="2" StrokeLineJoin="Round"/>
+                    </Border>
+                  </Grid>
+                </Border>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-          <TextBlock Text="Servidor del juego (opcional): IP o nombre que muestre el juego o su web de estado" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,8,0,4"/>
-          <StackPanel Orientation="Horizontal">
-            <TextBox Text="{Binding GameServer, UpdateSourceTrigger=PropertyChanged}" MinWidth="260" MaxLength="253" AutomationProperties.Name="Servidor del juego">
-              <TextBox.InputBindings><KeyBinding Key="Enter" Command="{Binding ApplyServerCommand}"/></TextBox.InputBindings>
-            </TextBox>
-            <Button Style="{StaticResource Btn}" Content="Medir" Command="{Binding ApplyServerCommand}" Margin="8,0,0,0"/>
-          </StackPanel>
+          <Border Style="{StaticResource ListRow}" Margin="0,0,0,0">
+            <StackPanel>
+              <TextBlock Text="Servidor del juego (opcional): IP o nombre que muestre el juego o su web de estado" Style="{StaticResource Muted}" Margin="0,0,0,8"/>
+              <StackPanel Orientation="Horizontal">
+                <TextBox Text="{Binding GameServer, UpdateSourceTrigger=PropertyChanged}" MinWidth="260" MaxLength="253" Tag="IP o nombre del servidor" AutomationProperties.Name="Servidor del juego">
+                  <TextBox.InputBindings><KeyBinding Key="Enter" Command="{Binding ApplyServerCommand}"/></TextBox.InputBindings>
+                </TextBox>
+                <Button Style="{StaticResource Btn}" core:Ui.Icon="&#xEC4A;" Content="Medir" Command="{Binding ApplyServerCommand}" Margin="8,0,0,0"/>
+              </StackPanel>
+            </StackPanel>
+          </Border>
         </StackPanel>
       </Border>
 
       <!-- Picos de la sesión -->
       <Border Style="{StaticResource Card}">
         <StackPanel>
-          <TextBlock Text="Picos de esta sesión" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-          <TextBlock Text="Respuestas 50 ms por encima de la media o perdidas (últimas 20)." Foreground="{StaticResource TextFaint}" FontSize="12" Margin="0,2,0,6"/>
+          <DockPanel LastChildFill="True" Margin="0,0,0,8">
+            <Border DockPanel.Dock="Left" Style="{StaticResource IconTile}" Margin="0,0,12,0">
+              <TextBlock Style="{StaticResource Glyph}" Text="&#xEC4A;" FontSize="16" Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="Picos de esta sesión" Style="{StaticResource SectionTitle}"/>
+              <TextBlock Text="Respuestas 50 ms por encima de la media o perdidas (últimas 20)." Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+            </StackPanel>
+          </DockPanel>
           <ItemsControl ItemsSource="{Binding Spikes}" Focusable="False">
-            <ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" Foreground="{StaticResource TextMuted}"/></DataTemplate></ItemsControl.ItemTemplate>
+            <ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" Foreground="{StaticResource TextMuted}" Margin="0,2"/></DataTemplate></ItemsControl.ItemTemplate>
           </ItemsControl>
         </StackPanel>
       </Border>
@@ -74,13 +91,18 @@
       <!-- Bufferbloat -->
       <Border Style="{StaticResource Card}">
         <StackPanel>
-          <DockPanel LastChildFill="False">
-            <TextBlock Text="Bufferbloat (lag al descargar o subir)" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" VerticalAlignment="Center"/>
-            <TextBlock DockPanel.Dock="Right" Text="{Binding BufferbloatGrade}" FontSize="22" FontWeight="SemiBold" Foreground="{StaticResource Accent}"/>
+          <DockPanel LastChildFill="True">
+            <TextBlock DockPanel.Dock="Right" Text="{Binding BufferbloatGrade}" Style="{StaticResource SectionTitle}" FontSize="22" Foreground="{StaticResource Accent}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+            <Border DockPanel.Dock="Left" Style="{StaticResource IconTile}" Margin="0,0,12,0">
+              <TextBlock Style="{StaticResource Glyph}" Text="&#xE701;" FontSize="16" Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="Bufferbloat (lag al descargar o subir)" Style="{StaticResource SectionTitle}"/>
+              <TextBlock Style="{StaticResource Muted}" Margin="0,2,0,0"
+                         Text="Mide cuánto sube tu ping cuando la línea está llena. Es la causa más habitual de lag cuando alguien de casa descarga o sube algo. Usa hasta 400 MB: evítalo con datos móviles."/>
+            </StackPanel>
           </DockPanel>
-          <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextMuted}" Margin="0,4,0,10"
-                     Text="Mide cuánto sube tu ping cuando la línea está llena. Es la causa más habitual de lag cuando alguien de casa descarga o sube algo. Usa hasta 400 MB: evítalo con datos móviles."/>
-          <Button Style="{StaticResource Btn}" Content="Hacer la prueba (≈ 20 s)" Command="{Binding BufferbloatCommand}" HorizontalAlignment="Left"/>
+          <Button Style="{StaticResource Btn}" core:Ui.Icon="&#xEC4A;" Content="Hacer la prueba (≈ 20 s)" Command="{Binding BufferbloatCommand}" HorizontalAlignment="Left" Margin="0,14,0,0"/>
           <TextBlock Text="{Binding Bufferbloat}" TextWrapping="Wrap" Foreground="{StaticResource Text}" Margin="0,10,0,0" AutomationProperties.LiveSetting="Polite"/>
         </StackPanel>
       </Border>
@@ -88,16 +110,27 @@
       <!-- Conexión y DNS -->
       <Border Style="{StaticResource Card}">
         <StackPanel>
-          <TextBlock Text="Conexión" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-          <TextBlock Text="{Binding Wifi}" Foreground="{StaticResource TextMuted}" Margin="0,4,0,0"/>
-          <TextBlock Text="{Binding Advice}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,6,0,12"/>
-          <TextBlock Text="DNS" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-          <TextBlock Text="{Binding Dns}" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,4,0,0"/>
-          <TextBlock Text="El DNS acelera conectar con lanzadores y matchmaking; no cambia el ping dentro de la partida." Foreground="{StaticResource TextFaint}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
+          <DockPanel LastChildFill="True">
+            <Border DockPanel.Dock="Left" Style="{StaticResource IconTile}" Margin="0,0,12,0">
+              <TextBlock Style="{StaticResource Glyph}" Text="&#xE701;" FontSize="16" Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="Conexión" Style="{StaticResource SectionTitle}"/>
+              <TextBlock Text="{Binding Wifi}" Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+            </StackPanel>
+          </DockPanel>
+          <TextBlock Text="{Binding Advice}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,10,0,0"/>
+          <Border Style="{StaticResource ListRow}" Margin="0,12,0,0">
+            <StackPanel>
+              <TextBlock Text="DNS" Style="{StaticResource CardTitle}"/>
+              <TextBlock Text="{Binding Dns}" Style="{StaticResource Muted}" Margin="0,3,0,0"/>
+              <TextBlock Text="El DNS acelera conectar con lanzadores y matchmaking; no cambia el ping dentro de la partida." Style="{StaticResource Caption}" Margin="0,6,0,0"/>
+            </StackPanel>
+          </Border>
         </StackPanel>
       </Border>
 
-      <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextFaint}" FontSize="12"
+      <TextBlock Style="{StaticResource Caption}"
                  Text="Lo que más baja el ping: cable, elegir la región más cercana en el juego y que nadie sature la línea. Ajustes de juego aplica los cambios de Windows que sí ayudan, con Deshacer."/>
     </StackPanel>
   </ScrollViewer>

@@ -1,54 +1,84 @@
 <UserControl x:Class="IWinInstaller.App.Modules.Tools.LinkView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:core="clr-namespace:IWinInstaller.App.Core">
   <UserControl.Resources>
     <BooleanToVisibilityConverter x:Key="Visible"/>
-    <Style x:Key="Card" TargetType="Border">
-      <Setter Property="Background" Value="{StaticResource Surface}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
-      <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="14"/><Setter Property="Padding" Value="18,16"/><Setter Property="Margin" Value="0,0,0,16"/>
-    </Style>
   </UserControl.Resources>
   <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
-    <StackPanel Margin="32,28,32,24" MaxWidth="860" HorizontalAlignment="Left">
-      <TextBlock Text="Acceso remoto · Vincular equipos" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-      <TextBlock Text="Controla este PC desde un Mac u otro Windows por SSH, solo con clave, por Tailscale y opcionalmente por la red local. Sunshine, Tailscale y el resto están en Instalar › Acceso remoto."
-                 Foreground="{StaticResource TextMuted}" Margin="0,6,0,12"/>
-      <TextBlock Text="{Binding Message}" Foreground="{StaticResource Accent}" Margin="0,0,0,12" AutomationProperties.LiveSetting="Polite"/>
+    <StackPanel Margin="{StaticResource PageMargin}" MaxWidth="{StaticResource PageMaxWidth}" HorizontalAlignment="Left">
+      <DockPanel LastChildFill="False" Margin="0,0,0,16">
+        <StackPanel>
+          <TextBlock Text="Acceso remoto" Style="{StaticResource PageTitle}"/>
+          <TextBlock Style="{StaticResource PageSubtitle}"
+                     Text="Vincular equipos: controla este PC desde un Mac u otro Windows por SSH, solo con clave, por Tailscale y opcionalmente por la red local. Sunshine, Tailscale y el resto están en Instalar › Acceso remoto."/>
+        </StackPanel>
+      </DockPanel>
+      <ContentControl Style="{StaticResource InfoBar}" Content="{Binding Message}"/>
+
       <Border Style="{StaticResource Card}">
         <StackPanel>
-          <TextBlock Text="1 · Este PC" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" Margin="0,0,0,6"/>
-          <TextBlock Text="{Binding Status}" Foreground="{StaticResource TextMuted}"/>
+          <Grid Margin="0,0,0,14">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Border Width="28" Height="28" CornerRadius="14" Background="{StaticResource AccentSoft}" VerticalAlignment="Top" Margin="0,0,12,0">
+              <TextBlock Text="1" FontWeight="SemiBold" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+              <TextBlock Text="Este PC" Style="{StaticResource CardTitle}"/>
+              <TextBlock Text="{Binding Status}" Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+            </StackPanel>
+          </Grid>
+          <WrapPanel>
+            <Button Style="{StaticResource Primary}" core:Ui.Icon="&#xE7F4;" Content="{Binding PrepareLabel}" Command="{Binding PrepareCommand}" Margin="0,0,8,8"/>
+            <Button Style="{StaticResource Btn}" core:Ui.Icon="&#xE71B;" Content="Abrir Tailscale" Command="{Binding TailscaleCommand}" Margin="0,0,8,8"/>
+            <CheckBox Content="Permitir también en la red local privada" IsChecked="{Binding LanAllowed}" Foreground="{StaticResource Text}" VerticalAlignment="Center" Margin="8,0,0,8"/>
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <Grid Margin="0,0,0,14">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Border Width="28" Height="28" CornerRadius="14" Background="{StaticResource AccentSoft}" VerticalAlignment="Top" Margin="0,0,12,0">
+              <TextBlock Text="2" FontWeight="SemiBold" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+              <TextBlock Text="En el otro equipo" Style="{StaticResource CardTitle}"/>
+              <TextBlock Text="Copia el comando y pégalo en la Terminal del Mac (o en PowerShell del otro Windows). Crea la clave y el alias, y deja la clave pública en el portapapeles." Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+            </StackPanel>
+          </Grid>
+          <WrapPanel>
+            <Button Style="{StaticResource Btn}" core:Ui.Icon="&#xE8C8;" Content="Copiar comando para Mac" Command="{Binding CopyMacCommand}" Margin="0,0,8,8"/>
+            <Button Style="{StaticResource Btn}" core:Ui.Icon="&#xE8C8;" Content="Copiar comando para Windows" Command="{Binding CopyWindowsCommand}" Margin="0,0,8,8"/>
+          </WrapPanel>
+        </StackPanel>
+      </Border>
+
+      <Border Style="{StaticResource Card}">
+        <StackPanel>
+          <Grid Margin="0,0,0,14">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Border Width="28" Height="28" CornerRadius="14" Background="{StaticResource AccentSoft}" VerticalAlignment="Top" Margin="0,0,12,0">
+              <TextBlock Text="3" FontWeight="SemiBold" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+              <TextBlock Text="Autorizar ese equipo" Style="{StaticResource CardTitle}"/>
+              <TextBlock Text="Pega aquí la clave pública del otro equipo para permitir su acceso." Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+            </StackPanel>
+          </Grid>
+          <TextBox Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource MonoFont}" Padding="10,8" TextWrapping="Wrap" MinHeight="64" VerticalContentAlignment="Top" AutomationProperties.Name="Clave pública (ssh-ed25519 …)"/>
           <WrapPanel Margin="0,12,0,0">
-            <Button Style="{StaticResource Primary}" Content="{Binding PrepareLabel}" Command="{Binding PrepareCommand}" Margin="0,0,8,8"/>
-            <Button Style="{StaticResource Btn}" Content="Abrir Tailscale" Command="{Binding TailscaleCommand}" Margin="0,0,8,8"/>
-            <CheckBox Content="Permitir también en la red local privada" IsChecked="{Binding LanAllowed}" Foreground="{StaticResource Text}" VerticalAlignment="Center" Margin="4,0,0,8"/>
+            <Button Style="{StaticResource Primary}" core:Ui.Icon="&#xE8D7;" Content="Autorizar" Command="{Binding AuthorizeCommand}" Margin="0,0,8,0"/>
+            <Button Style="{StaticResource Ghost}" core:Ui.Icon="&#xE7F4;" Content="Ver equipos autorizados" Command="{Binding KeysCommand}"/>
           </WrapPanel>
         </StackPanel>
       </Border>
+
       <Border Style="{StaticResource Card}">
         <StackPanel>
-          <TextBlock Text="2 · En el otro equipo" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" Margin="0,0,0,6"/>
-          <TextBlock Text="Copia el comando y pégalo en la Terminal del Mac (o en PowerShell del otro Windows). Crea la clave y el alias, y deja la clave pública en el portapapeles." Foreground="{StaticResource TextMuted}"/>
-          <WrapPanel Margin="0,12,0,0">
-            <Button Style="{StaticResource Btn}" Content="Copiar comando para Mac" Command="{Binding CopyMacCommand}" Margin="0,0,8,8"/>
-            <Button Style="{StaticResource Btn}" Content="Copiar comando para Windows" Command="{Binding CopyWindowsCommand}" Margin="0,0,8,8"/>
-          </WrapPanel>
-        </StackPanel>
-      </Border>
-      <Border Style="{StaticResource Card}">
-        <StackPanel>
-          <TextBlock Text="3 · Autorizar ese equipo" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" Margin="0,0,0,6"/>
-          <TextBox Text="{Binding Key, UpdateSourceTrigger=PropertyChanged}" FontFamily="Cascadia Mono, Consolas" Padding="8,6" TextWrapping="Wrap" MinHeight="54" AutomationProperties.Name="Clave pública (ssh-ed25519 …)"/>
-          <WrapPanel Margin="0,10,0,0">
-            <Button Style="{StaticResource Primary}" Content="Autorizar" Command="{Binding AuthorizeCommand}" Margin="0,0,8,0"/>
-            <Button Style="{StaticResource Ghost}" Content="Ver equipos autorizados" Command="{Binding KeysCommand}"/>
-          </WrapPanel>
-        </StackPanel>
-      </Border>
-      <Border Style="{StaticResource Card}">
-        <StackPanel>
-          <TextBlock Text="Después" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" Margin="0,0,0,6"/>
-          <TextBlock Text="{Binding Guide}" Foreground="{StaticResource TextMuted}"/>
+          <TextBlock Text="Después" Style="{StaticResource CardTitle}" Margin="0,0,0,6"/>
+          <TextBlock Text="{Binding Guide}" Style="{StaticResource Muted}"/>
         </StackPanel>
       </Border>
     </StackPanel>
