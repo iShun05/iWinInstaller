@@ -1,5 +1,19 @@
 # Historial de versiones
 
+## v5.5 — 2026-11-18
+
+Verificación en un Windows 11 real (informes del 17-11): los fallos de instalación tienen ahora salida y las carpetas por categoría se aplican de verdad al instalar.
+
+### Corregido
+- **Process Explorer y Wget** (`0x8A150011`, «la huella no coincide»): el catálogo de WinGet iba por detrás del archivo del fabricante. Ahora se refresca el catálogo una vez por sesión y se reintenta; si sigue igual se usa la **alternativa del catálogo** (`fallback` en `apps.json`): Process Explorer se descarga de `live.sysinternals.com` y **solo se instala si la firma Authenticode es válida de Microsoft**; Wget instala GNU Wget2 (huella vigente). Verificado en Windows 11 sin administrador.
+- **HxD (HTTP 502) y HWiNFO (HTTP 404)**: un 5xx del fabricante se reintenta una vez tras 15 s; un 4xx o una huella desfasada sin alternativa pasa a **acción manual** con la web oficial (`page`), en lugar de «Falló».
+- **Informe coherente**: Norton VPN y AMD Adrenalin salían como «FALLÓ» en el registro aunque el informe los clasificaba como acción manual; ahora el registro dice «MANUAL». **Brave limpio** explica que hay que cerrar Brave (también en segundo plano) y pulsar «Reintentar fallidas».
+- **Carpetas por categoría**: «Ordenar automáticamente al terminar de instalar» venía desmarcado, así que al instalar el escritorio solo quedaba una carpeta «Aplicaciones» plana y Inicio no recibía carpetas. Ahora viene activo si no hay registro previo (se apaga en Mantenimiento y sigue siendo reversible). Verificado: Inicio recibe subcarpetas por categoría (visibles en «Todo» con vista **Lista** o Cuadrícula; la vista **Categoría** de Windows las ignora) y el escritorio `Aplicaciones\<Categoría>`.
+- El escritorio ya no acumula `Brave (1).lnk` cuando un instalador recrea su acceso: si apunta al mismo destino se retira el duplicado.
+
+### Archivos y pruebas
+- Motor: `src/engine/02-Packages.ps1`, `07-Profiles.ps1`, `08-Batch.ps1`, `17-Folders.ps1`, `lifecycle.ps1`; catálogo `apps.json` y esquema (`fallback`); texto de Mantenimiento.
+- Pester: 5 pruebas nuevas en `Report.Tests.ps1` (códigos HTTP, acción manual, Brave).
 ## v5.4 — 2026-11-17
 
 Más herramientas para el PC: página **Equipo** (hardware, preset y salud), página **Por configurar**, exportar/importar la configuración, punto de restauración automático, carpetas por categoría, caché de shaders, más lanzadores de juegos detectados y aviso de drivers desactualizados.

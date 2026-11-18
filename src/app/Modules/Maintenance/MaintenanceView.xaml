@@ -46,7 +46,7 @@
       <Border Style="{StaticResource Card}">
         <StackPanel>
           <TextBlock Text="Carpetas por categoría" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-          <TextBlock Text="Ordena las apps ya instaladas (de versiones anteriores o a mano) por categoría. Windows 11 no permite crear carpetas ancladas en Inicio: se crean subcarpetas en «Todas las apps» (vista Lista) y una carpeta «Aplicaciones» en el escritorio. Si una actualización recrea un acceso, vuelve a pulsar el botón."
+          <TextBlock Text="Ordena las apps ya instaladas (de versiones anteriores o a mano) por categoría. Windows 11 no permite crear carpetas ancladas en Inicio: se crean subcarpetas en «Todas las apps» (vista Lista) y una carpeta «Aplicaciones» en el escritorio. Para verlas, en Inicio › Todo cambia «Visualización» a Lista o Cuadrícula: la vista Categoría de Windows las ignora. Si una actualización recrea un acceso, vuelve a pulsar el botón."
                      Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,6,0,6"/>
           <TextBlock Text="{Binding FoldersInfo}" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,0,0,8"/>
           <CheckBox Content="Menú Inicio (subcarpetas en «Todas las apps»)" IsChecked="{Binding FoldersStartMenu}" Foreground="{StaticResource Text}" Margin="0,2"/>

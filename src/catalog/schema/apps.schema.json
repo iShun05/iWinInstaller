@@ -177,6 +177,35 @@
         "interactive": {
           "type": "boolean"
         },
+        "fallback": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "winget": {
+              "type": "string",
+              "pattern": "^[^\\s]+$"
+            },
+            "url": {
+              "type": "string",
+              "pattern": "^https://"
+            },
+            "signer": {
+              "$ref": "#/$defs/nonEmpty"
+            },
+            "fileName": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]+\\.exe$"
+            }
+          },
+          "oneOf": [
+            {
+              "required": ["winget"]
+            },
+            {
+              "required": ["url", "signer", "fileName"]
+            }
+          ]
+        },
         "postInstall": {
           "type": "object",
           "additionalProperties": false,
