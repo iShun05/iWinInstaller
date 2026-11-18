@@ -15,7 +15,7 @@ jobs:
     runs-on: windows-2025
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Compilar la interfaz
         shell: pwsh
         run: dotnet build src/app/iWinInstaller.App.csproj -c Release
