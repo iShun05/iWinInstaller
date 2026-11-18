@@ -13,6 +13,8 @@
 #   iWinInstaller.ps1 -Silent -Perfil mi.iwin.json instala un perfil exportado desde la ventana
 #   iWinInstaller.ps1 -ExportConfig <ruta> [-Perfil p] [-IncludePersonal]   exporta la configuración de este PC (JSON)
 #   iWinInstaller.ps1 -ImportConfig <ruta> [-Yes]  describe (o con -Yes aplica e instala) una configuración o plantilla
+#   iWinInstaller.ps1 -DevEnv list|node|python|java [-Yes]   estado (o con -Yes instala y configura) un entorno de desarrollo
+#   iWinInstaller.ps1 -Sync status|connect|push|pull|disconnect [-SyncRepo <url>] [-Yes]   sincroniza la configuración con un repo privado de GitHub
 param(
     [switch]$Check,
     [switch]$Silent,
@@ -44,6 +46,10 @@ param(
     [string]$ExportConfig,
     [string]$ImportConfig,
     [switch]$IncludePersonal,
+    # Entorno de desarrollo y sincronización (v5.6): -DevEnv list|node|python|java [-Yes]; -Sync status|connect|push|pull|disconnect
+    [string]$DevEnv,
+    [ValidateSet('', 'status', 'connect', 'push', 'pull', 'disconnect')][string]$Sync = '',
+    [string]$SyncRepo,
     # Contrato interfaz ↔ motor (specs/001-centro-de-control/contracts/engine.md)
     [string]$EngineCommand,
     [string]$EngineRequest,
@@ -62,7 +68,7 @@ $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Apps = @(Get-Content (Join-Path $Root 'apps.json') -Raw -Encoding UTF8 | ConvertFrom-Json | ForEach-Object { $_ })
 $Profiles = Get-Content (Join-Path $Root 'profiles.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $ReleaseApi = 'https://api.github.com/repos/iShun05/iWinInstaller/releases/latest'
-$UI = -not ($Check -or $Silent -or $Update -or $WorkerMode -or $Resume -or $AutoUpdate -or $EngineCommand -or $Updates -or $Status -or $Clean -or $MachineReport -or $ExportConfig -or $ImportConfig)
+$UI = -not ($Check -or $Silent -or $Update -or $WorkerMode -or $Resume -or $AutoUpdate -or $EngineCommand -or $Updates -or $Status -or $Clean -or $MachineReport -or $ExportConfig -or $ImportConfig -or $DevEnv -or $Sync)
 
 # Registro en archivo: %LOCALAPPDATA%\iWinInstaller\iWinInstaller_AAAA-MM-DD.log
 $LogDir = Join-Path $env:LOCALAPPDATA 'iWinInstaller'
@@ -73,7 +79,7 @@ if ($WorkerMode -and $SharedLog) { $LogFile = $SharedLog }
 . (Join-Path $Root 'lifecycle.ps1')
 
 # Motor: los archivos de src/engine se cargan en orden y comparten el ámbito del script.
-$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1', '13-Tools.ps1', '14-Maintenance.ps1', '15-Gaming.ps1', '16-Config.ps1', '17-Folders.ps1')
+$EngineFiles = @('01-Core.ps1', '02-Packages.ps1', '03-System.ps1', '04-Remote.ps1', '05-Rgb.ps1', '06-Tweaks.ps1', '07-Profiles.ps1', '08-Batch.ps1', '09-Contract.ps1', '10-Updates.ps1', '11-Status.ps1', '12-Install.ps1', '13-Tools.ps1', '14-Maintenance.ps1', '15-Gaming.ps1', '16-Config.ps1', '17-Folders.ps1', '18-DevEnv.ps1', '19-Sync.ps1')
 foreach ($engineFile in $EngineFiles) {
     $enginePath = Join-Path $Root "src\engine\$engineFile"
     if (-not (Test-Path -LiteralPath $enginePath)) { throw "Falta un archivo del motor: $engineFile. Ejecuta de nuevo iWinInstaller-Setup.exe." }
@@ -249,6 +255,57 @@ if ($ImportConfig) {
         $failed = @(Invoke-Install $wanted $null)
     }
     exit ($failed.Count + $plan.Errors.Count)
+}
+
+if ($DevEnv) {
+    try {
+        if ($DevEnv -eq 'list') {
+            foreach ($row in @((& $IwinEngineCommands['devenv.list'] ([pscustomobject]@{ contract = 1 })).templates)) {
+                Write-Host ("{0} {1,-8} {2}{3}" -f $(if ($row.ready) { '✓' } else { '✗' }), $row.template, $row.desc, $(if ($row.missing) { '  · faltan: ' + ($row.missing -join ', ') } else { '' }))
+            }
+            exit 0
+        }
+        $status = & $IwinEngineCommands['devenv.status'] ([pscustomobject]@{ contract = 1; template = $DevEnv })
+        Write-Host "$($status.name): $($status.desc)"
+        foreach ($item in $status.items) { Write-Host ("  {0} {1}" -f $(if ($item.installed) { '✓' } else { '✗' }), $item.name) }
+        foreach ($pin in $status.pins) { Write-Host ("  {0} versión fijada {1}: esperada {2}, encontrada {3}" -f $(if ($pin.ok) { '✓' } else { '✗' }), $pin.app, $pin.expected, $(if ($pin.found) { $pin.found } else { 'ninguna' })) }
+        if (-not $Yes) { if (-not $status.ready) { Write-Host 'Añade -Yes para instalar lo que falta y configurarlo.' }; exit @($status.missing).Count }
+        $wanted = @($Apps | Where-Object { $status.missing -contains $_.id })
+        $failed = @()
+        if ($wanted) {
+            if (-not (Ensure-Winget)) { exit 1 }
+            Write-Log "Modo sin ventana · entorno $DevEnv"
+            $failed = @(Invoke-Install $wanted $null)
+        }
+        foreach ($line in @((& $IwinEngineCommands['devenv.configure'] ([pscustomobject]@{ contract = 1; template = $DevEnv })).lines)) { Write-Host "  $line" }
+        exit $failed.Count
+    } catch { Write-Log "Entorno de desarrollo: $($_.Exception.Message)"; exit 1 }
+}
+
+if ($Sync) {
+    try {
+        $request = [pscustomobject]@{ contract = 1; repo = $SyncRepo; apply = [bool]$Yes }
+        $result = & $IwinEngineCommands["sync.$Sync"] $request
+        switch ($Sync) {
+            'status' { if ($result.connected) { Write-Host "Conectado a $($result.repo)$(if ($result.hasConfig) { ' · hay configuración guardada' })" } else { Write-Host 'Sin conectar. Usa -Sync connect -SyncRepo https://github.com/usuario/repo' } }
+            'connect' { Write-Host "Conectado a $($result.repo)$(if (-not $result.privateChecked) { ' (no se pudo comprobar que sea privado; asegúrate de que lo es)' })" }
+            'disconnect' { Write-Host 'Desconectado; se borró el clon local.' }
+            'push' { Write-Host $(if ($result.pushed) { "Subida la configuración ($($result.count) apps y ajustes; secciones: $($result.sections -join ', '))" } else { 'Sin cambios desde la última subida.' }) }
+            'pull' {
+                Write-Host "Configuración «$($result.name)»"
+                foreach ($line in $result.lines) { Write-Host "  $line" }
+                foreach ($problem in $result.errors) { Write-Host "  ✗ $problem" }
+                if ($Yes -and $result.ids) {
+                    if (-not (Ensure-Winget)) { exit 1 }
+                    $failed = @(Invoke-Install @($Apps | Where-Object { $result.ids -contains $_.id }) $null)
+                    exit ($failed.Count + $result.errors.Count)
+                }
+                if (-not $Yes) { Write-Host 'Añade -Yes para aplicarla e instalar lo que falta.' }
+                exit $result.errors.Count
+            }
+        }
+        exit 0
+    } catch { Write-Log "Sincronización: $($_.Exception.Message)"; exit 1 }
 }
 
 if ($Silent) {
