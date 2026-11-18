@@ -12,6 +12,9 @@ BeforeAll {
     . (Join-Path $root 'src\engine\17-Folders.ps1')
     # Nada fuera de la carpeta de prueba: ni ProgramData ni el Inicio real
     function Get-IwinExtrasRoot([string]$scope) { Join-Path $script:LogDir "guardados-$scope" }
+    # Los permisos de la carpeta del equipo se prueban aparte (crearla protegida exige ser administrador)
+    $script:RealSecure = ${function:Initialize-IwinSecureFolder}
+    function Initialize-IwinSecureFolder([string]$path) { }
     $script:Apps = @(
         [pscustomobject]@{ id = 'vscode'; name = 'Visual Studio Code'; group = 'Desarrollo'; type = 'winget' },
         [pscustomobject]@{ id = 'vlc'; name = 'VLC media player'; group = 'Multimedia'; type = 'winget' },
@@ -200,6 +203,25 @@ Describe 'Carpetas por categoría' {
         Set-Content (Join-Path $script:M 'Brave.lnk') 'b'
         $apps = @($script:Apps) + @([pscustomobject]@{ id = 'brave'; name = 'Brave normal'; group = 'Navegadores'; type = 'winget' })
         (@(Get-IwinFolderPlan $apps $script:Roots { param($a) $true }) | Where-Object Name -eq 'Brave normal').Category | Should -Be 'Navegadores'
+    }
+
+    It 'no usa una carpeta de guardados del equipo que otros usuarios pueden modificar' {
+        $open = Join-Path $script:T 'abierta'
+        New-Item $open -ItemType Directory | Out-Null
+        { & $script:RealSecure $open } | Should -Throw
+    }
+
+    It 'no devuelve a Inicio un acceso guardado que ha cambiado' {
+        function Get-IwinMachineProgramsPattern { "$($script:M)*" }
+        $state = Read-IwinFoldersState
+        [void](Invoke-IwinFolderApply @(Get-IwinFolderPlan $script:Apps $script:Roots { param($a) $true }) $script:Options $state)
+        $saved = ($state.moves | Where-Object { $_.kind -eq 'extra' -and $_.from -like '*Uninstall VLC.lnk' }).to
+        $saved | Should -Not -BeNullOrEmpty
+        Set-Content $saved 'cambiado'
+        $r = Invoke-IwinFolderRevert $state
+        $r.skipped | Should -Be 1
+        Test-Path (Join-Path $script:M 'Uninstall VLC.lnk') | Should -BeFalse
+        Test-Path (Join-Path $script:M 'Git\Git Release Notes.lnk') | Should -BeTrue
     }
 
     It 'lee el registro antiguo (v1) sin tipo de movimiento' {

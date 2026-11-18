@@ -65,7 +65,7 @@ function Read-IwinFoldersState {
     foreach ($flag in 'auto', 'startMenu', 'desktop', 'others', 'extras') { if ($null -ne $data.$flag) { $state[$flag] = [bool]$data.$flag } }
     $state.moves = @($data.moves | Where-Object { $_ } | ForEach-Object {
             $kind = if ($_.kind) { [string]$_.kind } else { 'file' }
-            @{ id = [string]$_.id; kind = $kind; from = [string]$_.from; to = [string]$_.to } })
+            @{ id = [string]$_.id; kind = $kind; from = [string]$_.from; to = [string]$_.to; hash = [string]$_.hash } })
     $state.copies = @($data.copies | Where-Object { $_ } | ForEach-Object { @{ id = [string]$_.id; path = [string]$_.path; adoptedFrom = [string]$_.adoptedFrom } })
     $state
 }
@@ -322,6 +322,38 @@ function Get-IwinExtrasRoot([string]$scope) {
     else { Join-Path $LogDir 'accesos-guardados' }
 }
 
+# Lo guardado del Inicio de todos los usuarios vuelve allí con permisos de administrador: la carpeta solo la pueden
+# escribir Administradores y SYSTEM. Si ya existe con otro dueño, con escritura para usuarios o es un enlace
+# (reparse point), no se usa: un usuario sin permisos podría dejar ahí un acceso que luego se colocaría para todos.
+function Initialize-IwinSecureFolder([string]$path) {
+    $admins = New-Object Security.Principal.SecurityIdentifier 'S-1-5-32-544'
+    $system = New-Object Security.Principal.SecurityIdentifier 'S-1-5-18'
+    $users = New-Object Security.Principal.SecurityIdentifier 'S-1-5-32-545'
+    if (-not (Test-Path -LiteralPath $path)) {
+        $parent = Split-Path -Parent $path
+        if ($parent -and -not (Test-Path -LiteralPath $parent)) { New-Item $parent -ItemType Directory -Force -ErrorAction Stop | Out-Null }
+        New-Item $path -ItemType Directory -ErrorAction Stop | Out-Null
+        $acl = New-Object Security.AccessControl.DirectorySecurity
+        $acl.SetAccessRuleProtection($true, $false)
+        $inherit = [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
+        foreach ($rule in @(@($admins, 'FullControl'), @($system, 'FullControl'), @($users, 'ReadAndExecute'))) {
+            $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($rule[0], [Security.AccessControl.FileSystemRights]$rule[1], $inherit, 'None', 'Allow')))
+        }
+        Set-Acl -LiteralPath $path -AclObject $acl -ErrorAction Stop
+        return
+    }
+    $item = Get-Item -LiteralPath $path -Force
+    if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "La carpeta $path es un enlace; no se usa." }
+    $acl = Get-Acl -LiteralPath $path
+    $owner = (New-Object Security.Principal.NTAccount $acl.Owner).Translate([Security.Principal.SecurityIdentifier])
+    if ($owner -ne $admins -and $owner -ne $system) { throw "La carpeta $path no es de Administradores; no se usa." }
+    $write = [Security.AccessControl.FileSystemRights]'CreateFiles, AppendData, WriteExtendedAttributes, WriteAttributes, DeleteSubdirectoriesAndFiles, Delete, ChangePermissions, TakeOwnership'
+    foreach ($rule in @($acl.GetAccessRules($true, $true, [Security.Principal.SecurityIdentifier]))) {
+        if ($rule.AccessControlType -ne 'Allow' -or $rule.IdentityReference -eq $admins -or $rule.IdentityReference -eq $system -or ($rule.PropagationFlags -band [Security.AccessControl.PropagationFlags]::InheritOnly)) { continue }
+        if ($rule.FileSystemRights -band $write) { throw "La carpeta $path la pueden modificar otros usuarios; no se usa." }
+    }
+}
+
 # Acceso a una app de la Tienda (shell:AppsFolder\<AUMID>) con su identidad, para que muestre su icono
 function New-IwinPackagedShortcut([string]$path, [string]$aumid) {
     if (-not ('IwinFolders.PackagedLink' -as [type])) {
@@ -382,10 +414,14 @@ function Move-IwinFolderMerge([string]$source, [string]$target) {
 # Guarda fuera de Inicio un desinstalador o una ayuda (se devuelve con «Deshacer»)
 function Move-IwinFolderExtra([string]$path, $entry, $state) {
     $rel = $path.Substring($entry.Root.TrimEnd('\').Length).TrimStart('\')
-    $dest = Join-Path (Join-Path (Get-IwinExtrasRoot $entry.Scope) $entry.Scope) $rel
+    $base = Get-IwinExtrasRoot $entry.Scope
+    if ($entry.Scope -eq 'machine') { Initialize-IwinSecureFolder $base }
+    $dest = Join-Path (Join-Path $base $entry.Scope) $rel
     New-Item (Split-Path -Parent $dest) -ItemType Directory -Force -ErrorAction Stop | Out-Null
     Move-Item -LiteralPath $path -Destination $dest -Force -ErrorAction Stop
-    $state.moves = @($state.moves | Where-Object { $_.to -ne $dest }) + @(@{ id = $entry.Id; kind = 'extra'; from = $path; to = $dest })
+    # Huella del archivo guardado: al deshacer solo se devuelve si nadie lo ha cambiado
+    $hash = (Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash
+    $state.moves = @($state.moves | Where-Object { $_.to -ne $dest }) + @(@{ id = $entry.Id; kind = 'extra'; from = $path; to = $dest; hash = $hash })
 }
 
 # Una actualización recreó el acceso en su sitio: se quita la copia vieja que movió iWinInstaller a la categoría
@@ -600,7 +636,7 @@ function Invoke-IwinFolderRevert($state, [string]$scope = 'all') {
             # Se guardó desde una carpeta que ya volvió a su sitio: se devuelve allí
             foreach ($f in $folders) {
                 if ($move.from.StartsWith($f.to + '\', [StringComparison]::OrdinalIgnoreCase) -and -not (Test-Path -LiteralPath $f.to)) {
-                    $move = @{ id = $move.id; kind = 'extra'; from = $f.from + $move.from.Substring($f.to.Length); to = $move.to }
+                    $move = @{ id = $move.id; kind = 'extra'; from = $f.from + $move.from.Substring($f.to.Length); to = $move.to; hash = $move.hash }
                 }
             }
         }
@@ -609,6 +645,9 @@ function Invoke-IwinFolderRevert($state, [string]$scope = 'all') {
         if ($machine -and -not $admin) { $result.needsAdmin++; $keep += $move; continue }
         try {
             if (-not (Test-Path -LiteralPath $move.to)) { continue }
+            if ($move.kind -eq 'extra' -and $move.hash -and (Get-FileHash -LiteralPath $move.to -Algorithm SHA256).Hash -ne $move.hash) {
+                $result.skipped++; $keep += $move; Write-Log "  No se devuelve $($move.to): ha cambiado desde que se guardó."; continue
+            }
             if ($move.kind -eq 'folder') {
                 Move-IwinFolderMerge $move.to $move.from
             } else {
