@@ -46,7 +46,7 @@ namespace IWinInstaller.App.Modules.Games
                     return null;
                 }
             }
-            catch (Exception ex) when (ex is System.Security.SecurityException || ex is UnauthorizedAccessException || ex is IOException) { return null; }
+            catch (Exception ex) when (ex is System.Security.SecurityException || ex is UnauthorizedAccessException || ex is IOException || ex is ArgumentException || ex is NotSupportedException) { return null; }
         }
 
         public string[] SubKeyNames(string key)
@@ -55,7 +55,7 @@ namespace IWinInstaller.App.Modules.Games
             {
                 using (var k = Open(key, false)) return k == null ? new string[0] : k.GetSubKeyNames();
             }
-            catch (Exception ex) when (ex is System.Security.SecurityException || ex is UnauthorizedAccessException || ex is IOException) { return new string[0]; }
+            catch (Exception ex) when (ex is System.Security.SecurityException || ex is UnauthorizedAccessException || ex is IOException || ex is ArgumentException || ex is NotSupportedException) { return new string[0]; }
         }
 
         public void SetValue(string key, string name, object value, RegKind kind)
@@ -74,26 +74,26 @@ namespace IWinInstaller.App.Modules.Games
                 if (k != null) k.DeleteValue(name, false);
         }
 
-        public bool FileExists(string path) { return !string.IsNullOrEmpty(path) && File.Exists(path); }
+        public bool FileExists(string path) { try { return !string.IsNullOrEmpty(path) && File.Exists(path); } catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException) { return false; } }
         public bool DirectoryExists(string path) { return !string.IsNullOrEmpty(path) && Directory.Exists(path); }
         public string ReadAllText(string path) { return File.ReadAllText(path, Encoding.UTF8); }
 
         public string[] GetFiles(string directory, string pattern)
         {
             try { return Directory.GetFiles(directory, pattern, SearchOption.TopDirectoryOnly); }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) { return new string[0]; }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException || ex is NotSupportedException) { return new string[0]; }
         }
 
         public string[] GetDirectories(string directory)
         {
             try { return Directory.GetDirectories(directory); }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) { return new string[0]; }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException || ex is NotSupportedException) { return new string[0]; }
         }
 
         public string CompanyName(string path)
         {
             try { return FileVersionInfo.GetVersionInfo(path).CompanyName; }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException) { return null; }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is ArgumentException || ex is NotSupportedException) { return null; }
         }
 
         public bool AnyProcessRunning(IEnumerable<string> names)
@@ -105,15 +105,21 @@ namespace IWinInstaller.App.Modules.Games
                 {
                     if (!name.EndsWith("*", StringComparison.Ordinal))
                     {
-                        var found = Process.GetProcessesByName(name);
+                        Process[] found;
+                        try { found = Process.GetProcessesByName(name); }
+                        catch (Exception ex) when (ex is InvalidOperationException || ex is System.ComponentModel.Win32Exception) { continue; }
                         bool any = found.Length > 0;
                         foreach (var p in found) p.Dispose();
                         if (any) return true;
                         continue;
                     }
-                    if (all == null) all = Process.GetProcesses();
+                    if (all == null)
+                    {
+                        try { all = Process.GetProcesses(); }
+                        catch (Exception ex) when (ex is InvalidOperationException || ex is System.ComponentModel.Win32Exception) { continue; }
+                    }
                     string prefix = name.Substring(0, name.Length - 1);
-                    if (all.Any(p => p.ProcessName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))) return true;
+                    if (all.Any(p => StartsWithName(p, prefix))) return true;
                 }
                 return false;
             }
@@ -121,6 +127,13 @@ namespace IWinInstaller.App.Modules.Games
             {
                 if (all != null) foreach (var p in all) p.Dispose();
             }
+        }
+
+        /// <summary>Un proceso puede cerrarse entre listarlo y leer su nombre: eso no es un error.</summary>
+        private static bool StartsWithName(Process p, string prefix)
+        {
+            try { return p.ProcessName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase); }
+            catch (Exception ex) when (ex is InvalidOperationException || ex is System.ComponentModel.Win32Exception || ex is NotSupportedException) { return false; }
         }
 
         public int GpuCount()

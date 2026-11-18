@@ -232,7 +232,8 @@ function Install-App($app) {
     $tmp = Join-Path $env:TEMP ('iwin-' + [guid]::NewGuid().ToString('N') + '.exe')
     try {
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        Invoke-WebRequest $app.url -OutFile $tmp -UseBasicParsing
+        # Sin límite de tiempo, un servidor que no contesta dejaba el lote colgado
+        Invoke-WebRequest $app.url -OutFile $tmp -UseBasicParsing -TimeoutSec 300
         $bytes = [IO.File]::ReadAllBytes($tmp)
         if ($bytes.Length -lt 1MB -or $bytes[0] -ne 0x4D -or $bytes[1] -ne 0x5A) { throw 'la descarga no es un ejecutable de Windows' }
         # Firma válida y del fabricante esperado: una firma cualquiera no basta

@@ -141,14 +141,14 @@ namespace IWinInstaller.App.Modules.Games
                         bool running = _env.AnyProcessRunning(definition.GameProcesses);
                         if (install.Found && !running) GameLocator.FillDetails(definition, _env, install);
                     }
-                    catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException || ex is System.Security.SecurityException)
+                    catch (Exception ex) when (IsDetectionError(ex))
                     {
                         install = GameInstall.None;
                     }
                     found[definition.Id] = install;
                 }
                 try { others = LauncherScanner.Scan(_env, found.Values.Where(i => i.Found).Select(i => i.Folder)); }
-                catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException || ex is System.Security.SecurityException) { others = new List<DetectedGame>(); }
+                catch (Exception ex) when (IsDetectionError(ex)) { others = new List<DetectedGame>(); }
                 return found;
             }).ContinueWith(t =>
             {
@@ -170,6 +170,13 @@ namespace IWinInstaller.App.Modules.Games
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
+        /// <summary>La detección es de mejor esfuerzo: rutas o claves raras (caracteres no válidos, etc.) no deben dejar sin resultado a todos los juegos.</summary>
+        internal static bool IsDetectionError(Exception ex)
+        {
+            return ex is System.IO.IOException || ex is UnauthorizedAccessException || ex is System.Security.SecurityException
+                || ex is ArgumentException || ex is NotSupportedException || ex is InvalidOperationException || ex is FormatException;
+        }
+
         private void ShowOtherGames(List<DetectedGame> games)
         {
             OtherGames.Clear();
@@ -185,9 +192,14 @@ namespace IWinInstaller.App.Modules.Games
             foreach (var card in Cards)
             {
                 if (!card.IsInstalled) continue;
-                bool game = _env.AnyProcessRunning(card.Definition.GameProcesses);
-                bool launcher = !game && _env.AnyProcessRunning(card.Definition.LauncherProcesses);
-                card.SetRunning(game, launcher);
+                try
+                {
+                    bool game = _env.AnyProcessRunning(card.Definition.GameProcesses);
+                    bool launcher = !game && _env.AnyProcessRunning(card.Definition.LauncherProcesses);
+                    card.SetRunning(game, launcher);
+                }
+                // Se ejecuta cada 3 s en el hilo de la interfaz: un fallo puntual al listar procesos no debe abrir un aviso cada vez
+                catch (Exception ex) when (IsDetectionError(ex) || ex is System.ComponentModel.Win32Exception) { }
             }
         }
 

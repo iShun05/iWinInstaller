@@ -159,17 +159,25 @@ if ($embedded) {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     Show-InstallProgress 1 'Descarga publica: no necesita una cuenta'
     Show-InstallProgress 2 'Buscando la ultima version'
-    $release = Invoke-RestMethod "https://api.github.com/repos/$Repo/releases/latest"
+    # La API de GitHub responde a veces 502/503 o limita las consultas: se reintenta antes de rendirse
+    for ($attempt = 1; ; $attempt++) {
+        try { $release = Invoke-RestMethod "https://api.github.com/repos/$Repo/releases/latest" -UseBasicParsing; break }
+        catch { if ($attempt -ge 4) { throw }; Write-Host "No se pudo consultar la ultima version ($($_.Exception.Message)); reintento $attempt de 3."; Start-Sleep -Seconds (5 * $attempt) }
+    }
     $tag = $release.tag_name
     $asset = $release.assets | Where-Object name -eq 'iWinInstaller.zip' | Select-Object -First 1
     if (-not $tag -or -not $asset -or $asset.digest -notmatch '^sha256:([a-fA-F0-9]{64})$') { throw 'No se encontro la descarga con su hash SHA256.' }
     $expectedHash = $Matches[1]
     Show-InstallProgress 3 "Descargando iWinInstaller $tag"
     # GitHub responde a veces 502/504 en las descargas: hasta cinco intentos antes de rendirse
-    for ($attempt = 1; ; $attempt++) {
-        try { Invoke-WebRequest $asset.browser_download_url -OutFile $archive -UseBasicParsing; break }
-        catch { if ($attempt -ge 5) { throw }; Write-Host "La descarga fallo ($($_.Exception.Message)); reintento $attempt de 4."; Start-Sleep -Seconds (10 * $attempt) }
-    }
+    # Windows PowerShell 5.1 pinta una barra de progreso que multiplica el tiempo de descarga: se oculta solo aqui
+    $previousProgress = $ProgressPreference; $ProgressPreference = 'SilentlyContinue'
+    try {
+        for ($attempt = 1; ; $attempt++) {
+            try { Invoke-WebRequest $asset.browser_download_url -OutFile $archive -UseBasicParsing; break }
+            catch { if ($attempt -ge 5) { throw }; Write-Host "La descarga fallo ($($_.Exception.Message)); reintento $attempt de 4."; Start-Sleep -Seconds (10 * $attempt) }
+        }
+    } finally { $ProgressPreference = $previousProgress }
     if ((Get-FileHash $archive).Hash -ne $expectedHash) { throw 'La descarga no supera la comprobacion SHA256.' }
 }
 Show-InstallProgress 4 'Descomprimiendo y comprobando los archivos'

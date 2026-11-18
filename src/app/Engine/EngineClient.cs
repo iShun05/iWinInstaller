@@ -122,12 +122,11 @@ namespace IWinInstaller.App.Engine
         }
     }
 
-    /// <summary>Lee un archivo JSONL mientras otro proceso lo escribe; guarda la línea a medias para la siguiente lectura.</summary>
+    /// <summary>Lee un archivo JSONL mientras otro proceso lo escribe; solo avanza hasta el último salto de línea completo.</summary>
     public sealed class EventFileReader
     {
         private readonly string _path;
         private long _position;
-        private string _partial = "";
 
         public EventFileReader(string path) { _path = path; }
 
@@ -135,7 +134,7 @@ namespace IWinInstaller.App.Engine
         {
             var events = new List<EngineEvent>();
             if (!File.Exists(_path)) return events;
-            string chunk;
+            string text;
             try
             {
                 using (var stream = new FileStream(_path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
@@ -144,16 +143,16 @@ namespace IWinInstaller.App.Engine
                     stream.Position = _position;
                     var buffer = new byte[stream.Length - _position];
                     int read = stream.Read(buffer, 0, buffer.Length);
-                    _position += read;
-                    chunk = new UTF8Encoding(false).GetString(buffer, 0, read);
+                    // Se corta por bytes: decodificar una línea a medias rompería un carácter UTF-8 partido («ó», «ñ»…)
+                    if (read == 0) return events;
+                    int end = Array.LastIndexOf(buffer, (byte)'\n', read - 1);
+                    if (end < 0) return events;
+                    _position += end + 1;
+                    text = new UTF8Encoding(false).GetString(buffer, 0, end);
                 }
             }
             catch (IOException) { return events; }
-            string text = _partial + chunk;
-            int end = text.LastIndexOf('\n');
-            if (end < 0) { _partial = text; return events; }
-            _partial = text.Substring(end + 1);
-            foreach (string line in text.Substring(0, end).Split('\n'))
+            foreach (string line in text.Split('\n'))
             {
                 var engineEvent = EngineEvent.Parse(line.TrimEnd('\r'));
                 if (engineEvent != null) events.Add(engineEvent);
