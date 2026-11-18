@@ -47,7 +47,20 @@ Register-IwinEngineCommand 'install.preflight' {
     $selection = Get-IwinSelection @($request.ids)
     $plan = if ($operation -eq 'uninstall') { $selection } else { @(Get-InstallPlan $selection) }
     $preflight = if ($operation -eq 'uninstall') { [pscustomobject]@{ Ok = $true; Text = 'Se usará el desinstalador oficial o el estado anterior guardado.' } } else { Get-IwinPreflight $plan }
-    @{ ok = [bool]$preflight.Ok; text = [string]$preflight.Text; plan = @($plan | ForEach-Object { ConvertTo-IwinPlanItem $_ }) }
+    # Brave limpio no puede aplicarse ni deshacerse con Brave abierto: la interfaz pregunta antes de cerrarlo.
+    $braveRunning = [bool]((@($selection.id) -contains 'braveclean') -and (Get-Process -Name brave -ErrorAction SilentlyContinue))
+    @{ ok = [bool]$preflight.Ok; text = [string]$preflight.Text; plan = @($plan | ForEach-Object { ConvertTo-IwinPlanItem $_ }); braveRunning = $braveRunning }
+}
+
+# Cierra Brave (con sus procesos en segundo plano) tras confirmarlo en la interfaz: primero pide cerrar ventanas, luego fuerza.
+Register-IwinEngineCommand 'brave.close' {
+    param($request)
+    foreach ($p in @(Get-Process -Name brave -ErrorAction SilentlyContinue)) { try { [void]$p.CloseMainWindow() } catch { } }
+    $deadline = (Get-Date).AddSeconds(15)
+    while ((Get-Process -Name brave -ErrorAction SilentlyContinue) -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 500 }
+    Get-Process -Name brave -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Milliseconds 500
+    @{ closed = -not [bool](Get-Process -Name brave -ErrorAction SilentlyContinue) }
 }
 
 # Ejecuta un lote completo. Emite un evento «item» por aplicación con su resultado y su estado nuevo.
@@ -257,6 +270,30 @@ Register-IwinEngineCommand 'app.open' {
         else { Start-Process $shellExe -ArgumentList @('-NoExit', '-EncodedCommand', $encoded) }
         return @{ message = "Terminal abierta para $($app.name)." }
     }
+    # Sin entrada en el menú Inicio: se busca el ejecutable del acceso de Inicio o del registro (DisplayIcon)
+    $exe = Get-IwinAppExecutable $app
+    if ($exe) { Start-Process -FilePath $exe; return @{ message = "Abriendo $($app.name)…" } }
     Start-Process explorer.exe 'shell:AppsFolder'
     @{ message = "Elige $($app.name) en la lista de aplicaciones." }
+}
+
+# Ejecutable de una app instalada: acceso .lnk de Inicio con su mismo nombre, o DisplayIcon del desinstalador.
+function Get-IwinAppExecutable($app) {
+    $names = @($app.name); if ($app.detect) { $names += [string]$app.detect }
+    $dirs = @([Environment]::GetFolderPath('CommonPrograms'), [Environment]::GetFolderPath('Programs')) | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -Unique
+    $shell = New-Object -ComObject WScript.Shell
+    foreach ($dir in $dirs) {
+        foreach ($lnk in @(Get-ChildItem -LiteralPath $dir -Filter *.lnk -Recurse -File -ErrorAction SilentlyContinue)) {
+            if ($lnk.BaseName -match '(?i)uninstall|desinstal') { continue }
+            $match = $names | Where-Object { $lnk.BaseName -eq $_ -or $lnk.BaseName.StartsWith($_ + ' ', [StringComparison]::OrdinalIgnoreCase) }
+            if (-not $match) { continue }
+            $target = [string]$shell.CreateShortcut($lnk.FullName).TargetPath
+            if ($target -match '(?i)\.exe$' -and (Test-Path -LiteralPath $target)) { return $target }
+        }
+    }
+    $keys = 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*'
+    foreach ($entry in @(Get-ItemProperty $keys -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -and ($names -contains $_.DisplayName) })) {
+        if ([string]$entry.DisplayIcon -match '^"?([^",]+\.exe)') { $exe = $matches[1]; if (Test-Path -LiteralPath $exe) { return $exe } }
+    }
+    return $null
 }
