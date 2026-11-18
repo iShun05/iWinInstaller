@@ -52,19 +52,21 @@ namespace IWinInstaller.App.Modules.Maintenance
             UndoFoldersCommand = new RelayCommand(_ => Run(UndoFoldersAsync()), _ => !IsBusy);
         }
 
-        private bool _foldersStartMenu = true, _foldersDesktop = true, _foldersAuto, _foldersLoading;
+        private bool _foldersStartMenu = true, _foldersDesktop = true, _foldersOthers = true, _foldersExtras = true, _foldersAuto, _foldersLoading;
         private string _foldersInfo = "";
         public RelayCommand OrganizeCommand { get; private set; }
         public RelayCommand UndoFoldersCommand { get; private set; }
         public bool FoldersStartMenu { get { return _foldersStartMenu; } set { if (Set(ref _foldersStartMenu, value)) SaveFolders(); } }
         public bool FoldersDesktop { get { return _foldersDesktop; } set { if (Set(ref _foldersDesktop, value)) SaveFolders(); } }
+        public bool FoldersOthers { get { return _foldersOthers; } set { if (Set(ref _foldersOthers, value)) SaveFolders(); } }
+        public bool FoldersExtras { get { return _foldersExtras; } set { if (Set(ref _foldersExtras, value)) SaveFolders(); } }
         public bool FoldersAuto { get { return _foldersAuto; } set { if (Set(ref _foldersAuto, value)) SaveFolders(); } }
         public string FoldersInfo { get { return _foldersInfo; } private set { Set(ref _foldersInfo, value ?? ""); } }
 
         private void SaveFolders()
         {
             if (_foldersLoading) return;
-            var request = new Dictionary<string, object> { { "auto", _foldersAuto }, { "startMenu", _foldersStartMenu }, { "desktop", _foldersDesktop } };
+            var request = new Dictionary<string, object> { { "auto", _foldersAuto }, { "startMenu", _foldersStartMenu }, { "desktop", _foldersDesktop }, { "others", _foldersOthers }, { "extras", _foldersExtras } };
             Run(_engine.RunAsync("folders.set", request, null, TimeSpan.FromMinutes(1), CancellationToken.None));
         }
 
@@ -76,24 +78,26 @@ namespace IWinInstaller.App.Modules.Maintenance
             try
             {
                 FoldersAuto = Flag(result.Response, "auto"); FoldersStartMenu = Flag(result.Response, "startMenu"); FoldersDesktop = Flag(result.Response, "desktop");
+                FoldersOthers = Flag(result.Response, "others"); FoldersExtras = Flag(result.Response, "extras");
             }
             finally { _foldersLoading = false; }
             int pending = Convert.ToInt32(result.Response["pending"], CultureInfo.InvariantCulture);
-            FoldersInfo = pending + " apps instaladas con acceso directo se ordenan por categoría. Ya movidos: " + result.Response["moved"] + " en Inicio, " + result.Response["copied"] + " en el escritorio.";
+            FoldersInfo = pending + " apps con acceso en Inicio se ordenan por categoría. Ya ordenadas: " + result.Response["moved"] + " en Inicio y " + result.Response["copied"] + " accesos en el escritorio.";
         }
 
         /// <summary>«Comprobar y organizar»: detecta las apps ya instaladas (de versiones anteriores o a mano), las casa con el catálogo y las ordena.</summary>
         private async Task OrganizeAsync()
         {
-            if (!_dialogs.Confirm("Comprobar y organizar", "Se buscan las apps instaladas del catálogo y se ordenan por categoría:" + Environment.NewLine +
-                (FoldersStartMenu ? "• Inicio: sus accesos se mueven a subcarpetas de «Todas las apps» (vista Lista). Los del equipo piden permiso." + Environment.NewLine : "") +
-                (FoldersDesktop ? "• Escritorio: carpeta «Aplicaciones» con una subcarpeta por categoría (copias de los accesos)." + Environment.NewLine : "") +
-                "Puedes deshacerlo cuando quieras; no se tocan las carpetas de cada fabricante.", "Organizar")) return;
+            if (!_dialogs.Confirm("Comprobar y organizar", "Se buscan las apps instaladas (del catálogo" + (FoldersOthers ? " y las demás" : "") + ") y se ordenan por categoría:" + Environment.NewLine +
+                (FoldersStartMenu ? "• Inicio: sus accesos y las carpetas de cada fabricante pasan a subcarpetas de «Todas las apps» (vista Lista). Los de todos los usuarios piden permiso." + Environment.NewLine : "") +
+                (FoldersDesktop ? "• Escritorio: carpeta «Aplicaciones» con una subcarpeta por categoría (copias de los accesos, también de las apps de la Tienda)." + Environment.NewLine : "") +
+                (FoldersExtras ? "• Desinstaladores, ayudas y webs se guardan aparte, fuera de Inicio." + Environment.NewLine : "") +
+                "Las carpetas de Windows no se tocan y puedes deshacerlo todo cuando quieras.", "Organizar")) return;
             IsBusy = true;
             Message = "Comprobando y ordenando apps…";
             try
             {
-                var request = new Dictionary<string, object> { { "startMenu", _foldersStartMenu }, { "desktop", _foldersDesktop } };
+                var request = new Dictionary<string, object> { { "startMenu", _foldersStartMenu }, { "desktop", _foldersDesktop }, { "others", _foldersOthers }, { "extras", _foldersExtras } };
                 var result = await _engine.RunAsync("folders.apply", request, null, TimeSpan.FromMinutes(10), CancellationToken.None);
                 Message = result.Ok ? Text(result.Response, "summary") : "No se pudo ordenar: " + result.Error;
             }
@@ -103,7 +107,7 @@ namespace IWinInstaller.App.Modules.Maintenance
 
         private async Task UndoFoldersAsync()
         {
-            if (!_dialogs.Confirm("Deshacer el orden", "Los accesos movidos vuelven a su sitio y se quitan las copias del escritorio que creó iWinInstaller.", "Deshacer")) return;
+            if (!_dialogs.Confirm("Deshacer el orden", "Los accesos y carpetas movidos vuelven a su sitio, los desinstaladores y ayudas guardados vuelven a Inicio y se quitan las copias del escritorio que creó iWinInstaller.", "Deshacer")) return;
             IsBusy = true;
             Message = "Devolviendo accesos…";
             try
