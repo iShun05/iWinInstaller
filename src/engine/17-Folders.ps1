@@ -326,12 +326,17 @@ function Get-IwinExtrasRoot([string]$scope) {
 # escribir Administradores y SYSTEM. Si ya existe con otro dueño, con escritura para usuarios o es un enlace
 # (reparse point), no se usa: un usuario sin permisos podría dejar ahí un acceso que luego se colocaría para todos.
 function Initialize-IwinSecureFolder([string]$path) {
+    # Se comprueban (o se crean protegidas) la carpeta y la de encima (%ProgramData%\iWinInstaller)
+    $parent = Split-Path -Parent $path
+    if ($parent) { Assert-IwinSecureDir $parent }
+    Assert-IwinSecureDir $path
+}
+
+function Assert-IwinSecureDir([string]$path) {
     $admins = New-Object Security.Principal.SecurityIdentifier 'S-1-5-32-544'
     $system = New-Object Security.Principal.SecurityIdentifier 'S-1-5-18'
     $users = New-Object Security.Principal.SecurityIdentifier 'S-1-5-32-545'
     if (-not (Test-Path -LiteralPath $path)) {
-        $parent = Split-Path -Parent $path
-        if ($parent -and -not (Test-Path -LiteralPath $parent)) { New-Item $parent -ItemType Directory -Force -ErrorAction Stop | Out-Null }
         New-Item $path -ItemType Directory -ErrorAction Stop | Out-Null
         $acl = New-Object Security.AccessControl.DirectorySecurity
         $acl.SetAccessRuleProtection($true, $false)
@@ -340,7 +345,6 @@ function Initialize-IwinSecureFolder([string]$path) {
             $acl.AddAccessRule((New-Object Security.AccessControl.FileSystemAccessRule($rule[0], [Security.AccessControl.FileSystemRights]$rule[1], $inherit, 'None', 'Allow')))
         }
         Set-Acl -LiteralPath $path -AclObject $acl -ErrorAction Stop
-        return
     }
     $item = Get-Item -LiteralPath $path -Force
     if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "La carpeta $path es un enlace; no se usa." }
@@ -352,6 +356,17 @@ function Initialize-IwinSecureFolder([string]$path) {
         if ($rule.AccessControlType -ne 'Allow' -or $rule.IdentityReference -eq $admins -or $rule.IdentityReference -eq $system -or ($rule.PropagationFlags -band [Security.AccessControl.PropagationFlags]::InheritOnly)) { continue }
         if ($rule.FileSystemRights -band $write) { throw "La carpeta $path la pueden modificar otros usuarios; no se usa." }
     }
+}
+
+# NingÃºn tramo entre la carpeta de guardados y el archivo puede ser un enlace (junction o symlink)
+function Assert-IwinNoReparse([string]$base, [string]$path) {
+    $stop = $base.TrimEnd('\').Length
+    $current = Split-Path -Parent $path
+    while ($current -and $current.Length -gt $stop) {
+        if ((Test-Path -LiteralPath $current) -and ((Get-Item -LiteralPath $current -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "La carpeta $current es un enlace; no se usa." }
+        $current = Split-Path -Parent $current
+    }
+    if ((Test-Path -LiteralPath $path) -and ((Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "$path es un enlace; no se usa." }
 }
 
 # Acceso a una app de la Tienda (shell:AppsFolder\<AUMID>) con su identidad, para que muestre su icono
@@ -418,9 +433,14 @@ function Move-IwinFolderExtra([string]$path, $entry, $state) {
     if ($entry.Scope -eq 'machine') { Initialize-IwinSecureFolder $base }
     $dest = Join-Path (Join-Path $base $entry.Scope) $rel
     New-Item (Split-Path -Parent $dest) -ItemType Directory -Force -ErrorAction Stop | Out-Null
+    if ($entry.Scope -eq 'machine') { Assert-IwinNoReparse $base $dest }
+    # Huella del original, antes de moverlo: al deshacer solo se devuelve si nadie lo ha cambiado
+    $hash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
     Move-Item -LiteralPath $path -Destination $dest -Force -ErrorAction Stop
-    # Huella del archivo guardado: al deshacer solo se devuelve si nadie lo ha cambiado
-    $hash = (Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash
+    if ((Get-FileHash -LiteralPath $dest -Algorithm SHA256).Hash -ne $hash) {
+        Move-Item -LiteralPath $dest -Destination $path -Force -ErrorAction SilentlyContinue
+        throw "El acceso guardado no coincide con el original: $path"
+    }
     $state.moves = @($state.moves | Where-Object { $_.to -ne $dest }) + @(@{ id = $entry.Id; kind = 'extra'; from = $path; to = $dest; hash = $hash })
 }
 
@@ -645,6 +665,13 @@ function Invoke-IwinFolderRevert($state, [string]$scope = 'all') {
         if ($machine -and -not $admin) { $result.needsAdmin++; $keep += $move; continue }
         try {
             if (-not (Test-Path -LiteralPath $move.to)) { continue }
+            if ($move.kind -eq 'extra' -and $machine) {
+                # Antes de colocarlo para todos los usuarios, la carpeta de guardados tiene que seguir protegida
+                $base = Get-IwinExtrasRoot 'machine'
+                if (-not $move.to.StartsWith($base + '\', [StringComparison]::OrdinalIgnoreCase)) { throw "Ruta de guardado inesperada: $($move.to)" }
+                Initialize-IwinSecureFolder $base
+                Assert-IwinNoReparse $base $move.to
+            }
             if ($move.kind -eq 'extra' -and $move.hash -and (Get-FileHash -LiteralPath $move.to -Algorithm SHA256).Hash -ne $move.hash) {
                 $result.skipped++; $keep += $move; Write-Log "  No se devuelve $($move.to): ha cambiado desde que se guardó."; continue
             }
