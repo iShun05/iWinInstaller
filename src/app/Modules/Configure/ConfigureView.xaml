@@ -12,7 +12,9 @@
       </DockPanel>
       <TextBlock Text="{Binding Message}" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/>
       <TextBlock Text="Marca cada app cuando termines de configurarla. Si se actualiza a otra versión, el check se quita solo y vuelve a salir pendiente."
-                 Foreground="{StaticResource TextFaint}" TextWrapping="Wrap" Margin="0,4,0,16"/>
+                 Foreground="{StaticResource TextFaint}" TextWrapping="Wrap" Margin="0,4,0,4"/>
+      <TextBlock Text="● Naranja: instalada, falta configurarla   ● Verde: configurada. Las no instaladas (rojo) se ven en Instalar → Faltan."
+                 Foreground="{StaticResource TextFaint}" TextWrapping="Wrap" Margin="0,0,0,16"/>
 
       <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="14" Padding="6"
               Visibility="{Binding HasItems, Converter={StaticResource Visible}}">
@@ -46,8 +48,19 @@
                             Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}"/>
                   </StackPanel>
                   <StackPanel>
-                    <TextBlock Text="{Binding Name}" FontSize="14" Foreground="{StaticResource TextStrong}"/>
+                    <DockPanel>
+                      <Ellipse Width="10" Height="10" Margin="0,0,8,0" VerticalAlignment="Center" ToolTip="{Binding Status}">
+                        <Ellipse.Style>
+                          <Style TargetType="Ellipse">
+                            <Setter Property="Fill" Value="#FF9F2E"/>
+                            <Style.Triggers><DataTrigger Binding="{Binding Configured}" Value="True"><Setter Property="Fill" Value="#3DDC6B"/></DataTrigger></Style.Triggers>
+                          </Style>
+                        </Ellipse.Style>
+                      </Ellipse>
+                      <TextBlock Text="{Binding Name}" FontSize="14" Foreground="{StaticResource TextStrong}"/>
+                    </DockPanel>
                     <TextBlock Text="{Binding Note}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                    <TextBlock Text="{Binding Missing}" FontSize="12" Foreground="{StaticResource Attention}" TextWrapping="Wrap" Margin="0,4,0,0" Visibility="{Binding HasMissing, Converter={StaticResource Visible}}"/>
                     <TextBlock Text="{Binding Status}" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0">
                       <TextBlock.Style>
                         <Style TargetType="TextBlock">
