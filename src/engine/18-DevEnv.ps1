@@ -60,7 +60,11 @@ function Get-IwinJdkHome {
 # Pasos de configuración (lista cerrada). Cada uno devuelve una línea de resumen y no falla si falta la herramienta.
 $IwinDevSteps = @{
     corepack = {
-        if (-not (Test-Cmd corepack)) { return 'Corepack: omitido (Node no está instalado todavía)' }
+        if (-not (Test-Cmd corepack)) {
+            if (-not (Test-Cmd node)) { return 'Corepack: omitido (Node no está instalado todavía)' }
+            # Node 25 dejó de incluir Corepack; pnpm ya viene en la plantilla como app aparte
+            return 'Corepack: no viene con este Node (25 o posterior); pnpm está instalado aparte'
+        }
         $out = (& corepack enable 2>&1 | Out-String).Trim()
         if ($LASTEXITCODE -eq 0) { 'Corepack activado (pnpm y yarn por proyecto)' } else { "Corepack: no se pudo activar ($out)" }
     }

@@ -27,6 +27,9 @@ Integración de seis líneas de trabajo: página **Rendimiento**, **entorno de d
 - WinGet: el límite de 45 s de «el lote no llegó a iniciarse» contaba la espera del UAC; un HEAD con 4xx/5xx ya no bloquea el plan.
 - **Limpieza**: Windows PowerShell 5.1 seguía uniones y enlaces al recorrer temporales; ahora no entra en carpetas-enlace ni recorre la raíz de un disco.
 - El escritorio acumulaba `Brave (1).lnk` y otros duplicados.
+- **Sincronizar** decía «Falta Git» en equipos donde Git para Windows está instalado pero no en el PATH; ahora se busca también en sus carpetas de instalación (encontrado al probar en un PC real).
+- **Preparar entorno Node** decía «Node no está instalado» con Node 25 o posterior, que ya no incluye Corepack; ahora explica que pnpm va aparte.
+- Instalar: tras una orden (conectar, subir, preparar…) los botones podían quedarse grises hasta mover el foco.
 
 ### Archivos y pruebas
 - Interfaz: `src/app/Modules/Install/` (entorno dev, sincronización y colores), `Configure/`, `Rendimiento/` (nuevo), `Maintenance/`, `Games/`, `App.xaml.cs`, `Engine/EngineClient.cs`, `Shell/`.

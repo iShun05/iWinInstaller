@@ -35,6 +35,17 @@ Describe 'Plantillas' {
     }
 }
 
+Describe 'Paso Corepack' {
+    It 'con Node 25 o posterior sin Corepack no dice que falte Node' {
+        $script:Versions = @{ node = [version]'26.13.1' }
+        & $IwinDevSteps['corepack'] | Should -Match 'no viene con este Node'
+    }
+    It 'sin Node dice que falta Node' {
+        $script:Versions = @{}
+        & $IwinDevSteps['corepack'] | Should -Match 'Node no está instalado'
+    }
+}
+
 Describe 'Pin de versión' {
     It 'minMajor acepta versiones iguales o mayores' {
         $pin = [pscustomobject]@{ minMajor = 22 }

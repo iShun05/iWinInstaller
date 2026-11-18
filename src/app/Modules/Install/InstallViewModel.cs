@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Threading;
 using IWinInstaller.App.Core;
 using IWinInstaller.App.Engine;
@@ -127,7 +128,8 @@ namespace IWinInstaller.App.Modules.Install
         public RelayCommand UninstallSelectedCommand { get; private set; }
         public RelayCommand DeleteProfileCommand { get; private set; }
 
-        public bool IsBusy { get { return _isBusy; } private set { Set(ref _isBusy, value); } }
+        // Al cambiar se reevalúan los botones: sin esto quedaban grises tras una orden hasta mover el foco
+        public bool IsBusy { get { return _isBusy; } private set { if (Set(ref _isBusy, value)) CommandManager.InvalidateRequerySuggested(); } }
         public bool HasPending { get { return _hasPending; } private set { Set(ref _hasPending, value); } }
         public string Message { get { return _message; } set { Set(ref _message, value ?? ""); } }
         public string ProgressText { get { return _progressText; } private set { Set(ref _progressText, value ?? ""); } }
