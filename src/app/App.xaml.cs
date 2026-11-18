@@ -26,17 +26,39 @@ namespace IWinInstaller.App
                 args.Handled = true;
             };
 
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) => Log("Error no controlado: " + args.ExceptionObject);
+            // Un fallo de una tarea sin esperar no debe pasar desapercibido, pero tampoco cerrar la app
+            TaskScheduler.UnobservedTaskException += (sender, args) => { Log("Tarea con error: " + args.Exception); args.SetObserved(); };
+
             string root = AppDomain.CurrentDomain.BaseDirectory;
-            var model = new ShellViewModel(root, Dispatcher, Preferences.Load(Preferences.DefaultPath));
-            var window = new MainWindow(model);
+            ShellViewModel model;
+            Window window;  // «MainWindow» como tipo chocaría con la propiedad Application.MainWindow
+            try
+            {
+                model = new ShellViewModel(root, Dispatcher, Preferences.Load(Preferences.DefaultPath));
+                window = new MainWindow(model);
+            }
+            catch (Exception ex)
+            {
+                // Sin ventana, el controlador de arriba dejaría el proceso vivo e invisible: se avisa y se sale
+                Log("No se pudo crear la ventana principal: " + ex);
+                MessageBox.Show("iWinInstaller no pudo arrancar. El detalle está en " + Path.Combine(LogDirectory, "interfaz.log"), "iWinInstaller", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown(1);
+                return;
+            }
             MainWindow = window;
             bool testMode = !String.IsNullOrEmpty(Environment.GetEnvironmentVariable("IWIN_PRUEBA_GUI"));
             window.Loaded += async (sender, args) =>
             {
                 if (!testMode)
                 {
-                    model.Settings.CheckForUpdateOnStart();
-                    await model.Home.RefreshAsync(new[] { "appUpdates", "windowsUpdate", "antivirus", "pendingBatch" }, CancellationToken.None);
+                    // async void: una excepción aquí llegaría al controlador global como aviso al usuario
+                    try
+                    {
+                        model.Settings.CheckForUpdateOnStart();
+                        await model.Home.RefreshAsync(new[] { "appUpdates", "windowsUpdate", "antivirus", "pendingBatch" }, CancellationToken.None);
+                    }
+                    catch (Exception ex) { Log("Error al cargar el Inicio: " + ex); }
                     return;
                 }
                 await RunSmokeTest(model);

@@ -32,6 +32,20 @@ BeforeAll {
 
 AfterAll { Remove-Variable IwinFakeRegistry -Scope Global -ErrorAction SilentlyContinue; Remove-Item $script:LogDir -Recurse -Force -ErrorAction SilentlyContinue }
 
+Describe 'Lista de ids de WinGet' {
+    It 'Add-WingetId conserva $null (desconocido) y añade a la lista sin convertirla en cadena' {
+        $script:WingetIds = $null
+        Add-WingetId 'A.B'
+        $script:WingetIds | Should -BeNullOrEmpty
+        $script:WingetIds = @('X.Y')
+        Add-WingetId 'A.B'
+        Add-WingetId 'C.D'
+        @($script:WingetIds) | Should -Be @('X.Y', 'A.B', 'C.D')
+        ($script:WingetIds -contains 'C.D') | Should -BeTrue
+        $script:WingetIds = $null
+    }
+}
+
 Describe 'Comandos de Instalar' {
     It 'rechaza ids desconocidos' {
         { Get-IwinSelection @('git', 'noexiste') } | Should -Throw '*noexiste*'

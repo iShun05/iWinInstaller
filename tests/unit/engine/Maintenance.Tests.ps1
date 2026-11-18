@@ -30,6 +30,30 @@ Describe 'Limpieza' {
         Test-Path $new | Should -BeTrue
     }
 
+    It 'no entra en uniones ni enlaces: nunca borra fuera de la carpeta de la categoría' {
+        $outside = Join-Path $script:LogDir 'fuera'
+        New-Item $outside -ItemType Directory | Out-Null
+        $precious = Join-Path $outside 'documento.txt'
+        Set-Content $precious ('z' * 4096)
+        (Get-Item $precious).LastWriteTime = (Get-Date).AddDays(-30)
+        $junction = Join-Path $script:Fixture 'enlace'
+        & cmd.exe /c mklink /J "$junction" "$outside" | Out-Null
+        try {
+            & $IwinEngineCommands['maintenance.clean'] ([pscustomobject]@{ contract = 1; categories = @('prueba') }) | Out-Null
+            Test-Path $precious | Should -BeTrue
+        } finally { & cmd.exe /c rmdir "$junction" | Out-Null }
+    }
+
+    It 'borra los archivos antiguos de subcarpetas normales' {
+        $sub = Join-Path $script:Fixture 'sub\hondo'
+        New-Item $sub -ItemType Directory -Force | Out-Null
+        $old = Join-Path $sub 'viejo.tmp'
+        Set-Content $old ('x' * 100)
+        (Get-Item $old).LastWriteTime = (Get-Date).AddDays(-3)
+        & $IwinEngineCommands['maintenance.clean'] ([pscustomobject]@{ contract = 1; categories = @('prueba') }) | Out-Null
+        Test-Path $old | Should -BeFalse
+    }
+
     It 'rechaza categorías desconocidas' {
         { & $IwinEngineCommands['maintenance.clean'] ([pscustomobject]@{ contract = 1; categories = @('documentos') }) } | Should -Throw '*desconocidas*'
     }

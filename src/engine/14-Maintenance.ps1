@@ -19,14 +19,27 @@ function Get-IwinCleanupCategories {
     }
 }
 
-# Archivos de una categoría con más de un día (lo reciente puede estar en uso)
+# Archivos de una categoría con más de un día (lo reciente puede estar en uso).
+# Windows PowerShell 5.1 sigue las uniones y enlaces simbólicos con «-Recurse»: una unión dentro de una carpeta temporal
+# que apunte a Documentos haría borrar archivos ajenos. Por eso el recorrido es propio y no entra en carpetas-enlace.
 function Get-IwinCleanupFiles($category) {
     $limit = (Get-Date).AddDays(-1)
+    $filter = if ($category.filter) { $category.filter } else { '*' }
     foreach ($path in @($category.paths)) {
         if (-not $path -or -not (Test-Path -LiteralPath $path)) { continue }
-        $filter = if ($category.filter) { $category.filter } else { '*' }
-        Get-ChildItem -LiteralPath $path -Filter $filter -File -Recurse -Force -ErrorAction SilentlyContinue |
-            Where-Object { $_.LastWriteTime -lt $limit -and -not ($_.Attributes -band [IO.FileAttributes]::ReparsePoint) }
+        # Nunca la raíz de un disco (p. ej. un TEMP mal configurado)
+        $full = [IO.Path]::GetFullPath($path)
+        if ($full.TrimEnd('\') -eq [IO.Path]::GetPathRoot($full).TrimEnd('\')) { continue }
+        $pending = New-Object Collections.Generic.Stack[string]
+        $pending.Push($full)
+        while ($pending.Count) {
+            $directory = $pending.Pop()
+            foreach ($child in @(Get-ChildItem -LiteralPath $directory -Force -ErrorAction SilentlyContinue)) {
+                if ($child.Attributes -band [IO.FileAttributes]::ReparsePoint) { continue }
+                if ($child.PSIsContainer) { $pending.Push($child.FullName); continue }
+                if ($child.LastWriteTime -lt $limit -and $child.Name -like $filter) { $child }
+            }
+        }
     }
 }
 

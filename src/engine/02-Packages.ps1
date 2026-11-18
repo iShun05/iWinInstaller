@@ -29,6 +29,11 @@ function Update-WingetCache {
     }
 }
 
+# «$null += 'id'» da una cadena (no una lista) y los «-contains» posteriores fallan; $null significa «desconocido» y se conserva.
+function Add-WingetId([string]$id) {
+    if ($null -ne $script:WingetIds) { $script:WingetIds = @($script:WingetIds) + $id }
+}
+
 # Inventario local: no consulta internet por cada tarjeta.
 $RegistryApps = @()
 $AppxApps = @()
@@ -154,7 +159,7 @@ function Install-Chrome($app) {
         Write-Log "  chrome · codigo $code · $([math]::Round($timer.Elapsed.TotalSeconds,1)) s"
         if ($code -notin @(0,3010)) { return $false }
         Update-LocalInventory
-        if (Test-LocalApp $app) { $script:WingetIds += 'Google.Chrome'; return $true }
+        if (Test-LocalApp $app) { Add-WingetId 'Google.Chrome'; return $true }
         return $false
     } finally {
         if (Test-Path $msiLog) { Get-Content $msiLog -Tail 200 -Encoding UTF8 | ForEach-Object { Write-Log "    $_" }; Remove-Item $msiLog -Force -ErrorAction SilentlyContinue }
@@ -258,10 +263,10 @@ function Install-WingetPackage($app, [string]$id) {
     # Un paquete MSIX solo aparece en el inventario de Appx: se relee también en ese caso.
     Update-LocalInventory -Appx:((Get-InstallContext $app) -eq 'user' -or $usedMsix)
     # El codigo de exito no basta: debe aparecer en el inventario o en winget list.
-    if ($app.type -ne 'wingetall' -and (Test-LocalApp $app)) { $script:WingetIds += $id; return $true }
+    if ($app.type -ne 'wingetall' -and (Test-LocalApp $app)) { Add-WingetId $id; return $true }
     if ($app.architecture -and $app.families) { Write-Log '  No se confirma la arquitectura requerida del paquete.'; return $false }
     $check = Invoke-Winget @('list', '-e', '--id', $id, '--source', $source, '--disable-interactivity', '--accept-source-agreements') ($app.id + '-verificar') 45
-    if ($check -eq 0) { $script:WingetIds += $id; return $true }
+    if ($check -eq 0) { Add-WingetId $id; return $true }
     return $false
 }
 
@@ -306,6 +311,8 @@ function Invoke-InstallWorker($selection, [scriptblock]$onProgress, [switch]$AsU
             if (-not (Test-Administrator)) { $start.Verb = 'RunAs' }
             $process = Start-Process @start
         }
+        # El aviso de permiso (UAC) bloquea Start-Process hasta que se acepta: los 45 s de espera cuentan desde que el lote arranca
+        $timer.Restart()
         while (-not $done) {
             $lines = @(Get-Content $result -Encoding UTF8 -ErrorAction SilentlyContinue)
             while ($seen -lt $lines.Count) {

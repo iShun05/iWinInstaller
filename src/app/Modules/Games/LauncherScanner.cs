@@ -72,7 +72,7 @@ namespace IWinInstaller.App.Modules.Games
             {
                 List<DetectedGame> games;
                 try { games = source(env); }
-                catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException || ex is System.Security.SecurityException) { continue; }
+                catch (Exception ex) when (GamesViewModel.IsDetectionError(ex)) { continue; }
                 foreach (var game in games)
                 {
                     string key = Norm(game.Folder);
