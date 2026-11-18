@@ -28,6 +28,13 @@
           <Button Style="{StaticResource Ghost}" Content="Eliminar perfil" Command="{Binding DeleteProfileCommand}" Margin="0,0,4,8"/>
           <Button Style="{StaticResource Ghost}" Content="Verificar" Command="{Binding VerifyCommand}" Margin="0,0,4,8" ToolTip="Vuelve a comprobar qué está instalado"/>
         </WrapPanel>
+        <WrapPanel>
+          <ComboBox Margin="0,0,8,8" MinWidth="170" ItemsSource="{Binding DevTemplates}" SelectedItem="{Binding DevTemplate}" AutomationProperties.Name="Entorno de desarrollo"/>
+          <Button Style="{StaticResource Ghost}" Content="Preparar entorno" Command="{Binding PrepareDevCommand}" Margin="0,0,16,8" ToolTip="Instala lo que falte del entorno (Git, VS Code y Node, Python o Java con su versión fijada) y lo configura: Corepack, pip o JAVA_HOME"/>
+          <Button Style="{StaticResource Ghost}" Content="Repo privado…" Command="{Binding SyncRepoCommand}" Margin="0,0,4,8" ToolTip="Conecta (o desconecta) un repo privado tuyo de GitHub para sincronizar la configuración entre PC"/>
+          <Button Style="{StaticResource Ghost}" Content="Subir" Command="{Binding SyncPushCommand}" Margin="0,0,4,8" ToolTip="Sube la configuración de este PC a tu repo privado (sin notas personales)"/>
+          <Button Style="{StaticResource Ghost}" Content="Bajar" Command="{Binding SyncPullCommand}" Margin="0,0,4,8" ToolTip="Aplica la configuración de tu repo privado y marca sus apps para instalar"/>
+        </WrapPanel>
         <TextBlock Text="{Binding Message}" Foreground="{StaticResource TextMuted}" Margin="0,0,0,4" AutomationProperties.LiveSetting="Polite"/>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
           <Ellipse Width="9" Height="9" Fill="#3DDC6B" Margin="0,0,5,0" VerticalAlignment="Center"/><TextBlock Text="Instalada" Foreground="{StaticResource TextMuted}" FontSize="12" Margin="0,0,14,0"/>
