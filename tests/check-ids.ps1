@@ -7,7 +7,7 @@ if ($Solo) {
     $sobran = @($lista | Where-Object { $_ -notin $apps.id })
     if ($sobran) { Write-Output "Ids de apps.json desconocidos o sin winget: $($sobran -join ', ')"; exit 1 }
 }
-$apps = foreach ($a in $apps) { foreach ($w in @($a.winget)) { [pscustomobject]@{ id = $a.id; name = $a.name; winget = $w; source = $a.source; scope = $a.scope; architecture = $a.architecture } } }
+$apps = @(foreach ($a in $apps) { foreach ($w in @($a.winget)) { [pscustomobject]@{ id = $a.id; name = $a.name; winget = $w; source = $a.source; scope = $a.scope; architecture = $a.architecture } } })
 $bad = @()
 foreach ($a in $apps) {
     $src = if ($a.source) { $a.source } else { 'winget' }

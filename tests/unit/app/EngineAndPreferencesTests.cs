@@ -54,6 +54,24 @@ namespace IWinInstaller.App.Tests
         }
 
         [TestMethod]
+        public void LectorNoRompeUnCaracterUtf8Partido()
+        {
+            string path = Path.Combine(_dir, "events.jsonl");
+            var reader = new EventFileReader(path);
+            byte[] line = new UTF8Encoding(false).GetBytes("{\"type\":\"log\",\"text\":\"Instalación\"}\n");
+            int cut = Array.IndexOf(line, (byte)0xC3) + 1; // mitad de la «ó»
+            using (var stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+            {
+                stream.Write(line, 0, cut); stream.Flush();
+                Assert.AreEqual(0, reader.ReadNew().Count);
+                stream.Write(line, cut, line.Length - cut); stream.Flush();
+                var events = reader.ReadNew();
+                Assert.AreEqual(1, events.Count);
+                Assert.AreEqual("Instalación", events[0].Text);
+            }
+        }
+
+        [TestMethod]
         public void ZoomLimitadoEntre70y200()
         {
             Assert.AreEqual(0.7, Preferences.ClampZoom(0.2), 1e-9);

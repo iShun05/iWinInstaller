@@ -117,6 +117,10 @@ function Get-IwinPreflight($selection) {
             $request.Method='HEAD'; $request.Timeout=6000
             $response=$request.GetResponse(); $response.Close()
             $messages += 'Conexión HTTPS con el origen de WinGet disponible.'
+        } catch [Net.WebException] {
+            # Si el servidor contestó (p. ej. 403/405 a un HEAD) hay conexión: solo se bloquea cuando no hay respuesta alguna
+            if ($_.Exception.Response) { $_.Exception.Response.Close(); $messages += 'Conexión HTTPS con el origen de WinGet disponible.' }
+            else { $messages += 'No se pudo acceder al origen de WinGet. Comprueba conexión, proxy o firewall y reintenta.'; $blocked=$true }
         } catch { $messages += 'No se pudo acceder al origen de WinGet. Comprueba conexión, proxy o firewall y reintenta.'; $blocked=$true }
     }
     $messages += 'Se exige 1 GB libre para preparar el lote; cada programa puede necesitar más.'

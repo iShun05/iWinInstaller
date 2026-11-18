@@ -5,25 +5,30 @@
 function Test-Optional($app) { [bool]($app.optin -or $app.extra) }
 
 # ---------- VirtualBox Guest Additions: el ISO viene con VirtualBox; si falta, se descarga el de la última versión ----------
-$VBoxISO = Join-Path $env:ProgramFiles 'Oracle\VirtualBox\VBoxGuestAdditions.iso'
+$VBoxISO = Join-Path $(if ($env:ProgramW6432) { $env:ProgramW6432 } else { $env:ProgramFiles }) 'Oracle\VirtualBox\VBoxGuestAdditions.iso'
 $VBoxDir = Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'VirtualBox'
 
 function Install-VBoxGA {
     if (Test-Path $VBoxISO) { Write-Log "  Incluidas con VirtualBox: $VBoxISO"; return $true }
     try {
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $v = ([string](Invoke-WebRequest 'https://download.virtualbox.org/virtualbox/LATEST.TXT' -UseBasicParsing).Content).Trim()
+        $v = ([string](Invoke-WebRequest 'https://download.virtualbox.org/virtualbox/LATEST.TXT' -UseBasicParsing -TimeoutSec 60).Content).Trim()
         New-Item $VBoxDir -ItemType Directory -Force | Out-Null
         $dest = Join-Path $VBoxDir "VBoxGuestAdditions_$v.iso"
         Write-Log "  Descargando Guest Additions $v..."
         if ($v -notmatch '^\d+(\.\d+){1,3}$') { throw "versión no válida: $v" }
         $base = "https://download.virtualbox.org/virtualbox/$v"
-        $sums = [string](Invoke-WebRequest "$base/SHA256SUMS" -UseBasicParsing).Content
+        $sums = [string](Invoke-WebRequest "$base/SHA256SUMS" -UseBasicParsing -TimeoutSec 60).Content
         $match = [regex]::Match($sums, "(?m)^([a-fA-F0-9]{64}) \*?VBoxGuestAdditions_$([regex]::Escape($v))\.iso\r?$")
         if (-not $match.Success) { throw 'Oracle no publica el hash SHA256 de esta versión.' }
         $expected = $match.Groups[1].Value
-        Invoke-WebRequest "$base/VBoxGuestAdditions_$v.iso" -OutFile $dest -UseBasicParsing
-        if ((Get-FileHash $dest -Algorithm SHA256).Hash -ne $expected) { Remove-Item $dest -Force; throw 'El ISO no supera la comprobación SHA256.' }
+        # Se descarga a un archivo temporal: un corte a mitad dejaba un ISO parcial con el nombre final y Test-VBoxGA lo daba por instalado
+        $part = "$dest.part"
+        try {
+            Invoke-WebRequest "$base/VBoxGuestAdditions_$v.iso" -OutFile $part -UseBasicParsing -TimeoutSec 600
+            if ((Get-FileHash $part -Algorithm SHA256).Hash -ne $expected) { throw 'El ISO no supera la comprobación SHA256.' }
+            Move-Item -LiteralPath $part -Destination $dest -Force
+        } finally { Remove-Item -LiteralPath $part -Force -ErrorAction SilentlyContinue }
         Write-Log "  Guardado en $dest (SHA256 comprobado)"
         return $true
     } catch {

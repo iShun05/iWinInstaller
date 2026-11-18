@@ -100,7 +100,8 @@ function Organize-Desktop([string]$destinationFolder = (Join-Path ([Environment]
     $moved = 0
     foreach ($desktop in Get-DesktopPaths) {
         if (-not (Test-Path $desktop)) { continue }
-        foreach ($file in Get-ChildItem -LiteralPath $desktop -File) {
+        # Primero los «Brave.lnk» y después los «Brave (1).lnk»: así el original se mueve antes y su copia se reconoce como duplicada
+        foreach ($file in @(Get-ChildItem -LiteralPath $desktop -File | Sort-Object { [bool]($_.BaseName -match ' \(\d+\)$') })) {
             try {
                 $isApplication = $false
                 if ($file.Extension -eq '.lnk') {
@@ -115,10 +116,19 @@ function Organize-Desktop([string]$destinationFolder = (Join-Path ([Environment]
                 $destination = Join-Path $folder $file.Name
                 # Un instalador que recrea su acceso en el escritorio (Brave, Chrome…) no debe dejar «Brave (1).lnk»:
                 # si ya hay uno con el mismo destino se retira el duplicado.
-                if ($file.Extension -eq '.lnk' -and (Test-Path -LiteralPath $destination)) {
-                    $same = $false
-                    try { $same = ($shell.CreateShortcut($destination).TargetPath -eq $target) } catch { }
-                    if ($same) { Remove-Item -LiteralPath $file.FullName -Force -ErrorAction Stop; $moved++; continue }
+                # Copia «X (n).lnk» de un acceso «X.lnk» con el mismo destino, ya en Aplicaciones o aún en el escritorio: se retira.
+                if ($file.Extension -eq '.lnk') {
+                    $names = @($file.Name)
+                    $plain = $file.BaseName -replace ' \(\d+\)$', ''
+                    if ($plain -ne $file.BaseName) { $names += ($plain + '.lnk') }
+                    $duplicate = $false
+                    foreach ($name in $names) {
+                        $candidate = Join-Path $folder $name
+                        if (-not (Test-Path -LiteralPath $candidate)) { $candidate = Join-Path $desktop $name }
+                        if ($candidate -eq $file.FullName -or -not (Test-Path -LiteralPath $candidate)) { continue }
+                        try { if ($shell.CreateShortcut($candidate).TargetPath -eq $target) { $duplicate = $true } } catch { }
+                    }
+                    if ($duplicate) { Remove-Item -LiteralPath $file.FullName -Force -ErrorAction Stop; $moved++; continue }
                 }
                 $suffix = 1
                 while (Test-Path -LiteralPath $destination) {

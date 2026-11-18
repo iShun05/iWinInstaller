@@ -1,0 +1,38 @@
+name: Salud del catálogo
+# Cada semana comprueba que las huellas de WinGet de apps.json siguen coincidiendo con el instalador del fabricante
+# (si no, WinGet falla con 0x8A150011) y que las URLs propias del catálogo responden. Solo lee: no instala nada.
+# Un fallo de un workflow programado avisa por correo al propietario del repositorio.
+on:
+  schedule:
+    - cron: '23 5 * * 1'
+  workflow_dispatch:
+    inputs:
+      solo:
+        description: 'Ids de apps.json separados por espacios (vacío = todas)'
+        required: false
+        default: ''
+permissions:
+  contents: read
+jobs:
+  catalogo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pruebas del comprobador
+        run: python -m unittest discover -s tests/catalog
+      - name: Huellas de WinGet y URLs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SOLO: ${{ github.event.inputs.solo }}
+        run: python scripts/catalog_health.py --solo "$SOLO" --out resultados-catalogo.json
+      - name: Conservar resultados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: salud-del-catalogo
+          path: resultados-catalogo.json
+          if-no-files-found: ignore

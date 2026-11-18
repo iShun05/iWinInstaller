@@ -25,7 +25,7 @@ namespace IWinInstaller.App.Modules.Configure
         public bool Configured
         {
             get { return _configured; }
-            set { if (Set(ref _configured, value)) { OnPropertyChanged("Status"); OnPropertyChanged("NeedsAttention"); } }
+            set { if (Set(ref _configured, value)) { OnPropertyChanged("Missing"); OnPropertyChanged("HasMissing"); OnPropertyChanged("Status"); OnPropertyChanged("NeedsAttention"); } }
         }
 
         /// <summary>Versión anterior en la que se marcó como hecha, si la app se actualizó desde entonces.</summary>
@@ -34,6 +34,18 @@ namespace IWinInstaller.App.Modules.Configure
             get { return _reopenedFrom; }
             set { if (Set(ref _reopenedFrom, value ?? "")) { OnPropertyChanged("Status"); OnPropertyChanged("NeedsAttention"); } }
         }
+
+        /// <summary>Qué le falta: los pasos sin confirmar y la nota del catálogo.</summary>
+        public string Missing
+        {
+            get
+            {
+                if (Configured) return "";
+                string steps = StepCount > 0 ? "Faltan " + StepCount + (StepCount == 1 ? " paso" : " pasos") + " por confirmar. " : "Falta confirmar la configuración. ";
+                return steps + "Ábrela, haz lo indicado arriba y pulsa «Marcar como hecha».";
+            }
+        }
+        public bool HasMissing { get { return !Configured; } }
 
         public bool NeedsAttention { get { return !Configured && ReopenedFrom.Length > 0; } }
 

@@ -21,6 +21,9 @@ jobs:
       - name: Esquema y referencias del catálogo
         shell: pwsh
         run: ./tests/unit/run.ps1 -Shell pwsh
+      - name: Pruebas del comprobador del catálogo
+        shell: pwsh
+        run: python -m unittest discover -s tests/catalog
       - name: Conservar resultados
         if: always()
         uses: actions/upload-artifact@v4

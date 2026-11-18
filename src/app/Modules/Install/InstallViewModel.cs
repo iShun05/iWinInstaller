@@ -314,7 +314,28 @@ namespace IWinInstaller.App.Modules.Install
             string text = Convert.ToString(result.Response["text"]) + Environment.NewLine + Environment.NewLine + String.Join(Environment.NewLine, lines) +
                           Environment.NewLine + Environment.NewLine + "Puedes pausar entre aplicaciones. No se reinicia Windows automáticamente.";
             if (!ReadBool(result.Response, "ok")) { _dialogs.Inform("Revisa el equipo antes de continuar", text); return false; }
-            return _dialogs.Confirm(operation == "uninstall" ? "Antes de desinstalar" : "Antes de instalar", text, operation == "uninstall" ? "Desinstalar" : "Continuar");
+            if (!_dialogs.Confirm(operation == "uninstall" ? "Antes de desinstalar" : "Antes de instalar", text, operation == "uninstall" ? "Desinstalar" : "Continuar")) return false;
+            return !ReadBool(result.Response, "braveRunning") || await CloseBraveAsync();
+        }
+
+        /// <summary>Brave limpio exige Brave cerrado: se pide confirmación antes de cerrarlo (incluidos procesos en segundo plano).</summary>
+        private async Task<bool> CloseBraveAsync()
+        {
+            if (!_dialogs.Confirm("Cerrar Brave",
+                    "Brave está abierto. Para aplicar o deshacer Brave limpio hay que cerrarlo, incluidos sus procesos en segundo plano." + Environment.NewLine + Environment.NewLine +
+                    "Se cerrarán sus ventanas; si no se cierran en unos segundos, se fuerza el cierre. Las pestañas que tengan sesión guardada se recuperan al abrirlo de nuevo.",
+                    "Cerrar Brave y continuar"))
+            {
+                Message = "Brave limpio cancelado: Brave sigue abierto.";
+                return false;
+            }
+            var closed = await _engine.RunAsync("brave.close", new Dictionary<string, object>(), null, TimeSpan.FromMinutes(1), CancellationToken.None);
+            if (!closed.Ok || !ReadBool(closed.Response, "closed"))
+            {
+                Message = "No se pudo cerrar Brave. Ciérralo a mano y vuelve a intentarlo.";
+                return false;
+            }
+            return true;
         }
 
         private async Task ResumeAsync()

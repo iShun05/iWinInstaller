@@ -12,6 +12,11 @@
 ### Archivos y pruebas
 - Interfaz: `src/app/Modules/Rendimiento/` (almacén, acciones, perfil, mediciones, térmico y página). MSTest `tests/unit/app/PerformanceTests.cs`.
 - Sin verificar en un Windows real: los sensores y contadores dependen del equipo; la captura de frametimes necesita PresentMon.
+- **Entorno de desarrollo** (`src/engine/18-DevEnv.ps1`, `-DevEnv`): plantillas Node, Python y Java con versión fijada (comprueba que la instalada coincide), pasos de configuración de lista cerrada (Corepack, pip, `JAVA_HOME`) y comandos `devenv.list|status|configure` para la interfaz.
+- **Sincronizar la configuración entre PC** (`src/engine/19-Sync.ps1`, `-Sync`): `connect`, `push`, `pull`, `disconnect` y `status` sobre un repo privado de GitHub del usuario, con su propio `git` y credenciales; solo acepta `https://github.com/…`, rechaza repos públicos y nunca sube datos personales. Complementa Exportar/Importar.
+- **Salud del catálogo** (`.github/workflows/catalog-health.yml`, `scripts/catalog_health.py`): cada lunes detecta huellas de WinGet desfasadas (comparando el SHA-256 real del instalador con el manifiesto) y URLs muertas del catálogo; falla solo con errores y lista los avisos.
+- Pruebas: Pester `DevEnv.Tests.ps1` y `Sync.Tests.ps1`; `tests/catalog/` (Python, sin red).
+- Sin verificar en un Windows real: el motor se probó con PowerShell 7 en Linux (funciones con simulaciones); falta una prueba de instalación real. La interfaz (botones) aún no está.
 
 ## v5.5 — 2026-11-18
 
