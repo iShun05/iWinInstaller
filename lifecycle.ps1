@@ -691,7 +691,16 @@ function Get-IwinCodeText($code) {
     if ($value -ge 65536) { return ('0x{0:X8}' -f $value) }
     return [string]$code
 }
+# Códigos de WinGet y HTTP: 0x8A150011 (la huella no coincide) y 0x801901xx (el servidor respondió con el estado HTTP xx).
+function Test-IwinHttpStatusCode($code, [int]$from, [int]$to) {
+    $status = [long]$code + 2145845248
+    $status -ge $from -and $status -le $to
+}
+function Test-IwinServerErrorCode($code) { Test-IwinHttpStatusCode $code 500 599 }
+function Test-IwinStaleDownloadCode($code) { [long]$code -eq -1978335215 -or (Test-IwinHttpStatusCode $code 400 499) }
 function Get-IwinCodeHint($code) {
+    if (Test-IwinServerErrorCode $code) { return @('El servidor de descarga del fabricante falló (error HTTP 5xx).', 'Es un fallo del lado del fabricante: reintenta en unos minutos.') }
+    if (Test-IwinHttpStatusCode $code 400 499) { return @('El instalador que lista WinGet ya no está en la web del fabricante.', 'WinGet va por detrás del fabricante. Reintenta más tarde o instala desde su web.') }
     # Códigos documentados de WinGet (0x8A15…), HRESULT de Windows y de Windows Installer (MSI).
     switch ([long]$code) {
         -2147024891 { return @('Acceso denegado al instalar.', 'Cierra la app si está abierta. Si usas el «Acceso controlado a carpetas» de Seguridad de Windows u otro antivirus, permite el instalador o desactívalo un momento y reintenta.') }
@@ -747,7 +756,7 @@ function Get-IwinAppLogSegment([string[]]$lines, [string]$name) {
     for ($i = $start + 1; $i -lt $messages.Count; $i++) {
         $m = $messages[$i]
         if ($m -match '^(Instalando .+\.\.\.|Ya instalada, se omite: |Terminado con fallos|Todo instalado|Escritorio organizado|Lote del sistema|Instalando \d+ elementos)') { break }
-        if ($m -match '^\s*(FALLÓ|OK): ') { continue }
+        if ($m -match '^\s*(FALLÓ|OK|MANUAL): ') { continue }
         $segment += $m.Trim()
     }
     return $segment
@@ -772,6 +781,12 @@ function Get-IwinFailureInfo($app, $result, [string[]]$lines) {
     $hint = Get-IwinCodeHint $code
     $reason = $null; $advice = $null
     if ($hint) { $reason = $hint[0]; $advice = $hint[1] }
+    # Descarga caducada o huella desfasada y sin alternativa automática: es un paso manual (web del fabricante), no un fallo del equipo.
+    if ($kind -eq 'fallo' -and $app.page -and (Test-IwinStaleDownloadCode $code)) {
+        $kind = 'manual'
+        $reason = 'El instalador que lista WinGet ya no coincide con el del fabricante.'
+        $advice = 'Abre la web del proveedor, descarga la versión actual y pulsa Verificar.'
+    }
     $keyLines = @(Select-IwinKeyLines $segment)
     if (-not $reason) {
         switch ($kind) {
@@ -788,7 +803,7 @@ function Get-IwinFailureInfo($app, $result, [string[]]$lines) {
         elseif ($joined -match 'Permiso de administrador denegado|aceptar el permiso') { $advice = 'Reintenta y acepta la ventana de permiso de administrador.' }
         elseif ($joined -match 'No se confirm') { $advice = 'Pulsa Verificar: si aparece instalada, ya está. Si no, reintenta.' }
         elseif ($joined -match 'Sin respuesta tras') { $advice = 'El instalador se quedó esperando. Reintenta y completa la ventana que aparezca.' }
-        elseif ($joined -match '(?i)cierra .+ antes|está abiert') { $advice = 'Cierra la aplicación y reintenta.' }
+        elseif ($joined -match '(?im)cierra .+ antes|^cierra |está abiert') { $advice = 'Cierra la aplicación (también sus procesos en segundo plano) y pulsa Reintentar fallidas.' }
         else { $advice = 'Reintenta. Si vuelve a fallar, copia este informe y compártelo.' }
     }
     [pscustomobject]@{ id = [string]$app.id; name = [string]$app.name; kind = $kind; code = $code; codeText = (Get-IwinCodeText $code); reason = [string]$reason; hint = [string]$advice; details = @($keyLines) }

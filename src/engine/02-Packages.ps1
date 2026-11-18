@@ -162,6 +162,51 @@ function Install-Chrome($app) {
         Remove-Item $msi -Force -ErrorAction SilentlyContinue
     }
 }
+# Alternativa del catálogo cuando el instalador de WinGet ya no vale (entrada «fallback» de apps.json):
+#  - {"winget": "Otro.Id"}: otro paquete de WinGet con huella vigente.
+#  - {"url", "signer", "fileName"}: ejecutable portátil de la web oficial; solo se acepta con firma Authenticode válida
+#    del fabricante esperado (nunca una descarga sin firmar). Se guarda en %LOCALAPPDATA%\Programs\iWinInstaller\tools
+#    y se crea su acceso en el menú Inicio.
+function Install-IwinFallback($app) {
+    $fb = $app.fallback
+    try {
+        if ($fb.winget) {
+            Write-Log "  Se prueba la alternativa del catálogo: $($fb.winget)."
+            $alt = @('install', '-e', '--id', [string]$fb.winget, '--source', 'winget', '--silent', '--disable-interactivity', '--accept-package-agreements', '--accept-source-agreements')
+            $code = Invoke-Winget $alt ($app.id + '-alternativa') 900
+            if ($code -notin $wingetOk) { return $false }
+            Update-LocalInventory
+            return [bool](Test-LocalApp $app)
+        }
+        if (-not $fb.url -or -not $fb.signer -or -not $fb.fileName) { return $false }
+        if ([string]$fb.fileName -notmatch '^[A-Za-z0-9._-]+\.exe$') { return $false }
+        Write-Log "  Se descarga $($fb.fileName) desde la web oficial y se comprueba su firma."
+        $tmp = Join-Path $env:TEMP ('iwin-fb-' + [guid]::NewGuid().ToString('N') + '.exe')
+        try {
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+            Invoke-WebRequest ([string]$fb.url) -OutFile $tmp -UseBasicParsing -TimeoutSec 120
+            $bytes = [IO.File]::ReadAllBytes($tmp)
+            if ($bytes.Length -lt 100KB -or $bytes[0] -ne 0x4D -or $bytes[1] -ne 0x5A) { throw 'la descarga no es un ejecutable de Windows' }
+            $signature = Get-AuthenticodeSignature $tmp
+            if ($signature.Status -ne 'Valid') { throw 'no tiene una firma digital válida' }
+            if ($signature.SignerCertificate.Subject -notmatch [string]$fb.signer) { throw "la firma no es del fabricante esperado ($($signature.SignerCertificate.Subject))" }
+            $dir = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'Programs\iWinInstaller\tools'
+            New-Item $dir -ItemType Directory -Force | Out-Null
+            $target = Join-Path $dir ([string]$fb.fileName)
+            Move-Item -LiteralPath $tmp -Destination $target -Force
+            $programs = [Environment]::GetFolderPath('Programs')
+            if ($programs) {
+                $link = (New-Object -ComObject WScript.Shell).CreateShortcut((Join-Path $programs ($app.name + '.lnk')))
+                $link.TargetPath = $target; $link.WorkingDirectory = $dir; $link.Save()
+            }
+            Write-Log "  Firma de $($signature.SignerCertificate.Subject.Split(',')[0]) comprobada; instalado en $dir."
+            return $true
+        } finally { Remove-Item $tmp -Force -ErrorAction SilentlyContinue }
+    } catch {
+        Write-Log "  La alternativa del catálogo no funcionó: $($_.Exception.Message)"
+        return $false
+    }
+}
 function Install-WingetPackage($app, [string]$id) {
     if ($id -eq 'Google.Chrome') { return (Install-Chrome $app) }
     $source = if ($app.source) { $app.source } else { 'winget' }
@@ -179,6 +224,25 @@ function Install-WingetPackage($app, [string]$id) {
         Write-Log '  Fallo de conexión al descargar: se reintenta una vez en 15 s.'
         for ($wait = 0; $wait -lt 75 -and -not (Test-IwinStop); $wait++) { Invoke-UiPump; Start-Sleep -Milliseconds 200 }
         if (-not (Test-IwinStop)) { $code = Invoke-Winget $arguments ($app.id + '-reintento') $timeout }
+    }
+    # Fallo del servidor del fabricante (HTTP 5xx): suele ser momentáneo, un reintento tras una pausa breve
+    if (Test-IwinServerErrorCode $code) {
+        Write-Log '  El servidor del fabricante respondió con error: se reintenta una vez en 15 s.'
+        for ($wait = 0; $wait -lt 75 -and -not (Test-IwinStop); $wait++) { Invoke-UiPump; Start-Sleep -Milliseconds 200 }
+        if (-not (Test-IwinStop)) { $code = Invoke-Winget $arguments ($app.id + '-reintento') $timeout }
+    }
+    # La huella no coincide o el archivo ya no está (HTTP 404): el catálogo de WinGet va por detrás del fabricante.
+    # Se refresca el catálogo una vez por sesión y, si sigue igual, se usa la alternativa del catálogo (si la hay).
+    if ($operation -eq 'install' -and $code -notin $wingetOk -and (Test-IwinStaleDownloadCode $code) -and -not (Test-IwinStop)) {
+        if (-not $script:WingetSourceRefreshed) {
+            $script:WingetSourceRefreshed = $true
+            Write-Log '  El instalador del fabricante cambió: se actualiza el catálogo de WinGet y se reintenta.'
+            [void](Invoke-Winget @('source', 'update', '--name', 'winget', '--disable-interactivity') 'source-update' 180)
+        }
+        $code = Invoke-Winget $arguments ($app.id + '-reintento') $timeout
+        if ($code -notin $wingetOk -and (Test-IwinStaleDownloadCode $code) -and $app.fallback) {
+            if (Install-IwinFallback $app) { return $true }
+        }
     }
     $usedMsix = $false
     # 0x80070005: el MSI no pudo escribir (antivirus, carpeta protegida o proceso abierto).

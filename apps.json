@@ -2648,6 +2648,12 @@
     "type": "winget",
     "winget": "JernejSimoncic.Wget",
     "context": "user",
+    "commands": [
+      "wget2"
+    ],
+    "fallback": {
+      "winget": "GNU.Wget2"
+    },
     "extra": true
   },
   {
@@ -4468,6 +4474,7 @@
     "icon": "mh-nexus.de",
     "type": "winget",
     "winget": "MHNexus.HxD",
+    "page": "https://mh-nexus.de/en/hxd/",
     "context": "machine",
     "extra": true,
     "subgroup": "Editores hexadecimales",
@@ -5449,6 +5456,7 @@
     "icon": "hwinfo.com",
     "type": "winget",
     "winget": "REALiX.HWiNFO",
+    "page": "https://www.hwinfo.com/download/",
     "scope": "machine",
     "context": "machine",
     "subgroup": "Sensores y temperatura",
@@ -5630,6 +5638,14 @@
     "commands": [
       "procexp"
     ],
+    "detectPaths": [
+      "%LOCALAPPDATA%\\Programs\\iWinInstaller\\tools\\procexp64.exe"
+    ],
+    "fallback": {
+      "url": "https://live.sysinternals.com/procexp64.exe",
+      "signer": "Microsoft Corporation",
+      "fileName": "procexp64.exe"
+    },
     "subgroup": "Procesos",
     "compare": "Administrador de tareas avanzado.",
     "subgroupNote": "Se complementan: Process Explorer para ver qué corre; Process Monitor para ver qué toca cada proceso."

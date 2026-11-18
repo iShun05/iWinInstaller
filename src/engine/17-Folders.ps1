@@ -18,7 +18,9 @@ function Get-IwinFoldersPath { Join-Path $LogDir 'carpetas.json' }
 
 # Estado guardado: preferencias y lo que se movió o copió. Si el archivo está dañado no se toca (se avisa).
 function Read-IwinFoldersState {
-    $state = @{ auto = $false; startMenu = $true; desktop = $true; moves = @(); copies = @() }
+    # Sin registro previo el orden automático viene activo (v5.5): era lo pedido y antes nunca llegaba a ejecutarse.
+    # Sigue siendo reversible y se apaga en Mantenimiento; con registro, manda lo que el usuario guardó.
+    $state = @{ auto = $true; startMenu = $true; desktop = $true; moves = @(); copies = @() }
     $path = Get-IwinFoldersPath
     if (-not (Test-Path -LiteralPath $path)) { return $state }
     try { $data = Get-Content -LiteralPath $path -Raw -Encoding UTF8 | ConvertFrom-Json -ErrorAction Stop }

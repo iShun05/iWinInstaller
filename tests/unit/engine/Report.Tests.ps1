@@ -40,3 +40,37 @@ Describe 'Motivo del informe' {
         $lines | Should -Contain '0x80072efd : unknown error'
     }
 }
+
+Describe 'Descargas caducadas del fabricante (v5.5)' {
+    It 'reconoce la huella desfasada y los errores HTTP 4xx como descarga caducada' {
+        Test-IwinStaleDownloadCode -1978335215 | Should -BeTrue
+        Test-IwinStaleDownloadCode -2145844844 | Should -BeTrue   # 0x80190194, HTTP 404 (HWiNFO)
+        Test-IwinStaleDownloadCode -2145844746 | Should -BeFalse  # 0x801901F6, HTTP 502: es del servidor, no caducada
+        Test-IwinStaleDownloadCode 0 | Should -BeFalse
+    }
+
+    It 'trata el HTTP 5xx como fallo del servidor y se puede reintentar' {
+        Test-IwinServerErrorCode -2145844746 | Should -BeTrue    # HxD, 502
+        Test-IwinServerErrorCode -2147012867 | Should -BeFalse
+        (Get-IwinCodeHint -2145844746)[0] | Should -Match 'servidor'
+        (Get-IwinCodeHint -2145844844)[0] | Should -Match 'ya no está'
+    }
+
+    It 'una app con web propia y descarga caducada pasa a acción manual, no a fallo' {
+        $app = [pscustomobject]@{ id = 'hwinfo'; name = 'HWiNFO'; type = 'winget'; page = 'https://www.hwinfo.com/download/' }
+        $info = Get-IwinFailureInfo $app ([pscustomobject]@{ code = -2145844844; ok = $false; stopped = $false }) @('12:00:00  Instalando HWiNFO...')
+        $info.kind | Should -Be 'manual'
+        $info.hint | Should -Match 'web del proveedor'
+    }
+
+    It 'sin web propia sigue siendo un fallo' {
+        $app = [pscustomobject]@{ id = 'x'; name = 'X'; type = 'winget' }
+        (Get-IwinFailureInfo $app ([pscustomobject]@{ code = -1978335215; ok = $false; stopped = $false }) @('12:00:00  Instalando X...')).kind | Should -Be 'fallo'
+    }
+
+    It 'pide cerrar Brave en el informe de Brave limpio' {
+        $app = [pscustomobject]@{ id = 'braveclean'; name = 'Brave limpio'; type = 'tweak' }
+        $lines = @('12:00:00  Instalando Brave limpio...', '12:00:00    Cierra Brave (incluidos sus procesos en segundo plano) y vuelve a aplicar.', '12:00:00    FALLÓ: Brave limpio')
+        (Get-IwinFailureInfo $app ([pscustomobject]@{ code = 0; ok = $false; stopped = $false }) $lines).hint | Should -Match 'Cierra la aplicación'
+    }
+}

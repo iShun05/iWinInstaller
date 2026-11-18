@@ -113,6 +113,13 @@ function Organize-Desktop([string]$destinationFolder = (Join-Path ([Environment]
                 $folder = $destinationFolder
                 New-Item $folder -ItemType Directory -Force -ErrorAction Stop | Out-Null
                 $destination = Join-Path $folder $file.Name
+                # Un instalador que recrea su acceso en el escritorio (Brave, Chrome…) no debe dejar «Brave (1).lnk»:
+                # si ya hay uno con el mismo destino se retira el duplicado.
+                if ($file.Extension -eq '.lnk' -and (Test-Path -LiteralPath $destination)) {
+                    $same = $false
+                    try { $same = ($shell.CreateShortcut($destination).TargetPath -eq $target) } catch { }
+                    if ($same) { Remove-Item -LiteralPath $file.FullName -Force -ErrorAction Stop; $moved++; continue }
+                }
                 $suffix = 1
                 while (Test-Path -LiteralPath $destination) {
                     $destination = Join-Path $folder ($file.BaseName + " ($suffix)" + $file.Extension)

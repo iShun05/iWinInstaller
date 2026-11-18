@@ -72,7 +72,8 @@ function Invoke-Install($sel, [scriptblock]$onProgress) {
                 if (-not $ok) { Write-Log '  No se confirmó la instalación: sigue pendiente.' }
             }
         } catch { Write-Log "  Error: $($_.Exception.Message)"; $ok = $false }
-        if ($ok) { Write-Log "  OK: $($app.name)" } else { Write-Log "  FALLÓ: $($app.name)"; $fail += $app }
+        # Una app que se instala desde la web del fabricante no «falla»: queda a la espera de un paso manual (el informe la separa)
+        if ($ok) { Write-Log "  OK: $($app.name)" } elseif ($app.type -eq 'manual') { Write-Log "  MANUAL: $($app.name)"; $fail += $app } else { Write-Log "  FALLÓ: $($app.name)"; $fail += $app }
         Complete-IwinItem $app $ok $onProgress
     }
     Organize-Desktop
