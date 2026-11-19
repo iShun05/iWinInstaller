@@ -11,10 +11,10 @@
         <DockPanel LastChildFill="True">
           <!-- Cabecera: icono del área, título y pastilla de estado -->
           <DockPanel DockPanel.Dock="Top" LastChildFill="True" Margin="0,0,0,14">
-            <Border x:Name="pill" DockPanel.Dock="Right" Style="{StaticResource Pill}" Margin="8,0,0,0">
+            <Border x:Name="pill" DockPanel.Dock="Right" Style="{StaticResource Pill}" Margin="8,0,0,0" ToolTip="{Binding StateLabel}" Background="Transparent">
               <StackPanel Orientation="Horizontal">
-                <Ellipse x:Name="dot" Style="{StaticResource StatusDot}" Width="6" Height="6" Margin="0,0,6,0"/>
-                <TextBlock x:Name="state" Style="{StaticResource PillText}" Text="{Binding StateLabel}"/>
+                <TextBlock x:Name="dot" Style="{StaticResource StatusGlyph}"/>
+                <TextBlock x:Name="state" Style="{StaticResource PillText}" Text="{Binding StateLabel}" Visibility="Collapsed"/>
               </StackPanel>
             </Border>
             <Border x:Name="iconBox" Style="{StaticResource IconTile}" Background="{StaticResource SurfaceRaised}" Margin="0,0,10,0">
@@ -36,14 +36,14 @@
       </Border>
       <DataTemplate.Triggers>
         <DataTrigger Binding="{Binding State}" Value="Ok">
-          <Setter TargetName="pill" Property="Background" Value="{StaticResource OkSoft}"/>
-          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Ok}"/>
-          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Ok}"/>
+          
+          <Setter TargetName="dot" Property="Foreground" Value="{StaticResource Ok}"/><Setter TargetName="dot" Property="Text" Value="&#xE930;"/>
+          
         </DataTrigger>
         <DataTrigger Binding="{Binding State}" Value="Attention">
-          <Setter TargetName="pill" Property="Background" Value="{StaticResource AttentionSoft}"/>
-          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Attention}"/>
-          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Attention}"/>
+          
+          <Setter TargetName="dot" Property="Foreground" Value="{StaticResource Attention}"/><Setter TargetName="dot" Property="Text" Value="&#xE7BA;"/>
+          
           <Setter TargetName="card" Property="BorderBrush" Value="{StaticResource AttentionBorder}"/>
           <Setter TargetName="iconBox" Property="Background" Value="{StaticResource AttentionSoft}"/>
           <Setter TargetName="icon" Property="Foreground" Value="{StaticResource Attention}"/>

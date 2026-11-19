@@ -178,17 +178,34 @@
     <Setter Property="VerticalAlignment" Value="Center"/>
   </Style>
   <!-- Pastilla de estado (pon Background y el color del texto con los tokens *Soft / estado) -->
+  <!-- Estado: icono de línea coloreado + texto discreto, sin cápsula de color -->
   <Style x:Key="Pill" TargetType="Border">
-    <Setter Property="CornerRadius" Value="{StaticResource RadiusPill}"/>
-    <Setter Property="Padding" Value="9,2,10,3"/>
-    <Setter Property="Background" Value="{StaticResource UnknownSoft}"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <!-- Etiqueta neutra (Terminal, lanzador, tipo): contorno fino, sin color -->
+  <Style x:Key="Tag" TargetType="Border">
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusSmall}"/>
+    <Setter Property="Padding" Value="6,1,6,2"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderStrong}"/>
+    <Setter Property="BorderThickness" Value="1"/>
     <Setter Property="VerticalAlignment" Value="Center"/>
   </Style>
   <Style x:Key="PillText" TargetType="TextBlock">
-    <Setter Property="FontSize" Value="11.5"/>
-    <Setter Property="FontWeight" Value="SemiBold"/>
-    <Setter Property="Foreground" Value="{StaticResource Unknown}"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
     <Setter Property="TextWrapping" Value="NoWrap"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+  </Style>
+  <Style x:Key="StatusGlyph" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource IconFont}"/>
+    <Setter Property="FontSize" Value="13"/>
+    <Setter Property="Text" Value="&#xEA3A;"/>
+    <Setter Property="Foreground" Value="{StaticResource TextFaint}"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="Margin" Value="0,1,6,0"/>
   </Style>
   <Style x:Key="StatusDot" TargetType="Ellipse">
     <Setter Property="Width" Value="8"/>

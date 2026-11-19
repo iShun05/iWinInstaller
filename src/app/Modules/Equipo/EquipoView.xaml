@@ -11,7 +11,7 @@
         <DockPanel LastChildFill="True">
           <Border x:Name="pill" DockPanel.Dock="Right" Style="{StaticResource Pill}" VerticalAlignment="Top" Margin="12,0,0,0">
             <StackPanel Orientation="Horizontal">
-              <Ellipse x:Name="dot" Style="{StaticResource StatusDot}" Width="6" Height="6" Margin="0,0,6,0"/>
+              <TextBlock x:Name="dot" Style="{StaticResource StatusGlyph}"/>
               <TextBlock x:Name="state" Style="{StaticResource PillText}" Text="{Binding StateLabel}"/>
             </StackPanel>
           </Border>
@@ -29,14 +29,14 @@
       </Border>
       <DataTemplate.Triggers>
         <DataTrigger Binding="{Binding State}" Value="Ok">
-          <Setter TargetName="pill" Property="Background" Value="{StaticResource OkSoft}"/>
-          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Ok}"/>
-          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Ok}"/>
+          
+          <Setter TargetName="dot" Property="Foreground" Value="{StaticResource Ok}"/><Setter TargetName="dot" Property="Text" Value="&#xE930;"/>
+          
         </DataTrigger>
         <DataTrigger Binding="{Binding State}" Value="Attention">
-          <Setter TargetName="pill" Property="Background" Value="{StaticResource AttentionSoft}"/>
-          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Attention}"/>
-          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Attention}"/>
+          
+          <Setter TargetName="dot" Property="Foreground" Value="{StaticResource Attention}"/><Setter TargetName="dot" Property="Text" Value="&#xE7BA;"/>
+          
         </DataTrigger>
       </DataTemplate.Triggers>
     </DataTemplate>

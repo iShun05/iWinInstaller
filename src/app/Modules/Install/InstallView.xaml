@@ -95,9 +95,9 @@
                        Visibility="{Binding ProgressText, Converter={x:Static core:TextToVisibility.Instance}}"/>
             <!-- Leyenda de los puntos de estado -->
             <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-              <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Ok}" Margin="0,0,6,0"/><TextBlock Text="Instalada" Style="{StaticResource Caption}" Margin="0,0,14,0" TextWrapping="NoWrap"/>
-              <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Attention}" Margin="0,0,6,0"/><TextBlock Text="Sin configurar" Style="{StaticResource Caption}" Margin="0,0,14,0" TextWrapping="NoWrap"/>
-              <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Unknown}" Margin="0,0,6,0"/><TextBlock Text="No instalada" Style="{StaticResource Caption}" TextWrapping="NoWrap"/>
+              <TextBlock Style="{StaticResource StatusGlyph}" Foreground="{StaticResource Ok}" Text="&#xE930;"/><TextBlock Text="Instalada" Style="{StaticResource Caption}" Margin="0,0,14,0" TextWrapping="NoWrap"/>
+              <TextBlock Style="{StaticResource StatusGlyph}" Foreground="{StaticResource Attention}" Text="&#xE7BA;"/><TextBlock Text="Sin configurar" Style="{StaticResource Caption}" Margin="0,0,14,0" TextWrapping="NoWrap"/>
+              <TextBlock Style="{StaticResource StatusGlyph}" Foreground="{StaticResource Unknown}" Text="&#xEA3A;"/><TextBlock Text="No instalada" Style="{StaticResource Caption}" TextWrapping="NoWrap"/>
             </StackPanel>
           </StackPanel>
           <Button DockPanel.Dock="Right" Style="{StaticResource Primary}" core:Ui.Icon="&#xE896;" Content="Instalar" MinWidth="148" Command="{Binding InstallCommand}"/>
@@ -176,13 +176,13 @@
                 <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,12,0">
                   <WrapPanel>
                     <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <Border x:Name="state" Style="{StaticResource Pill}" Padding="7,1,9,2" Margin="0,0,6,0" ToolTip="{Binding StateText}" AutomationProperties.Name="{Binding StateText}">
+                    <Border x:Name="state" Style="{StaticResource Pill}" Margin="0,0,10,0" ToolTip="{Binding StateText}" AutomationProperties.Name="{Binding StateText}">
                       <StackPanel Orientation="Horizontal">
-                        <Ellipse x:Name="dot" Style="{StaticResource StatusDot}" Width="6" Height="6" Margin="0,0,6,0"/>
+                        <TextBlock x:Name="dot" Style="{StaticResource StatusGlyph}"/>
                         <TextBlock x:Name="stateText" Text="{Binding StateText}" Style="{StaticResource PillText}" FontSize="11"/>
                       </StackPanel>
                     </Border>
-                    <Border Style="{StaticResource Pill}" Padding="7,1,8,2" Background="{StaticResource SurfaceRaised}" Visibility="{Binding IsCli, Converter={StaticResource Visible}}">
+                    <Border Style="{StaticResource Tag}" Visibility="{Binding IsCli, Converter={StaticResource Visible}}">
                       <TextBlock Text="&gt;_ Terminal" FontFamily="{StaticResource MonoFont}" FontSize="10.5" Foreground="{StaticResource TextMuted}"/>
                     </Border>
                   </WrapPanel>
@@ -205,12 +205,12 @@
               <DataTemplate.Triggers>
                 <DataTrigger Binding="{Binding HasGlyph}" Value="True"><Setter TargetName="gly" Property="Visibility" Value="Visible"/><Setter TargetName="ini" Property="Visibility" Value="Collapsed"/></DataTrigger>
                 <DataTrigger Binding="{Binding HasImage}" Value="True"><Setter TargetName="pic" Property="Visibility" Value="Visible"/><Setter TargetName="ini" Property="Visibility" Value="Collapsed"/><Setter TargetName="gly" Property="Visibility" Value="Collapsed"/></DataTrigger>
-                <DataTrigger Binding="{Binding StateKind}" Value="ok"><Setter TargetName="state" Property="Background" Value="{StaticResource OkSoft}"/><Setter TargetName="dot" Property="Fill" Value="{StaticResource Ok}"/><Setter TargetName="stateText" Property="Foreground" Value="{StaticResource Ok}"/></DataTrigger>
-                <DataTrigger Binding="{Binding StateKind}" Value="pending"><Setter TargetName="state" Property="Background" Value="{StaticResource AttentionSoft}"/><Setter TargetName="dot" Property="Fill" Value="{StaticResource Attention}"/><Setter TargetName="stateText" Property="Foreground" Value="{StaticResource Attention}"/></DataTrigger>
-                <DataTrigger Binding="{Binding StateKind}" Value="missing"><Setter TargetName="dot" Property="Fill" Value="{StaticResource TextFaint}"/><Setter TargetName="stateText" Property="Foreground" Value="{StaticResource TextMuted}"/></DataTrigger>
-                <DataTrigger Binding="{Binding StatusKind}" Value="ok"><Setter TargetName="badge" Property="Background" Value="{StaticResource OkSoft}"/><Setter TargetName="badgeText" Property="Foreground" Value="{StaticResource Ok}"/></DataTrigger>
-                <DataTrigger Binding="{Binding StatusKind}" Value="bad"><Setter TargetName="badge" Property="Background" Value="{StaticResource DangerSoft}"/><Setter TargetName="badgeText" Property="Foreground" Value="{StaticResource Danger}"/></DataTrigger>
-                <DataTrigger Binding="{Binding StatusKind}" Value="busy"><Setter TargetName="badge" Property="Background" Value="{StaticResource AccentSoft}"/><Setter TargetName="badgeText" Property="Foreground" Value="{StaticResource Accent}"/></DataTrigger>
+                <DataTrigger Binding="{Binding StateKind}" Value="ok"><Setter TargetName="dot" Property="Foreground" Value="{StaticResource Ok}"/><Setter TargetName="dot" Property="Text" Value="&#xE930;"/></DataTrigger>
+                <DataTrigger Binding="{Binding StateKind}" Value="pending"><Setter TargetName="dot" Property="Foreground" Value="{StaticResource Attention}"/><Setter TargetName="dot" Property="Text" Value="&#xE7BA;"/></DataTrigger>
+                <DataTrigger Binding="{Binding StateKind}" Value="missing"><Setter TargetName="dot" Property="Foreground" Value="{StaticResource TextFaint}"/><Setter TargetName="dot" Property="Text" Value="&#xEA3A;"/></DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="ok"><Setter TargetName="badgeText" Property="Foreground" Value="{StaticResource Ok}"/></DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="bad"><Setter TargetName="badgeText" Property="Foreground" Value="{StaticResource Danger}"/></DataTrigger>
+                <DataTrigger Binding="{Binding StatusKind}" Value="busy"><Setter TargetName="badgeText" Property="Foreground" Value="{StaticResource Accent}"/></DataTrigger>
               </DataTemplate.Triggers>
             </DataTemplate>
           </ListBox.ItemTemplate>
@@ -303,7 +303,7 @@
                     <StackPanel>
                       <WrapPanel>
                         <TextBlock Text="{Binding Name}" Style="{StaticResource CardTitle}" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                        <Border Style="{StaticResource Pill}" Background="{StaticResource AttentionSoft}">
+                        <Border Style="{StaticResource Tag}" BorderBrush="{StaticResource AttentionBorder}">
                           <TextBlock Text="{Binding KindText}" Style="{StaticResource PillText}" Foreground="{StaticResource Attention}"/>
                         </Border>
                       </WrapPanel>

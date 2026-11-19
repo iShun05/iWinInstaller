@@ -50,7 +50,7 @@
                         </Style>
                       </Button.Style>
                     </Button>
-                    <Border DockPanel.Dock="Right" Style="{StaticResource Pill}" Background="{StaticResource AccentSoft}" Margin="12,0"
+                    <Border DockPanel.Dock="Right" Style="{StaticResource Pill}" Margin="12,0"
                             Visibility="{Binding HasStatus, Converter={StaticResource Visible}}">
                       <TextBlock Style="{StaticResource PillText}" Text="{Binding Status}" Foreground="{StaticResource Accent}"/>
                     </Border>

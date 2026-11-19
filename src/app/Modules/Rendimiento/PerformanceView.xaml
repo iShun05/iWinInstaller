@@ -10,9 +10,9 @@
       <Border x:Name="row" Style="{StaticResource ListRow}" AutomationProperties.Name="{Binding Title}" AutomationProperties.HelpText="{Binding StateLabel}">
         <DockPanel LastChildFill="True">
           <StackPanel DockPanel.Dock="Right" Margin="16,0,0,0" MinWidth="120">
-            <Border x:Name="pill" Style="{StaticResource Pill}" Background="{StaticResource UnknownSoft}" HorizontalAlignment="Right">
+            <Border x:Name="pill" Style="{StaticResource Pill}" HorizontalAlignment="Right">
               <StackPanel Orientation="Horizontal">
-                <Ellipse x:Name="dot" Style="{StaticResource StatusDot}" Margin="0,0,6,0"/>
+                <TextBlock x:Name="dot" Style="{StaticResource StatusGlyph}"/>
                 <TextBlock x:Name="state" Style="{StaticResource PillText}" Text="{Binding StateLabel}"/>
               </StackPanel>
             </Border>
@@ -35,9 +35,9 @@
       </Border>
       <DataTemplate.Triggers>
         <DataTrigger Binding="{Binding IsApplied}" Value="True">
-          <Setter TargetName="pill" Property="Background" Value="{StaticResource OkSoft}"/>
-          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Ok}"/>
-          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Ok}"/>
+          
+          <Setter TargetName="dot" Property="Foreground" Value="{StaticResource Ok}"/><Setter TargetName="dot" Property="Text" Value="&#xE930;"/>
+          
         </DataTrigger>
       </DataTemplate.Triggers>
     </DataTemplate>
