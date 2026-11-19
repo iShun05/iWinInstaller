@@ -43,7 +43,7 @@
   </UserControl.Resources>
   <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
     <StackPanel Margin="{StaticResource PageMargin}" MaxWidth="{StaticResource PageMaxWidth}" HorizontalAlignment="Left">
-      <DockPanel LastChildFill="False" Margin="0,0,0,20">
+      <DockPanel LastChildFill="True" Margin="0,0,0,20">
         <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" VerticalAlignment="Top" Content="Comprobar de nuevo"
                 core:Ui.Icon="&#xE72C;" Command="{Binding RefreshCommand}"/>
         <StackPanel>

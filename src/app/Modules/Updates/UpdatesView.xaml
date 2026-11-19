@@ -8,18 +8,16 @@
   </UserControl.Resources>
   <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False" DataContext="{Binding Updates}">
     <StackPanel Margin="{StaticResource PageMargin}" MaxWidth="{StaticResource PageMaxWidth}" HorizontalAlignment="Left">
-      <DockPanel LastChildFill="False" Margin="0,0,0,20">
+      <DockPanel LastChildFill="True" Margin="0,0,0,6">
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
           <Button Style="{StaticResource Btn}" Content="Comprobar" core:Ui.Icon="&#xE72C;" Command="{Binding RefreshCommand}" Margin="0,0,8,0"/>
           <Button Style="{StaticResource Btn}" Content="Cancelar" core:Ui.Icon="&#xE711;" Command="{Binding CancelCommand}" Visibility="{Binding IsBusy, Converter={StaticResource Visible}}" Margin="0,0,8,0"/>
           <Button Style="{StaticResource Primary}" Content="Actualizar seleccionadas" core:Ui.Icon="&#xE896;" Command="{Binding ApplyCommand}"/>
         </StackPanel>
-        <StackPanel>
-          <TextBlock Style="{StaticResource PageTitle}" Text="Actualizaciones"/>
-          <TextBlock Style="{StaticResource PageSubtitle}"
-                     Text="Marca las que quieras actualizar. «Mantener esta versión» la excluye también de «Actualizar todo» y de la actualización programada."/>
-        </StackPanel>
+        <TextBlock Style="{StaticResource PageTitle}" Text="Actualizaciones"/>
       </DockPanel>
+      <TextBlock Style="{StaticResource PageSubtitle}" Margin="0,0,0,20"
+                 Text="Marca las que quieras actualizar. «Mantener esta versión» la excluye también de «Actualizar todo» y de la actualización programada."/>
       <ContentControl Style="{StaticResource InfoBar}" Content="{Binding Message}"/>
 
       <!-- Aplicaciones con actualización -->
