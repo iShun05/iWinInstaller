@@ -64,7 +64,6 @@
   <Thickness x:Key="CardPadding">20,18</Thickness>
   <sys:Double x:Key="PageMaxWidth">960</sys:Double>
   <sys:Double x:Key="ControlHeight">32</sys:Double>
-  <Duration x:Key="FastDuration">0:0:0.12</Duration>
 
   <DropShadowEffect x:Key="OverlayShadow" Color="{StaticResource ShadowColor}" BlurRadius="24" ShadowDepth="6" Direction="270" Opacity="0.55"/>
   <DropShadowEffect x:Key="CardShadow" Color="{StaticResource ShadowColor}" BlurRadius="14" ShadowDepth="2" Direction="270" Opacity="0.35"/>

@@ -47,6 +47,11 @@ jobs:
             }
             $env:IWIN_CAPTURA = $null
             Write-Host "[$label] código de salida: $($proc.ExitCode)"
+            if ($proc.ExitCode -ne 0) {
+              # Una excepción antes de los controladores de la app solo queda en el registro de eventos
+              Get-WinEvent -FilterHashtable @{ LogName = 'Application'; ProviderName = '.NET Runtime', 'Application Error' } -MaxEvents 4 -ErrorAction SilentlyContinue |
+                ForEach-Object { Write-Host "--- $($_.ProviderName) $($_.TimeCreated)"; Write-Host $_.Message }
+            }
             $log = Join-Path $env:LOCALAPPDATA 'iWinInstaller/interfaz.log'
             if (Test-Path $log) {
               Write-Host "--- interfaz.log ($label)"; Get-Content $log -Tail 80 | Write-Host
