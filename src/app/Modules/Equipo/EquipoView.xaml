@@ -4,19 +4,15 @@
              xmlns:core="clr-namespace:IWinInstaller.App.Core">
   <UserControl.Resources>
     <BooleanToVisibilityConverter x:Key="Visible"/>
-    <Style x:Key="Card" TargetType="Border">
-      <Setter Property="Background" Value="{StaticResource Surface}"/><Setter Property="BorderBrush" Value="{StaticResource Border}"/>
-      <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="14"/><Setter Property="Padding" Value="18,16"/><Setter Property="Margin" Value="0,0,0,16"/>
-    </Style>
     <!-- Una fila del panel de salud con la misma pastilla de estado que el Inicio -->
     <DataTemplate x:Key="HealthRow" DataType="{x:Type core:StatusCard}">
-      <Border x:Name="row" Padding="0,12" BorderBrush="{StaticResource Border}" BorderThickness="0,0,0,1"
+      <Border x:Name="row" Style="{StaticResource ListRow}"
               AutomationProperties.Name="{Binding Title}" AutomationProperties.HelpText="{Binding Summary}">
         <DockPanel LastChildFill="True">
-          <Border x:Name="pill" DockPanel.Dock="Right" CornerRadius="10" Padding="9,2" Background="{StaticResource UnknownSoft}" VerticalAlignment="Top" Margin="12,0,0,0">
+          <Border x:Name="pill" DockPanel.Dock="Right" Style="{StaticResource Pill}" VerticalAlignment="Top" Margin="12,0,0,0">
             <StackPanel Orientation="Horizontal">
-              <Ellipse x:Name="dot" Width="6" Height="6" Fill="{StaticResource Unknown}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-              <TextBlock x:Name="state" Text="{Binding StateLabel}" FontSize="11.5" Foreground="{StaticResource Unknown}" TextWrapping="NoWrap"/>
+              <Ellipse x:Name="dot" Style="{StaticResource StatusDot}" Width="6" Height="6" Margin="0,0,6,0"/>
+              <TextBlock x:Name="state" Style="{StaticResource PillText}" Text="{Binding StateLabel}"/>
             </StackPanel>
           </Border>
           <Button DockPanel.Dock="Right" Style="{StaticResource LinkButton}" Content="Abrir" VerticalAlignment="Top"
@@ -24,9 +20,9 @@
                   CommandParameter="{Binding}" Visibility="{Binding HasAction, Converter={StaticResource Visible}}"
                   AutomationProperties.Name="{Binding Title, StringFormat=Abrir {0}}"/>
           <StackPanel>
-            <TextBlock Text="{Binding Title}" FontSize="12.5" Foreground="{StaticResource TextMuted}"/>
-            <TextBlock Text="{Binding Summary}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" TextWrapping="Wrap" Margin="0,2,0,0"/>
-            <TextBlock Text="{Binding Reason}" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,3,0,0"
+            <TextBlock Style="{StaticResource Caption}" Text="{Binding Title}"/>
+            <TextBlock Style="{StaticResource CardTitle}" FontSize="15" Text="{Binding Summary}" Margin="0,2,0,0"/>
+            <TextBlock Style="{StaticResource Muted}" Text="{Binding Reason}" Margin="0,3,0,0"
                        Visibility="{Binding HasReason, Converter={StaticResource Visible}}"/>
           </StackPanel>
         </DockPanel>
@@ -46,55 +42,78 @@
     </DataTemplate>
   </UserControl.Resources>
   <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
-    <StackPanel Margin="32,28,32,24" MaxWidth="860" HorizontalAlignment="Left">
-      <DockPanel LastChildFill="False">
-        <TextBlock Text="Equipo" FontSize="26" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-        <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" Content="Comprobar de nuevo" Command="{Binding RefreshCommand}"/>
+    <StackPanel Margin="{StaticResource PageMargin}" MaxWidth="{StaticResource PageMaxWidth}" HorizontalAlignment="Left">
+      <DockPanel LastChildFill="True" Margin="0,0,0,20">
+        <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" VerticalAlignment="Top" Content="Comprobar de nuevo"
+                core:Ui.Icon="&#xE72C;" Command="{Binding RefreshCommand}"/>
+        <StackPanel>
+          <TextBlock Style="{StaticResource PageTitle}" Text="Equipo"/>
+          <TextBlock Style="{StaticResource PageSubtitle}"
+                     Text="Lee el hardware y el estado de Windows al entrar o al pulsar Comprobar. No deja nada en marcha en segundo plano."/>
+          <TextBlock Style="{StaticResource Caption}" Text="{Binding LastChecked}" Margin="0,4,0,0"/>
+        </StackPanel>
       </DockPanel>
-      <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextMuted}" Margin="0,6,0,4"
-                 Text="Lee el hardware y el estado de Windows al entrar o al pulsar Comprobar. No deja nada en marcha en segundo plano."/>
-      <TextBlock Text="{Binding LastChecked}" Foreground="{StaticResource TextFaint}" FontSize="12" Margin="0,0,0,16"/>
 
-      <!-- Hardware y preset -->
+      <!-- Hardware -->
       <Border Style="{StaticResource Card}">
         <StackPanel>
-          <DockPanel LastChildFill="False">
-            <TextBlock Text="{Binding Machine}" FontWeight="SemiBold" FontSize="16" Foreground="{StaticResource TextStrong}" VerticalAlignment="Center"/>
-            <TextBlock DockPanel.Dock="Right" Text="{Binding Tier}" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource Accent}" VerticalAlignment="Center"/>
+          <DockPanel LastChildFill="True" Margin="0,0,0,12">
+            <Border Style="{StaticResource IconTile}" Margin="0,0,12,0">
+              <TextBlock Style="{StaticResource Glyph}" Text="&#xE7F4;" Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
+            </Border>
+            <TextBlock DockPanel.Dock="Right" Style="{StaticResource CardTitle}" Text="{Binding Tier}" Foreground="{StaticResource Accent}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+            <TextBlock Style="{StaticResource SectionTitle}" Text="{Binding Machine}" VerticalAlignment="Center"/>
           </DockPanel>
-          <TextBlock Text="{Binding Cpu}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,8,0,0"/>
-          <TextBlock Text="{Binding Ram}" Foreground="{StaticResource Text}" Margin="0,3,0,0"/>
-          <TextBlock Text="{Binding Gpu}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,3,0,0"/>
-          <TextBlock Text="{Binding Display}" Foreground="{StaticResource Text}" Margin="0,3,0,0"/>
+          <Border Style="{StaticResource CardInset}">
+            <StackPanel>
+              <TextBlock Text="{Binding Cpu}"/>
+              <TextBlock Text="{Binding Ram}" Margin="0,4,0,0"/>
+              <TextBlock Text="{Binding Gpu}" Margin="0,4,0,0"/>
+              <TextBlock Text="{Binding Display}" Margin="0,4,0,0"/>
+            </StackPanel>
+          </Border>
         </StackPanel>
       </Border>
 
+      <!-- Preset -->
       <Border Style="{StaticResource Card}">
         <StackPanel>
-          <TextBlock Text="Preset: Dev + Gaming competitivo" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-          <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextMuted}" Margin="0,4,0,10"
-                     Text="Un Windows ágil para programar y jugar en competitivo: base de desarrollo (Git, VS Code, terminal, modo desarrollador), baja latencia (Modo Juego, sin aceleración del ratón, sin grabación en segundo plano, DNS rápido) y lo que pide tu hardware."/>
-          <TextBlock Text="{Binding PlanText}" Foreground="{StaticResource Text}" TextWrapping="Wrap"/>
+          <DockPanel LastChildFill="True" Margin="0,0,0,12">
+            <Border Style="{StaticResource IconTile}" VerticalAlignment="Top" Margin="0,0,12,0">
+              <TextBlock Style="{StaticResource Glyph}" Text="&#xE7FC;" Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Style="{StaticResource CardTitle}" Text="Preset: Dev + Gaming competitivo"/>
+              <TextBlock Style="{StaticResource Muted}" Margin="0,2,0,0"
+                         Text="Un Windows ágil para programar y jugar en competitivo: base de desarrollo (Git, VS Code, terminal, modo desarrollador), baja latencia (Modo Juego, sin aceleración del ratón, sin grabación en segundo plano, DNS rápido) y lo que pide tu hardware."/>
+            </StackPanel>
+          </DockPanel>
+          <TextBlock Text="{Binding PlanText}"/>
           <ItemsControl ItemsSource="{Binding Notes}" Margin="0,10,0,0" Focusable="False">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <TextBlock Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="0,0,0,6" Text="{Binding Text}"/>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,6" Text="{Binding Text}"/>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-          <Button Style="{StaticResource Primary}" Content="Marcar en Instalar" Command="{Binding ApplyPresetCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+          <Button Style="{StaticResource Primary}" Content="Marcar en Instalar" core:Ui.Icon="&#xE73E;" Command="{Binding ApplyPresetCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
         </StackPanel>
       </Border>
 
       <!-- Salud -->
-      <Border Style="{StaticResource Card}">
+      <Border Style="{StaticResource Card}" Padding="20,18,20,8">
         <StackPanel>
-          <TextBlock Text="Salud" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}"/>
-          <ItemsControl ItemsSource="{Binding Cards}" ItemTemplate="{StaticResource HealthRow}" Margin="0,4,0,0" Focusable="False"/>
+          <DockPanel LastChildFill="True" Margin="0,0,0,12">
+            <Border Style="{StaticResource IconTile}" Margin="0,0,12,0">
+              <TextBlock Style="{StaticResource Glyph}" Text="&#xEA18;" Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
+            </Border>
+            <TextBlock Style="{StaticResource CardTitle}" Text="Salud" VerticalAlignment="Center"/>
+          </DockPanel>
+          <ItemsControl ItemsSource="{Binding Cards}" ItemTemplate="{StaticResource HealthRow}" Focusable="False"/>
         </StackPanel>
       </Border>
 
-      <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextFaint}" FontSize="12"
+      <TextBlock Style="{StaticResource Caption}"
                  Text="Las temperaturas salen de las zonas térmicas que Windows publica sin drivers extra; si tu equipo no las expone, usa HWiNFO o Core Temp desde Instalar."/>
     </StackPanel>
   </ScrollViewer>

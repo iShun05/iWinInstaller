@@ -28,6 +28,22 @@ namespace IWinInstaller.App.Shell
         {
             Id = id; Title = title; Description = description; IsClassic = isClassic;
             Glyph = GlyphFor(id);
+            Group = GroupFor(id);
+        }
+
+        /// <summary>Grupo de la barra lateral (v5.7); el primero va sin cabecera.</summary>
+        public string Group { get; private set; }
+
+        private static string GroupFor(string id)
+        {
+            switch (id)
+            {
+                case "system": case "equipo": case "performance": case "maintenance": return "Este PC";
+                case "games": case "gaming": return "Juego";
+                case "remote": case "security": return "Red y seguridad";
+                case "settings": return "App";
+                default: return "";
+            }
         }
 
         /// <summary>Icono monoline de Segoe Fluent Icons para cada sección.</summary>

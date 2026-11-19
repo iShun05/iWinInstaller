@@ -27,56 +27,90 @@
   </Window.InputBindings>
   <Window.Resources>
     <BooleanToVisibilityConverter x:Key="Visible"/>
+    <!-- Secciones agrupadas (v5.7): el orden de los grupos es el de su primera sección -->
+    <CollectionViewSource x:Key="NavGroups" Source="{Binding Items}">
+      <CollectionViewSource.GroupDescriptions>
+        <PropertyGroupDescription PropertyName="Group"/>
+      </CollectionViewSource.GroupDescriptions>
+    </CollectionViewSource>
   </Window.Resources>
   <Grid x:Name="Root">
     <Grid.LayoutTransform>
       <ScaleTransform ScaleX="{Binding Zoom}" ScaleY="{Binding Zoom}"/>
     </Grid.LayoutTransform>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="220"/>
+      <ColumnDefinition Width="236"/>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
     <!-- Navegación lateral -->
-    <Border Background="{StaticResource Sidebar}" BorderBrush="{StaticResource Border}" BorderThickness="0,0,1,0">
-      <DockPanel Margin="14,20,14,16">
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10,0,0,18">
-          <Border Width="28" Height="28" CornerRadius="8" Background="{StaticResource AccentSoft}" Margin="0,0,10,0">
-            <TextBlock Text="&#xE896;" FontFamily="{StaticResource IconFont}" FontSize="14" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Border Background="{StaticResource Sidebar}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="0,0,1,0">
+      <DockPanel Margin="12,18,12,14">
+        <!-- Marca -->
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,0,0,16">
+          <Border Width="30" Height="30" CornerRadius="8" Background="{StaticResource AccentSoft}" BorderBrush="{StaticResource AccentBorder}" BorderThickness="1" Margin="0,0,10,0">
+            <TextBlock Style="{StaticResource Glyph}" Text="&#xE896;" FontSize="14" Foreground="{StaticResource Accent}" HorizontalAlignment="Center"/>
           </Border>
-          <TextBlock Text="iWinInstaller" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" VerticalAlignment="Center"/>
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="iWinInstaller" FontFamily="{StaticResource DisplayFont}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" TextWrapping="NoWrap"/>
+            <TextBlock Text="Centro de control" Style="{StaticResource Caption}" FontSize="11" TextWrapping="NoWrap"/>
+          </StackPanel>
         </StackPanel>
-        <Button DockPanel.Dock="Top" Style="{StaticResource Btn}" Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" HorizontalContentAlignment="Stretch" Padding="12,8" Margin="0,0,0,16"
+        <!-- Búsqueda global -->
+        <Button DockPanel.Dock="Top" Style="{StaticResource Btn}" Background="{StaticResource SurfaceInput}" BorderBrush="{StaticResource Border}" HorizontalContentAlignment="Stretch" Padding="10,0" Margin="0,0,0,14"
+                core:Ui.Icon="&#xE721;" Foreground="{StaticResource TextMuted}"
                 Command="{Binding OpenPaletteCommand}" ToolTip="Busca cualquier acción o app (Ctrl + K)" AutomationProperties.Name="Buscar (Ctrl + K)">
           <DockPanel>
-            <Border DockPanel.Dock="Right" Background="{StaticResource SurfaceRaised}" CornerRadius="5" Padding="6,1" VerticalAlignment="Center">
+            <Border DockPanel.Dock="Right" Background="{StaticResource SurfaceRaised}" BorderBrush="{StaticResource BorderStrong}" BorderThickness="1" CornerRadius="{StaticResource RadiusSmall}" Padding="5,0,5,1" VerticalAlignment="Center">
               <TextBlock Text="Ctrl K" Foreground="{StaticResource TextFaint}" FontSize="10.5"/>
             </Border>
-            <TextBlock Text="&#xE721;" FontFamily="{StaticResource IconFont}" FontSize="12" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center" Margin="0,0,10,0"/>
             <TextBlock Text="Buscar" Foreground="{StaticResource TextMuted}" VerticalAlignment="Center"/>
           </DockPanel>
         </Button>
-        <StackPanel DockPanel.Dock="Bottom" Margin="6,12,0,0">
-          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-            <Button Style="{StaticResource Ghost}" Content="A−" Command="{Binding ZoomOutCommand}" ToolTip="Reducir (Ctrl −)" AutomationProperties.Name="Reducir tamaño"/>
-            <TextBlock Text="{Binding ZoomText}" VerticalAlignment="Center" Foreground="{StaticResource TextMuted}" Margin="4,0"/>
-            <Button Style="{StaticResource Ghost}" Content="A+" Command="{Binding ZoomInCommand}" ToolTip="Ampliar (Ctrl +)" AutomationProperties.Name="Ampliar tamaño"/>
+        <!-- Pie: tamaño, versión e Instagram -->
+        <Border DockPanel.Dock="Bottom" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="0,1,0,0" Padding="8,12,4,0" Margin="0,10,0,0">
+          <StackPanel>
+            <DockPanel Margin="0,0,0,8">
+              <TextBlock Text="Tamaño" Style="{StaticResource Caption}" VerticalAlignment="Center"/>
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource IconButton}" Width="28" Height="28" core:Ui.Icon="&#xE738;" Command="{Binding ZoomOutCommand}" ToolTip="Reducir (Ctrl −)" AutomationProperties.Name="Reducir tamaño"/>
+                <TextBlock Text="{Binding ZoomText}" VerticalAlignment="Center" Foreground="{StaticResource TextMuted}" FontSize="12" MinWidth="42" TextAlignment="Center"/>
+                <Button Style="{StaticResource IconButton}" Width="28" Height="28" core:Ui.Icon="&#xE710;" Command="{Binding ZoomInCommand}" ToolTip="Ampliar (Ctrl +)" AutomationProperties.Name="Ampliar tamaño"/>
+              </StackPanel>
+            </DockPanel>
+            <TextBlock Text="{Binding VersionText}" Style="{StaticResource Caption}"/>
+            <TextBlock Margin="0,2,0,0" FontSize="12">
+              <Hyperlink Command="{Binding OpenInstagramCommand}">Instagram @_shun._05</Hyperlink>
+            </TextBlock>
           </StackPanel>
-          <TextBlock Text="{Binding VersionText}" Foreground="{StaticResource TextFaint}" FontSize="12"/>
-          <TextBlock Margin="0,4,0,0" FontSize="12">
-            <Hyperlink Command="{Binding OpenInstagramCommand}" Foreground="{StaticResource Accent}" TextDecorations="{x:Null}">Instagram @_shun._05</Hyperlink>
-          </TextBlock>
-        </StackPanel>
-        <ListBox x:Name="Navigation" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected, Mode=TwoWay}"
+        </Border>
+        <ListBox x:Name="Navigation" ItemsSource="{Binding Source={StaticResource NavGroups}}" SelectedItem="{Binding Selected, Mode=TwoWay}"
                  ItemContainerStyle="{StaticResource NavItem}" Background="Transparent" BorderThickness="0"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Secciones">
+          <ListBox.GroupStyle>
+            <GroupStyle>
+              <GroupStyle.HeaderTemplate>
+                <DataTemplate>
+                  <TextBlock x:Name="header" Text="{Binding Name}" Style="{StaticResource Caption}" FontWeight="SemiBold" Margin="12,10,0,4"/>
+                  <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Name}" Value=""><Setter TargetName="header" Property="Visibility" Value="Collapsed"/></DataTrigger>
+                  </DataTemplate.Triggers>
+                </DataTemplate>
+              </GroupStyle.HeaderTemplate>
+            </GroupStyle>
+          </ListBox.GroupStyle>
           <ListBox.ItemTemplate>
             <DataTemplate>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding Glyph}" FontFamily="{StaticResource IconFont}" FontSize="15" Width="18" VerticalAlignment="Center" Margin="0,0,12,0"
+              <StackPanel Orientation="Horizontal" ToolTip="{Binding Description}" ToolTipService.InitialShowDelay="900">
+                <TextBlock x:Name="glyph" Text="{Binding Glyph}" Style="{StaticResource Glyph}" FontSize="16" Width="18" Margin="0,0,12,0"
                            Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
-                <TextBlock Text="{Binding Title}" FontSize="13.5" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
+                <TextBlock Text="{Binding Title}" FontSize="13.5" VerticalAlignment="Center" TextWrapping="NoWrap" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
               </StackPanel>
+              <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                  <Setter TargetName="glyph" Property="Foreground" Value="{StaticResource Accent}"/>
+                </DataTrigger>
+              </DataTemplate.Triggers>
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
@@ -85,19 +119,19 @@
 
     <!-- Contenido -->
     <Grid Grid.Column="1">
-      <home:HomeView Visibility="{Binding IsHome, Converter={StaticResource Visible}}"/>
-      <install:InstallView DataContext="{Binding Install}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=install}"/>
-      <tools:SystemView DataContext="{Binding SystemPage}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=system}"/>
-      <equipo:EquipoView DataContext="{Binding Equipo}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=equipo}"/>
-      <rendimiento:PerformanceView DataContext="{Binding Performance}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=performance}"/>
-      <games:GamesView DataContext="{Binding Games}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=games}"/>
-      <gaming:GamingView DataContext="{Binding Gaming}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=gaming}"/>
-      <tools:SecurityView DataContext="{Binding Security}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=security}"/>
-      <tools:LinkView DataContext="{Binding Link}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=remote}"/>
-      <tools:SettingsView DataContext="{Binding Settings}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=settings}"/>
-      <maintenance:MaintenanceView DataContext="{Binding Maintenance}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=maintenance}"/>
-      <configure:ConfigureView DataContext="{Binding Configure}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=configure}"/>
-      <updates:UpdatesView Visibility="{Binding PageId, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=updates}"/>
+      <home:HomeView core:Ui.Entrance="True" Visibility="{Binding IsHome, Converter={StaticResource Visible}}"/>
+      <install:InstallView core:Ui.Entrance="True" DataContext="{Binding Install}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=install}"/>
+      <tools:SystemView core:Ui.Entrance="True" DataContext="{Binding SystemPage}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=system}"/>
+      <equipo:EquipoView core:Ui.Entrance="True" DataContext="{Binding Equipo}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=equipo}"/>
+      <rendimiento:PerformanceView core:Ui.Entrance="True" DataContext="{Binding Performance}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=performance}"/>
+      <games:GamesView core:Ui.Entrance="True" DataContext="{Binding Games}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=games}"/>
+      <gaming:GamingView core:Ui.Entrance="True" DataContext="{Binding Gaming}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=gaming}"/>
+      <tools:SecurityView core:Ui.Entrance="True" DataContext="{Binding Security}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=security}"/>
+      <tools:LinkView core:Ui.Entrance="True" DataContext="{Binding Link}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=remote}"/>
+      <tools:SettingsView core:Ui.Entrance="True" DataContext="{Binding Settings}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=settings}"/>
+      <maintenance:MaintenanceView core:Ui.Entrance="True" DataContext="{Binding Maintenance}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=maintenance}"/>
+      <configure:ConfigureView core:Ui.Entrance="True" DataContext="{Binding Configure}" Visibility="{Binding DataContext.PageId, RelativeSource={RelativeSource AncestorType=Window}, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=configure}"/>
+      <updates:UpdatesView core:Ui.Entrance="True" Visibility="{Binding PageId, Converter={x:Static core:EqualsToVisibility.Instance}, ConverterParameter=updates}"/>
     </Grid>
   </Grid>
 </Window>

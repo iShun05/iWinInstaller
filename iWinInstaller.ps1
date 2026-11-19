@@ -61,7 +61,7 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = 'utf-8'
 
-$Version = 'v5.6'
+$Version = 'v5.7'
 $Instagram = 'https://www.instagram.com/_shun._05/'
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # PowerShell 5.1 devuelve un array JSON como un solo objeto: «ForEach-Object { $_ }» lo desenrolla
@@ -265,12 +265,12 @@ if ($DevEnv) {
             }
             exit 0
         }
-        $status = & $IwinEngineCommands['devenv.status'] ([pscustomobject]@{ contract = 1; template = $DevEnv })
-        Write-Host "$($status.name): $($status.desc)"
-        foreach ($item in $status.items) { Write-Host ("  {0} {1}" -f $(if ($item.installed) { '✓' } else { '✗' }), $item.name) }
-        foreach ($pin in $status.pins) { Write-Host ("  {0} versión fijada {1}: esperada {2}, encontrada {3}" -f $(if ($pin.ok) { '✓' } else { '✗' }), $pin.app, $pin.expected, $(if ($pin.found) { $pin.found } else { 'ninguna' })) }
-        if (-not $Yes) { if (-not $status.ready) { Write-Host 'Añade -Yes para instalar lo que falta y configurarlo.' }; exit @($status.missing).Count }
-        $wanted = @($Apps | Where-Object { $status.missing -contains $_.id })
+        $devStatus = & $IwinEngineCommands['devenv.status'] ([pscustomobject]@{ contract = 1; template = $DevEnv })
+        Write-Host "$($devStatus.name): $($devStatus.desc)"
+        foreach ($item in $devStatus.items) { Write-Host ("  {0} {1}" -f $(if ($item.installed) { '✓' } else { '✗' }), $item.name) }
+        foreach ($pin in $devStatus.pins) { Write-Host ("  {0} versión fijada {1}: esperada {2}, encontrada {3}" -f $(if ($pin.ok) { '✓' } else { '✗' }), $pin.app, $pin.expected, $(if ($pin.found) { $pin.found } else { 'ninguna' })) }
+        if (-not $Yes) { if (-not $devStatus.ready) { Write-Host 'Añade -Yes para instalar lo que falta y configurarlo.' }; exit @($devStatus.missing).Count }
+        $wanted = @($Apps | Where-Object { $devStatus.missing -contains $_.id })
         $failed = @()
         if ($wanted) {
             if (-not (Ensure-Winget)) { exit 1 }
