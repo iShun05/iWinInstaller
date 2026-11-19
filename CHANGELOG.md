@@ -2,7 +2,7 @@
 
 ## v5.7 — 2026-11-19
 
-**Rediseño completo de la interfaz** al estilo Fluent de Windows 11 sobre negro: un único sistema de diseño para las 13 páginas, la barra lateral y la paleta de comandos. No cambia ninguna función.
+**Rediseño completo de la interfaz** al estilo Fluent de Windows 11 sobre negro: un único sistema de diseño para las 13 páginas, la barra lateral y la paleta de comandos. No cambia ninguna función. **Incluye todo lo de la v5.6**, que no llegó a tener release propia porque sus pruebas de publicación fallaban.
 
 ### Añadido
 - **Sistema de diseño** en `src/app/Theme/Theme.xaml`, documentado en [docs/diseno.md](docs/diseno.md): fondos por capas, un solo acento azul, colores de estado con fondo y borde, radios, espaciado en múltiplos de 4, estilos de texto (título, subtítulo, sección, tarjeta, pie) y componentes (tarjeta, fila, pastilla de estado, barra de aviso, botones principal, estándar, fantasma, de icono, destructivo y enlace, menús, cajas de texto con texto de ayuda, casillas, desplegables, barras de progreso y de scroll).
@@ -18,12 +18,14 @@
 - **Inicio, Por configurar, Actualizaciones, Equipo, Rendimiento, Latencia, Sistema, Mantenimiento, Acceso remoto, Seguridad y Ajustes** con cabecera, tarjetas con icono y estados vacíos coherentes; los pasos de Acceso remoto van numerados.
 
 ### Corregido
+- `-DevEnv` por línea de comandos: una variable `$status` pisaba el parámetro `-Status`. Hacía fallar las pruebas de arranque y x86 de la v5.6 y bloqueaba su publicación.
 - El texto de las cajas de búsqueda y de hora se desplazaba a la derecha por un relleno aplicado dos veces.
 - Los desplegables con nombre visible (como la frecuencia de la actualización programada) mostraban `[weekly, Cada semana (domingo)]`.
 
 ### Archivos y pruebas
+- Motor: `iWinInstaller.ps1` (`-DevEnv`).
 - Interfaz: `Theme/Theme.xaml` (reescrito), `Core/Ui.cs` (nuevo), `Shell/MainWindow.xaml`, `Shell/ShellViewModel.cs`, `Shell/PaletteWindow.xaml` y las vistas de `Modules/`; `App.xaml.cs` (modo de capturas).
-- CI: `capturas.yml` (nuevo). Compilación de la interfaz y pruebas unitarias en verde; capturas revisadas de las 13 páginas en Windows (ventana de ~1030 × 820).
+- CI: `capturas.yml` (nuevo). Compilación de la interfaz, pruebas unitarias, arranque (x64, ARM64 y x86), aceptación y nativas en verde; capturas revisadas de las 13 páginas en Windows (ventana de ~1030 × 820).
 - No probado en un PC real: el rediseño se ha revisado con las capturas de CI. Afecta a Windows x86/x64/ARM64 por igual.
 
 ## v5.6 — 2026-11-18
