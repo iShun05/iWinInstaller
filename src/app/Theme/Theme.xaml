@@ -499,7 +499,7 @@
                       Opacity="0" RenderTransformOrigin="0.5,0.5">
                 <Border.RenderTransform><ScaleTransform x:Name="grow" ScaleY="0.3"/></Border.RenderTransform>
               </Border>
-              <ContentPresenter Margin="12,8,10,8"/>
+              <ContentPresenter Margin="12,7,10,7"/>
             </Grid>
           </Border>
           <ControlTemplate.Triggers>
@@ -551,7 +551,8 @@
             <Grid>
               <TextBlock x:Name="hint" Text="{TemplateBinding Tag}" Foreground="{StaticResource TextFaint}" Margin="{TemplateBinding Padding}" Padding="2,0,0,0"
                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" IsHitTestVisible="False" Visibility="Collapsed" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-              <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Focusable="False"/>
+              <!-- El TextBox ya aplica su Padding dentro del ScrollViewer: no se repite aquí -->
+              <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Focusable="False"/>
               <Border x:Name="focusLine" Height="2" VerticalAlignment="Bottom" Background="{StaticResource Accent}" CornerRadius="0,0,5,5" Opacity="0"/>
             </Grid>
           </Border>
@@ -589,7 +590,7 @@
               <TextBlock Style="{StaticResource Glyph}" Text="&#xE721;" FontSize="13" Foreground="{StaticResource TextMuted}" Margin="12,0,0,0" HorizontalAlignment="Left" IsHitTestVisible="False"/>
               <TextBlock x:Name="hint" Text="{TemplateBinding Tag}" Foreground="{StaticResource TextFaint}" Margin="{TemplateBinding Padding}" Padding="2,0,0,0"
                          VerticalAlignment="Center" IsHitTestVisible="False" Visibility="Collapsed" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
-              <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" Focusable="False"/>
+              <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" Focusable="False"/>
               <Border x:Name="focusLine" Height="2" VerticalAlignment="Bottom" Background="{StaticResource Accent}" CornerRadius="0,0,5,5" Opacity="0"/>
             </Grid>
           </Border>
@@ -695,7 +696,8 @@
               </ToggleButton.Template>
             </ToggleButton>
             <ContentPresenter IsHitTestVisible="False" Margin="12,0,32,0" VerticalAlignment="Center"
-                              Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}">
+                              Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}">
               <ContentPresenter.Resources>
                 <Style TargetType="TextBlock"><Setter Property="TextWrapping" Value="NoWrap"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/></Style>
               </ContentPresenter.Resources>

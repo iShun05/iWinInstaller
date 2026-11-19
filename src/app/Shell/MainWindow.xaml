@@ -91,7 +91,7 @@
             <GroupStyle>
               <GroupStyle.HeaderTemplate>
                 <DataTemplate>
-                  <TextBlock x:Name="header" Text="{Binding Name}" Style="{StaticResource Caption}" FontWeight="SemiBold" Margin="12,14,0,4"/>
+                  <TextBlock x:Name="header" Text="{Binding Name}" Style="{StaticResource Caption}" FontWeight="SemiBold" Margin="12,10,0,4"/>
                   <DataTemplate.Triggers>
                     <DataTrigger Binding="{Binding Name}" Value=""><Setter TargetName="header" Property="Visibility" Value="Collapsed"/></DataTrigger>
                   </DataTemplate.Triggers>

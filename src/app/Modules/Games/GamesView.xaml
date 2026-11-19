@@ -59,7 +59,8 @@
               <Button Style="{StaticResource Ghost}" core:Ui.Icon="&#xE73E;" Content="Verificar en Steam" Command="{Binding SteamVerifyCommand}" Margin="0,0,8,6" Visibility="{Binding IsSteam, Converter={StaticResource Visible}}"/>
             </WrapPanel>
             <ProgressBar Maximum="1" Value="{Binding CheckProgress, Mode=OneWay}" Margin="0,0,0,8" Visibility="{Binding IsChecking, Converter={StaticResource Visible}}"/>
-            <TextBlock Text="{Binding CheckMessage}" Foreground="{StaticResource Text}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/>
+            <TextBlock Text="{Binding CheckMessage}" Foreground="{StaticResource Text}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"
+                       Visibility="{Binding CheckMessage, Converter={x:Static core:TextToVisibility.Instance}}"/>
             <ItemsControl ItemsSource="{Binding Problems}" Focusable="False" Margin="0,4,0,0">
               <ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" Style="{StaticResource Caption}" Foreground="{StaticResource Attention}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/></DataTemplate></ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -119,7 +120,8 @@
               </WrapPanel>
             </StackPanel>
           </Border>
-          <TextBlock Text="{Binding Result}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,12,0,0" AutomationProperties.LiveSetting="Polite"/>
+          <TextBlock Text="{Binding Result}" Foreground="{StaticResource Text}" TextWrapping="Wrap" Margin="0,12,0,0" AutomationProperties.LiveSetting="Polite"
+                     Visibility="{Binding Result, Converter={x:Static core:TextToVisibility.Instance}}"/>
         </StackPanel>
       </Border>
       <DataTemplate.Triggers>

@@ -25,16 +25,16 @@
         <!-- Búsqueda y filtros -->
         <Grid Margin="0,0,0,10">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" MinWidth="200"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="2*" MinWidth="180"/>
+            <ColumnDefinition Width="1.3*" MinWidth="130"/>
+            <ColumnDefinition Width="*" MinWidth="110"/>
+            <ColumnDefinition Width="1.3*" MinWidth="130"/>
           </Grid.ColumnDefinitions>
           <TextBox Style="{StaticResource SearchBox}" Tag="Buscar por nombre, uso o comparativa" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged, Delay=150}"
                    AutomationProperties.Name="Buscar en el catálogo"/>
-          <ComboBox Grid.Column="1" Margin="8,0,0,0" Width="200" ItemsSource="{Binding Scopes}" SelectedItem="{Binding Scope}" AutomationProperties.Name="Sección" ToolTip="Sección del catálogo"/>
-          <ComboBox Grid.Column="2" Margin="8,0,0,0" Width="140" ItemsSource="{Binding Filters}" SelectedItem="{Binding Filter}" AutomationProperties.Name="Mostrar" ToolTip="Mostrar"/>
-          <ComboBox Grid.Column="3" Margin="8,0,0,0" Width="210" ItemsSource="{Binding Profiles}" SelectedItem="{Binding Profile}" AutomationProperties.Name="Perfil" ToolTip="Perfil: marca de golpe un conjunto de apps"/>
+          <ComboBox Grid.Column="1" Margin="8,0,0,0" ItemsSource="{Binding Scopes}" SelectedItem="{Binding Scope}" AutomationProperties.Name="Sección" ToolTip="Sección del catálogo"/>
+          <ComboBox Grid.Column="2" Margin="8,0,0,0" ItemsSource="{Binding Filters}" SelectedItem="{Binding Filter}" AutomationProperties.Name="Mostrar" ToolTip="Mostrar"/>
+          <ComboBox Grid.Column="3" Margin="8,0,0,0" ItemsSource="{Binding Profiles}" SelectedItem="{Binding Profile}" AutomationProperties.Name="Perfil" ToolTip="Perfil: marca de golpe un conjunto de apps"/>
         </Grid>
 
         <!-- Barra de comandos: cada grupo de acciones en su menú -->
@@ -73,12 +73,13 @@
                 </Button.ContextMenu>
               </Button>
               <Border Width="1" Height="20" Background="{StaticResource BorderStrong}" Margin="6,0" VerticalAlignment="Center"/>
-              <ComboBox Width="168" Background="Transparent" BorderBrush="Transparent" ItemsSource="{Binding DevTemplates}" SelectedItem="{Binding DevTemplate}"
+              <ComboBox Width="150" Background="Transparent" BorderBrush="Transparent" ItemsSource="{Binding DevTemplates}" SelectedItem="{Binding DevTemplate}"
                         AutomationProperties.Name="Entorno de desarrollo" ToolTip="Plantilla del entorno de desarrollo"/>
               <Button Style="{StaticResource CommandButton}" core:Ui.Icon="&#xE943;" Content="Preparar entorno" Command="{Binding PrepareDevCommand}"
                       ToolTip="Instala lo que falte del entorno (Git, VS Code y Node, Python o Java con su versión fijada) y lo configura: Corepack, pip o JAVA_HOME"/>
             </WrapPanel>
-            <Button DockPanel.Dock="Right" Style="{StaticResource CommandButton}" Foreground="{StaticResource TextMuted}" core:Ui.Icon="&#xE8E6;" Content="Desmarcar todo" Command="{Binding ClearCommand}" VerticalAlignment="Center"/>
+            <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" core:Ui.Icon="&#xE8E6;" Command="{Binding ClearCommand}" VerticalAlignment="Center"
+                    ToolTip="Desmarcar todo" AutomationProperties.Name="Desmarcar todo"/>
           </DockPanel>
         </Border>
 
@@ -92,12 +93,12 @@
             <TextBlock Text="{Binding CountText}" FontWeight="SemiBold" Foreground="{StaticResource TextStrong}" TextWrapping="NoWrap"/>
             <TextBlock Text="{Binding ProgressText}" Foreground="{StaticResource Accent}" Style="{StaticResource Caption}" Margin="0,2,0,0" TextWrapping="NoWrap"
                        Visibility="{Binding ProgressText, Converter={x:Static core:TextToVisibility.Instance}}"/>
-          </StackPanel>
-          <!-- Leyenda de los puntos de estado -->
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0,0,0">
-            <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Ok}" Margin="0,0,6,0"/><TextBlock Text="Instalada" Style="{StaticResource Caption}" Margin="0,0,14,0" TextWrapping="NoWrap"/>
-            <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Attention}" Margin="0,0,6,0"/><TextBlock Text="Sin configurar" Style="{StaticResource Caption}" Margin="0,0,14,0" TextWrapping="NoWrap"/>
-            <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Unknown}" Margin="0,0,6,0"/><TextBlock Text="No instalada" Style="{StaticResource Caption}" TextWrapping="NoWrap"/>
+            <!-- Leyenda de los puntos de estado -->
+            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+              <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Ok}" Margin="0,0,6,0"/><TextBlock Text="Instalada" Style="{StaticResource Caption}" Margin="0,0,14,0" TextWrapping="NoWrap"/>
+              <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Attention}" Margin="0,0,6,0"/><TextBlock Text="Sin configurar" Style="{StaticResource Caption}" Margin="0,0,14,0" TextWrapping="NoWrap"/>
+              <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Unknown}" Margin="0,0,6,0"/><TextBlock Text="No instalada" Style="{StaticResource Caption}" TextWrapping="NoWrap"/>
+            </StackPanel>
           </StackPanel>
           <Button DockPanel.Dock="Right" Style="{StaticResource Primary}" core:Ui.Icon="&#xE896;" Content="Instalar" MinWidth="148" Command="{Binding InstallCommand}"/>
           <Button DockPanel.Dock="Right" Style="{StaticResource DangerBtn}" core:Ui.Icon="&#xE74D;" Content="Desinstalar marcadas" Command="{Binding UninstallSelectedCommand}" Margin="0,0,8,0"/>
