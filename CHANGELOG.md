@@ -1,5 +1,31 @@
 # Historial de versiones
 
+## v5.7 — 2026-11-19
+
+**Rediseño completo de la interfaz** al estilo Fluent de Windows 11 sobre negro: un único sistema de diseño para las 13 páginas, la barra lateral y la paleta de comandos. No cambia ninguna función.
+
+### Añadido
+- **Sistema de diseño** en `src/app/Theme/Theme.xaml`, documentado en [docs/diseno.md](docs/diseno.md): fondos por capas, un solo acento azul, colores de estado con fondo y borde, radios, espaciado en múltiplos de 4, estilos de texto (título, subtítulo, sección, tarjeta, pie) y componentes (tarjeta, fila, pastilla de estado, barra de aviso, botones principal, estándar, fantasma, de icono, destructivo y enlace, menús, cajas de texto con texto de ayuda, casillas, desplegables, barras de progreso y de scroll).
+- **Barra de aviso** con color e icono según el mensaje (error, aviso, éxito o información) en todas las páginas.
+- **Menús de desbordamiento** en botones con chevrón (`core:Ui.OpensMenu`) e iconos en los botones (`core:Ui.Icon`).
+- **Animaciones discretas**: hover de 120 ms, indicador de la navegación que crece y entrada de página con fundido. Se desactivan si Windows tiene las animaciones apagadas.
+- Modo de capturas (`IWIN_CAPTURA`) y workflow `capturas.yml`, que saca en Windows una captura de cada página antes y después de cada cambio de interfaz.
+
+### Mejorado
+- **Instalar**: las 12 acciones sueltas pasan a una barra de comandos con menús (**Perfiles**, **Este PC**, **Sincronizar**), con el entorno de desarrollo al lado. Los filtros se alinean en una fila que se adapta al ancho, el estado de cada app va en una pastilla de color, la tarjeta marcada se resalta y hay una sola acción principal (**Instalar**). La leyenda va bajo el contador y el informe pasa a un botón de icono.
+- **Barra lateral** agrupada (Este PC, Juego, Red y seguridad, App), con marca, búsqueda con Ctrl K, zoom con botones de icono, versión e Instagram al pie.
+- **Juegos**: Detalles, Restaurar y Abrir carpeta van al menú **Más** de cada tarjeta.
+- **Inicio, Por configurar, Actualizaciones, Equipo, Rendimiento, Latencia, Sistema, Mantenimiento, Acceso remoto, Seguridad y Ajustes** con cabecera, tarjetas con icono y estados vacíos coherentes; los pasos de Acceso remoto van numerados.
+
+### Corregido
+- El texto de las cajas de búsqueda y de hora se desplazaba a la derecha por un relleno aplicado dos veces.
+- Los desplegables con nombre visible (como la frecuencia de la actualización programada) mostraban `[weekly, Cada semana (domingo)]`.
+
+### Archivos y pruebas
+- Interfaz: `Theme/Theme.xaml` (reescrito), `Core/Ui.cs` (nuevo), `Shell/MainWindow.xaml`, `Shell/ShellViewModel.cs`, `Shell/PaletteWindow.xaml` y las vistas de `Modules/`; `App.xaml.cs` (modo de capturas).
+- CI: `capturas.yml` (nuevo). Compilación de la interfaz y pruebas unitarias en verde; capturas revisadas de las 13 páginas en Windows (ventana de ~1030 × 820).
+- No probado en un PC real: el rediseño se ha revisado con las capturas de CI. Afecta a Windows x86/x64/ARM64 por igual.
+
 ## v5.6 — 2026-11-18
 
 Integración de seis líneas de trabajo: página **Rendimiento**, **entorno de desarrollo** y **sincronización con un repo privado** (ya con botones en la interfaz), estado por colores, carpetas por categoría completas en Inicio y el escritorio, y una revisión de fallos de arranque, carreras y limpieza.
