@@ -100,7 +100,7 @@
             <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Unknown}" Margin="0,0,6,0"/><TextBlock Text="No instalada" Style="{StaticResource Caption}" TextWrapping="NoWrap"/>
           </StackPanel>
           <Button DockPanel.Dock="Right" Style="{StaticResource Primary}" core:Ui.Icon="&#xE896;" Content="Instalar" MinWidth="148" Command="{Binding InstallCommand}"/>
-          <Button DockPanel.Dock="Right" Style="{StaticResource Danger}" core:Ui.Icon="&#xE74D;" Content="Desinstalar marcadas" Command="{Binding UninstallSelectedCommand}" Margin="0,0,8,0"/>
+          <Button DockPanel.Dock="Right" Style="{StaticResource DangerBtn}" core:Ui.Icon="&#xE74D;" Content="Desinstalar marcadas" Command="{Binding UninstallSelectedCommand}" Margin="0,0,8,0"/>
           <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" core:Ui.Icon="&#xE769;" Content="Pausar al terminar esta app" Command="{Binding PauseCommand}" Margin="0,0,8,0"
                   Visibility="{Binding IsBusy, Converter={StaticResource Visible}}"/>
           <Button DockPanel.Dock="Right" Style="{StaticResource Btn}" core:Ui.Icon="&#xE768;" Content="Reanudar lote" Command="{Binding ResumeCommand}" Margin="0,0,8,0"

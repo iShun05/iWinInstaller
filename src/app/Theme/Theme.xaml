@@ -369,7 +369,7 @@
     <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
   </Style>
   <!-- Acción destructiva -->
-  <Style x:Key="Danger" TargetType="Button" BasedOn="{StaticResource Btn}">
+  <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource Btn}">
     <Setter Property="Foreground" Value="{StaticResource Danger}"/>
     <Style.Triggers>
       <Trigger Property="IsMouseOver" Value="True"><Setter Property="BorderBrush" Value="{StaticResource DangerBorder}"/><Setter Property="Background" Value="{StaticResource DangerSoft}"/></Trigger>
