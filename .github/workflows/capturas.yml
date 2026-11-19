@@ -93,6 +93,17 @@ jobs:
 
           $log = Join-Path $env:LOCALAPPDATA 'iWinInstaller/interfaz.log'
           if (Test-Path $log) { Copy-Item $log $capRoot -Force }
+      - name: Volcar las capturas en el registro (base64)
+        # Para revisarlas desde entornos que no pueden descargar artefactos
+        shell: pwsh
+        run: |
+          Get-ChildItem (Join-Path $env:RUNNER_TEMP 'capturas') -Recurse -Filter *.png | Sort-Object FullName | ForEach-Object {
+            $name = (Split-Path $_.DirectoryName -Leaf) + '/' + $_.Name
+            $b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($_.FullName))
+            Write-Host "@@IMG-BEGIN $name"
+            for ($i = 0; $i -lt $b64.Length; $i += 16000) { Write-Host ('@@B64 ' + $b64.Substring($i, [Math]::Min(16000, $b64.Length - $i))) }
+            Write-Host "@@IMG-END $name"
+          }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
