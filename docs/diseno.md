@@ -18,7 +18,7 @@ Fluent / Windows 11 sobre negro. Fuente única: `src/app/Theme/Theme.xaml`. Las 
 - **Página:** `ScrollViewer` › `StackPanel Margin={StaticResource PageMargin} MaxWidth={StaticResource PageMaxWidth} HorizontalAlignment=Left`. Cabecera: `DockPanel` con `PageTitle` + `PageSubtitle` a la izquierda y las acciones de página a la derecha (como mucho una `Primary`). Debajo, `ContentControl Style=InfoBar Content={Binding Message}` (se oculta vacío y toma color e icono según el texto: error, aviso, éxito o info).
 - **Tarjeta:** `Border Style=Card`. Cabecera opcional: `IconTile` con `Glyph` + `CardTitle` + `Muted`. Paneles internos: `CardInset`. Filas de lista: `Border Style=ListRow`.
 - **Botones:** `Primary` (una acción principal por zona) · `Btn` (estándar) · `Ghost`/`CommandButton` (barras de comandos, secundarias) · `IconButton` (solo icono; con `ToolTip` y `AutomationProperties.Name`) · `DangerBtn` / `DangerGhost` (destructivas) · `LinkButton` (enlace con flecha). Icono: `core:Ui.Icon="&#xE710;"`. Menú de desbordamiento: `core:Ui.OpensMenu="True"` + `Button.ContextMenu` con `MenuItem` (`Icon` = glifo como texto), `Separator` y `MenuHeader`.
-- **Estado:** `Pill` + `PillText` (+ `StatusDot`), coloreados con los tokens de estado en triggers.
+- **Estado:** `Pill` (sin fondo) con `StatusGlyph` (icono de línea: E930 correcto, E7BA atención, E783 error, EA3A sin dato, E895 en curso) coloreado con el token de estado, y `PillText` en gris. Nunca cápsulas de color. **Etiqueta neutra:** `Tag` (contorno fino).
 - **Entrada:** `TextBox` (Tag = texto de ayuda), `SearchBox`, `ComboBox`, `CheckBox`, `ProgressBar` con estilo implícito.
 
 ## Movimiento

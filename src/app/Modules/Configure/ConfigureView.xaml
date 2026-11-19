@@ -20,11 +20,11 @@
 
       <!-- Leyenda de estados -->
       <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-        <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Attention}" Margin="0,0,6,0"/>
+        <TextBlock Style="{StaticResource StatusGlyph}" Foreground="{StaticResource Attention}" Text="&#xE7BA;"/>
         <TextBlock Style="{StaticResource Caption}" Text="Instalada, falta configurarla" VerticalAlignment="Center" Margin="0,0,16,0"/>
-        <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Ok}" Margin="0,0,6,0"/>
+        <TextBlock Style="{StaticResource StatusGlyph}" Foreground="{StaticResource Ok}" Text="&#xE930;"/>
         <TextBlock Style="{StaticResource Caption}" Text="Configurada" VerticalAlignment="Center" Margin="0,0,16,0"/>
-        <Ellipse Style="{StaticResource StatusDot}" Fill="{StaticResource Danger}" Margin="0,0,6,0"/>
+        <TextBlock Style="{StaticResource StatusGlyph}" Foreground="{StaticResource Danger}" Text="&#xE783;"/>
         <TextBlock Style="{StaticResource Caption}" Text="No instalada: se ve en Instalar → Faltan" VerticalAlignment="Center"/>
       </StackPanel>
 
@@ -60,14 +60,15 @@
                   </StackPanel>
                   <StackPanel>
                     <DockPanel>
-                      <Ellipse ToolTip="{Binding Status}" Margin="0,0,8,0">
-                        <Ellipse.Style>
-                          <Style TargetType="Ellipse" BasedOn="{StaticResource StatusDot}">
-                            <Setter Property="Fill" Value="{StaticResource Attention}"/>
-                            <Style.Triggers><DataTrigger Binding="{Binding Configured}" Value="True"><Setter Property="Fill" Value="{StaticResource Ok}"/></DataTrigger></Style.Triggers>
+                      <TextBlock ToolTip="{Binding Status}" Margin="0,2,8,0">
+                        <TextBlock.Style>
+                          <Style TargetType="TextBlock" BasedOn="{StaticResource StatusGlyph}">
+                            <Setter Property="Foreground" Value="{StaticResource Attention}"/>
+                            <Setter Property="Text" Value="&#xE7BA;"/>
+                            <Style.Triggers><DataTrigger Binding="{Binding Configured}" Value="True"><Setter Property="Foreground" Value="{StaticResource Ok}"/><Setter Property="Text" Value="&#xE930;"/></DataTrigger></Style.Triggers>
                           </Style>
-                        </Ellipse.Style>
-                      </Ellipse>
+                        </TextBlock.Style>
+                      </TextBlock>
                       <TextBlock Style="{StaticResource CardTitle}" Text="{Binding Name}"/>
                     </DockPanel>
                     <TextBlock Style="{StaticResource Muted}" Text="{Binding Note}" Margin="0,2,0,0"/>

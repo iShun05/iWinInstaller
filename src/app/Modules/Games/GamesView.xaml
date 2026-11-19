@@ -14,9 +14,9 @@
         <StackPanel>
           <!-- Cabecera: icono, nombre y estado -->
           <DockPanel LastChildFill="True">
-            <Border x:Name="pill" DockPanel.Dock="Right" Style="{StaticResource Pill}" Background="{StaticResource UnknownSoft}">
+            <Border x:Name="pill" DockPanel.Dock="Right" Style="{StaticResource Pill}">
               <StackPanel Orientation="Horizontal">
-                <Ellipse x:Name="dot" Style="{StaticResource StatusDot}" Margin="0,0,6,0"/>
+                <TextBlock x:Name="dot" Style="{StaticResource StatusGlyph}"/>
                 <TextBlock x:Name="state" Style="{StaticResource PillText}" Text="{Binding StateLabel}"/>
               </StackPanel>
             </Border>
@@ -90,7 +90,7 @@
                         <StackPanel>
                           <WrapPanel>
                             <TextBlock Text="{Binding Title}" Style="{StaticResource CardTitle}" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                            <Border x:Name="tag" Style="{StaticResource Pill}" Padding="8,1,9,2" Background="{StaticResource UnknownSoft}">
+                            <Border x:Name="tag" Style="{StaticResource Tag}">
                               <TextBlock x:Name="tagText" Style="{StaticResource PillText}" Text="{Binding Label}" Foreground="{StaticResource TextMuted}"/>
                             </Border>
                           </WrapPanel>
@@ -103,7 +103,7 @@
                     </Border>
                     <DataTemplate.Triggers>
                       <DataTrigger Binding="{Binding IsUnofficial}" Value="True">
-                        <Setter TargetName="tag" Property="Background" Value="{StaticResource AttentionSoft}"/>
+                        <Setter TargetName="tag" Property="BorderBrush" Value="{StaticResource AttentionBorder}"/>
                         <Setter TargetName="tagText" Property="Foreground" Value="{StaticResource Attention}"/>
                       </DataTrigger>
                     </DataTemplate.Triggers>
@@ -126,20 +126,20 @@
       </Border>
       <DataTemplate.Triggers>
         <DataTrigger Binding="{Binding State}" Value="Installed">
-          <Setter TargetName="pill" Property="Background" Value="{StaticResource OkSoft}"/>
-          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Ok}"/>
-          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Ok}"/>
+          
+          <Setter TargetName="dot" Property="Foreground" Value="{StaticResource Ok}"/><Setter TargetName="dot" Property="Text" Value="&#xE930;"/>
+          
         </DataTrigger>
         <DataTrigger Binding="{Binding State}" Value="Attention">
-          <Setter TargetName="pill" Property="Background" Value="{StaticResource AttentionSoft}"/>
-          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Attention}"/>
-          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Attention}"/>
+          
+          <Setter TargetName="dot" Property="Foreground" Value="{StaticResource Attention}"/><Setter TargetName="dot" Property="Text" Value="&#xE7BA;"/>
+          
           <Setter TargetName="card" Property="BorderBrush" Value="{StaticResource AttentionBorder}"/>
         </DataTrigger>
         <DataTrigger Binding="{Binding State}" Value="Running">
-          <Setter TargetName="pill" Property="Background" Value="{StaticResource AccentSoft}"/>
-          <Setter TargetName="dot" Property="Fill" Value="{StaticResource Accent}"/>
-          <Setter TargetName="state" Property="Foreground" Value="{StaticResource Accent}"/>
+          
+          <Setter TargetName="dot" Property="Foreground" Value="{StaticResource Accent}"/><Setter TargetName="dot" Property="Text" Value="&#xE895;"/>
+          
         </DataTrigger>
       </DataTemplate.Triggers>
     </DataTemplate>
@@ -195,7 +195,7 @@
                     <StackPanel>
                       <WrapPanel>
                         <TextBlock Text="{Binding Name}" Style="{StaticResource CardTitle}" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                        <Border Style="{StaticResource Pill}" Padding="8,1,9,2" Background="{StaticResource UnknownSoft}">
+                        <Border Style="{StaticResource Tag}">
                           <TextBlock Style="{StaticResource PillText}" Text="{Binding Launcher}" Foreground="{StaticResource TextMuted}"/>
                         </Border>
                       </WrapPanel>

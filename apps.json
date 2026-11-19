@@ -1179,6 +1179,106 @@
     "configNote": "Abre Adrenalin: activa el perfil de juego y revisa FreeSync y las opciones de latencia."
   },
   {
+    "id": "gigabytecc",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "GIGABYTE Control Center",
+    "desc": "Utilidades, ventiladores, RGB y actualizaciones de placas y gráficas GIGABYTE y AORUS; descarga desde la web oficial Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "gigabyte.com",
+    "type": "manual",
+    "page": "https://www.gigabyte.com/Consumer/Software/GIGABYTE-Control-Center",
+    "context": "machine",
+    "detect": "GIGABYTE Control Center",
+    "hardware": "Placa: Gigabyte|GPUVEN_1458",
+    "rgb": true,
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Placa base y gráfica",
+    "compare": "GIGABYTE: placa, ventiladores y RGB Fusion.",
+    "configure": true,
+    "configNote": "Abre Control Center: instala las utilidades de tu equipo y revisa el perfil de ventiladores."
+  },
+  {
+    "id": "msiafterburner",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "MSI Afterburner",
+    "desc": "Overclock, curvas de ventilador y monitorización de cualquier gráfica NVIDIA o AMD",
+    "icon": "msi.com",
+    "type": "winget",
+    "winget": "Guru3D.Afterburner",
+    "scope": "machine",
+    "context": "machine",
+    "detect": "MSI Afterburner",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Placa base y gráfica",
+    "compare": "Cualquier gráfica: overclock, ventiladores y overlay.",
+    "configure": true,
+    "configNote": "Abre Afterburner: crea una curva de ventilador y prueba la estabilidad antes de subir frecuencias."
+  },
+  {
+    "id": "evgaprecisionx1",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "EVGA Precision X1",
+    "desc": "Overclock, ventiladores y RGB de las gráficas NVIDIA EVGA (series RTX 20 a 40 y GTX 10 y 16); descarga desde la web de EVGA Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "evga.com",
+    "type": "manual",
+    "page": "https://www.evga.com/precisionx1/",
+    "context": "machine",
+    "detect": "EVGA Precision X1",
+    "hardware": "GPUVEN_3842",
+    "rgb": true,
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Placa base y gráfica",
+    "compare": "EVGA: ajustes y RGB de sus gráficas."
+  },
+  {
+    "id": "intelarc",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Intel Arc y Graphics Software",
+    "desc": "Controlador gráfico Intel y su panel de ajustes para Arc, Core Ultra e Iris Xe; descarga desde la web oficial de Intel",
+    "icon": "intel.com",
+    "type": "manual",
+    "page": "https://www.intel.com/content/www/us/en/download/785597/intel-arc-iris-xe-graphics-windows.html",
+    "context": "machine",
+    "detect": "Intel Graphics Software",
+    "hardware": "GPU: .*Intel",
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Placa base y gráfica",
+    "compare": "Intel: controlador y ajustes de Arc e Iris Xe.",
+    "configure": true,
+    "configNote": "Revisa la versión del controlador y el modo de energía en Intel Graphics Software."
+  },
+  {
     "id": "icue",
     "section": "Sistema",
     "group": "Software de los fabricantes",
@@ -1408,6 +1508,759 @@
     },
     "subgroup": "Discos SSD",
     "compare": "Crucial: firmware, estado y Momentum Cache."
+  },
+  {
+    "id": "wddashboard",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "SanDisk Dashboard (WD)",
+    "desc": "Salud, firmware y diagnóstico de los discos SanDisk y Western Digital",
+    "icon": "sandisk.com",
+    "type": "winget",
+    "winget": "SanDisk.Dashboard",
+    "scope": "machine",
+    "context": "machine",
+    "hardware": "Disco: .*(WDC|WD_|SanDisk|SDSSD)",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Discos SSD",
+    "compare": "SanDisk y Western Digital: estado y firmware."
+  },
+  {
+    "id": "seatools",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Seagate SeaTools",
+    "desc": "Diagnóstico rápido y pruebas de los discos Seagate",
+    "icon": "seagate.com",
+    "type": "winget",
+    "winget": "Seagate.SeaTools",
+    "scope": "machine",
+    "context": "machine",
+    "detect": "SeaTools",
+    "hardware": "Disco: .*(Seagate|ST\\d{3,})",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Discos SSD",
+    "compare": "Seagate: pruebas de salud del disco."
+  },
+  {
+    "id": "skhynixdrive",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "SK hynix Drive Manager",
+    "desc": "Salud, firmware y borrado seguro de los SSD SK hynix",
+    "icon": "skhynix.com",
+    "type": "winget",
+    "winget": "SKHynix.DriverManager",
+    "scope": "machine",
+    "context": "machine",
+    "hardware": "Disco: .*(SK ?hynix|HFS\\d|PC\\d{3})",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Discos SSD",
+    "compare": "SK hynix: estado y firmware."
+  },
+  {
+    "id": "adatassdtoolbox",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "ADATA SSD Toolbox",
+    "desc": "Información, estado y optimización de los SSD ADATA y XPG",
+    "icon": "adata.com",
+    "type": "winget",
+    "winget": "ADATA.SSDToolbox",
+    "scope": "machine",
+    "context": "machine",
+    "hardware": "Disco: .*(ADATA|XPG)",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Discos SSD",
+    "compare": "ADATA y XPG: estado y optimización."
+  },
+  {
+    "id": "optionsplus",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Logi Options+",
+    "desc": "Ratones y teclados Logitech de oficina y MX: botones, DPI, gestos y flujos entre equipos",
+    "icon": "logitech.com",
+    "type": "winget",
+    "winget": "Logitech.OptionsPlus",
+    "scope": "machine",
+    "context": "machine",
+    "detect": "Logi Options+",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "Logitech MX y de oficina: botones, gestos y Flow.",
+    "subgroupNote": "Uno por marca de ratón o teclado. Logitech G HUB (Periféricos y refrigeración) es para la gama gaming; Options+ para MX y oficina. Si solo quieres apagar o unificar luces, OpenRGB (Iluminación RGB) los sustituye a casi todos.",
+    "configure": true,
+    "configNote": "Abre Logi Options+: asigna botones, gestos y el DPI de tus dispositivos Logitech."
+  },
+  {
+    "id": "logitechomm",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Logitech Onboard Memory Manager",
+    "desc": "App oficial de Logitech, ligera y portable: guarda DPI, botones y frecuencia de sondeo en la memoria interna del ratón gaming (G502, G Pro, G305…) sin dejar G HUB en segundo plano",
+    "icon": "logitechg.com",
+    "type": "winget",
+    "winget": "Logitech.OnboardMemoryManager",
+    "context": "machine",
+    "hardware": "VID_046D",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Cierra G HUB si está abierto: los dos no pueden controlar el ratón a la vez.",
+        "Abre Onboard Memory Manager, elige el ratón y ajusta DPI, botones y frecuencia de sondeo en su perfil interno.",
+        "Guarda en el ratón y comprueba que los ajustes siguen tras desconectarlo o reiniciar."
+      ],
+      "note": "Los ajustes quedan en el propio ratón, así que no hace falta tener ninguna app abierta. No controla luces ni macros complejas; para eso está G HUB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "Logitech G: DPI y botones en la memoria del ratón, sin G HUB.",
+    "configure": true,
+    "configNote": "Abre Onboard Memory Manager y guarda tus DPI y botones en la memoria del ratón."
+  },
+  {
+    "id": "wootility",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Wootility (Wooting)",
+    "desc": "Teclados Wooting: sensibilidad analógica, rapid trigger, perfiles y luces; descarga desde la web oficial de Wooting Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "wooting.io",
+    "type": "manual",
+    "page": "https://wooting.io/wootility",
+    "context": "machine",
+    "detect": "Wootility",
+    "hardware": "VID_31E3",
+    "rgb": true,
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "Wooting: teclados analógicos y rapid trigger.",
+    "configure": true,
+    "configNote": "Abre Wootility: ajusta el punto de actuación, el rapid trigger y las luces de tu teclado Wooting."
+  },
+  {
+    "id": "hyperxngenuity",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "HyperX NGENUITY",
+    "desc": "Ratones, teclados y auriculares HyperX: DPI, macros, luces y audio; la web de HyperX ofrece la versión nueva y la heredada Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "hyperx.com",
+    "type": "manual",
+    "page": "https://hyperx.com/pages/ngenuity",
+    "context": "machine",
+    "detect": "HyperX NGENUITY",
+    "rgb": true,
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "HyperX: ratón, teclado y auriculares.",
+    "configure": true,
+    "configNote": "Abre NGENUITY: elige el DPI, las macros y la iluminación de tus dispositivos HyperX."
+  },
+  {
+    "id": "gloriouscore",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Glorious CORE",
+    "desc": "Ratones y teclados Glorious: DPI, tasa de sondeo, macros y luces; instalador oficial desde la web de Glorious Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "gloriousgaming.com",
+    "type": "manual",
+    "page": "https://www.gloriousgaming.com/pages/software",
+    "context": "machine",
+    "detect": "Glorious Core",
+    "rgb": true,
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "Glorious: ratón y teclado (DPI, macros, RGB).",
+    "configure": true,
+    "configNote": "Abre CORE: ajusta el DPI, la tasa de sondeo y las luces de tu dispositivo Glorious."
+  },
+  {
+    "id": "keychronlauncher",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Keychron Launcher",
+    "desc": "Remapeo, macros y luces de los teclados y ratones Keychron desde el navegador (Chrome o Edge), sin instalar nada Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "keychron.com",
+    "type": "manual",
+    "page": "https://launcher.keychron.com",
+    "context": "machine",
+    "rgb": true,
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "Keychron: se usa en el navegador con el teclado conectado por cable."
+  },
+  {
+    "id": "via",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "VIA",
+    "desc": "Configurador web de teclados con firmware compatible con VIA (QMK): teclas, capas, macros y luces desde el navegador Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "usevia.app",
+    "type": "manual",
+    "page": "https://usevia.app",
+    "context": "machine",
+    "rgb": true,
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "Teclados QMK compatibles con VIA, desde el navegador."
+  },
+  {
+    "id": "vial",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Vial",
+    "desc": "Configurador abierto de teclados QMK en tiempo real: teclas, capas, macros y luces Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "vial.today",
+    "type": "winget",
+    "winget": "Vial.Vial",
+    "scope": "machine",
+    "context": "machine",
+    "detect": "Vial",
+    "rgb": true,
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "Teclados QMK con Vial: aplicación de escritorio de código abierto.",
+    "configure": true,
+    "configNote": "Abre Vial, conecta el teclado compatible y remapea teclas, capas y macros."
+  },
+  {
+    "id": "akkocloud",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Akko Cloud Driver",
+    "desc": "Teclados Akko y MonsGeek: teclas, macros, luces RGB y actualización de firmware Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "akkogear.com",
+    "type": "winget",
+    "winget": "Akko.CloudDriver",
+    "scope": "machine",
+    "context": "machine",
+    "rgb": true,
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "Akko y MonsGeek: macros, RGB y firmware.",
+    "configure": true,
+    "configNote": "Abre Akko Cloud: elige tu teclado, edita las teclas y las luces."
+  },
+  {
+    "id": "bazecor",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Bazecor (Dygma)",
+    "desc": "Teclados Dygma Raise y Defy: capas, macros y luces Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "dygma.com",
+    "type": "winget",
+    "winget": "DygmaLabs.Bazecor",
+    "context": "user",
+    "detect": "Bazecor",
+    "rgb": true,
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "Dygma: teclados divididos Raise y Defy.",
+    "configure": true,
+    "configNote": "Abre Bazecor y conecta tu Dygma para editar capas, macros y luces."
+  },
+  {
+    "id": "roccatswarm",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "ROCCAT Swarm",
+    "desc": "Ratones, teclados y auriculares ROCCAT (Turtle Beach): botones, DPI, luces y firmware Puede volver a encender las luces que apaga «Apagar todas las luces RGB».",
+    "icon": "roccat.com",
+    "type": "winget",
+    "winget": "TurtleBeach.ROCCATSwarm",
+    "scope": "machine",
+    "context": "machine",
+    "hardware": "VID_1E7D",
+    "rgb": true,
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "ROCCAT: ratón, teclado y auriculares.",
+    "configure": true,
+    "configNote": "Abre Swarm: asigna botones, DPI y luces a tus dispositivos ROCCAT."
+  },
+  {
+    "id": "turtlebeachaudiohub",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Turtle Beach Audio Hub",
+    "desc": "Auriculares y accesorios de audio Turtle Beach: ecualizador, monitorización del micrófono y firmware",
+    "icon": "turtlebeach.com",
+    "type": "winget",
+    "winget": "TurtleBeach.AudioHub",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Auriculares y audio",
+    "compare": "Turtle Beach: ecualizador y micrófono de sus auriculares.",
+    "subgroupNote": "Cada marca de auriculares tiene su propia aplicación: instala solo la de tu equipo. Para auriculares Razer, Corsair, Logitech G o SteelSeries, ver sus apps en Periféricos y refrigeración.",
+    "configure": true,
+    "configNote": "Abre Audio Hub: elige el ecualizador y el nivel de monitorización del micrófono."
+  },
+  {
+    "id": "eposconnect",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "EPOS Connect",
+    "desc": "Auriculares EPOS y Sennheiser: firmware, ecualizador y ajustes de llamadas",
+    "icon": "eposaudio.com",
+    "type": "winget",
+    "winget": "EPOS.EPOSConnect",
+    "scope": "machine",
+    "context": "machine",
+    "hardware": "VID_1395",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Auriculares y audio",
+    "compare": "EPOS y Sennheiser: firmware y ajustes de audio.",
+    "configure": true,
+    "configNote": "Abre EPOS Connect: actualiza el firmware y ajusta el sonido del auricular."
+  },
+  {
+    "id": "xboxaccessories",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Accesorios Xbox",
+    "desc": "Mandos y accesorios Xbox: asignación de botones, perfiles y actualización de firmware (Microsoft Store)",
+    "icon": "xbox.com",
+    "type": "winget",
+    "winget": "9NBLGGH30XJ3",
+    "source": "msstore",
+    "context": "user",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Mandos",
+    "compare": "Oficial de Microsoft: mandos Xbox y Elite.",
+    "subgroupNote": "Accesorios Xbox para mandos Xbox; DS4Windows para mandos PlayStation. No hacen falta ambos.",
+    "configure": true,
+    "configNote": "Conecta el mando, abre Accesorios Xbox y actualiza el firmware si lo ofrece."
+  },
+  {
+    "id": "ds4windows",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "DS4Windows",
+    "desc": "Usa mandos PlayStation (DualShock 4 y DualSense) en Windows: remapeo, perfiles y mando virtual Xbox; descarga desde la web oficial",
+    "icon": "ds4-windows.com",
+    "type": "manual",
+    "page": "https://ds4-windows.com",
+    "context": "machine",
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Mandos",
+    "compare": "Mandos PlayStation: remapeo y emulación de Xbox.",
+    "configure": true,
+    "configNote": "Descarga y descomprime DS4Windows, conecta el mando por USB o Bluetooth y crea tu perfil."
+  },
+  {
+    "id": "ryzenmaster",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "AMD Ryzen Master",
+    "desc": "Overclocking, monitorización y perfiles de los procesadores Ryzen; descarga desde la web oficial de AMD",
+    "icon": "amd.com",
+    "type": "manual",
+    "page": "https://www.amd.com/en/products/software/ryzen-master.html",
+    "context": "machine",
+    "detect": "AMD Ryzen Master",
+    "hardware": "CPU: .*Ryzen",
+    "optin": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Procesadores",
+    "compare": "AMD: ajuste y vigilancia de procesadores Ryzen.",
+    "subgroupNote": "Ryzen Master para AMD, Intel XTU para Intel. Cambiar voltajes o frecuencias puede dañar el equipo: prueba la estabilidad con OCCT.",
+    "configure": true,
+    "configNote": "Abre Ryzen Master: revisa las temperaturas y no apliques overclock sin pruebas de estabilidad."
+  },
+  {
+    "id": "intelxtu",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Intel Extreme Tuning Utility",
+    "desc": "Monitorización y ajuste de procesadores Intel Core: frecuencias, voltajes y pruebas de estrés",
+    "icon": "intel.com",
+    "type": "winget",
+    "winget": "Intel.IntelExtremeTuningUtility",
+    "scope": "machine",
+    "context": "machine",
+    "detect": "Intel(R) Extreme Tuning Utility",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Procesadores",
+    "compare": "Intel: ajuste y pruebas de estrés de la CPU.",
+    "configure": true,
+    "configNote": "Abre XTU: mira las frecuencias y temperaturas antes de tocar ningún ajuste."
+  },
+  {
+    "id": "throttlestop",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "ThrottleStop",
+    "desc": "Vigila y corrige el recorte de rendimiento del procesador en portátiles Intel: límites de potencia y temperatura",
+    "icon": "techpowerup.com",
+    "type": "winget",
+    "winget": "TechPowerUp.ThrottleStop",
+    "context": "machine",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Procesadores",
+    "compare": "Portátiles Intel: límites de potencia y throttling.",
+    "configure": true,
+    "configNote": "Abre ThrottleStop y observa las columnas de límites antes de cambiar nada."
+  },
+  {
+    "id": "deepcool",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "DeepCool",
+    "desc": "Refrigeración DeepCool con pantalla: temperaturas, ventiladores y efectos",
+    "icon": "deepcool.com",
+    "type": "winget",
+    "winget": "DeepCool.DeepCool",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Ventiladores y refrigeración",
+    "compare": "DeepCool: control de disipadores y líquidas con pantalla.",
+    "subgroupNote": "Complementa a iCUE, NZXT CAM y L-Connect (Periféricos y refrigeración). Para ventiladores de cualquier marca usa FanControl (Mantenimiento y hardware).",
+    "configure": true,
+    "configNote": "Abre DeepCool y elige qué datos muestra la pantalla de tu refrigerador."
+  },
+  {
+    "id": "ddpm",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Dell Display and Peripheral Manager",
+    "desc": "Monitores y periféricos Dell: modos de imagen, disposición de ventanas y ajustes",
+    "icon": "dell.com",
+    "type": "winget",
+    "winget": "Dell.DisplayAndPeripheralManager",
+    "scope": "machine",
+    "context": "machine",
+    "detect": "Dell Display and Peripheral Manager",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Monitores",
+    "compare": "Dell: monitores, teclados y ratones.",
+    "subgroupNote": "Solo el de la marca de tu monitor. Twinkle Tray y Monitorian (Calidad de vida) cambian el brillo de cualquier monitor sin software del fabricante.",
+    "configure": true,
+    "configNote": "Abre la aplicación: elige el modo de imagen y la disposición de ventanas."
+  },
+  {
+    "id": "asusdisplaywidget",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "ASUS DisplayWidget Center",
+    "desc": "Ajustes de los monitores ASUS desde Windows: imagen, brillo y funciones gaming",
+    "icon": "asus.com",
+    "type": "winget",
+    "winget": "Asus.DisplayWidgetCenter",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Monitores",
+    "compare": "ASUS: ajustes del monitor sin usar sus botones.",
+    "configure": true,
+    "configNote": "Abre DisplayWidget Center y revisa el modo de imagen de tu monitor ASUS."
+  },
+  {
+    "id": "msigamingintelligence",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "MSI Gaming Intelligence",
+    "desc": "Ajustes de los monitores gaming MSI desde Windows",
+    "icon": "msi.com",
+    "type": "winget",
+    "winget": "MSI.GamingIntelligence",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Monitores",
+    "compare": "MSI: ajustes del monitor gaming.",
+    "configure": true,
+    "configNote": "Abre la aplicación y revisa el modo de imagen de tu monitor MSI."
+  },
+  {
+    "id": "samsungeasysetting",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Samsung Easy Setting Box",
+    "desc": "Disposición de ventanas y ajustes de los monitores Samsung",
+    "icon": "samsung.com",
+    "type": "winget",
+    "winget": "Samsung.EasySettingBox",
+    "scope": "machine",
+    "context": "machine",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Monitores",
+    "compare": "Samsung: ventanas y ajustes del monitor."
+  },
+  {
+    "id": "elgatostreamdeck",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Elgato Stream Deck",
+    "desc": "Configura las teclas, las acciones y los perfiles de tu Stream Deck",
+    "icon": "elgato.com",
+    "type": "winget",
+    "winget": "Elgato.StreamDeck",
+    "scope": "machine",
+    "context": "machine",
+    "detect": "Elgato Stream Deck",
+    "hardware": "VID_0FD9",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Streaming y captura",
+    "compare": "Elgato: acciones y perfiles del Stream Deck.",
+    "subgroupNote": "Elgato: instala solo la de tu producto (Stream Deck, cámara, luces o mezclador de audio).",
+    "configure": true,
+    "configNote": "Abre Stream Deck y arrastra acciones a las teclas."
+  },
+  {
+    "id": "elgatocamerahub",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Elgato Camera Hub",
+    "desc": "Ajusta la imagen de las cámaras Elgato Facecam y Facecam Pro",
+    "icon": "elgato.com",
+    "type": "winget",
+    "winget": "Elgato.CameraHub",
+    "scope": "machine",
+    "context": "machine",
+    "detect": "Elgato Camera Hub",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Streaming y captura",
+    "compare": "Elgato: imagen de las Facecam."
+  },
+  {
+    "id": "elgatowavelink",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Elgato Wave Link",
+    "desc": "Mezclador de audio de los micrófonos Elgato Wave y de las fuentes del PC",
+    "icon": "elgato.com",
+    "type": "winget",
+    "winget": "Elgato.WaveLink",
+    "context": "user",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Streaming y captura",
+    "compare": "Elgato: mezclador de audio para Wave."
+  },
+  {
+    "id": "elgatocontrolcenter",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Elgato Control Center",
+    "desc": "Controla las luces Elgato Key Light, Ring Light y Light Strip",
+    "icon": "elgato.com",
+    "type": "winget",
+    "winget": "Elgato.ControlCenter",
+    "scope": "machine",
+    "context": "machine",
+    "detect": "Elgato Control Center",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Abre la aplicación y comprueba que reconoce tu componente.",
+        "Revisa los ajustes que necesitas y prueba su función principal."
+      ],
+      "note": "Las actualizaciones de firmware y los cambios de hardware se confirman en la herramienta del fabricante. Si quieres las luces apagadas, desactiva su control RGB."
+    },
+    "subgroup": "Streaming y captura",
+    "compare": "Elgato: luces Key Light y Ring Light."
   },
   {
     "id": "terminal",

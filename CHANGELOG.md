@@ -1,5 +1,30 @@
 # Historial de versiones
 
+## v5.8 — 2026-11-19
+
+Estados más limpios y catálogo ampliado con el software de periféricos y componentes de muchas marcas.
+
+### Añadido
+- **Logitech Onboard Memory Manager**: la app oficial ligera y portable de Logitech para guardar DPI, botones y frecuencia de sondeo en la memoria del ratón gaming (G502, G Pro, G305…), sin dejar G HUB en segundo plano. Se sugiere con hardware Logitech.
+- **34 apps más** en Sistema › Software de los fabricantes, en subgrupos nuevos:
+  - **Ratones y teclados:** Logi Options+, Wootility, HyperX NGENUITY, Glorious CORE, Keychron Launcher, VIA, Vial, Akko Cloud Driver, Dygma Bazecor y ROCCAT Swarm.
+  - **Auriculares y audio:** Turtle Beach Audio Hub y EPOS Connect.
+  - **Mandos:** Accesorios de Xbox y DS4Windows.
+  - **Placa base y gráfica:** MSI Afterburner, EVGA Precision X1, GIGABYTE Control Center e Intel Arc.
+  - **Procesadores:** AMD Ryzen Master, Intel XTU y ThrottleStop.
+  - **Ventiladores y refrigeración:** DeepCool.
+  - **Discos SSD:** WD/SanDisk Dashboard, SeaTools, SK hynix Drive Manager y ADATA SSD Toolbox.
+  - **Monitores:** Dell Display and Peripheral Manager, ASUS DisplayWidget Center, MSI Gaming Intelligence y Samsung Easy Setting Box.
+  - **Streaming y captura:** Elgato Stream Deck, Camera Hub, Wave Link y Control Center.
+- Las que tienen un identificador de hardware fiable (USB de la marca, placa, gráfica, procesador o disco) se sugieren solas cuando la app detecta ese hardware.
+
+### Mejorado
+- **Estados sin cápsulas ni puntos de color**: cada estado es un icono de línea fino (✓ correcto, ⚠ atención, ○ sin instalar o sin comprobar) con el texto en gris. En Inicio la tarjeta muestra solo el icono, con el estado en la descripción emergente, y el título ya no se corta. Las etiquetas neutras («Terminal», lanzador, tipo) pasan a un contorno fino.
+
+### Archivos y pruebas
+- `apps.json` (35 entradas), `src/app/Theme/Theme.xaml` (estilos `StatusGlyph` y `Tag`), vistas de Inicio, Instalar, Por configurar, Equipo, Juegos, Rendimiento y Actualizaciones.
+- Los 25 ids de winget nuevos se han comprobado en Windows con «Comprobar ids» (25/25). En verde: catálogo (pytest y esquema), unitarias, aceptación, arranque y capturas de la interfaz. Las páginas de descarga de las apps manuales se han comprobado; los identificadores USB de Wooting, Elgato, ROCCAT y EPOS no se han comprobado en un equipo real.
+
 ## v5.7 — 2026-11-19
 
 **Rediseño completo de la interfaz** al estilo Fluent de Windows 11 sobre negro: un único sistema de diseño para las 13 páginas, la barra lateral y la paleta de comandos. No cambia ninguna función. **Incluye todo lo de la v5.6**, que no llegó a tener release propia porque sus pruebas de publicación fallaban.
