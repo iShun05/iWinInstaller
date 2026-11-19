@@ -35,7 +35,7 @@ Integración de seis líneas de trabajo: página **Rendimiento**, **entorno de d
 - Interfaz: `src/app/Modules/Install/` (entorno dev, sincronización y colores), `Configure/`, `Rendimiento/` (nuevo), `Maintenance/`, `Games/`, `App.xaml.cs`, `Engine/EngineClient.cs`, `Shell/`.
 - Motor: `18-DevEnv.ps1` y `19-Sync.ps1` (nuevos), `02-Packages.ps1`, `03-System.ps1`, `06-Tweaks.ps1`, `07-Profiles.ps1`, `12-Install.ps1`, `14-Maintenance.ps1`, `17-Folders.ps1`, `install.ps1`, `lifecycle.ps1`.
 - Pruebas: MSTest `PerformanceTests`, `ResumenDelEntornoDev`, lector UTF-8; Pester `DevEnv`, `Sync`, `Folders` (18 casos), `Install`, `Maintenance`; `tests/catalog/` en Python. CI de la interfaz y del motor en verde en cada PR.
-- Probado en este PC (Windows 11 Pro 26300, x64) con el instalador compilado en la CI: ver la entrada de la release.
+- **Probado en un Windows 11 Pro 26300 x64 real** con la app compilada en la CI («Ejecutable y estabilidad»), abierta sin instalar: versión v5.6 visible; puntos de color y leyenda en Instalar; Por configurar con puntos y «Faltan N pasos»; **Abrir** lanzó Antigravity; **Brave limpio** con Brave abierto pide «Cerrar Brave y continuar» y al cancelar no cambia nada; página **Rendimiento** con el estado real de cada acción; **Preparar entorno Node.js** instaló pnpm con el plan normal y terminó «listo»; **Repo privado…** rechazó un repo público, conectó uno privado, **Subir** guardó 129 apps, **Bajar** aplicó la configuración y **Desconectar** borró la copia local. No probado: aplicar acciones de Rendimiento, perfil de juego y mediciones con PresentMon, ni la instalación con el EXE (pide administrador).
 - **Afecta a Windows x86/x64/ARM64 por igual**; PresentMon y `nvidia-smi` solo donde existen.
 
 ## v5.5 — 2026-11-18
