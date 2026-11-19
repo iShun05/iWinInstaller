@@ -1629,6 +1629,31 @@
     "configNote": "Abre Logi Options+: asigna botones, gestos y el DPI de tus dispositivos Logitech."
   },
   {
+    "id": "logitechomm",
+    "section": "Sistema",
+    "group": "Software de los fabricantes",
+    "name": "Logitech Onboard Memory Manager",
+    "desc": "App oficial de Logitech, ligera y portable: guarda DPI, botones y frecuencia de sondeo en la memoria interna del ratón gaming (G502, G Pro, G305…) sin dejar G HUB en segundo plano",
+    "icon": "logitechg.com",
+    "type": "winget",
+    "winget": "Logitech.OnboardMemoryManager",
+    "context": "machine",
+    "hardware": "VID_046D",
+    "extra": true,
+    "postInstall": {
+      "steps": [
+        "Cierra G HUB si está abierto: los dos no pueden controlar el ratón a la vez.",
+        "Abre Onboard Memory Manager, elige el ratón y ajusta DPI, botones y frecuencia de sondeo en su perfil interno.",
+        "Guarda en el ratón y comprueba que los ajustes siguen tras desconectarlo o reiniciar."
+      ],
+      "note": "Los ajustes quedan en el propio ratón, así que no hace falta tener ninguna app abierta. No controla luces ni macros complejas; para eso está G HUB."
+    },
+    "subgroup": "Ratones y teclados",
+    "compare": "Logitech G: DPI y botones en la memoria del ratón, sin G HUB.",
+    "configure": true,
+    "configNote": "Abre Onboard Memory Manager y guarda tus DPI y botones en la memoria del ratón."
+  },
+  {
     "id": "wootility",
     "section": "Sistema",
     "group": "Software de los fabricantes",
