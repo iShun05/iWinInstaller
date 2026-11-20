@@ -33,6 +33,12 @@ try{
     $result=@(Set-BraveClean)
     if($result.Count -ne 1 -or $result[0] -isnot [bool] -or -not $result[0]){throw 'La limpieza debe devolver solo un bool verdadero'}
     if(-not(Test-BraveClean)){throw 'No verifica las preferencias y politicas aplicadas'}
+    # El usuario vuelve a mostrar la barra de marcadores: sigue aplicado para el inventario, no para la verificación estricta
+    $document=Read-BravePreferences
+    Set-BravePreference $document 'bookmark_bar.show_on_all_tabs' $true | Out-Null
+    Write-IwinJson $path $document
+    if(-not(Test-BraveClean -PoliciesOnly)){throw 'Una preferencia visual del usuario no debe quitar Brave limpio del inventario'}
+    if(Test-BraveClean){throw 'La verificación estricta debe ver la preferencia cambiada'}
     $document=Read-BravePreferences
     if(($document.preserve.nested -join ',') -ne 'uno,dos'){throw 'Se modificaron datos ajenos'}
     if((Get-BraveCleanPolicies).Contains('SyncDisabled')){throw 'No debe bloquear Sync'}

@@ -311,9 +311,12 @@ function Set-BraveClean {
     Write-Log '  Brave limpio: cripto, Leo, VPN y noticias desactivados; perfil principal oscuro sin tarjetas. Sync y Shields se conservan. Deshacer restaura los valores anteriores.'
     return (Test-BraveClean)
 }
-function Test-BraveClean {
+# -PoliciesOnly (inventario): Brave limpio cuenta como aplicado si están sus políticas. Las preferencias visuales
+# (barra de marcadores, fondo…) son del usuario y puede cambiarlas después sin que la app lo dé por no instalado.
+function Test-BraveClean([switch]$PoliciesOnly) {
     $settings=Get-BraveCleanPolicies
     foreach($name in $settings.Keys){if((Get-RegValue 'HKCU:\Software\Policies\BraveSoftware\Brave' $name) -ne $settings[$name]){return $false}}
+    if($PoliciesOnly){return $true}
     try{
         $document=Read-BravePreferences
         foreach($name in (Get-BraveCleanPreferences).Keys){$entry=Get-BravePreference $document $name;if(-not $entry.exists -or $entry.value -cne (Get-BraveCleanPreferences)[$name]){return $false}}
