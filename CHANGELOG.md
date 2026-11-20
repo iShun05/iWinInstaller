@@ -1,5 +1,18 @@
 # Historial de versiones
 
+## v5.9 — 2026-11-20
+
+Brave limpio vuelve a contar como aplicado cuando cambias a tu gusto el aspecto de Brave.
+
+### Corregido
+- **Brave limpio salía «No instalada»** aunque estaba aplicado: el inventario exigía que todas las preferencias visuales siguieran igual, y bastaba con volver a mostrar la barra de marcadores en todas las pestañas (`bookmark_bar.show_on_all_tabs`) para que dejara de contar. Ahora el inventario mira solo las políticas que hacen la limpieza (sin Rewards, Wallet, VPN, Leo, noticias ni Talk); tus cambios visuales se respetan. La comprobación estricta se sigue usando justo después de aplicar. Visto en un Windows 11 real.
+- El aviso «Falta Git» al pulsar **Subir** con Git fuera del PATH ya estaba corregido desde la v5.6 (busca `Git\cmd\git.exe` en sus carpetas de instalación); el aviso visto venía de una compilación de prueba anterior a ese arreglo.
+
+### Archivos y pruebas
+- `lifecycle.ps1` (`Test-BraveClean -PoliciesOnly`), `src/engine/06-Tweaks.ps1`; prueba `tests/check-brave-clean.ps1` con la barra de marcadores cambiada por el usuario (pasa en local con Windows PowerShell 5.1).
+- Diagnóstico en el PC del usuario: las 6 políticas estaban aplicadas y solo `bookmark_bar.show_on_all_tabs` difería.
+- **Afecta a Windows x86/x64/ARM64 por igual.**
+
 ## v5.8 — 2026-11-19
 
 Estados más limpios y catálogo ampliado con el software de periféricos y componentes de muchas marcas.

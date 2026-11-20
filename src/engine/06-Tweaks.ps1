@@ -108,7 +108,7 @@ function Test-Tweak($id) {
 }
 function Test-TweakCore($id) {
     switch ($id) {
-        'braveclean' { return (Test-BraveClean) }
+        'braveclean' { return (Test-BraveClean -PoliciesOnly) }
         'wsl' {
             if (-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) { return $false }
             & wsl.exe --status 2>&1 | Out-Null
